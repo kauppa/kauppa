@@ -27,7 +27,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Kauppa adds Payments API
 - Kauppa adds Products API
 ### Changed
+- Kauppa supports Swift 4.1
 ### Removed
+- Kauppa drops support for Swift 4.0.3
 
 [Unreleased]: https://github.com/Naamio/kauppa/compare/v1.0.0...HEAD
 [0.0.0]: https://github.com/Naamio/kauppa/compare/v0.0.0...v0.0.2
