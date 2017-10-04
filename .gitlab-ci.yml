@@ -53,7 +53,7 @@ review:
     - master
 
 test:
-  image: ibmcom/swift-ubuntu:latest
+  image: ibmcom/swift-ubuntu:4.0.3
   stage: test
   script:
     - echo "Testing $CI_PROJECT_NAME"
