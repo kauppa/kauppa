@@ -17,7 +17,7 @@ run: build
 	@echo --- Invoking executable
 	./.build/debug/Kauppa
 
-build-release clean:
+build-release: clean
 	docker run -v $$(pwd):/tmp/kauppa -w /tmp/kauppa -it ibmcom/swift-ubuntu:4.0 swift build -c release -Xcc -fblocks -Xlinker -L/usr/local/lib
 
 clean-container:
@@ -30,4 +30,4 @@ build-container: clean-container build-release
 
 	docker build -t $(CONTAINER_URL) .
 
-.PHONY: build test run
+.PHONY: clean build test run
