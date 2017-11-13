@@ -1,3 +1,3 @@
-struct Kauppa {
+public struct Kauppa {
     var text = "Hello, World!"
 }

@@ -1,6 +1,6 @@
 import XCTest
-@testable import kauppaTests
+@testable import KauppaTests
 
 XCTMain([
-    testCase(kauppaTests.allTests),
+    testCase(TestServer.allTests),
 ])
