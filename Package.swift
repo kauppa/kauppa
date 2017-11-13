@@ -10,7 +10,7 @@ let package = Package(
             targets: ["Kauppa"]),
     ],
     dependencies: [
-        .package(url: "git@github.com:Naamio/nokka.git", from: "0.2.0"),
+        //.package(url: "git@github.com:Naamio/nokka.git", from: "0.2.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
