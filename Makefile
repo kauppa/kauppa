@@ -1,4 +1,4 @@
-CONTAINER_URL = omnijarstudio/kauppa:0.2
+CONTAINER_URL = naamio/kauppa:0.2
 CONTAINER_NAME = kauppa
 
 clean:
