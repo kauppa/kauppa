@@ -1,5 +1,4 @@
-import NokkaClient
 
-public class CommerceAppletClient: AppletClient {
-    //
+class KauppaApplet {
+    
 }

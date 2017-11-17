@@ -1,5 +1,3 @@
-import NokkaServer
-
-public class CommerceAppletServer: AppletServer {
+class KauppaServer {
     //
 }

@@ -3,7 +3,7 @@ CONTAINER_NAME = kauppa
 
 clean:
 	if	[ -d ".build" ]; then \
-		rm -r .build ; \
+		rm -rf .build ; \
 	fi
 
 build: clean
