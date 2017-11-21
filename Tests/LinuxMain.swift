@@ -1,6 +1,11 @@
 import XCTest
-@testable import kauppaTests
+
+@testable import KauppaOrdersTests
+@testable import KauppaProductsTests
+@testable import KauppaTaxTests
 
 XCTMain([
-    testCase(kauppaTests.allTests),
+    testCase(TestOrdersService.allTests),
+    testCase(TestProductsService.allTests),
+    testCase(TestTaxService.allTests)
 ])

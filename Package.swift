@@ -6,20 +6,49 @@ let package = Package(
     name: "Kauppa",
     products: [
         .executable(
-            name: "Kauppa",
-            targets: ["Kauppa"]),
+            name: "KauppaOrders",
+            targets: ["KauppaOrders", "KauppaCore"]
+        ),
+        .executable(
+            name: "KauppaProducts",
+            targets: ["KauppaProducts", "KauppaCore"]
+        ),
+        .executable(
+            name: "KauppaTax",
+            targets: ["KauppaTax", "KauppaCore"]
+        )
     ],
+
     dependencies: [
-        .package(url: "git@github.com:Naamio/nokka.git", from: "0.2.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura", from: "2.0.0")
     ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
-            name: "Kauppa",
+            name: "KauppaClient",
             dependencies: []),
+        .target(
+            name: "KauppaServer",
+            dependencies: []),
+        .target(
+            name: "KauppaCore",
+            dependencies: []),
+        .target(
+            name: "KauppaOrders",
+            dependencies: ["KauppaCore", "Kitura"]),
+        .target(
+            name: "KauppaProducts",
+            dependencies: ["KauppaCore", "Kitura"]),
+        .target(
+            name: "KauppaTax",
+            dependencies: ["KauppaCore", "Kitura"]),
         .testTarget(
-            name: "KauppaTests",
-            dependencies: ["Kauppa"]),
+            name: "KauppaOrdersTests",
+            dependencies: ["KauppaOrders", "KauppaCore", "Kitura"]),
+        .testTarget(
+            name: "KauppaProductsTests",
+            dependencies: ["KauppaProducts", "KauppaCore", "Kitura"]),
+        .testTarget(
+            name: "KauppaTaxTests",
+            dependencies: ["KauppaTax", "KauppaCore", "Kitura"])
     ]
 )
