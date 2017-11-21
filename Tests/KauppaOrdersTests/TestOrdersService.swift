@@ -2,7 +2,7 @@ import Dispatch
 import Kitura
 import XCTest
 
-@testable import KauppaOrders
+@testable import KauppaCore
 
 class TestOrdersService: XCTestCase {
 
@@ -28,7 +28,7 @@ class TestOrdersService: XCTestCase {
 
     func testServicePing() {
         let registration = expectation(description: "Service pinged")
-            
+
         registration.fulfill()
 
         waitForExpectations(timeout: 5) { error in

@@ -2,7 +2,7 @@ import Dispatch
 import Kitura
 import XCTest
 
-@testable import KauppaProducts
+@testable import KauppaCore
 
 class TestTaxService: XCTestCase {
 
