@@ -28,7 +28,7 @@ public enum Weight: String, Codable {
     // ...
 }
 
-public struct ProductData: Decodable {
+public struct ProductData: Codable {
     let title: String
     let subtitle: String
     let description: String
@@ -39,15 +39,10 @@ public struct ProductData: Decodable {
     // ...
 }
 
-public struct Product {
-    let creationData: ObjectCreationData
-    let productData: ProductData
-    // ...
-}
-
-public struct ObjectCreationData: Encodable {
-    public let id: UUID
-    public let createdOn: Date
-    public let updatedAt: Date
+public struct Product: Encodable {
+    let id: UUID
+    let createdOn: Date
+    let updatedAt: Date
+    let data: ProductData
     // ...
 }

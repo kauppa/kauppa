@@ -1,5 +1,5 @@
 import Foundation
 
-class MemoryStore: ProductStore {
+class MemoryStore {
     var products = [UUID: Product]()
 }

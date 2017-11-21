@@ -1,21 +1,32 @@
 import Foundation
-import KauppaCore
 
 protocol ProductStore {
     func createProduct(data: ProductData,
-                       callback: @escaping (ObjectCreationData?) -> Void)
+                       callback: @escaping (Product?) -> Void)
+    func deleteProduct(id: UUID,
+                       callback: @escaping (Product?) -> Void)
 }
 
-extension MemoryStore {
+extension MemoryStore: ProductStore {
     func createProduct(data: ProductData,
-                       callback: @escaping (ObjectCreationData?) -> Void)
+                       callback: @escaping (Product?) -> Void)
     {
         let id = UUID()
         let date = Date()
-        let creationData = ObjectCreationData(id: id,
-                                              createdOn: date,
-                                              updatedAt: date)
-        products[id] = Product(creationData: creationData, productData: data)
-        callback(creationData)
+        let productData = Product(id: id,
+                                  createdOn: date,
+                                  updatedAt: date,
+                                  data: data)
+        products[id] = productData
+        callback(productData)
+    }
+
+    func deleteProduct(id: UUID, callback: @escaping (Product?) -> Void) {
+        if let product = products[id] {
+            products.removeValue(forKey: id)
+            callback(product)
+        } else {
+            callback(nil)
+        }
     }
 }

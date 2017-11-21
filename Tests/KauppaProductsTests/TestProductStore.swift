@@ -9,6 +9,7 @@ class TestProductsService: XCTestCase {
     static var allTests: [(String, (TestProductsService) -> () throws -> Void)] {
         return [
             ("ProductCreation", testProductCreation),
+            ("ProductDeletion", testProductDeletion),
         ]
     }
 
@@ -52,7 +53,25 @@ class TestProductsService: XCTestCase {
         let product = self.createProductData()
 
         store.createProduct(data: product, callback: { data in
+            let id = Array(self.store.products.keys)[0]
+            XCTAssertEqual(id, data!.id)
             creation.fulfill()
+        })
+
+        waitForExpectations(timeout: 2) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testProductDeletion() {
+        let deletion = expectation(description: "Product deleted")
+        let product = self.createProductData()
+
+        store.createProduct(data: product, callback: { data in
+            let id = Array(self.store.products.keys)[0]
+            self.store.deleteProduct(id: id, callback: { product in
+                deletion.fulfill()
+            })
         })
 
         waitForExpectations(timeout: 2) { error in
