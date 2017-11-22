@@ -39,7 +39,9 @@ class TestProductsService: XCTestCase {
                     "value": 100.0,
                     "unit": "g"
                 },
-                "images": []
+                "inventory": 5,
+                "images": [],
+                "price": 15.0
             }
         """
 
@@ -52,9 +54,9 @@ class TestProductsService: XCTestCase {
         let creation = expectation(description: "Product created")
         let product = self.createProductData()
 
-        let data = store.createProduct(data: product)
+        let data = store.createProduct(data: product)!
         let id = Array(self.store.products.keys)[0]
-        XCTAssertEqual(id, data!.id)
+        XCTAssertEqual(id, data.id)
         creation.fulfill()
 
         waitForExpectations(timeout: 2) { error in
@@ -67,8 +69,10 @@ class TestProductsService: XCTestCase {
         let product = self.createProductData()
 
         let data = store.createProduct(data: product)
+        XCTAssertNotNil(data)
         let id = Array(self.store.products.keys)[0]
         let productData = self.store.deleteProduct(id: id)
+        XCTAssertNotNil(productData)
         deletion.fulfill()
 
         waitForExpectations(timeout: 2) { error in
