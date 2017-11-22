@@ -7,28 +7,21 @@ let package = Package(
     products: [
         .executable(
             name: "KauppaOrders",
-            targets: ["KauppaOrders", "KauppaCore"]
+            targets: ["KauppaOrders"]
         ),
         .executable(
             name: "KauppaProducts",
-            targets: ["KauppaProducts", "KauppaCore"]
+            targets: ["KauppaProducts"]
         ),
         .executable(
             name: "KauppaTax",
-            targets: ["KauppaTax", "KauppaCore"]
+            targets: ["KauppaTax"]
         )
     ],
-
     dependencies: [
         .package(url: "https://github.com/IBM-Swift/Kitura", from: "2.0.0")
     ],
     targets: [
-        .target(
-            name: "KauppaClient",
-            dependencies: []),
-        .target(
-            name: "KauppaServer",
-            dependencies: []),
         .target(
             name: "KauppaCore",
             dependencies: []),
@@ -43,12 +36,12 @@ let package = Package(
             dependencies: ["KauppaCore", "Kitura"]),
         .testTarget(
             name: "KauppaOrdersTests",
-            dependencies: ["KauppaOrders", "KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore", "Kitura"]),
         .testTarget(
             name: "KauppaProductsTests",
-            dependencies: ["KauppaProducts", "KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore", "Kitura"]),
         .testTarget(
             name: "KauppaTaxTests",
-            dependencies: ["KauppaTax", "KauppaCore", "Kitura"])
+            dependencies: ["KauppaCore", "Kitura"])
     ]
 )
