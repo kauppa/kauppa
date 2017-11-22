@@ -2,6 +2,7 @@ import Foundation
 
 protocol OrderStore {
     func createOrder(order: OrderData) -> Order?
+    func cancelOrder(id: UUID) -> Order?
 }
 
 extension MemoryStore: OrderStore {
@@ -41,6 +42,15 @@ extension MemoryStore: OrderStore {
                               products: productList, totalItems: totalItems,
                               totalPrice: totalPrice, totalWeight: weightCounter.sum())
             self.orders[id] = order
+            return order
+        } else {
+            return nil
+        }
+    }
+
+    func cancelOrder(id: UUID) -> Order? {
+        if let order = orders[id] {
+            orders.removeValue(forKey: id)
             return order
         } else {
             return nil

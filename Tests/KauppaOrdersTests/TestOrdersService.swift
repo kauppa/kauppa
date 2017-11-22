@@ -10,6 +10,7 @@ class TestOrdersService: XCTestCase {
         return [
             ("OrderCreation", testOrderCreation),
             ("OrderInvalidProduct", testOrderInvalidProduct),
+            ("OrderCancellation", testOrderCancellation),
         ]
     }
 
@@ -120,6 +121,23 @@ class TestOrdersService: XCTestCase {
         XCTAssertFalse(orderData.products[0].productExists)
         XCTAssertTrue(orderData.products[1].productExists)
         orderPlaced.fulfill()
+
+        waitForExpectations(timeout: 2) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testOrderCancellation() {
+        let orderCancelled = expectation(description: "Order cancelled")
+        let product = self.createProductData()
+        let productData = store.createProduct(data: product)
+        let order = OrderData(products: [OrderUnit(id: productData!.id, quantity: 1)])
+        let result = store.createOrder(order: order)
+        XCTAssertNotNil(result)
+
+        let orderData = store.cancelOrder(id: result!.id)
+        XCTAssertNotNil(orderData)
+        orderCancelled.fulfill()
 
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
