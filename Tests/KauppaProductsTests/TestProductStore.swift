@@ -52,11 +52,10 @@ class TestProductsService: XCTestCase {
         let creation = expectation(description: "Product created")
         let product = self.createProductData()
 
-        store.createProduct(data: product, callback: { data in
-            let id = Array(self.store.products.keys)[0]
-            XCTAssertEqual(id, data!.id)
-            creation.fulfill()
-        })
+        let data = store.createProduct(data: product)
+        let id = Array(self.store.products.keys)[0]
+        XCTAssertEqual(id, data!.id)
+        creation.fulfill()
 
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
@@ -67,12 +66,10 @@ class TestProductsService: XCTestCase {
         let deletion = expectation(description: "Product deleted")
         let product = self.createProductData()
 
-        store.createProduct(data: product, callback: { data in
-            let id = Array(self.store.products.keys)[0]
-            self.store.deleteProduct(id: id, callback: { product in
-                deletion.fulfill()
-            })
-        })
+        let data = store.createProduct(data: product)
+        let id = Array(self.store.products.keys)[0]
+        let productData = self.store.deleteProduct(id: id)
+        deletion.fulfill()
 
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)

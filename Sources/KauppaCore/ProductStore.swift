@@ -1,16 +1,12 @@
 import Foundation
 
 protocol ProductStore {
-    func createProduct(data: ProductData,
-                       callback: @escaping (Product?) -> Void)
-    func deleteProduct(id: UUID,
-                       callback: @escaping (Product?) -> Void)
+    func createProduct(data: ProductData) -> Product?
+    func deleteProduct(id: UUID) -> Product?
 }
 
 extension MemoryStore: ProductStore {
-    func createProduct(data: ProductData,
-                       callback: @escaping (Product?) -> Void)
-    {
+    func createProduct(data: ProductData) -> Product? {
         let id = UUID()
         let date = Date()
         let productData = Product(id: id,
@@ -18,15 +14,15 @@ extension MemoryStore: ProductStore {
                                   updatedAt: date,
                                   data: data)
         products[id] = productData
-        callback(productData)
+        return productData
     }
 
-    func deleteProduct(id: UUID, callback: @escaping (Product?) -> Void) {
+    func deleteProduct(id: UUID) -> Product? {
         if let product = products[id] {
             products.removeValue(forKey: id)
-            callback(product)
+            return product
         } else {
-            callback(nil)
+            return nil
         }
     }
 }
