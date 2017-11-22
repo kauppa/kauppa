@@ -48,7 +48,7 @@ class TestOrdersService: XCTestCase {
                 },
                 "inventory": \(inventory),
                 "images": [],
-                "price": \(price)
+                "price": \(price),
             }
         """
 
