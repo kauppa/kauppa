@@ -11,7 +11,7 @@ class TestAccountsRepository: XCTestCase {
 
     static var allTests: [(String, (TestAccountsRepository) -> () throws -> Void)] {
         return [
-            ("AccountCreation", testAccountCreation),
+            ("Test account creation", testAccountCreation),
         ]
     }
 

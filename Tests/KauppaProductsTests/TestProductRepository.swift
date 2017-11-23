@@ -10,9 +10,9 @@ class TestProductsRepository: XCTestCase {
 
     static var allTests: [(String, (TestProductsRepository) -> () throws -> Void)] {
         return [
-            ("ProductCreation", testProductCreation),
-            ("ProductDeletion", testProductDeletion),
-            ("ProductUpdate", testProductUpdate),
+            ("Test product creation", testProductCreation),
+            ("Test product deletion", testProductDeletion),
+            ("Test update of product", testProductUpdate),
         ]
     }
 

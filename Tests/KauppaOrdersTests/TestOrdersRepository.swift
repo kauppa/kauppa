@@ -11,9 +11,9 @@ class TestOrdersRepository: XCTestCase {
 
     static var allTests: [(String, (TestOrdersRepository) -> () throws -> Void)] {
         return [
-            ("OrderCreation", testOrderCreation),
-            ("OrderInvalidProduct", testOrderInvalidProduct),
-            ("OrderCancellation", testOrderCancellation),
+            ("Test order creation", testOrderCreation),
+            ("Test ordering of invalid product", testOrderInvalidProduct),
+            ("Test cancellation of order", testOrderCancellation),
         ]
     }
 
