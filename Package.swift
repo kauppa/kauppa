@@ -28,30 +28,30 @@ let package = Package(
     targets: [
         .target(
             name: "KauppaCore",
-            dependencies: []),
+            dependencies: ["Kitura"]),
         .target(
             name: "KauppaAccounts",
-            dependencies: ["KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore"]),
         .target(
             name: "KauppaOrders",
-            dependencies: ["KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore"]),
         .target(
             name: "KauppaProducts",
-            dependencies: ["KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore"]),
         .target(
             name: "KauppaTax",
-            dependencies: ["KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore"]),
         .testTarget(
             name: "KauppaAccountsTests",
-            dependencies: ["KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore"]),
         .testTarget(
             name: "KauppaOrdersTests",
-            dependencies: ["KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore"]),
         .testTarget(
             name: "KauppaProductsTests",
-            dependencies: ["KauppaCore", "Kitura"]),
+            dependencies: ["KauppaCore"]),
         .testTarget(
             name: "KauppaTaxTests",
-            dependencies: ["KauppaCore", "Kitura"])
+            dependencies: ["KauppaCore"])
     ]
 )

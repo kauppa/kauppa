@@ -1,5 +1,3 @@
-import Dispatch
-import Kitura
 import XCTest
 
 @testable import KauppaCore
@@ -14,16 +12,10 @@ class TestTaxService: XCTestCase {
 
     override func setUp() {
         super.setUp()
-
-        DispatchQueue(label: "Request queue").async() {
-            Kitura.run()
-        }
     }
 
     override func tearDown() {
         super.tearDown()
-
-        Kitura.stop()
     }
 
     func testServicePing() {
