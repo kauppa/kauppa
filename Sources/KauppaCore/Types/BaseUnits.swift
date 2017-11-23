@@ -13,9 +13,9 @@ public enum Length: String, Codable {
 }
 
 public struct Size: Codable {
-    let height: UnitMeasurement<Length>?
-    let length: UnitMeasurement<Length>?
-    let width: UnitMeasurement<Length>?
+    var height: UnitMeasurement<Length>?
+    var length: UnitMeasurement<Length>?
+    var width: UnitMeasurement<Length>?
 }
 
 public enum Weight: String, Codable {
