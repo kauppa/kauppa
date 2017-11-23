@@ -3,10 +3,10 @@ import XCTest
 
 @testable import KauppaCore
 
-class TestOrdersService: XCTestCase {
+class TestOrdersStore: XCTestCase {
     var store = MemoryStore()
 
-    static var allTests: [(String, (TestOrdersService) -> () throws -> Void)] {
+    static var allTests: [(String, (TestOrdersStore) -> () throws -> Void)] {
         return [
             ("OrderCreation", testOrderCreation),
             ("OrderInvalidProduct", testOrderInvalidProduct),

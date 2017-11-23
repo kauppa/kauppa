@@ -6,6 +6,10 @@ let package = Package(
     name: "Kauppa",
     products: [
         .executable(
+            name: "KauppaAccounts",
+            targets: ["KauppaAccounts"]
+        ),
+        .executable(
             name: "KauppaOrders",
             targets: ["KauppaOrders"]
         ),
@@ -26,6 +30,9 @@ let package = Package(
             name: "KauppaCore",
             dependencies: []),
         .target(
+            name: "KauppaAccounts",
+            dependencies: ["KauppaCore", "Kitura"]),
+        .target(
             name: "KauppaOrders",
             dependencies: ["KauppaCore", "Kitura"]),
         .target(
@@ -33,6 +40,9 @@ let package = Package(
             dependencies: ["KauppaCore", "Kitura"]),
         .target(
             name: "KauppaTax",
+            dependencies: ["KauppaCore", "Kitura"]),
+        .testTarget(
+            name: "KauppaAccountsTests",
             dependencies: ["KauppaCore", "Kitura"]),
         .testTarget(
             name: "KauppaOrdersTests",
