@@ -23,21 +23,40 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/IBM-Swift/Kitura", from: "2.0.0")
+        
     ],
     targets: [
         .target(
             name: "KauppaCore",
-            dependencies: ["Kitura"]),
+            dependencies: []),
         .target(
             name: "KauppaAccounts",
-            dependencies: ["KauppaCore"]),
+            dependencies: ["KauppaAccountsModel", "KauppaCore"],
+            exclude: ["Model"]
+        ),
+        .target(
+            name: "KauppaAccountsModel",
+            dependencies: ["KauppaCore"],
+            path: "Sources/KauppaAccounts/Model"
+        ),
         .target(
             name: "KauppaOrders",
-            dependencies: ["KauppaCore"]),
+            dependencies: ["KauppaOrdersModel", "KauppaCore"],
+            exclude: ["Model"]
+        ),
+        .target(
+            name: "KauppaOrdersModel",
+            dependencies: ["KauppaCore", "KauppaProductsModel"],
+            path: "Sources/KauppaOrders/Model"
+        ),
         .target(
             name: "KauppaProducts",
-            dependencies: ["KauppaCore"]),
+            dependencies: ["KauppaProductsModel", "KauppaCore"],
+            exclude: ["Model"]),
+        .target(
+            name: "KauppaProductsModel",
+            dependencies: [],
+            path: "Sources/KauppaProducts/Model"),
         .target(
             name: "KauppaTax",
             dependencies: ["KauppaCore"]),

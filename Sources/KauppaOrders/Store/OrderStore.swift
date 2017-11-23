@@ -1,11 +1,11 @@
 import Foundation
 
-protocol OrderStore {
-    func createOrder(order: OrderData) -> Order?
-    func cancelOrder(id: UUID) -> Order?
-}
+import KauppaCore
+import KauppaOrdersModel
+import KauppaProductsModel
 
-extension MemoryStore: OrderStore {
+public class OrderStore {
+
     func createOrder(order: OrderData) -> Order? {
         let id = UUID()
         let date = Date()
@@ -15,10 +15,11 @@ extension MemoryStore: OrderStore {
         var productList = [OrderedProduct]()
 
         for orderUnit in order.products {
-            if let product = self.getProductForId(id: orderUnit.id) {
+            //TODO: if let product = self.getProductForId(id: orderUnit.id) {
+                let product = Product(id: UUID(), createdOn: Date(), updatedAt: Date(), data: ProductData(title: "", subtitle: "", description: ""))
                 let available = product.data.inventory
                 let quantity = available > orderUnit.quantity ? UInt32(orderUnit.quantity) : available
-                self.removeFromInventory(id: orderUnit.id, quantity: quantity)
+                //TODO: self.removeFromInventory(id: orderUnit.id, quantity: quantity)
                 totalPrice += Double(quantity) * product.data.price
                 var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
                 weight.value *= Double(quantity)
@@ -27,18 +28,18 @@ extension MemoryStore: OrderStore {
                 productList.append(OrderedProduct(data: product,
                                                   productExists: true,
                                                   processedItems: UInt8(quantity)))
-            } else {
+            //} else {
                 productList.append(OrderedProduct(data: nil,
                                                   productExists: false,
                                                   processedItems: 0))
-            }
+            //}
         }
 
         if totalItems > 0 {
             let order = Order(id: id, createdOn: date, updatedAt: date,
                               products: productList, totalItems: totalItems,
                               totalPrice: totalPrice, totalWeight: weightCounter.sum())
-            self.createNewOrder(id: id, order: order)
+            //TODO: self.createNewOrder(id: id, order: order)
             return order
         } else {
             return nil
@@ -46,6 +47,7 @@ extension MemoryStore: OrderStore {
     }
 
     func cancelOrder(id: UUID) -> Order? {
-        return self.removeOrderIfExists(id: id)
+        return nil
+        //return self.removeOrderIfExists(id: id)
     }
 }

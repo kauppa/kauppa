@@ -2,11 +2,14 @@ import Foundation
 import XCTest
 
 @testable import KauppaCore
+@testable import KauppaOrdersModel
+@testable import KauppaProductsModel
+@testable import KauppaOrders
 
-class TestOrdersStore: XCTestCase {
-    var store = MemoryStore()
+class TestOrdersRepository: XCTestCase {
+    var store = OrdersRepository()
 
-    static var allTests: [(String, (TestOrdersStore) -> () throws -> Void)] {
+    static var allTests: [(String, (TestOrdersRepository) -> () throws -> Void)] {
         return [
             ("OrderCreation", testOrderCreation),
             ("OrderInvalidProduct", testOrderInvalidProduct),
@@ -15,7 +18,7 @@ class TestOrdersStore: XCTestCase {
     }
 
     override func setUp() {
-        store = MemoryStore()
+        store = OrdersRepository()
 
         super.setUp()
     }

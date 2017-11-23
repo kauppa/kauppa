@@ -2,11 +2,13 @@ import Foundation
 import XCTest
 
 @testable import KauppaCore
+@testable import KauppaProductsModel
+@testable import KauppaProducts
 
-class TestProductsStore: XCTestCase {
-    var store = MemoryStore()
+class TestProductsRepository: XCTestCase {
+    var store = ProductsRepository()
 
-    static var allTests: [(String, (TestProductsStore) -> () throws -> Void)] {
+    static var allTests: [(String, (TestProductsRepository) -> () throws -> Void)] {
         return [
             ("ProductCreation", testProductCreation),
             ("ProductDeletion", testProductDeletion),
@@ -15,7 +17,7 @@ class TestProductsStore: XCTestCase {
     }
 
     override func setUp() {
-        store = MemoryStore()
+        store = ProductsRepository()
 
         super.setUp()
     }
@@ -24,41 +26,9 @@ class TestProductsStore: XCTestCase {
         super.tearDown()
     }
 
-    func createProductData() -> ProductData {
-        let string = """
-            {
-                "title": "Foo",
-                "subtitle": "Bar",
-                "description": "foo bar",
-                "size": {
-                    "length": { "value": 5.0, "unit": "cm" },
-                    "width": { "value": 4.0, "unit": "cm" },
-                    "height": { "value": 50.0, "unit": "cm" }
-                },
-                "color": "black",
-                "weight": {
-                    "value": 100.0,
-                    "unit": "g"
-                },
-                "category": "food",
-                "inventory": 5,
-                "images": [],
-                "price": 15.0
-            }
-        """
-
-        return decodeJsonFrom(string)
-    }
-
-    func decodeJsonFrom<T>(_ string: String) -> T where T: Decodable {
-        let jsonData = string.data(using: .utf8)!
-        let data = try! JSONDecoder().decode(T.self, from: jsonData)
-        return data
-    }
-
     func testProductCreation() {
         let creation = expectation(description: "Product created")
-        let product = self.createProductData()
+        let product = ProductData(title: "", subtitle: "", description: "")
 
         let data = store.createProduct(data: product)!
         let id = Array(self.store.products.keys)[0]
@@ -72,7 +42,7 @@ class TestProductsStore: XCTestCase {
 
     func testProductDeletion() {
         let deletion = expectation(description: "Product deleted")
-        let product = self.createProductData()
+        let product = ProductData(title: "", subtitle: "", description: "")
 
         let data = store.createProduct(data: product)
         XCTAssertNotNil(data)
@@ -87,12 +57,12 @@ class TestProductsStore: XCTestCase {
     }
 
     func testProductUpdate() {
-        let product = self.createProductData()
+        let product = ProductData(title: "", subtitle: "", description: "")
         let data = store.createProduct(data: product)!
         let productId = data.id
         XCTAssertEqual(data.createdOn, data.updatedAt)
 
-        let anotherProduct = self.createProductData()
+        let anotherProduct = ProductData(title: "", subtitle: "", description: "")
         let anotherData = store.createProduct(data: anotherProduct)!
         let anotherId = anotherData.id
         let randomId = UUID()
@@ -118,7 +88,19 @@ class TestProductsStore: XCTestCase {
         for (attribute, value) in tests {
             let expectation_ = expectation(description: "Updated \(attribute)")
             let jsonStr = "{\"\(attribute)\": \(value)}"
-            let data: ProductPatch = self.decodeJsonFrom(jsonStr)
+            let data: ProductPatch = ProductPatch(
+                title: "",
+                subtitle: "",
+                description: "",
+                category: nil,
+                size: nil,
+                color: "",
+                weight: nil,
+                inventory: 0,
+                images: nil,
+                price: 0.0,
+                variantId: nil
+            )
             let result = store.updateProduct(id: productId, data: data)
             XCTAssertNotNil(result)
             expectation_.fulfill()
