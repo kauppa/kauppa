@@ -1,3 +1,7 @@
-public class KauppaRepository {
+public class Repository {
+    
+}
+
+public class KauppaRepository: Repository {
     
 }

@@ -7,8 +7,16 @@ public class AccountsRepository {
 
     public var accounts: [UUID: Account]
 
+    private var store: AccountsStorable
+
     public init() {
         self.accounts = [UUID: Account]()
+        self.store = AccountsStore()
+    }
+
+    public init(store: AccountsStorable) {
+        self.accounts = [UUID: Account]()
+        self.store = store
     }
 
     func createAccount(data: AccountData) -> Account? {
