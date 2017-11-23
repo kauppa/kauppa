@@ -40,6 +40,7 @@ class TestProductsService: XCTestCase {
                     "value": 100.0,
                     "unit": "g"
                 },
+                "category": "food",
                 "inventory": 5,
                 "images": [],
                 "price": 15.0
@@ -94,6 +95,7 @@ class TestProductsService: XCTestCase {
         let anotherProduct = self.createProductData()
         let anotherData = store.createProduct(data: anotherProduct)!
         let anotherId = anotherData.id
+        let randomId = UUID()
 
         let tests: [(String, Any)] = [
             ("title", "\"Foobar\""),
@@ -105,9 +107,12 @@ class TestProductsService: XCTestCase {
             ("weight", "{\"value\": 500.0, \"unit\": \"g\"}"),
             ("color", "\"blue\""),
             ("inventory", 20),
+            ("category", "\"electronics\""),
             ("images", ["data:image/gif;base64,foobar"]),
             ("price", 30.0),
-            ("variantId", "\"\(anotherId)\"")
+            ("variantId", "\"\(anotherId)\""),
+            ("variantId", "\"\(productId)\""),      // Self ID (shouldn't update)
+            ("variantId", "\"\(randomId)\""),       // non-existent ID (shouldn't update)
         ]
 
         for (attribute, value) in tests {
@@ -134,10 +139,11 @@ class TestProductsService: XCTestCase {
         XCTAssert(updatedProduct.data.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.data.color, "blue")
         XCTAssertEqual(updatedProduct.data.inventory, 20)
-        XCTAssertEqual(updatedProduct.data.images, tests[9].1 as! [String])
+        XCTAssertEqual(updatedProduct.data.images, tests[10].1 as! [String])
         XCTAssertEqual(updatedProduct.data.price, 30.0)
-        XCTAssertEqual(updatedProduct.data.variantId, anotherId)
+        XCTAssertEqual(updatedProduct.data.category, .electronics)
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
+        XCTAssertEqual(updatedProduct.data.variantId, anotherId)
 
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)

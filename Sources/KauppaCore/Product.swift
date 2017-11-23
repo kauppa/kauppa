@@ -1,9 +1,18 @@
 import Foundation
 
+public enum ProductCategory: String, Codable {
+    case food        = "food"
+    case drink       = "drink"
+    case electronics = "electronics"
+    case medicine    = "medicine"
+    // ...
+}
+
 public struct ProductPatch: Decodable {
     let title: String?
     let subtitle: String?
     let description: String?
+    let category: ProductCategory?
     let size: Size?
     let color: String?
     let weight: UnitMeasurement<Weight>?
@@ -17,6 +26,7 @@ public struct ProductData: Codable {
     var title: String
     var subtitle: String
     var description: String
+    var category: ProductCategory?
     var size: Size?
     var color: String?
     var weight: UnitMeasurement<Weight>?

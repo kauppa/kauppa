@@ -93,8 +93,12 @@ extension MemoryStore: ProductStore {
                 product.data.price = price
             }
 
+            if let category = data.category {
+                product.data.category = category
+            }
+
             if let variantId = data.variantId {
-                if products[variantId] != nil {
+                if products[variantId] != nil && variantId != product.id {
                     product.data.variantId = variantId
                 }
             }
