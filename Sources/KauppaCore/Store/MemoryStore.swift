@@ -1,11 +1,29 @@
 import Foundation
 
 class MemoryStore {
+    var accounts = [UUID: Account]()
+    var emailIds = [String: UUID]()
     var orders = [UUID: Order]()
     var products = [UUID: Product]()
 }
 
 extension MemoryStore: Store {
+    func getAccountForEmail(email: String) -> Account? {
+        if let id = self.emailIds[email] {
+            return self.accounts[id]
+        } else {
+            return nil
+        }
+    }
+
+    func createIdForEmail(email: String, id: UUID) {
+        emailIds[email] = id
+    }
+
+    func createAccountWithId(id: UUID, account: Account) {
+        accounts[id] = account
+    }
+
     func createNewProductWithId(id: UUID, product: Product) {
         products[id] = product
     }

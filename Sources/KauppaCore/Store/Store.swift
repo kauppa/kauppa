@@ -2,6 +2,8 @@ import Foundation
 
 protocol Store {
     func getAccountForEmail(email: String) -> Account?
+    func createIdForEmail(email: String, id: UUID)
+    func createAccountWithId(id: UUID, account: Account)
 
     func createNewProductWithId(id: UUID, product: Product)
     func getProductForId(id: UUID) -> Product?
