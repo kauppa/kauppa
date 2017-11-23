@@ -13,7 +13,7 @@ extension MemoryStore: ProductStore {
         let date = Date()
         var data = data
         if let variantId = data.variantId {
-            if products[variantId] == nil {
+            if self.getProductForId(id: variantId) == nil {
                 data.variantId = nil
             }
         }
@@ -22,29 +22,20 @@ extension MemoryStore: ProductStore {
                                   createdOn: date,
                                   updatedAt: date,
                                   data: data)
-        products[id] = productData
+        self.createNewProductWithId(id: id, product: productData)
         return productData
     }
 
     func getProduct(id: UUID) -> Product? {
-        if let product = products[id] {
-            return product
-        } else {
-            return nil
-        }
+        return self.getProductForId(id: id)
     }
 
     func deleteProduct(id: UUID) -> Product? {
-        if let product = products[id] {
-            products.removeValue(forKey: id)
-            return product
-        } else {
-            return nil
-        }
+        return self.removeProductIfExists(id: id)
     }
 
     func updateProduct(id: UUID, data: ProductPatch) -> Product? {
-        if var product = products[id] {
+        if var product = self.getProductForId(id: id) {
             if let title = data.title {
                 product.data.title = title
             }
@@ -98,14 +89,13 @@ extension MemoryStore: ProductStore {
             }
 
             if let variantId = data.variantId {
-                if products[variantId] != nil && variantId != product.id {
+                if self.getProductForId(id: variantId) != nil && variantId != product.id {
                     product.data.variantId = variantId
                 }
             }
 
             product.updatedAt = Date()
-            products[id] = product
-
+            self.updateProductForId(id: id, product: product)
             return product
         } else {
             return nil

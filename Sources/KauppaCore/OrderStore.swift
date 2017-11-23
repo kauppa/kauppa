@@ -15,18 +15,15 @@ extension MemoryStore: OrderStore {
         var productList = [OrderedProduct]()
 
         for orderUnit in order.products {
-            if var product = self.products[orderUnit.id] {
+            if let product = self.getProductForId(id: orderUnit.id) {
                 let available = product.data.inventory
                 let quantity = available > orderUnit.quantity ? UInt32(orderUnit.quantity) : available
-
-                product.data.inventory -= quantity
+                self.removeFromInventory(id: orderUnit.id, quantity: quantity)
                 totalPrice += Double(quantity) * product.data.price
                 var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
                 weight.value *= Double(quantity)
                 weightCounter.add(weight)
                 totalItems += UInt16(quantity)
-
-                self.products[orderUnit.id] = product
                 productList.append(OrderedProduct(data: product,
                                                   productExists: true,
                                                   processedItems: UInt8(quantity)))
@@ -41,7 +38,7 @@ extension MemoryStore: OrderStore {
             let order = Order(id: id, createdOn: date, updatedAt: date,
                               products: productList, totalItems: totalItems,
                               totalPrice: totalPrice, totalWeight: weightCounter.sum())
-            self.orders[id] = order
+            self.createNewOrder(id: id, order: order)
             return order
         } else {
             return nil
@@ -49,11 +46,6 @@ extension MemoryStore: OrderStore {
     }
 
     func cancelOrder(id: UUID) -> Order? {
-        if let order = orders[id] {
-            orders.removeValue(forKey: id)
-            return order
-        } else {
-            return nil
-        }
+        return self.removeOrderIfExists(id: id)
     }
 }
