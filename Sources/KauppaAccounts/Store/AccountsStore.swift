@@ -1,3 +1,7 @@
-public class AccountsStore: AccountsStorable {
+public protocol AccountsStoring: AccountsPersisting, AccountsQuerying {
+
+}
+
+public class AccountsStore: AccountsStoring {
 
 }

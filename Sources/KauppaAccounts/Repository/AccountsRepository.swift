@@ -7,14 +7,14 @@ public class AccountsRepository {
 
     public var accounts: [UUID: Account]
 
-    private var store: AccountsStorable
+    private var store: AccountsStoring
 
     public init() {
         self.accounts = [UUID: Account]()
         self.store = AccountsStore()
     }
 
-    public init(store: AccountsStorable) {
+    public init(store: AccountsStoring) {
         self.accounts = [UUID: Account]()
         self.store = store
     }
