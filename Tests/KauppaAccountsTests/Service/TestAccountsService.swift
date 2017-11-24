@@ -9,7 +9,9 @@ class TestAccountsService: XCTestCase {
 
     static var allTests: [(String, (TestAccountsService) -> () throws -> Void)] {
         return [
-            //("Test account creation", testAccountCreation),
+            ("Test account creation", testAccountCreation),
+            ("Test account disable", testAccountDisable),
+            ("Test account deletion", testAccountDeletion)
         ]
     }
 
@@ -23,5 +25,17 @@ class TestAccountsService: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+    }
+
+    func testAccountCreation() {
+
+    }
+
+    func testAccountDisable() {
+
+    }
+
+    func testAccountDeletion() {
+
     }
 }

@@ -11,7 +11,9 @@ class TestAccountsRepository: XCTestCase {
 
     static var allTests: [(String, (TestAccountsRepository) -> () throws -> Void)] {
         return [
-            //("Test account creation", testAccountCreation),
+            ("Test account creation", testAccountCreation),
+            ("Test account disable", testAccountDisable),
+            ("Test account deletion", testAccountDeletion)
         ]
     }
 
@@ -26,8 +28,8 @@ class TestAccountsRepository: XCTestCase {
         super.tearDown()
     }
 
-    /*func testAccountCreation() {
-        let creation = expectation(description: "Account created")
+    func testAccountCreation() {
+        /*let creation = expectation(description: "Account created")
         let account = AccountData()
         let data = store.createAccount(data: account)!
         let id = Array(self.store.accounts.keys)[0]
@@ -38,6 +40,14 @@ class TestAccountsRepository: XCTestCase {
 
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
-        }
-    }*/
+        }*/
+    }
+
+    func testAccountDisable() {
+
+    }
+
+    func testAccountDeletion() {
+
+    }
 }

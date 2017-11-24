@@ -7,6 +7,7 @@ import XCTest
 
 XCTMain([
     testCase(TestAccountsService.allTests),
+    testCase(TestAccountsRepository.allTests),
     testCase(TestOrdersRepository.allTests),
     testCase(TestProductsRepository.allTests),
     testCase(TestTaxService.allTests)
