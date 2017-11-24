@@ -1,6 +1,8 @@
 import Foundation
 
-public struct Address {
+import KauppaCore
+
+public struct Address: Mappable {
     public let line1: String
     public let line2: String
     public let city: String

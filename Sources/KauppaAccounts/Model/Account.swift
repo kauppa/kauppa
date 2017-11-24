@@ -2,7 +2,7 @@ import Foundation
 
 import KauppaCore
 
-public struct Account {
+public struct Account: Mappable {
     public let id: UUID
     public let createdOn: Date
     public let updatedAt: Date
