@@ -1,0 +1,125 @@
+swagger: '2.0'
+info:
+  description: 'Services that manage accounts, products, orders and payments.'
+  version: '0.1'
+  title: Kauppa
+host: naamio.cloud
+basePath: /kauppa
+tags:
+  - name: accounts
+schemes:
+  - https
+paths:
+  /accounts:
+    post:
+      tags:
+        - accounts
+      summary: Create a new account
+      description: ''
+      operationId: createNewAccount
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Account information to be added to the store
+          required: true
+          schema:
+            $ref: '#/definitions/AccountData'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Account'
+        '400':
+          description: Invalid input
+definitions:
+  Month:
+    enum:
+      - january
+      - february
+      - march
+      - april
+      - may
+      - june
+      - july
+      - august
+      - september
+      - october
+      - november
+      - december
+  Address:
+    type: object
+    properties:
+      line1:
+        type: string
+      line2:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      code:
+        type: string
+      kind:
+        type: string
+        enum:
+          - home
+          - work
+  Card:
+    type: object
+    properties:
+      number:
+        type: string
+      expiryMonth:
+        $ref: '#/definitions/Month'
+      expiryYear:
+        type: integer
+        minimum: 2018
+        maximum: 2048
+      firstName:
+        type: string
+      lastName:
+        type: string
+      cardType:
+        type: string
+        enum:
+          - visa
+          - masterCard
+  AccountData:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+        format: email
+      phone:
+        type: string
+        format: phone
+      address:
+        type: array
+        items:
+          $ref: '#/definitions/Address'
+      cards:
+        type: array
+        items:
+          $ref: '#/definitions/Card'
+  Account:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      createdOn:
+        type: string
+        format: date-time
+      updatedOn:
+        type: string
+        format: date-time
+      data:
+        $ref: '#/definitions/AccountData'
