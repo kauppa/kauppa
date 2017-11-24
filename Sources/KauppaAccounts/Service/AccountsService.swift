@@ -1,15 +1,16 @@
 import KauppaAccountsModel
+import KauppaAccountsRepository
 
 /// AccountsService provides a public API for accounts
 /// actions.
 public class AccountsService {
 
-    //let depositing: AccountsDepositing
+    let depositing: AccountsDepositing?
 
     /// Initializes new `AccountsService` instance with
     /// a depositing-compliant object.
-    public init() {//_ depositing: AccountsDepositing) {
-        //self.depositing = depositing
+    public init(withDepositing depositing: AccountsDepositing) {
+        self.depositing = depositing
     }
 
     /// Creates a new `Account` and registers it with the store.
