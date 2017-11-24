@@ -6,8 +6,8 @@ import XCTest
 @testable import KauppaTaxTests
 
 XCTMain([
-    testCase(TestAccountsStore.allTests),
-    testCase(TestOrdersStore.allTests),
-    testCase(TestProductsStore.allTests),
+    testCase(TestAccountsService.allTests),
+    testCase(TestOrdersRepository.allTests),
+    testCase(TestProductRepository.allTests),
     testCase(TestTaxService.allTests)
 ])
