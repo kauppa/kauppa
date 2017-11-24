@@ -1,0 +1,24 @@
+post:
+  tags:
+    - products
+  summary: Create a new product
+  description: ''
+  operationId: createNewProduct
+  consumes:
+    - application/json
+  produces:
+    - application/json
+  parameters:
+    - in: body
+      name: body
+      description: Product information to be added to the store
+      required: true
+      schema:
+        $ref: '../models/products.yaml#/ProductData'
+  responses:
+    '200':
+      description: Successful operation
+      schema:
+        $ref: '../models/products.yaml#/Product'
+    '400':
+      description: Invalid input

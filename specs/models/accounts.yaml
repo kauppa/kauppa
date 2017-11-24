@@ -1,0 +1,78 @@
+Address:
+  type: object
+  properties:
+    line1:
+      type: string
+    line2:
+      type: string
+    city:
+      type: string
+    country:
+      type: string
+    code:
+      type: string
+    kind:
+      type: string
+      enum:
+        - home
+        - work
+
+Card:
+  type: object
+  properties:
+    number:
+      type: string
+    expiryMonth:
+      $ref: './baseUnits.yaml#/Month'
+    expiryYear:
+      type: integer
+      minimum: 2018
+      maximum: 2048
+    firstName:
+      type: string
+    lastName:
+      type: string
+    cardType:
+      type: string
+      enum:
+        - visa
+        - masterCard
+
+AccountData:
+  type: object
+  required:
+    - name
+    - email
+    - phone
+  properties:
+    name:
+      type: string
+    email:
+      type: string
+      format: email
+    phone:
+      type: string
+      format: phone
+    address:
+      type: array
+      items:
+        $ref: '#/Address'
+    cards:
+      type: array
+      items:
+        $ref: '#/Card'
+
+Account:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    createdOn:
+      type: string
+      format: date-time
+    updatedOn:
+      type: string
+      format: date-time
+    data:
+      $ref: '#/AccountData'

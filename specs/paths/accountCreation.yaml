@@ -1,0 +1,24 @@
+post:
+  tags:
+    - accounts
+  summary: Create a new account
+  description: ''
+  operationId: createNewAccount
+  consumes:
+    - application/json
+  produces:
+    - application/json
+  parameters:
+    - in: body
+      name: body
+      description: Account information to be added to the store
+      required: true
+      schema:
+        $ref: '../models/accounts.yaml#/AccountData'
+  responses:
+    '200':
+      description: Successful operation
+      schema:
+        $ref: '../models/accounts.yaml#/Account'
+    '400':
+      description: Invalid input
