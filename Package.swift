@@ -20,10 +20,28 @@ let modelTargets: [Target] = [
     )
 ]
 
+let repositoryTargets: [Target] = [
+    .target(
+        name: "KauppaAccountsRepository",
+        dependencies: ["KauppaAccountsModel", "KauppaCore"],
+        path: "Sources/KauppaAccounts/Repository"
+    ),
+    .target(
+        name: "KauppaOrdersRepository",
+        dependencies: ["KauppaOrdersModel", "KauppaCore"],
+        path: "Sources/KauppaOrders/Repository"
+    ),
+    .target(
+        name: "KauppaProductsRepository",
+        dependencies: ["KauppaProductsModel", "KauppaCore"],
+        path: "Sources/KauppaProducts/Repository"
+    )
+]
+
 let serviceTargets: [Target] = [
     .target(
         name: "KauppaAccountsService",
-        dependencies: ["KauppaAccountsModel", "KauppaCore"],
+        dependencies: ["KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
         path: "Sources/KauppaAccounts/Service"
     )
 ]
@@ -31,18 +49,18 @@ let serviceTargets: [Target] = [
 let daemonTargets: [Target] = [
     .target(
         name: "KauppaAccounts",
-        dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"],
-        exclude: ["Service", "Model"]
+        dependencies: ["KauppaAccountsService", "KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
+        exclude: ["Service", "Repository", "Model"]
     ),
     .target(
         name: "KauppaOrders",
-        dependencies: ["KauppaOrdersModel", "KauppaCore"],
-        exclude: ["Model"]
+        dependencies: ["KauppaOrdersRepository", "KauppaOrdersModel", "KauppaCore"],
+        exclude: ["Repository", "Model"]
     ),
     .target(
         name: "KauppaProducts",
-        dependencies: ["KauppaProductsModel", "KauppaCore"],
-        exclude: ["Model"]
+        dependencies: ["KauppaProductsRepository", "KauppaProductsModel", "KauppaCore"],
+        exclude: ["Repository", "Model"]
     ),
     .target(
         name: "KauppaTax",
@@ -73,6 +91,7 @@ var targets: [Target] = [
 ]
 
 targets.append(contentsOf: modelTargets)
+targets.append(contentsOf: repositoryTargets)
 targets.append(contentsOf: serviceTargets)
 targets.append(contentsOf: daemonTargets)
 targets.append(contentsOf: testTargets)
