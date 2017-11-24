@@ -8,6 +8,6 @@ import XCTest
 XCTMain([
     testCase(TestAccountsService.allTests),
     testCase(TestOrdersRepository.allTests),
-    testCase(TestProductRepository.allTests),
+    testCase(TestProductsRepository.allTests),
     testCase(TestTaxService.allTests)
 ])
