@@ -5,6 +5,8 @@ import KauppaProductsModel
 public class ProductsRepository {
     var products = [UUID: Product]()
 
+    public init() {}
+
     public func createProduct(data: ProductData) -> Product? {
         let product = Product(id: UUID(), createdOn: Date(), updatedAt: Date(), data: data)
 

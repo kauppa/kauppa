@@ -1,5 +1,5 @@
 // Routing provides the rules for routing
 // mechanisms over HTTP.
-public protocol Routing {
-
+open class ServiceRouter {
+    public init() {}
 }

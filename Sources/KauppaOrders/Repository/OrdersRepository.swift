@@ -1,11 +1,16 @@
 import Foundation
 
+import KauppaCore
 import KauppaOrdersModel
 
 public class OrdersRepository {
     var orders = [UUID: Order]()
 
-    func createNewOrder(id: UUID, order: Order) {
+    public init() {
+
+    }
+
+    public func createNewOrder(id: UUID, order: Order) {
         orders[id] = order
     }
 

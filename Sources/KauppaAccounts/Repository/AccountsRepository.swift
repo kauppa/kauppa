@@ -3,7 +3,9 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 
-public class AccountsRepository {
+// Manages the retrievable and persistance of accounts data
+// inline with the business logic requirements.
+public class AccountsRepository: AccountsDepositing {
 
     public var accounts: [UUID: Account]
 

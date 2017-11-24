@@ -2,6 +2,8 @@ import Foundation
 
 import KauppaCore
 
-public class AccountsRouter: Routing {
-
+public class AccountsRouter: ServiceRouter {
+    public override init() {
+        super.init()
+    }
 }

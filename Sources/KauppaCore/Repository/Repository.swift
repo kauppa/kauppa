@@ -1,5 +1,5 @@
 
 // 
-public class Repository {
-    
+open class Repository {
+    public init() {}
 }

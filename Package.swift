@@ -31,8 +31,13 @@ let package = Package(
             dependencies: []),
         .target(
             name: "KauppaAccounts",
+            dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"],
+            exclude: ["Service", "Model"]
+        ),
+        .target(
+            name: "KauppaAccountsService",
             dependencies: ["KauppaAccountsModel", "KauppaCore"],
-            exclude: ["Model"]
+            path: "Sources/KauppaAccounts/Service"
         ),
         .target(
             name: "KauppaAccountsModel",
@@ -55,22 +60,22 @@ let package = Package(
             exclude: ["Model"]),
         .target(
             name: "KauppaProductsModel",
-            dependencies: [],
+            dependencies: ["KauppaCore"],
             path: "Sources/KauppaProducts/Model"),
         .target(
             name: "KauppaTax",
             dependencies: ["KauppaCore"]),
         .testTarget(
             name: "KauppaAccountsTests",
-            dependencies: ["KauppaCore"]),
+            dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"]),
         .testTarget(
             name: "KauppaOrdersTests",
-            dependencies: ["KauppaCore"]),
+            dependencies: ["KauppaOrders", "KauppaCore"]),
         .testTarget(
             name: "KauppaProductsTests",
-            dependencies: ["KauppaCore"]),
+            dependencies: ["KauppaProducts", "KauppaCore"]),
         .testTarget(
             name: "KauppaTaxTests",
-            dependencies: ["KauppaCore"])
+            dependencies: ["KauppaTax", "KauppaCore"])
     ]
 )

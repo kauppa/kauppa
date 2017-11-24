@@ -11,16 +11,13 @@ class TestAccountsRepository: XCTestCase {
 
     static var allTests: [(String, (TestAccountsRepository) -> () throws -> Void)] {
         return [
-            ("Test account creation", testAccountCreation),
+            //("Test account creation", testAccountCreation),
         ]
     }
 
     // MARK: - Instance
 
-    var store = AccountsRepository()
-
     override func setUp() {
-        store = AccountsRepository()
 
         super.setUp()
     }
@@ -29,7 +26,7 @@ class TestAccountsRepository: XCTestCase {
         super.tearDown()
     }
 
-    func testAccountCreation() {
+    /*func testAccountCreation() {
         let creation = expectation(description: "Account created")
         let account = AccountData()
         let data = store.createAccount(data: account)!
@@ -42,5 +39,5 @@ class TestAccountsRepository: XCTestCase {
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
         }
-    }
+    }*/
 }
