@@ -43,6 +43,11 @@ let serviceTargets: [Target] = [
         name: "KauppaAccountsService",
         dependencies: ["KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
         path: "Sources/KauppaAccounts/Service"
+    ),
+    .target(
+        name: "KauppaTaxService",
+        dependencies: ["KauppaCore"],
+        path: "Sources/KauppaTax/Service"
     )
 ]
 
@@ -55,16 +60,17 @@ let daemonTargets: [Target] = [
     .target(
         name: "KauppaOrders",
         dependencies: ["KauppaOrdersRepository", "KauppaOrdersModel", "KauppaCore"],
-        exclude: ["Repository", "Model"]
+        exclude: ["Service", "Repository", "Model"]
     ),
     .target(
         name: "KauppaProducts",
         dependencies: ["KauppaProductsRepository", "KauppaProductsModel", "KauppaCore"],
-        exclude: ["Repository", "Model"]
+        exclude: ["Service", "Repository", "Model"]
     ),
     .target(
         name: "KauppaTax",
-        dependencies: ["KauppaCore"]
+        dependencies: ["KauppaCore"],
+        exclude: ["Service", "Repository", "Model"]
     )
 ]
 
@@ -80,7 +86,7 @@ let testTargets: [Target] = [
         dependencies: ["KauppaProducts", "KauppaCore"]),
     .testTarget(
         name: "KauppaTaxTests",
-        dependencies: ["KauppaTax", "KauppaCore"])
+        dependencies: ["KauppaTaxService", "KauppaCore"])
 ]
 
 var targets: [Target] = [
