@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import KauppaCore
+@testable import KauppaTaxService
 
 class TestTaxService: XCTestCase {
 
@@ -10,7 +10,11 @@ class TestTaxService: XCTestCase {
         ]
     }
 
+    var taxService: TaxService?
+
     override func setUp() {
+        taxService = TaxService()
+
         super.setUp()
     }
 

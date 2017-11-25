@@ -2,6 +2,106 @@
 
 import PackageDescription
 
+let modelTargets: [Target] = [
+    .target(
+        name: "KauppaAccountsModel",
+        dependencies: ["KauppaCore"],
+        path: "Sources/KauppaAccounts/Model"
+    ),
+    .target(
+        name: "KauppaOrdersModel",
+        dependencies: ["KauppaCore", "KauppaProductsModel"],
+        path: "Sources/KauppaOrders/Model"
+    ),
+    .target(
+        name: "KauppaProductsModel",
+        dependencies: ["KauppaCore"],
+        path: "Sources/KauppaProducts/Model"
+    )
+]
+
+let repositoryTargets: [Target] = [
+    .target(
+        name: "KauppaAccountsRepository",
+        dependencies: ["KauppaAccountsModel", "KauppaCore"],
+        path: "Sources/KauppaAccounts/Repository"
+    ),
+    .target(
+        name: "KauppaOrdersRepository",
+        dependencies: ["KauppaOrdersModel", "KauppaCore"],
+        path: "Sources/KauppaOrders/Repository"
+    ),
+    .target(
+        name: "KauppaProductsRepository",
+        dependencies: ["KauppaProductsModel", "KauppaCore"],
+        path: "Sources/KauppaProducts/Repository"
+    )
+]
+
+let serviceTargets: [Target] = [
+    .target(
+        name: "KauppaAccountsService",
+        dependencies: ["KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
+        path: "Sources/KauppaAccounts/Service"
+    ),
+    .target(
+        name: "KauppaTaxService",
+        dependencies: ["KauppaCore"],
+        path: "Sources/KauppaTax/Service"
+    )
+]
+
+let daemonTargets: [Target] = [
+    .target(
+        name: "KauppaAccounts",
+        dependencies: ["KauppaAccountsService", "KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
+        exclude: ["Service", "Repository", "Model"]
+    ),
+    .target(
+        name: "KauppaOrders",
+        dependencies: ["KauppaOrdersRepository", "KauppaOrdersModel", "KauppaCore"],
+        exclude: ["Service", "Repository", "Model"]
+    ),
+    .target(
+        name: "KauppaProducts",
+        dependencies: ["KauppaProductsRepository", "KauppaProductsModel", "KauppaCore"],
+        exclude: ["Service", "Repository", "Model"]
+    ),
+    .target(
+        name: "KauppaTax",
+        dependencies: ["KauppaCore"],
+        exclude: ["Service", "Repository", "Model"]
+    )
+]
+
+let testTargets: [Target] = [
+    .testTarget(
+        name: "KauppaAccountsTests",
+        dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"]),
+    .testTarget(
+        name: "KauppaOrdersTests",
+        dependencies: ["KauppaOrders", "KauppaCore"]),
+    .testTarget(
+        name: "KauppaProductsTests",
+        dependencies: ["KauppaProducts", "KauppaCore"]),
+    .testTarget(
+        name: "KauppaTaxTests",
+        dependencies: ["KauppaTaxService", "KauppaCore"])
+]
+
+var targets: [Target] = [
+    .target(
+        name: "KauppaCore",
+        dependencies: []
+    )
+]
+
+targets.append(contentsOf: modelTargets)
+targets.append(contentsOf: repositoryTargets)
+targets.append(contentsOf: serviceTargets)
+targets.append(contentsOf: daemonTargets)
+targets.append(contentsOf: testTargets)
+
 let package = Package(
     name: "Kauppa",
     products: [
@@ -23,35 +123,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/IBM-Swift/Kitura", from: "2.0.0")
+        
     ],
-    targets: [
-        .target(
-            name: "KauppaCore",
-            dependencies: ["Kitura"]),
-        .target(
-            name: "KauppaAccounts",
-            dependencies: ["KauppaCore"]),
-        .target(
-            name: "KauppaOrders",
-            dependencies: ["KauppaCore"]),
-        .target(
-            name: "KauppaProducts",
-            dependencies: ["KauppaCore"]),
-        .target(
-            name: "KauppaTax",
-            dependencies: ["KauppaCore"]),
-        .testTarget(
-            name: "KauppaAccountsTests",
-            dependencies: ["KauppaCore"]),
-        .testTarget(
-            name: "KauppaOrdersTests",
-            dependencies: ["KauppaCore"]),
-        .testTarget(
-            name: "KauppaProductsTests",
-            dependencies: ["KauppaCore"]),
-        .testTarget(
-            name: "KauppaTaxTests",
-            dependencies: ["KauppaCore"])
-    ]
+    targets: targets
 )

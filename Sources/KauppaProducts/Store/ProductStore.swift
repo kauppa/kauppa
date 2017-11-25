@@ -1,41 +1,46 @@
 import Foundation
 
-protocol ProductStore {
-    func createProduct(data: ProductData) -> Product?
-    func getProduct(id: UUID) -> Product?
-    func deleteProduct(id: UUID) -> Product?
-    func updateProduct(id: UUID, data: ProductPatch) -> Product?
-}
+import KauppaProductsModel
 
-extension MemoryStore: ProductStore {
+public class ProductStore {
+    var product: Product
+
+    public init() {
+        self.product = Product(id: UUID(), createdOn: Date(), updatedAt: Date(), data: ProductData(title: "", subtitle: "", description: ""))
+    }
+
     func createProduct(data: ProductData) -> Product? {
         let id = UUID()
         let date = Date()
-        var data = data
+        let data = data
         if let variantId = data.variantId {
-            if self.getProductForId(id: variantId) == nil {
-                data.variantId = nil
-            }
+            //TODO: if self.getProductForId(id: variantId) == nil {
+            //    data.variantId = nil
+            //}
         }
 
         let productData = Product(id: id,
                                   createdOn: date,
                                   updatedAt: date,
                                   data: data)
-        self.createNewProductWithId(id: id, product: productData)
+        //TODO: self.createNewProductWithId(id: id, product: productData)
         return productData
     }
 
     func getProduct(id: UUID) -> Product? {
-        return self.getProductForId(id: id)
+        //TODO: return self.getProductForId(id: id)
+
+        return nil
     }
 
     func deleteProduct(id: UUID) -> Product? {
-        return self.removeProductIfExists(id: id)
+        //TODO: return self.removeProductIfExists(id: id)
+
+        return nil
     }
 
     func updateProduct(id: UUID, data: ProductPatch) -> Product? {
-        if var product = self.getProductForId(id: id) {
+        //TODO: if var product = self.getProductForId(id: id) {
             if let title = data.title {
                 product.data.title = title
             }
@@ -89,16 +94,16 @@ extension MemoryStore: ProductStore {
             }
 
             if let variantId = data.variantId {
-                if self.getProductForId(id: variantId) != nil && variantId != product.id {
+                //TODO: if self.getProductForId(id: variantId) != nil && variantId != product.id {
                     product.data.variantId = variantId
-                }
+                //}
             }
 
             product.updatedAt = Date()
-            self.updateProductForId(id: id, product: product)
+            //TODO: self.updateProductForId(id: id, product: product)
             return product
-        } else {
-            return nil
-        }
+        //} else {
+        //    return nil
+        //}
     }
 }

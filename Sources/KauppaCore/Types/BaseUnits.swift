@@ -1,6 +1,26 @@
+public enum Month: UInt8, Codable {
+    case january   = 1
+    case february  = 2
+    case march     = 3
+    case april     = 4
+    case may       = 5
+    case june      = 6
+    case july      = 7
+    case august    = 8
+    case september = 9
+    case october   = 10
+    case november  = 11
+    case december  = 12
+}
+
 public struct UnitMeasurement<T: Codable>: Codable {
-    var value: Double
-    var unit: T
+    public var value: Double
+    public var unit: T
+
+    public init(value: Double, unit: T) {
+        self.value = value
+        self.unit = unit
+    }
 }
 
 public enum Length: String, Codable {
@@ -13,9 +33,9 @@ public enum Length: String, Codable {
 }
 
 public struct Size: Codable {
-    var height: UnitMeasurement<Length>?
-    var length: UnitMeasurement<Length>?
-    var width: UnitMeasurement<Length>?
+    public var height: UnitMeasurement<Length>?
+    public var length: UnitMeasurement<Length>?
+    public var width: UnitMeasurement<Length>?
 }
 
 public enum Weight: String, Codable {
@@ -26,8 +46,10 @@ public enum Weight: String, Codable {
     // ...
 }
 
-class WeightCounter {
+public class WeightCounter {
     var weight = UnitMeasurement(value: 0.0, unit: Weight.gram)
+
+    public init() {}
 
     public func add(_ other: UnitMeasurement<Weight>) {
         switch other.unit {
