@@ -1,0 +1,19 @@
+swagger: '2.0'
+info:
+  description: 'Services that manage accounts, products, orders and payments.'
+  version: '0.1'
+  title: Kauppa
+host: slurp.coffee
+basePath: /kauppa
+tags:
+  - name: accounts
+    description: "Manage Kauppa accounts"
+  - name: products
+    description: "Manage Kauppa products"
+schemes:
+  - https
+paths:
+  /accounts:
+    $ref: './paths/accountCreation.yaml'
+  /products:
+    $ref: './paths/productCreation.yaml'

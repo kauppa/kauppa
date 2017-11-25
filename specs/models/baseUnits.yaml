@@ -1,0 +1,60 @@
+Length:
+  type: string
+  enum:
+    - millimeter
+    - centimeter
+    - meter
+    - foot
+    - inch
+
+LengthMeasurement:
+  type: object
+  properties:
+    value:
+      type: number
+      format: double
+    unit:
+      $ref: '#/Length'
+
+Size:
+  type: object
+  properties:
+    length:
+      $ref: '#/LengthMeasurement'
+    width:
+      $ref: '#/LengthMeasurement'
+    height:
+      $ref: '#/LengthMeasurement'
+
+Weight:
+  type: string
+  enum:
+    - milligram
+    - gram
+    - kilogram
+    - pound
+
+WeightMeasurement:
+  type: object
+  properties:
+    value:
+      type: number
+      format: double
+    unit:
+      $ref: '#/Weight'
+
+Month:
+  type: string
+  enum:
+    - january
+    - february
+    - march
+    - april
+    - may
+    - june
+    - july
+    - august
+    - september
+    - october
+    - november
+    - december

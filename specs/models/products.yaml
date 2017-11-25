@@ -1,0 +1,57 @@
+ProductCategory:
+  type: string
+  enum:
+    - food
+    - drink
+    - electronics
+    - medicine
+
+ProductData:
+  type: object
+  required:
+    - title
+    - subtitle
+    - description
+  properties:
+    title:
+      type: string
+    subtitle:
+      type: string
+    description:
+      type: string
+    category:
+      $ref: '#/ProductCategory'
+    size:
+      $ref: './baseUnits.yaml#/Size'
+    color:
+      type: string
+    weight:
+      $ref: './baseUnits.yaml#/WeightMeasurement'
+    inventory:
+      type: number
+    images:
+      type: array
+      items:
+        type: string
+        format: byte
+    price:
+      type: number
+      format: double
+    variantId:
+      type: string
+      format: uuid
+
+Product:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    createdOn:
+      type: string
+      format: date-time
+    updatedOn:
+      type: string
+      format: date-time
+    data:
+      $ref: '#/ProductData'
