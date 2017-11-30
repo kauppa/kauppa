@@ -23,6 +23,10 @@ public class ProductsService {
         return productData
     }
 
+    func getProduct(id: UUID) -> Product? {
+        return repository.getProduct(id: id)
+    }
+
     func deleteProduct(id: UUID) -> Bool {
         return repository.deleteProduct(id: id)
     }
@@ -72,8 +76,8 @@ public class ProductsService {
             productData.inventory = inventory
         }
 
-        if let image = data.image {
-            productData.images.append(image)
+        if let images = data.images {
+            productData.images = images
         }
 
         if let price = data.price {
