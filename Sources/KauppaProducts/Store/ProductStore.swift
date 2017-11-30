@@ -85,9 +85,9 @@ public class ProductStore {     // NOTE: Will be replaced by protocol
                 product.data.inventory = inventory
             }
 
-            if let images = data.images {
+            /*if let images = data.images {
                 product.data.images = images
-            }
+            }*/
 
             if let price = data.price {
                 product.data.price = price

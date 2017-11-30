@@ -1,4 +1,4 @@
-import Foundation 
+import Foundation
 
 import KauppaCore
 
@@ -11,7 +11,7 @@ public struct ProductPatch: Decodable {
     public let color: String?
     public let weight: UnitMeasurement<Weight>?
     public let inventory: UInt32?
-    public let images: [String]?
+    public let image: String?
     public let price: Double?
     public let variantId: UUID?
 }

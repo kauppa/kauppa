@@ -29,6 +29,14 @@ public class ProductsRepository {
         return store.deleteProduct(id: id)
     }
 
+    public func getProductData(id: UUID) -> ProductData? {
+        guard let product = getProduct(id: id) else {
+            return nil
+        }
+
+        return product.data
+    }
+
     public func updateProductData(id: UUID, data: ProductData) -> Product? {
         guard var product = getProduct(id: id) else {
             return nil
