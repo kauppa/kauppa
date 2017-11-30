@@ -33,7 +33,11 @@ public class ProductsRepository {
     }
 
     public func getProduct(id: UUID) -> Product? {
-        return nil
+        guard let product = products[id] else {
+            return store.getProduct(id: id)
+        }
+
+        return product
     }
 
     // TODO: Fix API

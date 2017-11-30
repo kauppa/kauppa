@@ -1,5 +1,4 @@
-import Foundation
-
+import KauppaProductsModel
 import KauppaProductsRepository
 
 public class ProductsService {
@@ -10,17 +9,15 @@ public class ProductsService {
     }
 
     func createProduct(data: ProductData) -> Product? {
-        let id = UUID()
-        let date = Date()
         var data = data
 
         if let variantId = data.variantId {
-            if self.repository.getProductForId(id: variantId) == nil {
+            if repository.getProduct(id: variantId) == nil {
                 data.variantId = nil
             }
         }
 
-        let productData = self.repository.createNewProduct(data: data)
+        let productData = self.repository.createProduct(data: data)
         return productData
     }
 }

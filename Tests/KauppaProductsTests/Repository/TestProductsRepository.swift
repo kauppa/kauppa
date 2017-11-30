@@ -7,18 +7,6 @@ import XCTest
 @testable import KauppaProductsStore
 @testable import KauppaProducts
 
-class TestStore: ProductsStore {
-    var products = [UUID: Product]()
-
-    func createNewProduct(id: UUID, product: Product) {
-        products[id] = product
-    }
-
-    func getProduct(id: UUID) -> Product? {
-        return products[id]
-    }
-}
-
 class TestProductsRepository: XCTestCase {
 
     static var allTests: [(String, (TestProductsRepository) -> () throws -> Void)] {
@@ -49,7 +37,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertNotNil(repository.products[id])
         creation.fulfill()
 
-        waitForExpectations(timeout: 2) { error in
+        waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
         }
     }
