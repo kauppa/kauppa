@@ -14,6 +14,7 @@ class TestProductsRepository: XCTestCase {
             ("Test product creation", testProductCreation),
             ("Test product deletion", testProductDeletion),
             ("Test update of product", testProductUpdate),
+            ("Test store function calls", testStoreCalls),
         ]
     }
 
@@ -34,9 +35,8 @@ class TestProductsRepository: XCTestCase {
         let data = repository.createProduct(data: product)
         XCTAssertNotNil(data)
         XCTAssertEqual(data!.createdOn, data!.updatedAt)
-        let id = Array(store.products.keys)[0]
-        XCTAssertEqual(id, data!.id)
-        XCTAssertNotNil(repository.products[id])
+        XCTAssertTrue(store.createCalled)
+        XCTAssertNotNil(repository.products[data!.id])
         creation.fulfill()
 
         waitForExpectations(timeout: 1) { error in
@@ -54,6 +54,7 @@ class TestProductsRepository: XCTestCase {
         let isDeleted = repository.deleteProduct(id: data.id)
         XCTAssertTrue(isDeleted)
         XCTAssertTrue(repository.products.isEmpty)
+        XCTAssertTrue(store.deleteCalled)
         XCTAssertTrue(store.products.isEmpty)
         deletion.fulfill()
 
@@ -74,11 +75,25 @@ class TestProductsRepository: XCTestCase {
         let updatedProduct = repository.updateProductData(id: data.id, data: product)!
         // We're just testing the function calls (extensive testing is done in service)
         XCTAssertEqual(updatedProduct.data.title, "Foo")
-        XCTAssertEqual(store.updateCalled, 1)
+        XCTAssertTrue(store.updateCalled)
         update.fulfill()
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
         }
+    }
+
+    func testStoreCalls() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let product = ProductData(title: "", subtitle: "", description: "")
+        let data = repository.createProduct(data: product)!
+        repository.products = [:]       // clear the repository
+        let _ = repository.getProduct(id: data.id)
+        XCTAssertEqual(store.getCalled, true)
+        store.getCalled = false         // pretend that we never called the store
+        let _ = repository.getProduct(id: data.id)
+        // store shouldn't be called, because it was recently fetched by the repository
+        XCTAssertFalse(store.getCalled)
     }
 }
