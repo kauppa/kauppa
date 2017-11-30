@@ -9,9 +9,9 @@ public class TestStore: ProductsStore {
     public var getCalled = 0
     public var deleteCalled = 0
 
-    public func createNewProduct(id: UUID, product: Product) {
+    public func createNewProduct(productData: Product) {
         createCalled += 1
-        products[id] = product
+        products[productData.id] = productData
     }
 
     public func getProduct(id: UUID) -> Product? {
@@ -22,5 +22,9 @@ public class TestStore: ProductsStore {
     public func deleteProduct(id: UUID) -> Bool {
         deleteCalled += 1
         return products.removeValue(forKey: id) != nil
+    }
+
+    public func updateProduct(productData: Product) {
+        products[productData.id] = productData
     }
 }
