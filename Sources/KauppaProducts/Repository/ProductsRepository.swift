@@ -1,15 +1,26 @@
-import Foundation 
+import Foundation
 
 import KauppaProductsModel
+import KauppaProductsStore
 
 public class ProductsRepository {
+    // FIXME: To avoid running out of memory, we should clean the
+    // least recently used items every now and then.
     var products = [UUID: Product]()
 
-    public init() {}
+    let store: ProductsStore
+
+    public init(withStore store: ProductsStore) {
+        self.store = store
+    }
 
     public func createProduct(data: ProductData) -> Product? {
-        let product = Product(id: UUID(), createdOn: Date(), updatedAt: Date(), data: data)
-
+        let id = UUID()
+        let date = Date()
+        let product = Product(id: id, createdOn: date,
+                              updatedAt: date, data: data)
+        self.store.createNewProduct(id: id, product: product)
+        products[id] = product
         return product
     }
 
@@ -23,16 +34,6 @@ public class ProductsRepository {
 
     public func getProduct(id: UUID) -> Product? {
         return nil
-    }
-
-    // TODO: Fix API
-    func createNewProductWithId(id: UUID, product: Product) {
-        products[id] = product
-    }
-
-    // TODO: Fix API
-    func getProductForId(id: UUID) -> Product? {
-        return products[id]
     }
 
     // TODO: Fix API
