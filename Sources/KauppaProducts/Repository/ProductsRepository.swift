@@ -24,8 +24,9 @@ public class ProductsRepository {
         return product
     }
 
-    public func deleteProduct(id: UUID) -> Product? {
-        return nil
+    public func deleteProduct(id: UUID) -> Bool {
+        products.removeValue(forKey: id)
+        return store.deleteProduct(id: id)
     }
 
     public func updateProduct(id: UUID, data: ProductPatch) -> Product? {
@@ -43,14 +44,5 @@ public class ProductsRepository {
     // TODO: Fix API
     func updateProductForId(id: UUID, product: Product) {
         products[id] = product
-    }
-
-    func removeProductIfExists(id: UUID) -> Product? {
-        if let product = products[id] {
-            products.removeValue(forKey: id)
-            return product
-        } else {
-            return nil
-        }
     }
 }

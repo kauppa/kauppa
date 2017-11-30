@@ -12,7 +12,7 @@ class TestProductsRepository: XCTestCase {
     static var allTests: [(String, (TestProductsRepository) -> () throws -> Void)] {
         return [
             ("Test product creation", testProductCreation),
-            //("Test product deletion", testProductDeletion),
+            ("Test product deletion", testProductDeletion),
             //("Test update of product", testProductUpdate),
         ]
     }
@@ -42,23 +42,25 @@ class TestProductsRepository: XCTestCase {
         }
     }
 
-    /*func testProductDeletion() {
+    func testProductDeletion() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
         let deletion = expectation(description: "Product deleted")
         let product = ProductData(title: "", subtitle: "", description: "")
 
-        let data = store.createProduct(data: product)
-        XCTAssertNotNil(data)
-        let id = Array(self.store.products.keys)[0]
-        let productData = self.store.deleteProduct(id: id)
-        XCTAssertNotNil(productData)
+        let data = repository.createProduct(data: product)!
+        let isDeleted = repository.deleteProduct(id: data.id)
+        XCTAssertTrue(isDeleted)
+        XCTAssertTrue(repository.products.isEmpty)
+        XCTAssertTrue(store.products.isEmpty)
         deletion.fulfill()
 
-        waitForExpectations(timeout: 2) { error in
+        waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
         }
     }
 
-    func testProductUpdate() {
+    /*func testProductUpdate() {
         let product = ProductData(title: "", subtitle: "", description: "")
         let data = store.createProduct(data: product)!
         let productId = data.id
