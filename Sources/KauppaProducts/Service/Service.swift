@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaProductsModel
 import KauppaProductsRepository
 
@@ -19,5 +21,9 @@ public class ProductsService {
 
         let productData = self.repository.createProduct(data: data)
         return productData
+    }
+
+    func deleteProduct(id: UUID) -> Bool {
+        return repository.deleteProduct(id: id)
     }
 }

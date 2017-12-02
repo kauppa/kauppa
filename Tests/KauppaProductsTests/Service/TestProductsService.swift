@@ -11,6 +11,7 @@ class TestProductsService: XCTestCase {
         return [
             ("Test product creation", testProductCreation),
             ("Test product with invalid variant", testProductWithInvalidVariant),
+            ("Test product deletion", testProductDeletion),
         ]
     }
 
@@ -49,6 +50,23 @@ class TestProductsService: XCTestCase {
         let product = service.createProduct(data: productData)!
         XCTAssertNil(product.data.variantId)
         rejection.fulfill()
+
+        waitForExpectations(timeout: 1) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testProductDeletion() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        let deletion = expectation(description: "Product deleted")
+        let product = ProductData(title: "", subtitle: "", description: "")
+
+        let data = service.createProduct(data: product)!
+        let isDeleted = service.deleteProduct(id: data.id)
+        XCTAssertTrue(isDeleted)
+        deletion.fulfill()
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
