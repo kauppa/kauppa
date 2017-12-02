@@ -20,6 +20,14 @@ let modelTargets: [Target] = [
     )
 ]
 
+let storeTargets: [Target] = [
+    .target(
+        name: "KauppaProductsStore",
+        dependencies: ["KauppaProductsModel"],
+        path: "Sources/KauppaProducts/Store"
+    )
+]
+
 let repositoryTargets: [Target] = [
     .target(
         name: "KauppaAccountsRepository",
@@ -33,7 +41,7 @@ let repositoryTargets: [Target] = [
     ),
     .target(
         name: "KauppaProductsRepository",
-        dependencies: ["KauppaProductsModel", "KauppaCore"],
+        dependencies: ["KauppaProductsModel", "KauppaProductsStore", "KauppaCore"],
         path: "Sources/KauppaProducts/Repository"
     )
 ]
@@ -43,6 +51,11 @@ let serviceTargets: [Target] = [
         name: "KauppaAccountsService",
         dependencies: ["KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
         path: "Sources/KauppaAccounts/Service"
+    ),
+    .target(
+        name: "KauppaProductsService",
+        dependencies: ["KauppaProductsRepository", "KauppaProductsModel"],
+        path: "Sources/KauppaProducts/Service"
     ),
     .target(
         name: "KauppaTaxService",
@@ -64,8 +77,8 @@ let daemonTargets: [Target] = [
     ),
     .target(
         name: "KauppaProducts",
-        dependencies: ["KauppaProductsRepository", "KauppaProductsModel", "KauppaCore"],
-        exclude: ["Service", "Repository", "Model"]
+        dependencies: ["KauppaProductsService", "KauppaProductsRepository", "KauppaProductsModel", "KauppaCore"],
+        exclude: ["Service", "Repository", "Model", "Store"]
     ),
     .target(
         name: "KauppaTax",
@@ -98,6 +111,7 @@ var targets: [Target] = [
 
 targets.append(contentsOf: modelTargets)
 targets.append(contentsOf: repositoryTargets)
+targets.append(contentsOf: storeTargets)
 targets.append(contentsOf: serviceTargets)
 targets.append(contentsOf: daemonTargets)
 targets.append(contentsOf: testTargets)
@@ -123,7 +137,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        
+
     ],
     targets: targets
 )

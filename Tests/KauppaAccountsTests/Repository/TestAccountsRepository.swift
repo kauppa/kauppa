@@ -3,7 +3,6 @@ import XCTest
 
 @testable import KauppaCore
 @testable import KauppaAccountsModel
-@testable import KauppaAccounts
 
 class TestAccountsRepository: XCTestCase {
 

@@ -3,20 +3,21 @@ import XCTest
 
 @testable import KauppaCore
 @testable import KauppaProductsModel
+@testable import KauppaProductsRepository
+@testable import KauppaProductsStore
 @testable import KauppaProducts
 
 class TestProductsRepository: XCTestCase {
 
     static var allTests: [(String, (TestProductsRepository) -> () throws -> Void)] {
         return [
-            //("Test product creation", testProductCreation),
+            ("Test product creation", testProductCreation),
             //("Test product deletion", testProductDeletion),
             //("Test update of product", testProductUpdate),
         ]
     }
 
     override func setUp() {
-
         super.setUp()
     }
 
@@ -24,21 +25,24 @@ class TestProductsRepository: XCTestCase {
         super.tearDown()
     }
 
-    /*func testProductCreation() {
+    func testProductCreation() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
         let creation = expectation(description: "Product created")
         let product = ProductData(title: "", subtitle: "", description: "")
 
-        let data = store.createProduct(data: product)!
-        let id = Array(self.store.products.keys)[0]
+        let data = repository.createProduct(data: product)!
+        let id = Array(store.products.keys)[0]
         XCTAssertEqual(id, data.id)
+        XCTAssertNotNil(repository.products[id])
         creation.fulfill()
 
-        waitForExpectations(timeout: 2) { error in
+        waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
         }
     }
 
-    func testProductDeletion() {
+    /*func testProductDeletion() {
         let deletion = expectation(description: "Product deleted")
         let product = ProductData(title: "", subtitle: "", description: "")
 

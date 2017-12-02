@@ -2,7 +2,11 @@ import Foundation
 
 import KauppaProductsModel
 
-public class ProductStore {
+public protocol ProductsStore: ProductsPersisting, ProductsQuerying {
+    //
+}
+
+public class ProductStore {     // NOTE: Will be replaced by protocol
     var product: Product
 
     public init() {
@@ -13,11 +17,11 @@ public class ProductStore {
         let id = UUID()
         let date = Date()
         let data = data
-        if let variantId = data.variantId {
+        // if let variantId = data.variantId {
             //TODO: if self.getProductForId(id: variantId) == nil {
             //    data.variantId = nil
             //}
-        }
+        // }
 
         let productData = Product(id: id,
                                   createdOn: date,
