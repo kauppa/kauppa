@@ -3,7 +3,9 @@ import Foundation
 import KauppaProductsModel
 
 public protocol ProductsPersisting {
-    func createNewProduct(id: UUID, product: Product)
+    func createNewProduct(productData: Product)
 
     func deleteProduct(id: UUID) -> Bool
+
+    func updateProduct(productData: Product)
 }

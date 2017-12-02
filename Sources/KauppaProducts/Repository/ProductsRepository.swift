@@ -19,7 +19,7 @@ public class ProductsRepository {
         let date = Date()
         let product = Product(id: id, createdOn: date,
                               updatedAt: date, data: data)
-        self.store.createNewProduct(id: id, product: product)
+        self.store.createNewProduct(productData: product)
         products[id] = product
         return product
     }
@@ -29,20 +29,37 @@ public class ProductsRepository {
         return store.deleteProduct(id: id)
     }
 
-    public func updateProduct(id: UUID, data: ProductPatch) -> Product? {
-        return nil
+    public func getProductData(id: UUID) -> ProductData? {
+        guard let product = getProduct(id: id) else {
+            return nil
+        }
+
+        return product.data
+    }
+
+    public func updateProductData(id: UUID, data: ProductData) -> Product? {
+        guard var product = getProduct(id: id) else {
+            return nil
+        }
+
+        let date = Date()
+        product.updatedAt = date
+        product.data = data
+        products[id] = product
+        store.updateProduct(productData: product)
+        return product
     }
 
     public func getProduct(id: UUID) -> Product? {
         guard let product = products[id] else {
-            return store.getProduct(id: id)
+            let result = store.getProduct(id: id)
+            if let product = result {
+                products[id] = product
+            }
+
+            return result
         }
 
         return product
-    }
-
-    // TODO: Fix API
-    func updateProductForId(id: UUID, product: Product) {
-        products[id] = product
     }
 }

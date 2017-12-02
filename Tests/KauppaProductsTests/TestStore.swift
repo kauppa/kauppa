@@ -5,22 +5,30 @@ import Foundation
 
 public class TestStore: ProductsStore {
     public var products = [UUID: Product]()
-    public var createCalled = 0
-    public var getCalled = 0
-    public var deleteCalled = 0
 
-    public func createNewProduct(id: UUID, product: Product) {
-        createCalled += 1
-        products[id] = product
+    // Variables to indicate the count of function calls
+    public var createCalled = false
+    public var getCalled = false
+    public var deleteCalled = false
+    public var updateCalled = false
+
+    public func createNewProduct(productData: Product) {
+        createCalled = true
+        products[productData.id] = productData
     }
 
     public func getProduct(id: UUID) -> Product? {
-        getCalled += 1
+        getCalled = true
         return products[id]
     }
 
     public func deleteProduct(id: UUID) -> Bool {
-        deleteCalled += 1
+        deleteCalled = true
         return products.removeValue(forKey: id) != nil
+    }
+
+    public func updateProduct(productData: Product) {
+        updateCalled = true
+        products[productData.id] = productData
     }
 }
