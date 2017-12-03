@@ -4,6 +4,7 @@ import KauppaProductsClient
 import KauppaProductsModel
 import KauppaProductsRepository
 
+/// Products service
 public class ProductsService: ProductsServiceCallable {
     let repository: ProductsRepository
 

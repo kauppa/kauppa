@@ -1,8 +1,6 @@
 import Foundation
 import XCTest
 
-@testable import KauppaOrders
-
 class TestOrdersRepository: XCTestCase {
     //var store = OrdersRepository()
 

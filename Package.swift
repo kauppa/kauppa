@@ -22,6 +22,11 @@ let modelTargets: [Target] = [
 
 let storeTargets: [Target] = [
     .target(
+        name: "KauppaOrdersStore",
+        dependencies: ["KauppaOrdersModel"],
+        path: "Sources/KauppaOrders/Store"
+    ),
+    .target(
         name: "KauppaProductsStore",
         dependencies: ["KauppaProductsModel"],
         path: "Sources/KauppaProducts/Store"
@@ -36,7 +41,7 @@ let repositoryTargets: [Target] = [
     ),
     .target(
         name: "KauppaOrdersRepository",
-        dependencies: ["KauppaOrdersModel", "KauppaCore"],
+        dependencies: ["KauppaOrdersModel", "KauppaOrdersStore", "KauppaCore"],
         path: "Sources/KauppaOrders/Repository"
     ),
     .target(
@@ -51,6 +56,11 @@ let serviceTargets: [Target] = [
         name: "KauppaAccountsService",
         dependencies: ["KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
         path: "Sources/KauppaAccounts/Service"
+    ),
+    .target(
+        name: "KauppaOrdersService",
+        dependencies: ["KauppaOrdersRepository", "KauppaOrdersModel", "KauppaProductsClient"],
+        path: "Sources/KauppaOrders/Service"
     ),
     .target(
         name: "KauppaProductsService",
@@ -71,6 +81,11 @@ let clientTargets: [Target] = [
         path: "Sources/KauppaAccounts/Client"
     ),
     .target(
+        name: "KauppaOrdersClient",
+        dependencies: ["KauppaOrdersModel"],
+        path: "Sources/KauppaOrders/Client"
+    ),
+    .target(
         name: "KauppaProductsClient",
         dependencies: ["KauppaProductsModel"],
         path: "Sources/KauppaProducts/Client"
@@ -85,8 +100,14 @@ let daemonTargets: [Target] = [
     ),
     .target(
         name: "KauppaOrders",
-        dependencies: ["KauppaOrdersRepository", "KauppaOrdersModel", "KauppaCore"],
-        exclude: ["Service", "Repository", "Model"]
+        dependencies: [
+            "KauppaOrdersClient",
+            "KauppaOrdersRepository",
+            "KauppaOrdersModel",
+            "KauppaOrdersService",
+            "KauppaCore"
+        ],
+        exclude: ["Client", "Service", "Repository", "Model", "Store"]
     ),
     .target(
         name: "KauppaProducts",
@@ -109,13 +130,21 @@ let daemonTargets: [Target] = [
 let testTargets: [Target] = [
     .testTarget(
         name: "KauppaAccountsTests",
-        dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"]),
+        dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"]
+    ),
     .testTarget(
         name: "KauppaOrdersTests",
-        dependencies: ["KauppaOrders", "KauppaCore"]),
+        dependencies: ["KauppaCore"]
+    ),
     .testTarget(
         name: "KauppaProductsTests",
-        dependencies: ["KauppaProducts", "KauppaCore"]),
+        dependencies: [
+            "KauppaProductsModel",
+            "KauppaProductsRepository",
+            "KauppaProductsService",
+            "KauppaCore"
+        ]
+    ),
     .testTarget(
         name: "KauppaTaxTests",
         dependencies: ["KauppaTaxService", "KauppaCore"])

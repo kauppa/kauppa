@@ -5,7 +5,6 @@ import XCTest
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository
 @testable import KauppaProductsStore
-@testable import KauppaProducts
 
 class TestProductsRepository: XCTestCase {
 
