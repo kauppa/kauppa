@@ -14,7 +14,13 @@ public class OrdersRepository {
         self.store = store
     }
 
-    public func createOrder(forProducts products: [OrderedProduct]) -> Order? {
-        return nil
+    public func createOrder(withData data: Order) -> Order? {
+        let date = Date()
+        var data = data
+        data.id = UUID()
+        data.createdOn = date
+        data.updatedAt = date
+        store.createNewOrder(orderData: data)
+        return data
     }
 }
