@@ -1,6 +1,9 @@
-import KauppaOrdersClient
+import Foundation
+
 import KauppaCore
+import KauppaOrdersClient
 import KauppaOrdersModel
+import KauppaProductsModel
 import KauppaOrdersRepository
 import KauppaProductsClient
 
@@ -20,11 +23,11 @@ public class OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) -> Order? {
         let weightCounter = WeightCounter()
         var order = Order()
+        var inventoryUpdates = [(UUID, UInt32)]()
 
         for orderUnit in data.products {
-            guard var product = productsService.getProduct(id: orderUnit.id) else {
-                // Invalid product ID
-                return nil
+            guard let product = productsService.getProduct(id: orderUnit.id) else {
+                return nil      // Invalid product ID
             }
 
             if orderUnit.quantity == 0 {
@@ -33,11 +36,12 @@ public class OrdersService: OrdersServiceCallable {
 
             let available = product.data.inventory
             if available < orderUnit.quantity {
-                // Not enough items in inventory
-                return nil
+                return nil      // Not enough items in inventory
             }
 
-            // FIXME: Update product inventory
+            let leftover = available - UInt32(orderUnit.quantity)
+            inventoryUpdates.append((product.id, leftover))
+
             let orderedUnit = OrderedProduct(id: product.id,
                                              processedItems: orderUnit.quantity)
             order.products.append(orderedUnit)
@@ -47,6 +51,13 @@ public class OrdersService: OrdersServiceCallable {
             weight.value *= Double(orderUnit.quantity)
             weightCounter.add(weight)
             order.totalItems += UInt16(orderUnit.quantity)
+        }
+
+        for (id, leftover) in inventoryUpdates {
+            var patch = ProductPatch()
+            patch.inventory = leftover
+            // FIXME: What if the client fails for some reason?
+            let _ = productsService.updateProduct(id: id, data: patch)
         }
 
         order.totalWeight = weightCounter.sum()

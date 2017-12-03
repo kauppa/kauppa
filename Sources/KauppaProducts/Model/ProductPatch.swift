@@ -3,15 +3,29 @@ import Foundation
 import KauppaCore
 
 public struct ProductPatch: Decodable {
-    public let title: String?
-    public let subtitle: String?
-    public let description: String?
-    public let category: ProductCategory?
-    public let size: Size?
-    public let color: String?
-    public let weight: UnitMeasurement<Weight>?
-    public let inventory: UInt32?
-    public let images: [String]?
-    public let price: Double?
-    public let variantId: UUID?
+    public var title: String?
+    public var subtitle: String?
+    public var description: String?
+    public var category: ProductCategory?
+    public var size: Size?
+    public var color: String?
+    public var weight: UnitMeasurement<Weight>?
+    public var inventory: UInt32?
+    public var images: [String]?
+    public var price: Double?
+    public var variantId: UUID?
+
+    public init() {
+        title = nil
+        subtitle = nil
+        description = nil
+        category = nil
+        size = nil
+        color = nil
+        weight = nil
+        inventory = nil
+        images = nil
+        price = nil
+        variantId = nil
+    }
 }
