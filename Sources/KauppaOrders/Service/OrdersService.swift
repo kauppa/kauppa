@@ -23,11 +23,7 @@ public class OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) -> Order? {
         let weightCounter = WeightCounter()
         var order = Order()
-        var inventoryUpdates = [(UUID, UInt32)]()
-
-        if data.products.isEmpty {
-            return nil
-        }
+        var inventoryUpdates = [UUID: UInt32]()
 
         for orderUnit in data.products {
             guard let product = productsService.getProduct(id: orderUnit.id) else {
@@ -38,13 +34,14 @@ public class OrdersService: OrdersServiceCallable {
                 continue    // skip zero'ed items
             }
 
-            let available = product.data.inventory
+            // Also check for duplicate product
+            let available = inventoryUpdates[product.id] ?? product.data.inventory
             if available < orderUnit.quantity {
                 return nil      // Not enough items in inventory
             }
 
             let leftover = available - UInt32(orderUnit.quantity)
-            inventoryUpdates.append((product.id, leftover))
+            inventoryUpdates[product.id] = leftover
 
             let orderedUnit = OrderedProduct(id: product.id,
                                              processedItems: orderUnit.quantity)
@@ -55,6 +52,10 @@ public class OrdersService: OrdersServiceCallable {
             weight.value *= Double(orderUnit.quantity)
             weightCounter.add(weight)
             order.totalItems += UInt16(orderUnit.quantity)
+        }
+
+        if inventoryUpdates.isEmpty {
+            return nil
         }
 
         for (id, leftover) in inventoryUpdates {
