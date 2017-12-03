@@ -1,16 +1,18 @@
 import Foundation
 
+import KauppaProductsClient
 import KauppaProductsModel
 import KauppaProductsRepository
 
-public class ProductsService {
+/// Products service
+public class ProductsService: ProductsServiceCallable {
     let repository: ProductsRepository
 
     public init(withRepository repository: ProductsRepository) {
         self.repository = repository
     }
 
-    func createProduct(data: ProductData) -> Product? {
+    public func createProduct(data: ProductData) -> Product? {
         var data = data
 
         if let variantId = data.variantId {
@@ -23,15 +25,15 @@ public class ProductsService {
         return productData
     }
 
-    func getProduct(id: UUID) -> Product? {
+    public func getProduct(id: UUID) -> Product? {
         return repository.getProduct(id: id)
     }
 
-    func deleteProduct(id: UUID) -> Bool {
+    public func deleteProduct(id: UUID) -> Bool {
         return repository.deleteProduct(id: id)
     }
 
-    func updateProduct(id: UUID, data: ProductPatch) -> Product? {
+    public func updateProduct(id: UUID, data: ProductPatch) -> Product? {
         guard var productData = repository.getProductData(id: id) else {
             return nil
         }
