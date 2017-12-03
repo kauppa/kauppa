@@ -64,11 +64,19 @@ let serviceTargets: [Target] = [
     )
 ]
 
+let clientTargets: [Target] = [
+    .target(
+        name: "KauppaAccountsClient",
+        dependencies: ["KauppaAccountsModel"],
+        path: "Sources/KauppaAccounts/Client"
+    )
+]
+
 let daemonTargets: [Target] = [
     .target(
         name: "KauppaAccounts",
         dependencies: ["KauppaAccountsService", "KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
-        exclude: ["Service", "Repository", "Model"]
+        exclude: ["Client", "Service", "Repository", "Model"]
     ),
     .target(
         name: "KauppaOrders",
@@ -113,6 +121,7 @@ targets.append(contentsOf: modelTargets)
 targets.append(contentsOf: repositoryTargets)
 targets.append(contentsOf: storeTargets)
 targets.append(contentsOf: serviceTargets)
+targets.append(contentsOf: clientTargets)
 targets.append(contentsOf: daemonTargets)
 targets.append(contentsOf: testTargets)
 
