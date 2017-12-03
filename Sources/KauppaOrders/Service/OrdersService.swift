@@ -25,6 +25,10 @@ public class OrdersService: OrdersServiceCallable {
         var order = Order()
         var inventoryUpdates = [(UUID, UInt32)]()
 
+        if data.products.isEmpty {
+            return nil
+        }
+
         for orderUnit in data.products {
             guard let product = productsService.getProduct(id: orderUnit.id) else {
                 return nil      // Invalid product ID

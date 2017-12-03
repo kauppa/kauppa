@@ -15,11 +15,14 @@ public class OrdersRepository {
     }
 
     public func createOrder(withData data: Order) -> Order? {
+        let id = UUID()
         let date = Date()
         var data = data
-        data.id = UUID()
+        data.id = id
         data.createdOn = date
         data.updatedAt = date
+
+        orders[id] = data
         store.createNewOrder(orderData: data)
         return data
     }
