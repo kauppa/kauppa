@@ -26,4 +26,9 @@ public class OrdersRepository {
         try store.createNewOrder(orderData: data)
         return data
     }
+
+    public func deleteOrder(id: UUID) throws -> () {
+        orders.removeValue(forKey: id)
+        return try store.deleteOrder(id: id)
+    }
 }

@@ -65,4 +65,8 @@ public class OrdersService: OrdersServiceCallable {
         order.totalWeight = weightCounter.sum()
         return try repository.createOrder(withData: order)
     }
+
+    public func deleteOrder(id: UUID) throws -> () {
+        return try repository.deleteOrder(id: id)
+    }
 }
