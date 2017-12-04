@@ -14,12 +14,17 @@ public class ProductsService: ProductsServiceCallable {
 
     public func createProduct(data: ProductData) throws -> Product {
         var data = data
-        data.variants = []
+        data.variants = []  // ensure that variants can't be "set" manually
         var variant: Product? = nil
 
         if let variantId = data.variantId {
             do {
                 variant = try repository.getProduct(id: variantId)
+                // also check whether this is another variant (if so, use its parent)
+                if let parentId = variant!.data.variantId {
+                    variant = try repository.getProduct(id: parentId)
+                    data.variantId = variant!.id
+                }
             } catch {   // FIXME: check the error kind
                 data.variantId = nil
             }
