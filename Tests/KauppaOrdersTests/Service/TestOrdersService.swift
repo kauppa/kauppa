@@ -37,19 +37,20 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 5
         productData.price = 3.0
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = productsService.createProduct(data: productData)!
+        let product = try! productsService.createProduct(data: productData)
         let ordersService = OrdersService(withRepository: repository,
                                           productsService: productsService)
 
         let inventoryUpdated = expectation(description: "product inventory updated")
         productsService.callbacks[product.id] = { patch in
-            XCTAssertEqual(patch.inventory, 2)
+            XCTAssertEqual(patch.inventory, 2)      // inventory amount changed
             inventoryUpdated.fulfill()
         }
 
         let orderData = OrderData(products: [OrderUnit(id: product.id, quantity: 3)])
-        let order = ordersService.createOrder(data: orderData)!
+        let order = try! ordersService.createOrder(data: orderData)
         XCTAssertNotNil(order.id)
+        // Make sure that the quantity is tracked while summing up values
         XCTAssertEqual(order.totalItems, 3)
         XCTAssertEqual(order.totalWeight.value, 15.0)
         XCTAssertEqual(order.totalPrice, 9.0)
@@ -66,8 +67,8 @@ class TestOrdersService: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           productsService: productsService)
         let orderData = OrderData(products: [])
-        let result = ordersService.createOrder(data: orderData)
-        XCTAssertNil(result)
+        let result = try? ordersService.createOrder(data: orderData)
+        XCTAssertNil(result)    // no products - failure
     }
 
     func testOrderWithInvalidProduct() {
@@ -78,22 +79,22 @@ class TestOrdersService: XCTestCase {
                                           productsService: productsService)
 
         let orderData = OrderData(products: [OrderUnit(id: UUID(), quantity: 3)])
-        let result = ordersService.createOrder(data: orderData)
-        XCTAssertNil(result)
+        let result = try? ordersService.createOrder(data: orderData)
+        XCTAssertNil(result)    // random UUID - invalid product
     }
 
     func testOrderWithUnavailableProduct() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
         let productsService = TestProductsService()
-        var productData = ProductData(title: "", subtitle: "", description: "")
-        productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = productsService.createProduct(data: productData)!
+        let productData = ProductData(title: "", subtitle: "", description: "")
+        // By default, inventory has zero items
+        let product = try! productsService.createProduct(data: productData)
         let ordersService = OrdersService(withRepository: repository,
                                           productsService: productsService)
 
         let orderData = OrderData(products: [OrderUnit(id: product.id, quantity: 3)])
-        let result = ordersService.createOrder(data: orderData)
+        let result = try? ordersService.createOrder(data: orderData)
         XCTAssertNil(result)
     }
 
@@ -105,12 +106,13 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 5
         productData.price = 3.0
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = productsService.createProduct(data: productData)!
+        let product = try! productsService.createProduct(data: productData)
         let ordersService = OrdersService(withRepository: repository,
                                           productsService: productsService)
-
+        // Products with zero quantity will be skipped - in this case, that's the
+        // only product, and hence it fails
         let orderData = OrderData(products: [OrderUnit(id: product.id, quantity: 0)])
-        let result = ordersService.createOrder(data: orderData)
+        let result = try? ordersService.createOrder(data: orderData)
         XCTAssertNil(result)
     }
 
@@ -120,18 +122,18 @@ class TestOrdersService: XCTestCase {
         let productsService = TestProductsService()
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        var anotherProductData = productData
-        anotherProductData.inventory = 0
+        let anotherProductData = productData
 
-        let firstProduct = productsService.createProduct(data: productData)!
-        let secondProduct = productsService.createProduct(data: anotherProductData)!
+        let firstProduct = try! productsService.createProduct(data: productData)
+        let secondProduct = try! productsService.createProduct(data: anotherProductData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           productsService: productsService)
         let orderData = OrderData(products: [OrderUnit(id: firstProduct.id, quantity: 3),
                                              OrderUnit(id: secondProduct.id, quantity: 0)])
-        let order = ordersService.createOrder(data: orderData)!
+        let order = try! ordersService.createOrder(data: orderData)
         XCTAssertNotNil(order.id)
+        // Second product (zero quantity) will be skipped while placing the order
         XCTAssertEqual(order.totalItems, 3)
     }
 
@@ -143,7 +145,7 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 10
         productData.price = 3.0
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = productsService.createProduct(data: productData)!
+        let product = try! productsService.createProduct(data: productData)
         let ordersService = OrdersService(withRepository: repository,
                                           productsService: productsService)
 
@@ -152,11 +154,12 @@ class TestOrdersService: XCTestCase {
             XCTAssertEqual(patch.inventory, 4)
             inventoryUpdated.fulfill()
         }
-
+        // Multiple quantities of the same product
         let orderData = OrderData(products: [OrderUnit(id: product.id, quantity: 3),
                                              OrderUnit(id: product.id, quantity: 3)])
-        let order = ordersService.createOrder(data: orderData)!
+        let order = try! ordersService.createOrder(data: orderData)
         XCTAssertNotNil(order.id)
+        // All quantities are accumulated in the end
         XCTAssertEqual(order.totalItems, 6)
         XCTAssertEqual(order.totalWeight.value, 30.0)
         XCTAssertEqual(order.totalPrice, 18.0)

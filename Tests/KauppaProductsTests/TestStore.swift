@@ -12,23 +12,33 @@ public class TestStore: ProductsStore {
     public var deleteCalled = false
     public var updateCalled = false
 
-    public func createNewProduct(productData: Product) {
+    public func createNewProduct(productData: Product) throws -> () {
         createCalled = true
         products[productData.id] = productData
+        return ()
     }
 
-    public func getProduct(id: UUID) -> Product? {
+    public func getProduct(id: UUID) throws -> Product {
         getCalled = true
-        return products[id]
+        guard let product = products[id] else {
+            throw ProductsError.invalidProduct
+        }
+
+        return product
     }
 
-    public func deleteProduct(id: UUID) -> Bool {
+    public func deleteProduct(id: UUID) throws -> () {
         deleteCalled = true
-        return products.removeValue(forKey: id) != nil
+        if products.removeValue(forKey: id) != nil {
+            return ()
+        } else {
+            throw ProductsError.invalidProduct
+        }
     }
 
-    public func updateProduct(productData: Product) {
+    public func updateProduct(productData: Product) throws -> () {
         updateCalled = true
         products[productData.id] = productData
+        return ()
     }
 }
