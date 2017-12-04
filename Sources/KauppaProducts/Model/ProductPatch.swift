@@ -13,6 +13,7 @@ public struct ProductPatch: Decodable {
     public var inventory: UInt32?
     public var images: [String]?
     public var price: Double?
+    public var variants: Set<UUID>?
     public var variantId: UUID?
 
     public init() {
@@ -26,6 +27,7 @@ public struct ProductPatch: Decodable {
         inventory = nil
         images = nil
         price = nil
+        variants = nil
         variantId = nil
     }
 }

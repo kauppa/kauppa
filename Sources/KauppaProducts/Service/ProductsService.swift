@@ -14,16 +14,25 @@ public class ProductsService: ProductsServiceCallable {
 
     public func createProduct(data: ProductData) throws -> Product {
         var data = data
+        data.variants = []
+        var variant: Product? = nil
 
         if let variantId = data.variantId {
             do {
-                let _ = try repository.getProduct(id: variantId)
-            } catch {
+                variant = try repository.getProduct(id: variantId)
+            } catch {   // FIXME: check the error kind
                 data.variantId = nil
             }
         }
 
-        let productData = try self.repository.createProduct(data: data)
+        let productData = try repository.createProduct(data: data)
+        if let variant = variant {
+            var variantData = variant.data
+            variantData.variants.insert(productData.id)
+            // FIXME: Make sure that the data of variants is reflected
+            let _ = try? repository.updateProductData(id: variant.id, data: variantData)
+        }
+
         return productData
     }
 
@@ -90,10 +99,22 @@ public class ProductsService: ProductsServiceCallable {
             productData.category = category
         }
 
+        /// NOTE: No support for `variants` directly
+
         if let variantId = data.variantId {
             if variantId != id {
-                let _ = try repository.getProduct(id: variantId)
-                productData.variantId = variantId
+                var variant = try repository.getProduct(id: variantId)
+                // Check if it's a child - if so, use its variantId instead.
+                if let parentId = variant.data.variantId {
+                    variant = try repository.getProduct(id: parentId)
+                }
+
+                productData.variantId = variant.id
+                var variantData = variant.data
+                if !variantData.variants.contains(id) {
+                    variantData.variants.insert(id)
+                    let _ = try repository.updateProductData(id: variant.id, data: variantData)
+                }
             }
         }
 
