@@ -1,5 +1,5 @@
 import KauppaOrdersModel
 
 public protocol OrdersPersisting {
-    func createNewOrder(orderData: Order)
+    func createNewOrder(orderData: Order) throws -> ()
 }

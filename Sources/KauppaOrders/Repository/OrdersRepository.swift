@@ -14,7 +14,7 @@ public class OrdersRepository {
         self.store = store
     }
 
-    public func createOrder(withData data: Order) -> Order? {
+    public func createOrder(withData data: Order) throws -> Order {
         let id = UUID()
         let date = Date()
         var data = data
@@ -23,7 +23,7 @@ public class OrdersRepository {
         data.updatedAt = date
 
         orders[id] = data
-        store.createNewOrder(orderData: data)
+        try store.createNewOrder(orderData: data)
         return data
     }
 }

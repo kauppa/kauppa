@@ -14,50 +14,41 @@ public class ProductsRepository {
         self.store = store
     }
 
-    public func createProduct(data: ProductData) -> Product? {
+    public func createProduct(data: ProductData) throws -> Product {
         let id = UUID()
         let date = Date()
         let product = Product(id: id, createdOn: date,
                               updatedAt: date, data: data)
-        self.store.createNewProduct(productData: product)
+        try self.store.createNewProduct(productData: product)
         products[id] = product
         return product
     }
 
-    public func deleteProduct(id: UUID) -> Bool {
+    public func deleteProduct(id: UUID) throws -> () {
         products.removeValue(forKey: id)
-        return store.deleteProduct(id: id)
+        return try store.deleteProduct(id: id)
     }
 
-    public func getProductData(id: UUID) -> ProductData? {
-        guard let product = getProduct(id: id) else {
-            return nil
-        }
-
+    public func getProductData(id: UUID) throws -> ProductData {
+        let product = try getProduct(id: id)
         return product.data
     }
 
-    public func updateProductData(id: UUID, data: ProductData) -> Product? {
-        guard var product = getProduct(id: id) else {
-            return nil
-        }
-
+    public func updateProductData(id: UUID, data: ProductData) throws -> Product {
+        var product = try getProduct(id: id)
         let date = Date()
         product.updatedAt = date
         product.data = data
         products[id] = product
-        store.updateProduct(productData: product)
+        try store.updateProduct(productData: product)
         return product
     }
 
-    public func getProduct(id: UUID) -> Product? {
+    public func getProduct(id: UUID) throws -> Product {
         guard let product = products[id] else {
-            let result = store.getProduct(id: id)
-            if let product = result {
-                products[id] = product
-            }
-
-            return result
+            let product = try store.getProduct(id: id)
+            products[id] = product
+            return product
         }
 
         return product

@@ -12,31 +12,31 @@ public class ProductsService: ProductsServiceCallable {
         self.repository = repository
     }
 
-    public func createProduct(data: ProductData) -> Product? {
+    public func createProduct(data: ProductData) throws -> Product {
         var data = data
 
         if let variantId = data.variantId {
-            if repository.getProduct(id: variantId) == nil {
+            do {
+                let _ = try repository.getProduct(id: variantId)
+            } catch {
                 data.variantId = nil
             }
         }
 
-        let productData = self.repository.createProduct(data: data)
+        let productData = try self.repository.createProduct(data: data)
         return productData
     }
 
-    public func getProduct(id: UUID) -> Product? {
-        return repository.getProduct(id: id)
+    public func getProduct(id: UUID) throws -> Product {
+        return try repository.getProduct(id: id)
     }
 
-    public func deleteProduct(id: UUID) -> Bool {
-        return repository.deleteProduct(id: id)
+    public func deleteProduct(id: UUID) throws -> () {
+        return try repository.deleteProduct(id: id)
     }
 
-    public func updateProduct(id: UUID, data: ProductPatch) -> Product? {
-        guard var productData = repository.getProductData(id: id) else {
-            return nil
-        }
+    public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
+        var productData = try repository.getProductData(id: id)
 
         if let title = data.title {
             productData.title = title
@@ -91,11 +91,12 @@ public class ProductsService: ProductsServiceCallable {
         }
 
         if let variantId = data.variantId {
-            if variantId != id && repository.getProduct(id: variantId) != nil {
+            if variantId != id {
+                let _ = try repository.getProduct(id: variantId)
                 productData.variantId = variantId
             }
         }
 
-        return repository.updateProductData(id: id, data: productData)
+        return try repository.updateProductData(id: id, data: productData)
     }
 }
