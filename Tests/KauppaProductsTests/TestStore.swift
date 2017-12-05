@@ -3,7 +3,7 @@ import Foundation
 @testable import KauppaProductsStore
 @testable import KauppaProductsModel
 
-public class TestStore: ProductsStore {
+public class TestStore: ProductsStorable {
     public var products = [UUID: Product]()
 
     // Variables to indicate the count of function calls

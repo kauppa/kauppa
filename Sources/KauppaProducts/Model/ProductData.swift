@@ -2,7 +2,7 @@ import Foundation
 
 import KauppaCore
 
-public struct ProductData: Codable {
+public struct ProductData: Mappable {
     /// Title to be shown everywhere
     public var title: String
     /// A subtitle for this product

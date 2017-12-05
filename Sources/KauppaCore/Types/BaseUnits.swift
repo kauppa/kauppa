@@ -1,3 +1,4 @@
+/// Months
 public enum Month: UInt8, Codable {
     case january   = 1
     case february  = 2
@@ -13,6 +14,7 @@ public enum Month: UInt8, Codable {
     case december  = 12
 }
 
+/// Any measurable quantity
 public struct UnitMeasurement<T: Codable>: Codable {
     public var value: Double
     public var unit: T
@@ -23,6 +25,7 @@ public struct UnitMeasurement<T: Codable>: Codable {
     }
 }
 
+/// Length units
 public enum Length: String, Codable {
     case millimeter = "mm"
     case centimeter = "cm"
@@ -32,12 +35,14 @@ public enum Length: String, Codable {
     // ...
 }
 
+/// Size values (length, width and height - all optional)
 public struct Size: Codable {
     public var height: UnitMeasurement<Length>?
     public var length: UnitMeasurement<Length>?
     public var width: UnitMeasurement<Length>?
 }
 
+/// Weight units
 public enum Weight: String, Codable {
     case milligram = "mg"
     case gram      = "g"
@@ -46,11 +51,13 @@ public enum Weight: String, Codable {
     // ...
 }
 
+/// A counter for adding weights
 public class WeightCounter {
     var weight = UnitMeasurement(value: 0.0, unit: Weight.gram)
 
     public init() {}
 
+    /// Add weight to this counter.
     public func add(_ other: UnitMeasurement<Weight>) {
         switch other.unit {
             case .milligram:
@@ -64,6 +71,7 @@ public class WeightCounter {
         }
     }
 
+    /// Simplifies the final weight to an acceptable format
     public func sum() -> UnitMeasurement<Weight> {
         if weight.value > 100.0 {
             weight.value /= 1000.0

@@ -1,5 +1,6 @@
-import Foundation 
+import Foundation
 
+/// Label for an address.
 public enum AddressKind: String, Codable {
     case home  = "home"
     case work  = "work"

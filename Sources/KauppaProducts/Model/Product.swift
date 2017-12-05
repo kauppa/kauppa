@@ -1,6 +1,8 @@
 import Foundation
 
-public struct Product: Encodable {
+import KauppaCore
+
+public struct Product: Mappable {
     /// Unique identifier for this product.
     public let id: UUID
     /// Creation timestamp

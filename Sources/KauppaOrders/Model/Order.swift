@@ -2,7 +2,7 @@ import Foundation
 
 import KauppaCore
 
-public struct Order: Encodable {
+public struct Order: Mappable {
     /// Unique identifier for this order.
     public var id: UUID?
     /// Creation timestamp

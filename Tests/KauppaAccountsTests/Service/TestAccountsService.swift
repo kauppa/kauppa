@@ -19,8 +19,6 @@ class TestAccountsService: XCTestCase {
 
     override func setUp() {
         super.setUp()
-
-        let router = AccountsRouter()
     }
 
     override func tearDown() {
