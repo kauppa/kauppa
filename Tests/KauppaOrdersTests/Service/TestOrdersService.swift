@@ -18,6 +18,7 @@ class TestOrdersService: XCTestCase {
             ("Test order zero quantity", testOrderWithZeroQuantity),
             ("Test order with one product having zero quantity", testOrderWithOneProductHavinZeroQuantity),
             ("Test order with duplicate products", testOrderWithDuplicateProducts),
+            ("Test order deletion", testOrderDeletion),
         ]
     }
 
@@ -167,5 +168,20 @@ class TestOrdersService: XCTestCase {
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
         }
+    }
+
+    func testOrderDeletion() {
+        let store = TestStore()
+        let repository = OrdersRepository(withStore: store)
+        let productsService = TestProductsService()
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.inventory = 5
+        let product = try! productsService.createProduct(data: productData)
+        let ordersService = OrdersService(withRepository: repository,
+                                          productsService: productsService)
+        let orderData = OrderData(products: [OrderUnit(id: product.id, quantity: 3)])
+        let order = try! ordersService.createOrder(data: orderData)
+        XCTAssertNotNil(order.id)
+        let _ = try! ordersService.deleteOrder(id: order.id!)
     }
 }
