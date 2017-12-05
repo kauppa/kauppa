@@ -5,7 +5,7 @@ import KauppaCore
 /// This has all fields from `ProductData`, but everything's optional.
 /// It's used for an update request, where one or more of these properties
 /// could be updated for a product.
-public struct ProductPatch: Decodable {
+public struct ProductPatch: Mappable {
     public var title: String?
     public var subtitle: String?
     public var description: String?

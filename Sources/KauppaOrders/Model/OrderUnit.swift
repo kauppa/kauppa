@@ -1,6 +1,8 @@
 import Foundation
 
-public struct OrderUnit: Codable {
+import KauppaCore
+
+public struct OrderUnit: Mappable {
     /// Product ID
     public let id: UUID
     /// Quantity of this product required

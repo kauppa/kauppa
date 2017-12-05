@@ -8,9 +8,9 @@ public class OrdersRepository {
     // least recently used items every now and then.
     var orders = [UUID: Order]()
 
-    let store: OrdersStore
+    let store: OrdersStorable
 
-    public init(withStore store: OrdersStore) {
+    public init(withStore store: OrdersStorable) {
         self.store = store
     }
 

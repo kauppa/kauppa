@@ -4,6 +4,5 @@ import KauppaCore
 // and retrieving of accounts information to and
 // from a stateful data store.
 public protocol AccountsPersisting: Persisting {
-   
+    //
 }
-

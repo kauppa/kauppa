@@ -1,26 +1,20 @@
 import KauppaCore
 import KauppaAccountsRepository
 
-/// Controls the flow of information from the service end-points, 
+/// Controls the flow of information from the service end-points,
 /// through to the domain repository.
 public class AccountsController: ServiceController {
 
-    let repository: AccountsDepositing?
+    let service: AccountsService? = nil
 
-    let service: AccountsService?
-
-    let router: AccountsRouter?
+    let router: AccountsRouter? = nil
 
     /// Initializes a new `AccountsController`.
     public override init() {
-        repository = AccountsRepository()
-        service = AccountsService(withDepositing: repository!)
-        router = AccountsRouter()
-        
-        super.init()        
+        super.init()
     }
 
     func startService() {
-    
+
     }
 }

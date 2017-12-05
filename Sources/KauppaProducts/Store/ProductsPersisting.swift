@@ -1,9 +1,10 @@
 import Foundation
 
+import KauppaCore
 import KauppaProductsModel
 
 /// Methods that mutate the underlying store with information.
-public protocol ProductsPersisting {
+public protocol ProductsPersisting: Persisting {
     /// Create a new product with the product information from repository.
     func createNewProduct(productData: Product) throws -> ()
 

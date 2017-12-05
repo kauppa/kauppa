@@ -2,21 +2,17 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
+import KauppaAccountsStore
 
 // Manages the retrievable and persistance of accounts data
 // inline with the business logic requirements.
-public class AccountsRepository: AccountsDepositing {
+public class AccountsRepository {
 
     public var accounts: [UUID: Account]
 
-    private var store: AccountsStoring
+    var store: AccountsStorable
 
-    public init() {
-        self.accounts = [UUID: Account]()
-        self.store = AccountsStore()
-    }
-
-    public init(store: AccountsStoring) {
+    public init(withStore store: AccountsStorable) {
         self.accounts = [UUID: Account]()
         self.store = store
     }

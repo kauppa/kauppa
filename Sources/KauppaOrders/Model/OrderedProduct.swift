@@ -2,7 +2,7 @@ import Foundation
 
 import KauppaCore
 
-public struct OrderedProduct: Encodable {
+public struct OrderedProduct: Mappable {
     /// Product ID
     public let id: UUID?
     /// The number of items that have been processed
