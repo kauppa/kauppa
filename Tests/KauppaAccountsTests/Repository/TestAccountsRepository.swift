@@ -3,6 +3,7 @@ import XCTest
 
 @testable import KauppaCore
 @testable import KauppaAccountsModel
+@testable import KauppaAccountsRepository
 
 class TestAccountsRepository: XCTestCase {
 
@@ -10,9 +11,7 @@ class TestAccountsRepository: XCTestCase {
 
     static var allTests: [(String, (TestAccountsRepository) -> () throws -> Void)] {
         return [
-            ("Test account creation", testAccountCreation),
-            ("Test account disable", testAccountDisable),
-            ("Test account deletion", testAccountDeletion)
+            ("Test account creation", testAccountCreation)
         ]
     }
 
@@ -28,25 +27,14 @@ class TestAccountsRepository: XCTestCase {
     }
 
     func testAccountCreation() {
-        /*let creation = expectation(description: "Account created")
-        let account = AccountData()
-        let data = store.createAccount(data: account)!
-        let id = Array(self.store.accounts.keys)[0]
-        XCTAssertEqual(id, data.id)
-        let email = "test@test.co" //TODO: Array(self.store.emailIds.keys)[0]
-        XCTAssertEqual(email, account.email)
-        creation.fulfill()
-
-        waitForExpectations(timeout: 2) { error in
-            XCTAssertNil(error)
-        }*/
-    }
-
-    func testAccountDisable() {
-
-    }
-
-    func testAccountDeletion() {
-
+        let store = TestStore()
+        let repository = AccountsRepository(withStore: store)
+        let accountData = AccountData()
+        let data = try? repository.createAccount(data: accountData)
+        XCTAssertNotNil(data)
+        // These two timestamps should be the same in creation
+        XCTAssertEqual(data!.createdOn, data!.updatedAt)
+        XCTAssertTrue(store.createCalled)   // store has been called for creation
+        XCTAssertNotNil(repository.accounts[data!.id])  // repository now has account data
     }
 }
