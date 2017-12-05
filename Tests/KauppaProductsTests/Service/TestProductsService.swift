@@ -115,7 +115,7 @@ class TestProductsService: XCTestCase {
         XCTAssert(updatedProduct.data.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.data.color, "blue")
         XCTAssertEqual(updatedProduct.data.inventory, 20)
-        XCTAssertEqual(updatedProduct.data.images, validTests[10].1 as! [String])
+        XCTAssertEqual(updatedProduct.data.images, ["data:image/gif;base64,foobar"])
         XCTAssertEqual(updatedProduct.data.price, 30.0)
         XCTAssertEqual(updatedProduct.data.category, .electronics)
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)

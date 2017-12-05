@@ -2,6 +2,8 @@ import Foundation
 
 import KauppaOrdersModel
 
+/// General API for the orders service to be implemented by both the
+/// service and the client.
 public protocol OrdersServiceCallable {
     /// Create an order from the given order data.
     func createOrder(data: OrderData) throws -> Order
