@@ -20,16 +20,13 @@ public class OrdersService: OrdersServiceCallable {
         self.productsService = productsService
     }
 
-    public func createOrder(data: OrderData) -> Order? {
+    public func createOrder(data: OrderData) throws -> Order {
         let weightCounter = WeightCounter()
         var order = Order()
         var inventoryUpdates = [UUID: UInt32]()
 
         for orderUnit in data.products {
-            guard let product = productsService.getProduct(id: orderUnit.id) else {
-                return nil      // Invalid product ID
-            }
-
+            let product = try productsService.getProduct(id: orderUnit.id)
             if orderUnit.quantity == 0 {
                 continue    // skip zero'ed items
             }
@@ -37,7 +34,7 @@ public class OrdersService: OrdersServiceCallable {
             // Also check for duplicate product
             let available = inventoryUpdates[product.id] ?? product.data.inventory
             if available < orderUnit.quantity {
-                return nil      // Not enough items in inventory
+                throw OrdersError.productUnavailable
             }
 
             let leftover = available - UInt32(orderUnit.quantity)
@@ -55,17 +52,17 @@ public class OrdersService: OrdersServiceCallable {
         }
 
         if inventoryUpdates.isEmpty {
-            return nil
+            throw OrdersError.noItemsToProcess
         }
 
         for (id, leftover) in inventoryUpdates {
             var patch = ProductPatch()
             patch.inventory = leftover
             // FIXME: What if the client fails for some reason?
-            let _ = productsService.updateProduct(id: id, data: patch)
+            let _ = try? productsService.updateProduct(id: id, data: patch)
         }
 
         order.totalWeight = weightCounter.sum()
-        return repository.createOrder(withData: order)
+        return try repository.createOrder(withData: order)
     }
 }

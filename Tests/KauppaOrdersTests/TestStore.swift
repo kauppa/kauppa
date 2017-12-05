@@ -9,8 +9,9 @@ public class TestStore: OrdersStore {
     // Variables to indicate the count of function calls
     public var createCalled = false
 
-    public func createNewOrder(orderData: Order) {
+    public func createNewOrder(orderData: Order) throws -> () {
         createCalled = true
         orders[orderData.id!] = orderData
+        return ()
     }
 }
