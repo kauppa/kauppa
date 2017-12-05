@@ -14,6 +14,7 @@ public class OrdersRepository {
         self.store = store
     }
 
+    /// Create an order with service-supplied order data.
     public func createOrder(withData data: Order) throws -> Order {
         let id = UUID()
         let date = Date()
@@ -27,6 +28,7 @@ public class OrdersRepository {
         return data
     }
 
+    /// Delete an order corresponding to an ID.
     public func deleteOrder(id: UUID) throws -> () {
         orders.removeValue(forKey: id)
         return try store.deleteOrder(id: id)

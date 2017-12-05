@@ -2,6 +2,9 @@ import Foundation
 
 import KauppaCore
 
+/// This has all fields from `ProductData`, but everything's optional.
+/// It's used for an update request, where one or more of these properties
+/// could be updated for a product.
 public struct ProductPatch: Decodable {
     public var title: String?
     public var subtitle: String?
@@ -11,7 +14,7 @@ public struct ProductPatch: Decodable {
     public var color: String?
     public var weight: UnitMeasurement<Weight>?
     public var inventory: UInt32?
-    public var images: [String]?
+    public var images: Set<String>?
     public var price: Double?
     public var variantId: UUID?
 

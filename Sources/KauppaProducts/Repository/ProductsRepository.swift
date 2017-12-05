@@ -14,6 +14,7 @@ public class ProductsRepository {
         self.store = store
     }
 
+    /// Create product from the given product data.
     public func createProduct(data: ProductData) throws -> Product {
         let id = UUID()
         let date = Date()
@@ -24,16 +25,19 @@ public class ProductsRepository {
         return product
     }
 
+    /// Delete the product corresponding to an ID.
     public func deleteProduct(id: UUID) throws -> () {
         products.removeValue(forKey: id)
         return try store.deleteProduct(id: id)
     }
 
+    /// Get the product data corresponding to an ID.
     public func getProductData(id: UUID) throws -> ProductData {
         let product = try getProduct(id: id)
         return product.data
     }
 
+    /// Update the product data for a given product ID.
     public func updateProductData(id: UUID, data: ProductData) throws -> Product {
         var product = try getProduct(id: id)
         let date = Date()
@@ -44,6 +48,7 @@ public class ProductsRepository {
         return product
     }
 
+    /// Fetch the whole product (from repository, if it's available, or store, if not).
     public func getProduct(id: UUID) throws -> Product {
         guard let product = products[id] else {
             let product = try store.getProduct(id: id)

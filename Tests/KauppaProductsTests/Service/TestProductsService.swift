@@ -10,7 +10,6 @@ class TestProductsService: XCTestCase {
     static var allTests: [(String, (TestProductsService) -> () throws -> Void)] {
         return [
             ("Test product creation", testProductCreation),
-            ("Test product with invalid variant", testProductWithInvalidVariant),
             ("Test product deletion", testProductDeletion),
             ("Test update of product", testProductUpdate),
         ]
@@ -31,16 +30,6 @@ class TestProductsService: XCTestCase {
         let product = ProductData(title: "", subtitle: "", description: "")
         let data = try? service.createProduct(data: product)
         XCTAssertNotNil(data)       // product data should exist
-    }
-
-    func testProductWithInvalidVariant() {
-        let store = TestStore()
-        let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
-        productData.variantId = UUID()      // random UUID
-        let product = try! service.createProduct(data: productData)
-        XCTAssertNil(product.data.variantId)    // invalid variant - ignored
     }
 
     func testProductDeletion() {
@@ -126,7 +115,7 @@ class TestProductsService: XCTestCase {
         XCTAssert(updatedProduct.data.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.data.color, "blue")
         XCTAssertEqual(updatedProduct.data.inventory, 20)
-        XCTAssertEqual(updatedProduct.data.images, validTests[10].1 as! [String])
+        XCTAssertEqual(updatedProduct.data.images, ["data:image/gif;base64,foobar"])
         XCTAssertEqual(updatedProduct.data.price, 30.0)
         XCTAssertEqual(updatedProduct.data.category, .electronics)
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
