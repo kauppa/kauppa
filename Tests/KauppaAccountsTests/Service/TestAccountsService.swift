@@ -1,6 +1,8 @@
 import Foundation
 import XCTest
 
+@testable import KauppaAccountsModel
+@testable import KauppaAccountsRepository
 @testable import KauppaAccountsService
 
 class TestAccountsService: XCTestCase {
@@ -10,8 +12,8 @@ class TestAccountsService: XCTestCase {
     static var allTests: [(String, (TestAccountsService) -> () throws -> Void)] {
         return [
             ("Test account creation", testAccountCreation),
-            ("Test account disable", testAccountDisable),
-            ("Test account deletion", testAccountDeletion)
+            ("Test existing account", testExistingAccount),
+            ("Test invalid email", testInvalidEmail)
         ]
     }
 
@@ -26,14 +28,34 @@ class TestAccountsService: XCTestCase {
     }
 
     func testAccountCreation() {
-
+        let store = TestStore()
+        let repository = AccountsRepository(withStore: store)
+        let service = AccountsService(withRepository: repository)
+        var accountData = AccountData()
+        accountData.email = "abc@xyz.com"
+        let data = try? service.createAccount(withData: accountData)
+        XCTAssertNotNil(data)       // account data should exist
     }
 
-    func testAccountDisable() {
-
+    func testExistingAccount() {
+        let store = TestStore()
+        let repository = AccountsRepository(withStore: store)
+        let service = AccountsService(withRepository: repository)
+        var accountData = AccountData()
+        accountData.email = "abc@xyz.com"
+        let _ = try! service.createAccount(withData: accountData)    // success
+        // This should fail because it has the same email
+        let result = try? service.createAccount(withData: accountData)
+        XCTAssertNil(result)
     }
 
-    func testAccountDeletion() {
-
+    func testInvalidEmail() {
+        let store = TestStore()
+        let repository = AccountsRepository(withStore: store)
+        let service = AccountsService(withRepository: repository)
+        var accountData = AccountData()
+        accountData.email = "f/oo@xyz.com"      // invalid email
+        let result = try? service.createAccount(withData: accountData)
+        XCTAssertNil(result)
     }
 }

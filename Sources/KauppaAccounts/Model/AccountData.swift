@@ -5,13 +5,13 @@ import KauppaCore
 /// User-supplied data for an account.
 public struct AccountData: Mappable {
     /// Name of the user
-    public let name: String
+    public var name: String
     /// User's email
-    public let email: String
+    public var email: String
     /// User's phone number
-    public let phone: String
+    public var phone: String
     /// A list of user's addresses
-    public let address: [Address]
+    public var address: [Address]
 
     public init() {
         self.name = ""
