@@ -11,7 +11,8 @@ class TestAccountsRepository: XCTestCase {
 
     static var allTests: [(String, (TestAccountsRepository) -> () throws -> Void)] {
         return [
-            ("Test account creation", testAccountCreation)
+            ("Test account creation", testAccountCreation),
+            ("Test account deletion", testAccountDeletion),
         ]
     }
 
@@ -36,5 +37,17 @@ class TestAccountsRepository: XCTestCase {
         XCTAssertEqual(data!.createdOn, data!.updatedAt)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
         XCTAssertNotNil(repository.accounts[data!.id])  // repository now has account data
+    }
+
+    func testAccountDeletion() {
+        let store = TestStore()
+        let repository = AccountsRepository(withStore: store)
+        let accountData = AccountData()
+
+        let data = try! repository.createAccount(data: accountData)
+        let result: ()? = try? repository.deleteAccount(forId: data.id)
+        XCTAssertNotNil(result)
+        XCTAssertTrue(repository.accounts.isEmpty)      // repository shouldn't have the account
+        XCTAssertTrue(store.deleteCalled)       // delete should've been called in store (by repository)
     }
 }

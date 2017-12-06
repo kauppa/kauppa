@@ -10,6 +10,7 @@ public class TestStore: AccountsStorable {
     // Variables to indicate the count of function calls
     public var createCalled = false
     public var getCalled = false
+    public var deleteCalled = false
 
     public func createAccount(data: Account) throws -> () {
         createCalled = true
@@ -33,5 +34,14 @@ public class TestStore: AccountsStorable {
         }
 
         return try getAccount(id: id)
+    }
+
+    public func deleteAccount(forId id: UUID) throws -> () {
+        deleteCalled = true
+        if accounts.removeValue(forKey: id) != nil {
+            return ()
+        } else {
+            throw AccountsError.invalidAccount
+        }
     }
 }

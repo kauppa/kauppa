@@ -1,9 +1,12 @@
+import Foundation
+
 import KauppaCore
+import KauppaAccountsClient
 import KauppaAccountsModel
 import KauppaAccountsRepository
 
 /// AccountsService provides a public API for accounts actions.
-public class AccountsService {
+public class AccountsService: AccountsServiceCallable {
     let repository: AccountsRepository
 
     /// Initializes new `AccountsService` instance with
@@ -12,10 +15,6 @@ public class AccountsService {
         self.repository = repository
     }
 
-    /// Creates a new `Account` and registers it with the store.
-    ///
-    ///  - parameter data: `AccountData` to be stored.
-    ///  - returns: New `Account` from `AccountData` provided.
     public func createAccount(withData data: AccountData) throws -> Account {
         if !isValidEmail(data.email) {
             throw AccountsError.invalidEmail
@@ -26,5 +25,9 @@ public class AccountsService {
         }
 
         return try repository.createAccount(data: data)
+    }
+
+    public func deleteAccount(id: UUID) throws -> () {
+        return try repository.deleteAccount(forId: id)
     }
 }

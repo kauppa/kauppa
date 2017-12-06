@@ -50,4 +50,10 @@ public class AccountsRepository {
         try store.createAccount(data: account)
         return account
     }
+
+    /// Delete an account corresponding to an ID.
+    public func deleteAccount(forId id: UUID) throws -> () {
+        accounts.removeValue(forKey: id)
+        try store.deleteAccount(forId: id)
+    }
 }
