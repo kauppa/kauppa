@@ -89,7 +89,7 @@ class TestProductsRepository: XCTestCase {
         let data = try! repository.createProduct(data: product)
         repository.products = [:]       // clear the repository
         let _ = try? repository.getProduct(id: data.id)
-        XCTAssertEqual(store.getCalled, true)   // this should've called the store
+        XCTAssertTrue(store.getCalled)  // this should've called the store
         store.getCalled = false         // now, pretend that we never called the store
         let _ = try? repository.getProduct(id: data.id)
         // store shouldn't be called, because it was recently fetched by the repository

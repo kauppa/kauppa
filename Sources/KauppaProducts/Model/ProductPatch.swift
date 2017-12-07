@@ -6,29 +6,17 @@ import KauppaCore
 /// It's used for an update request, where one or more of these properties
 /// could be updated for a product.
 public struct ProductPatch: Mappable {
-    public var title: String?
-    public var subtitle: String?
-    public var description: String?
-    public var category: ProductCategory?
-    public var size: Size?
-    public var color: String?
-    public var weight: UnitMeasurement<Weight>?
-    public var inventory: UInt32?
-    public var images: Set<String>?
-    public var price: Double?
-    public var variantId: UUID?
+    public var title: String? = nil
+    public var subtitle: String? = nil
+    public var description: String? = nil
+    public var category: ProductCategory? = nil
+    public var size: Size? = nil
+    public var color: String? = nil
+    public var weight: UnitMeasurement<Weight>? = nil
+    public var inventory: UInt32? = nil
+    public var images: Set<String>? = nil
+    public var price: Double? = nil
+    public var variantId: UUID? = nil
 
-    public init() {
-        title = nil
-        subtitle = nil
-        description = nil
-        category = nil
-        size = nil
-        color = nil
-        weight = nil
-        inventory = nil
-        images = nil
-        price = nil
-        variantId = nil
-    }
+    public init() {}
 }

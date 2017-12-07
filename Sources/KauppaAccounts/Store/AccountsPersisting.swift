@@ -12,4 +12,7 @@ public protocol AccountsPersisting: Persisting {
 
     /// Delete an account associated with an ID.
     func deleteAccount(forId: UUID) throws -> ()
+
+    /// Update an account associated with an ID.
+    func updateAccount(accountData: Account) throws -> ()
 }

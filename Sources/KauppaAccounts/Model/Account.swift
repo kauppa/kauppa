@@ -9,9 +9,9 @@ public struct Account: Mappable {
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp
-    public let updatedAt: Date
+    public var updatedAt: Date
     /// User-supplied data
-    public let data: AccountData
+    public var data: AccountData
 
     public init(id: UUID, createdOn: Date, updatedAt: Date, data: AccountData) {
         self.id = id

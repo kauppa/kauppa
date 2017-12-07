@@ -11,6 +11,7 @@ public class TestStore: AccountsStorable {
     public var createCalled = false
     public var getCalled = false
     public var deleteCalled = false
+    public var updateCalled = false
 
     public func createAccount(data: Account) throws -> () {
         createCalled = true
@@ -43,5 +44,11 @@ public class TestStore: AccountsStorable {
         } else {
             throw AccountsError.invalidAccount
         }
+    }
+
+    public func updateAccount(accountData: Account) throws -> () {
+        updateCalled = true
+        accounts[accountData.id] = accountData
+        return ()
     }
 }

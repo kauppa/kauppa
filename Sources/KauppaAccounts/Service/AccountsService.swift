@@ -27,7 +27,33 @@ public class AccountsService: AccountsServiceCallable {
         return try repository.createAccount(data: data)
     }
 
+    public func getAccount(id: UUID) throws -> Account {
+        return try repository.getAccount(forId: id)
+    }
+
     public func deleteAccount(id: UUID) throws -> () {
         return try repository.deleteAccount(forId: id)
+    }
+
+    public func updateAccount(id: UUID, data: AccountPatch) throws -> Account {
+        var accountData = try repository.getAccountData(forId: id)
+
+        if let name = data.name {
+            accountData.name = name
+        }
+
+        if let email = data.email {
+            accountData.email = email
+        }
+
+        if let phone = data.phone {
+            accountData.phone = phone
+        }
+
+        if let addressList = data.address {
+            accountData.address = addressList
+        }
+
+        return try repository.updateAccountData(forId: id, data: accountData)
     }
 }

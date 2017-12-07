@@ -11,7 +11,7 @@ public struct AccountData: Mappable {
     /// User's phone number
     public var phone: String
     /// A list of user's addresses
-    public var address: [Address]
+    public var address: Set<Address>
 
     public init() {
         self.name = ""
