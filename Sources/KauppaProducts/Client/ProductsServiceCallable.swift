@@ -16,4 +16,10 @@ public protocol ProductsServiceCallable {
 
     /// Update the product corresponding to a given ID.
     func updateProduct(id: UUID, data: ProductPatch) throws -> Product
+
+    /// Adds one or more items to the corresponding collection fields in a product.
+    func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product
+
+    /// Reset individual product properties with the given patch.
+    func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product
 }

@@ -14,6 +14,7 @@ class TestProductVariants: XCTestCase {
             ("Test product update with variant", testProductUpdateWithVariant),
             ("Test product creation with cross-referencing variants", testProductCreationWithCrossReferencingVariant),
             ("Test product update with cross-referencing variants", testProductUpdateWithCrossReferencingVariants),
+            ("Test variant removal", testVariantRemoval),
         ]
     }
 
@@ -123,5 +124,9 @@ class TestProductVariants: XCTestCase {
         // Parent should have all the variants now
         let parent = try! service.getProduct(id: parentProduct.id)
         XCTAssertEqual(parent.data.variants, [firstChild.id, secondChild.id])
+    }
+
+    func testVariantRemoval() {
+        //
     }
 }

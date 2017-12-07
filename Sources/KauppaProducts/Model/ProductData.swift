@@ -20,7 +20,7 @@ public struct ProductData: Mappable {
     /// Amount of items of this product in the inventory
     public var inventory: UInt32
     /// Base64-encoded images
-    public var images: Set<String>
+    public var images: ArraySet<String>
     /// Price of the product in some chosen currency
     /// NOTE: We're sticking to one unit for now
     public var price: Double    // FIXME: Avoid `Double` to avoid floating point disasters.
@@ -38,7 +38,7 @@ public struct ProductData: Mappable {
         self.subtitle = subtitle
         self.description = description
         self.inventory = 0
-        self.images = []
+        self.images = ArraySet()
         self.variants = []
         self.price = 0
     }

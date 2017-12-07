@@ -40,4 +40,12 @@ public class TestProductsService: ProductsServiceCallable {
 
         return try getProduct(id: id)   // This is just a stub
     }
+
+    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+        return try getProduct(id: id)   // This is just a stub
+    }
+
+    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+        return try getProduct(id: id)   // This is just a stub
+    }
 }

@@ -125,4 +125,48 @@ public class ProductsService: ProductsServiceCallable {
 
         return try repository.updateProductData(id: id, data: productData)
     }
+
+    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+        var productData = try repository.getProductData(id: id)
+
+        if let image = data.image {
+            let _ = productData.images.insert(image)
+        }
+
+        return try repository.updateProductData(id: id, data: productData)
+    }
+
+    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+        var productData = try repository.getProductData(id: id)
+
+        if (data.removeCategory ?? false) {
+            productData.category = nil
+        }
+
+        if (data.removeColor ?? false) {
+            productData.color = nil
+        }
+
+        if (data.removeSize ?? false) {
+            productData.size =  nil
+        }
+
+        if (data.removeWeight ?? false) {
+            productData.weight = nil
+        }
+
+        if let index = data.removeImageAt {
+            let _ = productData.images.remove(at: index)
+        }
+
+        if (data.removeVariant ?? false) {
+            if let parentId = productData.variantId {
+                var parentData = try repository.getProductData(id: parentId)
+                parentData.variants.remove(id)
+                let _ = try repository.updateProductData(id: parentId, data: parentData)
+            }
+        }
+
+        return try repository.updateProductData(id: id, data: productData)
+    }
 }

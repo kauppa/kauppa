@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 
+@testable import KauppaCore
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository
 @testable import KauppaProductsService
@@ -12,6 +13,8 @@ class TestProductsService: XCTestCase {
             ("Test product creation", testProductCreation),
             ("Test product deletion", testProductDeletion),
             ("Test update of product", testProductUpdate),
+            ("Test individual property deletion", testPropertyDeletion),
+            ("Test individual property addition", testPropertyAddition),
         ]
     }
 
@@ -115,7 +118,7 @@ class TestProductsService: XCTestCase {
         XCTAssert(updatedProduct.data.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.data.color, "blue")
         XCTAssertEqual(updatedProduct.data.inventory, 20)
-        XCTAssertEqual(updatedProduct.data.images, ["data:image/gif;base64,foobar"])
+        XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/gif;base64,foobar"])
         XCTAssertEqual(updatedProduct.data.price, 30.0)
         XCTAssertEqual(updatedProduct.data.category, .electronics)
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
@@ -124,5 +127,13 @@ class TestProductsService: XCTestCase {
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
         }
+    }
+
+    func testPropertyAddition() {
+        //
+    }
+
+    func testPropertyDeletion() {
+        //
     }
 }
