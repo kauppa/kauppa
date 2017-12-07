@@ -164,6 +164,7 @@ public class ProductsService: ProductsServiceCallable {
                 var parentData = try repository.getProductData(id: parentId)
                 parentData.variants.remove(id)
                 let _ = try repository.updateProductData(id: parentId, data: parentData)
+                productData.variantId = nil
             }
         }
 
