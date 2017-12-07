@@ -9,14 +9,14 @@ public struct AccountData: Mappable {
     /// User's email
     public var email: String
     /// User's phone number
-    public var phone: String
+    public var phone: String?
     /// A list of user's addresses
-    public var address: Set<Address>
+    public var address: ArraySet<Address>
 
     public init() {
-        self.name = ""
-        self.email = ""
-        self.phone = ""
-        self.address = []
+        name = ""
+        email = ""
+        phone = nil
+        address = ArraySet()
     }
 }
