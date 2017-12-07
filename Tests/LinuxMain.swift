@@ -1,6 +1,7 @@
 import XCTest
 
 @testable import KauppaAccountsTests
+@testable import KauppaCoreTests
 @testable import KauppaOrdersTests
 @testable import KauppaProductsTests
 @testable import KauppaTaxTests
@@ -8,6 +9,7 @@ import XCTest
 XCTMain([
     testCase(TestAccountsService.allTests),
     testCase(TestAccountsRepository.allTests),
+    testCase(TestArraySet.allTests),
     testCase(TestOrdersRepository.allTests),
     testCase(TestOrdersService.allTests),
     testCase(TestProductsRepository.allTests),
