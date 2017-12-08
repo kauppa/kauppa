@@ -18,7 +18,7 @@ public class AccountsRepository {
     }
 
     /// Get the account for a given ID.
-    public func getAccount(id: UUID) throws -> Account {
+    public func getAccount(forId id: UUID) throws -> Account {
         guard let account = accounts[id] else {
             let account = try store.getAccount(id: id)
             accounts[id] = account
@@ -36,7 +36,13 @@ public class AccountsRepository {
             return account
         }
 
-        return try getAccount(id: id)
+        return try getAccount(forId: id)
+    }
+
+    /// Get the account data corresponding to an ID.
+    public func getAccountData(forId id: UUID) throws -> AccountData {
+        let account = try getAccount(forId: id)
+        return account.data
     }
 
     /// Create an account with data from the service.
@@ -48,6 +54,23 @@ public class AccountsRepository {
         emails[data.email] = id
         accounts[id] = account
         try store.createAccount(data: account)
+        return account
+    }
+
+    /// Delete an account corresponding to an ID.
+    public func deleteAccount(forId id: UUID) throws -> () {
+        accounts.removeValue(forKey: id)
+        try store.deleteAccount(forId: id)
+    }
+
+    /// Update an account with patch data from the service.
+    public func updateAccountData(forId id: UUID, data: AccountData) throws -> Account {
+        var account = try getAccount(forId: id)
+        let date = Date()
+        account.updatedAt = date
+        account.data = data
+        accounts[id] = account
+        try store.updateAccount(accountData: account)
         return account
     }
 }

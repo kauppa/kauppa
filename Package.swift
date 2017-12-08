@@ -59,17 +59,17 @@ let repositoryTargets: [Target] = [
 let serviceTargets: [Target] = [
     .target(
         name: "KauppaAccountsService",
-        dependencies: ["KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore"],
+        dependencies: ["KauppaAccountsRepository", "KauppaAccountsModel", "KauppaCore", "KauppaAccountsClient"],
         path: "Sources/KauppaAccounts/Service"
     ),
     .target(
         name: "KauppaOrdersService",
-        dependencies: ["KauppaOrdersRepository", "KauppaOrdersModel", "KauppaProductsClient"],
+        dependencies: ["KauppaCore", "KauppaOrdersRepository", "KauppaOrdersModel", "KauppaProductsClient"],
         path: "Sources/KauppaOrders/Service"
     ),
     .target(
         name: "KauppaProductsService",
-        dependencies: ["KauppaProductsClient", "KauppaProductsRepository", "KauppaProductsModel"],
+        dependencies: ["KauppaCore", "KauppaProductsClient", "KauppaProductsRepository", "KauppaProductsModel"],
         path: "Sources/KauppaProducts/Service"
     ),
     .target(

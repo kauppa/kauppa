@@ -13,7 +13,8 @@ class TestAccountsService: XCTestCase {
         return [
             ("Test account creation", testAccountCreation),
             ("Test existing account", testExistingAccount),
-            ("Test invalid email", testInvalidEmail)
+            ("Test invalid email", testInvalidEmail),
+            ("Test account deletion", testAccountDeletion),
         ]
     }
 
@@ -57,5 +58,16 @@ class TestAccountsService: XCTestCase {
         accountData.email = "f/oo@xyz.com"      // invalid email
         let result = try? service.createAccount(withData: accountData)
         XCTAssertNil(result)
+    }
+
+    func testAccountDeletion() {
+        let store = TestStore()
+        let repository = AccountsRepository(withStore: store)
+        let service = AccountsService(withRepository: repository)
+        var accountData = AccountData()
+        accountData.email = "abc@xyz.com"
+        let data = try! service.createAccount(withData: accountData)
+        let result: ()? = try? service.deleteAccount(id: data.id)
+        XCTAssertNotNil(result)     // deletion succeeded
     }
 }
