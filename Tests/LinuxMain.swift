@@ -10,6 +10,7 @@ XCTMain([
     testCase(TestAccountsService.allTests),
     testCase(TestAccountsRepository.allTests),
     testCase(TestArraySet.allTests),
+    testCase(TestCodableTypes.allTests),
     testCase(TestOrdersRepository.allTests),
     testCase(TestOrdersService.allTests),
     testCase(TestProductsRepository.allTests),
