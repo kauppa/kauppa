@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 
+@testable import KauppaCore
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository
 @testable import KauppaProductsService
@@ -12,6 +13,8 @@ class TestProductsService: XCTestCase {
             ("Test product creation", testProductCreation),
             ("Test product deletion", testProductDeletion),
             ("Test update of product", testProductUpdate),
+            ("Test individual property deletion", testPropertyDeletion),
+            ("Test individual property addition", testPropertyAddition),
         ]
     }
 
@@ -69,7 +72,7 @@ class TestProductsService: XCTestCase {
             ("color", "\"blue\""),
             ("inventory", 20),
             ("category", "\"electronics\""),
-            ("images", ["data:image/gif;base64,foobar"]),
+            ("images", ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"]),
             ("price", 30.0),
             ("variantId", "\"\(anotherId)\""),
             ("variantId", "\"\(productId)\""),      // Self ID (shouldn't update)
@@ -115,7 +118,8 @@ class TestProductsService: XCTestCase {
         XCTAssert(updatedProduct.data.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.data.color, "blue")
         XCTAssertEqual(updatedProduct.data.inventory, 20)
-        XCTAssertEqual(updatedProduct.data.images, ["data:image/gif;base64,foobar"])
+        XCTAssertEqual(updatedProduct.data.images.inner,
+                       ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
         XCTAssertEqual(updatedProduct.data.price, 30.0)
         XCTAssertEqual(updatedProduct.data.category, .electronics)
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
@@ -124,5 +128,50 @@ class TestProductsService: XCTestCase {
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
         }
+    }
+
+    func testPropertyAddition() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        let product = ProductData(title: "", subtitle: "", description: "")
+        let data = try! service.createProduct(data: product)
+        XCTAssertEqual(data.data.images.inner, [])      // no images
+
+        var patch = ProductPropertyAdditionPatch()
+        patch.image = "data:image/png;base64,foobar"
+        let updatedProduct = try! service.addProductProperty(id: data.id, data: patch)
+        // image should've been added
+        XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,foobar"])
+    }
+
+    func testPropertyDeletion() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        var product = ProductData(title: "", subtitle: "", description: "")
+        // set all additional attributes required for testing
+        product.images.inner = ["data:image/png;base64,bar", "data:image/png;base64,baz"]
+        product.color = "blue"
+        product.weight = UnitMeasurement(value: 50.0, unit: .gram)
+        var size = Size()
+        size.length = UnitMeasurement(value: 10.0, unit: .centimeter)
+        product.size = size
+        product.category = .food
+        // variant is checked in `TestProductVariants`
+        let data = try! service.createProduct(data: product)
+
+        var patch = ProductPropertyDeletionPatch()
+        patch.removeCategory = true
+        patch.removeColor = true
+        patch.removeSize = true
+        patch.removeWeight = true
+        patch.removeImageAt = 0     // remove image at zero'th index
+        let updatedProduct = try! service.deleteProductProperty(id: data.id, data: patch)
+        XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,baz"])
+        XCTAssertNil(updatedProduct.data.size)
+        XCTAssertNil(updatedProduct.data.category)
+        XCTAssertNil(updatedProduct.data.color)
+        XCTAssertNil(updatedProduct.data.weight)
     }
 }

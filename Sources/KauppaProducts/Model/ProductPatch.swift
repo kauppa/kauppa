@@ -14,9 +14,30 @@ public struct ProductPatch: Mappable {
     public var color: String? = nil
     public var weight: UnitMeasurement<Weight>? = nil
     public var inventory: UInt32? = nil
-    public var images: Set<String>? = nil
+    public var images: ArraySet<String>? = nil
     public var price: Double? = nil
     public var variantId: UUID? = nil
+
+    public init() {}
+}
+
+/// This adds individual items to the collections residing in `ProductData`
+public struct ProductPropertyAdditionPatch: Mappable {
+    public var image: String? = nil
+
+    public init() {}
+}
+
+/// This has the nullable items from `ProductData` - any delete
+/// request having one or more of these fields set to `true`
+/// will reset that field in `ProductData`
+public struct ProductPropertyDeletionPatch: Mappable {
+    public var removeCategory: Bool? = nil
+    public var removeColor: Bool? = nil
+    public var removeSize: Bool? = nil
+    public var removeWeight: Bool? = nil
+    public var removeImageAt: Int? = nil
+    public var removeVariant: Bool? = nil
 
     public init() {}
 }

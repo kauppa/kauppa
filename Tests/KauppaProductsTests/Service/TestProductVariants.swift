@@ -14,6 +14,7 @@ class TestProductVariants: XCTestCase {
             ("Test product update with variant", testProductUpdateWithVariant),
             ("Test product creation with cross-referencing variants", testProductCreationWithCrossReferencingVariant),
             ("Test product update with cross-referencing variants", testProductUpdateWithCrossReferencingVariants),
+            ("Test variant removal", testVariantRemoval),
         ]
     }
 
@@ -123,5 +124,27 @@ class TestProductVariants: XCTestCase {
         // Parent should have all the variants now
         let parent = try! service.getProduct(id: parentProduct.id)
         XCTAssertEqual(parent.data.variants, [firstChild.id, secondChild.id])
+    }
+
+    func testVariantRemoval() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.color = "black"
+        let parentProduct = try! service.createProduct(data: productData)
+
+        productData.color = "blue"
+        productData.variantId = parentProduct.id
+        let childVariant = try! service.createProduct(data: productData)
+        let parent = try! service.getProduct(id: parentProduct.id)
+        XCTAssertEqual(parent.data.variants, [childVariant.id])     // child has been added to parent
+
+        var patch = ProductPropertyDeletionPatch()
+        patch.removeVariant = true
+        let updatedChild = try! service.deleteProductProperty(id: childVariant.id, data: patch)
+        XCTAssertNil(updatedChild.data.variantId)   // variant field has been reset
+        let updatedParent = try! service.getProduct(id: parentProduct.id)
+        XCTAssertEqual(updatedParent.data.variants, [])     // child removed
     }
 }

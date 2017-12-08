@@ -37,9 +37,9 @@ public enum Length: String, Codable {
 
 /// Size values (length, width and height - all optional)
 public struct Size: Codable {
-    public var height: UnitMeasurement<Length>?
-    public var length: UnitMeasurement<Length>?
-    public var width: UnitMeasurement<Length>?
+    public var height: UnitMeasurement<Length>? = nil
+    public var length: UnitMeasurement<Length>? = nil
+    public var width: UnitMeasurement<Length>? = nil
 }
 
 /// Weight units
