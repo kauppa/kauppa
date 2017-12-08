@@ -144,6 +144,10 @@ let testTargets: [Target] = [
         dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"]
     ),
     .testTarget(
+        name: "KauppaCoreTests",
+        dependencies: ["KauppaCore"]
+    ),
+    .testTarget(
         name: "KauppaOrdersTests",
         dependencies: [
             "KauppaCore",

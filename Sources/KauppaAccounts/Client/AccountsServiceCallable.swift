@@ -19,4 +19,10 @@ public protocol AccountsServiceCallable {
 
     /// Update an account with user-supplied patch data.
     func updateAccount(id: UUID, data: AccountPatch) throws -> Account
+
+    /// Adds one or more items to the corresponding collection fields in an user account.
+    func addAccountProperty(id: UUID, data: AccountPropertyAdditionPatch) throws -> Account
+
+    /// Reset individual account properties with the given patch.
+    func deleteAccountProperty(id: UUID, data: AccountPropertyDeletionPatch) throws -> Account
 }
