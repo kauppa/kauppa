@@ -59,7 +59,7 @@ class TestOrdersService: XCTestCase {
         }
 
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: product.id, quantity: 3)])
+                                  products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
         XCTAssertNotNil(order.id)
         // Make sure that the quantity is tracked while summing up values
@@ -119,7 +119,7 @@ class TestOrdersService: XCTestCase {
                                           productsService: productsService)
 
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: UUID(), quantity: 3)])
+                                  products: [OrderUnit(product: UUID(), quantity: 3)])
         do {
             let _ = try ordersService.createOrder(data: orderData)
             XCTFail()
@@ -142,7 +142,7 @@ class TestOrdersService: XCTestCase {
                                           productsService: productsService)
 
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: product.id, quantity: 3)])
+                                  products: [OrderUnit(product: product.id, quantity: 3)])
         do {
             let _ = try ordersService.createOrder(data: orderData)
             XCTFail()
@@ -169,7 +169,7 @@ class TestOrdersService: XCTestCase {
         // Products with zero quantity will be skipped - in this case, that's the
         // only product, and hence it fails
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: product.id, quantity: 0)])
+                                  products: [OrderUnit(product: product.id, quantity: 0)])
         do {
             let _ = try ordersService.createOrder(data: orderData)
             XCTFail()
@@ -195,8 +195,8 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService)
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: firstProduct.id, quantity: 3),
-                                             OrderUnit(id: secondProduct.id, quantity: 0)])
+                                  products: [OrderUnit(product: firstProduct.id, quantity: 3),
+                                             OrderUnit(product: secondProduct.id, quantity: 0)])
         let order = try! ordersService.createOrder(data: orderData)
         XCTAssertNotNil(order.id)
         // Second product (zero quantity) will be skipped while placing the order
@@ -226,8 +226,8 @@ class TestOrdersService: XCTestCase {
         }
         // Multiple quantities of the same product
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: product.id, quantity: 3),
-                                             OrderUnit(id: product.id, quantity: 3)])
+                                  products: [OrderUnit(product: product.id, quantity: 3),
+                                             OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
         XCTAssertNotNil(order.id)
         // All quantities are accumulated in the end
@@ -254,7 +254,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService)
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: product.id, quantity: 3)])
+                                  products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
         XCTAssertNotNil(order.id)
         let _ = try! ordersService.deleteOrder(id: order.id!)
