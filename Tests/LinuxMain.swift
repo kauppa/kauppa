@@ -4,6 +4,7 @@ import XCTest
 @testable import KauppaCoreTests
 @testable import KauppaOrdersTests
 @testable import KauppaProductsTests
+@testable import KauppaReviewsTests
 @testable import KauppaTaxTests
 
 XCTMain([
