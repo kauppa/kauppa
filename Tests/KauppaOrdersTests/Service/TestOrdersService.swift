@@ -14,7 +14,7 @@ class TestOrdersService: XCTestCase {
 
     static var allTests: [(String, (TestOrdersService) -> () throws -> Void)] {
         return [
-            ("Test order creation", testOrderCreation),
+            ("Test successful order creation", testOrderCreation),
             ("Test order with invalid account", testOrderWithInvalidAccount),
             ("Test order with invalid product", testOrderWithInvalidProduct),
             ("Test order with no products", testOrderWithNoProducts),
@@ -45,13 +45,23 @@ class TestOrdersService: XCTestCase {
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(data: productData)
 
-        let accountData = AccountData()
+        var accountData = AccountData()
+        accountData.email = "foo@bar.com"
         let account = try! accountsService.createAccount(withData: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService)
+        let mailSent = expectation(description: "mail has been sent")
+        let mailService = TestMailer(callback: { request in
+            XCTAssertEqual(request.from, "orders@kauppa.com")
+            XCTAssertEqual(request.to, ["foo@bar.com"])
+            XCTAssertEqual(request.subject, "Your order has been placed")
+            mailSent.fulfill()
+        })
 
+        // If we setup the mail service, then it's supposed to raise a mail request.
+        ordersService.mailService = MailClient(with: mailService, mailsFrom: "orders@kauppa.com")
         let inventoryUpdated = expectation(description: "product inventory updated")
         productsService.callbacks[product.id] = { patch in
             XCTAssertEqual(patch.inventory, 2)      // inventory amount changed
