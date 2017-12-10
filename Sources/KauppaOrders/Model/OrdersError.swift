@@ -19,3 +19,17 @@ extension OrdersError: LocalizedError {
         }
     }
 }
+
+extension OrdersError {
+    /// Check the equality of this result.
+    public static func ==(lhs: OrdersError, rhs: OrdersError) -> Bool {
+        switch (lhs, rhs) {
+            case (.invalidOrder, .invalidOrder),
+                 (.productUnavailable, .productUnavailable),
+                 (.noItemsToProcess, .noItemsToProcess):
+                return true
+            default:
+                return false
+        }
+    }
+}

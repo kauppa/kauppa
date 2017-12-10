@@ -19,3 +19,17 @@ extension AccountsError: LocalizedError {
         }
     }
 }
+
+extension AccountsError {
+    /// Check the equality of this result.
+    public static func ==(lhs: AccountsError, rhs: AccountsError) -> Bool {
+        switch (lhs, rhs) {
+            case (.accountExists, .accountExists),
+                 (.invalidEmail, .invalidEmail),
+                 (.invalidAccount, .invalidAccount):
+                return true
+            default:
+                return false
+        }
+    }
+}

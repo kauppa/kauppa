@@ -25,12 +25,9 @@ public class TestProductsService: ProductsServiceCallable {
         return product
     }
 
+    // NOTE: Not meant to be called by orders
     public func deleteProduct(id: UUID) throws -> () {
-        if products.removeValue(forKey: id) != nil {
-            return ()
-        } else {
-            throw ProductsError.invalidProduct
-        }
+        throw ProductsError.invalidProduct
     }
 
     public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
@@ -41,11 +38,13 @@ public class TestProductsService: ProductsServiceCallable {
         return try getProduct(id: id)   // This is just a stub
     }
 
+    // NOTE: Not meant to be called by orders
     public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
-        return try getProduct(id: id)   // This is just a stub
+        throw ProductsError.invalidProduct
     }
 
+    // NOTE: Not meant to be called by orders
     public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
-        return try getProduct(id: id)   // This is just a stub
+        throw ProductsError.invalidProduct
     }
 }
