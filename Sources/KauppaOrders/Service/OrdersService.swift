@@ -25,6 +25,9 @@ public class OrdersService: OrdersServiceCallable {
         var order = Order()
         var inventoryUpdates = [UUID: UInt32]()
 
+        // FIXME: Evaluate that the user exists.
+        order.placedBy = data.placedBy
+
         for orderUnit in data.products {
             let product = try productsService.getProduct(id: orderUnit.id)
             if orderUnit.quantity == 0 {

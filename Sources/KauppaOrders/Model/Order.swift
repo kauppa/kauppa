@@ -2,15 +2,21 @@ import Foundation
 
 import KauppaCore
 
-public struct Order: Mappable {
+/// Order that only has the product IDs and quantity
+public typealias Order = GenericOrder<UUID, OrderedProduct>
+
+/// Generic order structure for holding product data.
+public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     /// Unique identifier for this order.
     public var id: UUID?
+    /// User ID associated with this order.
+    public var placedBy: U?
     /// Creation timestamp
     public var createdOn: Date?
     /// Last updated timestamp
     public var updatedAt: Date?
     /// List of product IDs and the associated quantity
-    public var products: [OrderedProduct]
+    public var products: [P]
     /// Total number of items processed (includes the quantity)
     public var totalItems: UInt16
     /// Total price of all items (includes the quantity)
@@ -20,6 +26,7 @@ public struct Order: Mappable {
 
     public init() {
         self.id = nil
+        self.placedBy = nil
         self.createdOn = nil
         self.updatedAt = nil
         self.products = []
