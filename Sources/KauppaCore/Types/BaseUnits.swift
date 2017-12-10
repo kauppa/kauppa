@@ -14,17 +14,6 @@ public enum Month: UInt8, Codable {
     case december  = 12
 }
 
-/// Any measurable quantity
-public struct UnitMeasurement<T: Codable>: Codable {
-    public var value: Double
-    public var unit: T
-
-    public init(value: Double, unit: T) {
-        self.value = value
-        self.unit = unit
-    }
-}
-
 /// Length units
 public enum Length: String, Codable {
     case millimeter = "mm"
@@ -33,13 +22,6 @@ public enum Length: String, Codable {
     case foot       = "ft"
     case inch       = "in"
     // ...
-}
-
-/// Size values (length, width and height - all optional)
-public struct Size: Codable {
-    public var height: UnitMeasurement<Length>? = nil
-    public var length: UnitMeasurement<Length>? = nil
-    public var width: UnitMeasurement<Length>? = nil
 }
 
 /// Weight units
@@ -51,36 +33,12 @@ public enum Weight: String, Codable {
     // ...
 }
 
-/// A counter for adding weights
-public class WeightCounter {
-    var weight = UnitMeasurement(value: 0.0, unit: Weight.gram)
-
-    public init() {}
-
-    /// Add weight to this counter.
-    public func add(_ other: UnitMeasurement<Weight>) {
-        switch other.unit {
-            case .milligram:
-                weight.value += other.value * 0.001
-            case .gram:
-                weight.value += other.value
-            case .kilogram:
-                weight.value += other.value * 1000.0
-            case .pound:
-                weight.value += other.value * 453.592
-        }
-    }
-
-    /// Simplifies the final weight to an acceptable format
-    public func sum() -> UnitMeasurement<Weight> {
-        if weight.value > 100.0 {
-            weight.value /= 1000.0
-            weight.unit = .kilogram
-        } else if weight.value < 0.01 {
-            weight.value *= 1000.0
-            weight.unit = .milligram
-        }
-
-        return weight
-    }
+/// Popular currencies
+public enum Currency: String, Codable {
+    case usd   = "USD"
+    case euro  = "EUR"
+    case pound = "GBP"
+    case rupee = "INR"
+    case yen   = "JPY"
+    case ruble = "RUB"
 }
