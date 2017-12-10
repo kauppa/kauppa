@@ -13,3 +13,15 @@ extension ProductsError: LocalizedError {
         }
     }
 }
+
+extension ProductsError {
+    /// Check the equality of this result.
+    public static func ==(lhs: ProductsError, rhs: ProductsError) -> Bool {
+        switch (lhs, rhs) {
+            case (.invalidProduct, .invalidProduct):
+                return true
+            // default:
+            //     return false
+        }
+    }
+}

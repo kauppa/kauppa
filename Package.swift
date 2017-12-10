@@ -64,7 +64,16 @@ let serviceTargets: [Target] = [
     ),
     .target(
         name: "KauppaOrdersService",
-        dependencies: ["KauppaCore", "KauppaOrdersRepository", "KauppaOrdersModel", "KauppaProductsClient"],
+        dependencies: [
+            "KauppaCore",
+            "KauppaOrdersClient",
+            "KauppaOrdersRepository",
+            "KauppaOrdersModel",
+            "KauppaAccountsClient",
+            "KauppaAccountsModel",
+            "KauppaProductsClient",
+            "KauppaProductsModel"
+        ],
         path: "Sources/KauppaOrders/Service"
     ),
     .target(
@@ -151,6 +160,9 @@ let testTargets: [Target] = [
         name: "KauppaOrdersTests",
         dependencies: [
             "KauppaCore",
+            "KauppaAccountsClient",
+            "KauppaAccountsModel",
+            "KauppaProductsClient",
             "KauppaProductsModel",
             "KauppaOrdersClient",
             "KauppaOrdersModel",

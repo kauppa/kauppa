@@ -1,22 +1,28 @@
 import Foundation
 
 import KauppaCore
+import KauppaAccountsClient
+import KauppaAccountsModel
 import KauppaOrdersClient
 import KauppaOrdersModel
-import KauppaProductsModel
 import KauppaOrdersRepository
 import KauppaProductsClient
+import KauppaProductsModel
 
-/// Orders service
+/// Service that manages orders placed by customers.
 public class OrdersService: OrdersServiceCallable {
     let repository: OrdersRepository
-
+    let accountsService: AccountsServiceCallable
     let productsService: ProductsServiceCallable
 
+    /// Initialize this service with its repository, along with
+    /// instances of clients to account and product services.
     public init(withRepository repository: OrdersRepository,
+                accountsService: AccountsServiceCallable,
                 productsService: ProductsServiceCallable)
     {
         self.repository = repository
+        self.accountsService = accountsService
         self.productsService = productsService
     }
 
@@ -24,6 +30,9 @@ public class OrdersService: OrdersServiceCallable {
         let weightCounter = WeightCounter()
         var order = Order()
         var inventoryUpdates = [UUID: UInt32]()
+
+        let _ = try accountsService.getAccount(id: data.placedBy)
+        order.placedBy = data.placedBy
 
         for orderUnit in data.products {
             let product = try productsService.getProduct(id: orderUnit.id)
