@@ -38,10 +38,24 @@ public class OrdersService: OrdersServiceCallable {
         order.placedBy = data.placedBy
         detailedOrder.placedBy = account
 
+        var productPrice = 0.0
+        var priceUnit: Currency? = nil
+        var totalPrice = 0.0
+
         for orderUnit in data.products {
             let product = try productsService.getProduct(id: orderUnit.product)
             if orderUnit.quantity == 0 {
                 continue    // skip zero'ed items
+            }
+
+            // check that all products are in the same currency
+            productPrice = product.data.price.value
+            if let unit = priceUnit {
+                if unit != product.data.price.unit {
+                    throw OrdersError.ambiguousCurrencies
+                }
+            } else {
+                priceUnit = product.data.price.unit
             }
 
             // Also check for duplicate product
@@ -57,7 +71,7 @@ public class OrdersService: OrdersServiceCallable {
                                         quantity: orderUnit.quantity)
             detailedOrder.products.append(unit)
 
-            order.totalPrice += Double(orderUnit.quantity) * product.data.price
+            totalPrice += Double(orderUnit.quantity) * productPrice
             var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
             weight.value *= Double(orderUnit.quantity)
             weightCounter.add(weight)
@@ -75,6 +89,7 @@ public class OrdersService: OrdersServiceCallable {
             let _ = try? productsService.updateProduct(id: id, data: patch)
         }
 
+        order.totalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
         order.totalWeight = weightCounter.sum()
         let orderData = try repository.createOrder(withData: order)
         orderData.copyValues(into: &detailedOrder)

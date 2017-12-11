@@ -5,6 +5,7 @@ public enum OrdersError: Error {
     case productUnavailable
     case invalidOrder
     case noItemsToProcess
+    case ambiguousCurrencies
 }
 
 extension OrdersError: LocalizedError {
@@ -16,6 +17,8 @@ extension OrdersError: LocalizedError {
                 return "No items to be processed"
             case .invalidOrder:
                 return "No order found for the given UUID"
+            case .ambiguousCurrencies:
+                return "One or more products have different currencies"
         }
     }
 }
@@ -26,7 +29,8 @@ extension OrdersError {
         switch (lhs, rhs) {
             case (.invalidOrder, .invalidOrder),
                  (.productUnavailable, .productUnavailable),
-                 (.noItemsToProcess, .noItemsToProcess):
+                 (.noItemsToProcess, .noItemsToProcess),
+                 (.ambiguousCurrencies, .ambiguousCurrencies):
                 return true
             default:
                 return false

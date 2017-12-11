@@ -22,8 +22,8 @@ public struct ProductData: Mappable {
     /// Base64-encoded images
     public var images: ArraySet<String>
     /// Price of the product in some chosen currency
-    /// NOTE: We're sticking to one unit for now
-    public var price: Double    // FIXME: Avoid `Double` to avoid floating point disasters.
+    // FIXME: Avoid `Double` to avoid floating point disasters.
+    public var price: UnitMeasurement<Currency>
     /// (child) variants of this product. For now, the variants belong to a single parent
     /// product, and hence this is an internal property. It shouldn't be updated
     /// manually by the user. Instead, the user should attach the ID of the parent
@@ -40,6 +40,6 @@ public struct ProductData: Mappable {
         self.inventory = 0
         self.images = ArraySet()
         self.variants = []
-        self.price = 0
+        self.price = UnitMeasurement(value: 0, unit: .usd)
     }
 }
