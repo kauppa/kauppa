@@ -18,6 +18,7 @@ class TestReviewsService: XCTestCase {
             ("Test invalid review comment", testInvalidComment),
             ("Test invalid product reference", testInvalidProduct),
             ("Test invalid account", testInvalidAccount),
+            ("Test review update", testReviewUpdate),
         ]
     }
 
@@ -101,6 +102,47 @@ class TestReviewsService: XCTestCase {
             XCTFail()
         } catch let err {
             XCTAssertTrue(err as! AccountsError == AccountsError.invalidAccount)
+        }
+    }
+
+    func testReviewUpdate() {
+        let store = TestStore()
+        let repository = ReviewsRepository(withStore: store)
+        let productData = ProductData(title: "", subtitle: "", description: "")
+        let product = try! productsService.createProduct(data: productData)
+
+        let accountData = AccountData()
+        let account = try! accountsService.createAccount(withData: accountData)
+
+        let service = ReviewsService(withRepository: repository,
+                                     productsService: productsService,
+                                     accountsService: accountsService)
+        var reviewData = ReviewData()
+        reviewData.productId = product.id
+        reviewData.createdBy = account.id
+        reviewData.comment = "You suck!"
+
+        let data = try! service.createReview(withData: reviewData)
+        XCTAssertEqual(data.data.rating, .worse)
+        XCTAssertEqual(data.data.comment, "You suck!")
+        XCTAssertEqual(data.createdOn, data.updatedAt)
+
+        var patch = ReviewPatch()
+        patch.rating = .good    // change rating
+        let update1 = try! service.updateReview(id: data.id, data: patch)
+        XCTAssertEqual(update1.data.rating, .good)
+        XCTAssertTrue(update1.createdOn != update1.updatedAt)
+
+        patch.comment = "This is amazing!"      // change comment
+        let update2 = try! service.updateReview(id: data.id, data: patch)
+        XCTAssertEqual(update2.data.comment, "This is amazing!")
+
+        patch.comment = ""      // invalid comment
+        do {
+            let _ = try service.updateReview(id: data.id, data: patch)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ReviewsError, ReviewsError.invalidComment)
         }
     }
 }
