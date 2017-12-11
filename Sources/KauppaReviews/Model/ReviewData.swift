@@ -13,7 +13,7 @@ public enum Rating: UInt8, Mappable {
 /// User-supplied data for a review.
 public struct ReviewData: Mappable {
     /// Account which posted this review
-    public var reviewFrom: UUID = UUID()
+    public var createdBy: UUID = UUID()
 
     /// ID of the product to which this review was posted.
     public var productId: UUID = UUID()
