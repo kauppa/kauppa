@@ -18,5 +18,6 @@ XCTMain([
     testCase(TestProductsRepository.allTests),
     testCase(TestProductsService.allTests),
     testCase(TestProductVariants.allTests),
+    testCase(TestReviewsService.allTests),
     testCase(TestTaxService.allTests)
 ])

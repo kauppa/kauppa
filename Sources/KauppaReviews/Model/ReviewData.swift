@@ -13,14 +13,18 @@ public enum Rating: UInt8, Mappable {
 /// User-supplied data for a review.
 public struct ReviewData: Mappable {
     /// Account which posted this review
-    public let reviewFrom: UUID
+    public var reviewFrom: UUID = UUID()
 
     /// ID of the product to which this review was posted.
-    public let productId: UUID
+    public var productId: UUID = UUID()
 
     /// Rating given for this product.
-    public let rating: Rating
+    public var rating: Rating = .worse
 
     /// Review comment for the product.
-    public let comment: String
+    public var comment: String = ""
+
+    // FIXME: Add auth role
+
+    public init() {}
 }

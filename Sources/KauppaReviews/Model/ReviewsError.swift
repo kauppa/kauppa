@@ -4,7 +4,7 @@ import Foundation
 public enum ReviewsError: Error {
     case invalidAccount
     case invalidReviewId
-    case invalidData
+    case invalidComment
 }
 
 extension ReviewsError: LocalizedError {
@@ -14,8 +14,8 @@ extension ReviewsError: LocalizedError {
                 return "No account found for the given UUID"
             case .invalidReviewId:
                 return "No reviews associated with this UUID"
-            case .invalidData:
-                return "Invalid review data"
+            case .invalidComment:
+                return "Invalid comment body"
         }
     }
 }
@@ -26,7 +26,7 @@ extension ReviewsError {
         switch (lhs, rhs) {
             case (.invalidAccount, .invalidAccount),
                  (.invalidReviewId, .invalidReviewId),
-                 (.invalidData, .invalidData):
+                 (.invalidComment, .invalidComment):
                 return true
             default:
                 return false

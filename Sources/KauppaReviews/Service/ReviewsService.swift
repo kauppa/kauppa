@@ -18,6 +18,10 @@ public class ReviewsService {
 
 extension ReviewsService: ReviewsServiceCallable {
     public func createReview(withData data: ReviewData) throws -> Review {
+        if data.comment.isEmpty {
+            throw ReviewsError.invalidComment
+        }
+
         return try repository.createReview(data: data)
     }
 }
