@@ -20,7 +20,7 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     /// Total number of items processed (includes the quantity)
     public var totalItems: UInt16
     /// Total price of all items (includes the quantity)
-    public var totalPrice: Double
+    public var totalPrice: UnitMeasurement<Currency>
     /// Total weight of this purchase (includes the quantity)
     public var totalWeight: UnitMeasurement<Weight>
 
@@ -31,7 +31,7 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
         self.updatedAt = nil
         self.products = []
         self.totalItems = 0
-        self.totalPrice = 0.0
+        self.totalPrice = UnitMeasurement(value: 0.0, unit: .usd)
         self.totalWeight = UnitMeasurement(value: 0.0, unit: .gram)
     }
 }

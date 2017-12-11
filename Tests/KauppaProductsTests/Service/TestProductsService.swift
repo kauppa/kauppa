@@ -73,7 +73,7 @@ class TestProductsService: XCTestCase {
             ("inventory", 20),
             ("category", "\"electronics\""),
             ("images", ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"]),
-            ("price", 30.0),
+            ("price", "{\"value\": 30.0, \"unit\": \"USD\"}"),
             ("variantId", "\"\(anotherId)\""),
             ("variantId", "\"\(productId)\""),      // Self ID (shouldn't update)
         ]
@@ -120,7 +120,8 @@ class TestProductsService: XCTestCase {
         XCTAssertEqual(updatedProduct.data.inventory, 20)
         XCTAssertEqual(updatedProduct.data.images.inner,
                        ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
-        XCTAssertEqual(updatedProduct.data.price, 30.0)
+        XCTAssertEqual(updatedProduct.data.price.value, 30.0)
+        XCTAssertEqual(updatedProduct.data.price.unit, .usd)
         XCTAssertEqual(updatedProduct.data.category, .electronics)
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
         XCTAssertEqual(updatedProduct.data.variantId, anotherId)

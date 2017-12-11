@@ -15,7 +15,7 @@ public struct ProductPatch: Mappable {
     public var weight: UnitMeasurement<Weight>? = nil
     public var inventory: UInt32? = nil
     public var images: ArraySet<String>? = nil
-    public var price: Double? = nil
+    public var price: UnitMeasurement<Currency>? = nil
     public var variantId: UUID? = nil
 
     public init() {}

@@ -17,10 +17,11 @@ class TestOrdersService: XCTestCase {
             ("Test order creation", testOrderCreation),
             ("Test order with invalid account", testOrderWithInvalidAccount),
             ("Test order with invalid product", testOrderWithInvalidProduct),
+            ("Test order with ambiguous currencies", testOrderWithAmbiguousCurrencies),
             ("Test order with no products", testOrderWithNoProducts),
             ("Test order with product unavailable in inventory", testOrderWithUnavailableProduct),
             ("Test order zero quantity", testOrderWithZeroQuantity),
-            ("Test order with one product having zero quantity", testOrderWithOneProductHavinZeroQuantity),
+            ("Test order with one product having zero quantity", testOrderWithOneProductHavingZeroQuantity),
             ("Test order with duplicate products", testOrderWithDuplicateProducts),
             ("Test order deletion", testOrderDeletion),
         ]
@@ -41,7 +42,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = 3.0
+        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(data: productData)
 
@@ -65,7 +66,7 @@ class TestOrdersService: XCTestCase {
         // Make sure that the quantity is tracked while summing up values
         XCTAssertEqual(order.totalItems, 3)
         XCTAssertEqual(order.totalWeight.value, 15.0)
-        XCTAssertEqual(order.totalPrice, 9.0)
+        XCTAssertEqual(order.totalPrice.value, 9.0)
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
@@ -156,7 +157,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = 3.0
+        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(data: productData)
 
@@ -178,7 +179,7 @@ class TestOrdersService: XCTestCase {
         }
     }
 
-    func testOrderWithOneProductHavinZeroQuantity() {
+    func testOrderWithOneProductHavingZeroQuantity() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
@@ -208,7 +209,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        productData.price = 3.0
+        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(data: productData)
 
@@ -233,10 +234,37 @@ class TestOrdersService: XCTestCase {
         // All quantities are accumulated in the end
         XCTAssertEqual(order.totalItems, 6)
         XCTAssertEqual(order.totalWeight.value, 30.0)
-        XCTAssertEqual(order.totalPrice, 18.0)
+        XCTAssertEqual(order.totalPrice.value, 18.0)
 
         waitForExpectations(timeout: 2) { error in
             XCTAssertNil(error)
+        }
+    }
+
+    func testOrderWithAmbiguousCurrencies() {
+        let store = TestStore()
+        let repository = OrdersRepository(withStore: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData.inventory = 10
+
+        let firstProduct = try! productsService.createProduct(data: productData)
+        productData.price.unit = .euro
+        let secondProduct = try! productsService.createProduct(data: productData)
+
+        let accountData = AccountData()
+        let account = try! accountsService.createAccount(withData: accountData)
+        let ordersService = OrdersService(withRepository: repository,
+                                          accountsService: accountsService,
+                                          productsService: productsService)
+        let orderData = OrderData(placedBy: account.id,
+                                  products: [OrderUnit(id: firstProduct.id, quantity: 3),
+                                             OrderUnit(id: secondProduct.id, quantity: 3)])
+        do {
+            let _ = try ordersService.createOrder(data: orderData)
+            XCTFail()
+        } catch let err {
+            XCTAssertTrue(err as! OrdersError == OrdersError.ambiguousCurrencies)
         }
     }
 
