@@ -5,6 +5,7 @@ public enum AccountsError: Error {
     case accountExists
     case invalidEmail
     case invalidAccount
+    case invalidName
 }
 
 extension AccountsError: LocalizedError {
@@ -16,6 +17,8 @@ extension AccountsError: LocalizedError {
                 return "Error validating email"
             case .invalidAccount:
                 return "No account found for the given UUID"
+            case .invalidName:
+                return "Invalid name in data"
         }
     }
 }
@@ -26,7 +29,8 @@ extension AccountsError {
         switch (lhs, rhs) {
             case (.accountExists, .accountExists),
                  (.invalidEmail, .invalidEmail),
-                 (.invalidAccount, .invalidAccount):
+                 (.invalidAccount, .invalidAccount),
+                 (.invalidName, .invalidName):
                 return true
             default:
                 return false
