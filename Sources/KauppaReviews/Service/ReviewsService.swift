@@ -36,4 +36,25 @@ extension ReviewsService: ReviewsServiceCallable {
 
         return try repository.createReview(data: data)
     }
+
+    public func getReviews(forProduct id: UUID) throws -> [Review] {
+        return try repository.getReviews(forProduct: id)
+    }
+
+    public func updateReview(id: UUID, data: ReviewPatch) throws -> Review {
+        var reviewData = try repository.getReviewData(forId: id)
+        if let rating = data.rating {
+            reviewData.rating = rating
+        }
+
+        if let comment = data.comment {
+            if comment.isEmpty {
+                throw ReviewsError.invalidComment
+            }
+
+            reviewData.comment = comment
+        }
+
+        return try repository.updateReviewData(id: id, data: reviewData)
+    }
 }
