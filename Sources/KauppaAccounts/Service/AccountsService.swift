@@ -18,6 +18,10 @@ public class AccountsService {
 
 extension AccountsService: AccountsServiceCallable {
     public func createAccount(withData data: AccountData) throws -> Account {
+        if data.name.isEmpty {
+            throw AccountsError.invalidName
+        }
+
         if !isValidEmail(data.email) {
             throw AccountsError.invalidEmail
         }

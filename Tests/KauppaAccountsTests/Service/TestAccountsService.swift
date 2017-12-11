@@ -15,6 +15,7 @@ class TestAccountsService: XCTestCase {
             ("Test account creation", testAccountCreation),
             ("Test existing account", testExistingAccount),
             ("Test invalid email", testInvalidEmail),
+            ("Test invalid name", testInvalidName),
             ("Test account deletion", testAccountDeletion),
             ("Test removing properties", testPropertyRemoval),
             ("Test property addition", testPropertyAddition),
@@ -36,6 +37,7 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(withStore: store)
         let service = AccountsService(withRepository: repository)
         var accountData = AccountData()
+        accountData.name = "bobby"
         accountData.email = "abc@xyz.com"
         let data = try? service.createAccount(withData: accountData)
         XCTAssertNotNil(data)       // account data should exist
@@ -46,11 +48,16 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(withStore: store)
         let service = AccountsService(withRepository: repository)
         var accountData = AccountData()
+        accountData.name = "bobby"
         accountData.email = "abc@xyz.com"
         let _ = try! service.createAccount(withData: accountData)    // success
-        // This should fail because it has the same email
-        let result = try? service.createAccount(withData: accountData)
-        XCTAssertNil(result)
+
+        do {
+            let _ = try service.createAccount(withData: accountData)
+            XCTFail()
+        } catch let err {   // should fail because it has the same email
+            XCTAssertTrue(err as! AccountsError == AccountsError.accountExists)
+        }
     }
 
     func testInvalidEmail() {
@@ -58,9 +65,27 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(withStore: store)
         let service = AccountsService(withRepository: repository)
         var accountData = AccountData()
+        accountData.name = "bobby"
         accountData.email = "f/oo@xyz.com"      // invalid email
-        let result = try? service.createAccount(withData: accountData)
-        XCTAssertNil(result)
+        do {
+            let _ = try service.createAccount(withData: accountData)
+            XCTFail()
+        } catch let err {   // should fail because it has the same email
+            XCTAssertTrue(err as! AccountsError == AccountsError.invalidEmail)
+        }
+    }
+
+    func testInvalidName() {
+        let store = TestStore()
+        let repository = AccountsRepository(withStore: store)
+        let service = AccountsService(withRepository: repository)
+        let accountData = AccountData()     // name is empty
+        do {
+            let _ = try service.createAccount(withData: accountData)
+            XCTFail()
+        } catch let err {   // should fail because it has the same email
+            XCTAssertTrue(err as! AccountsError == AccountsError.invalidName)
+        }
     }
 
     func testAccountDeletion() {
@@ -69,6 +94,7 @@ class TestAccountsService: XCTestCase {
         let service = AccountsService(withRepository: repository)
         var accountData = AccountData()
         accountData.email = "abc@xyz.com"
+        accountData.name = "bobby"
         let data = try! service.createAccount(withData: accountData)
         let result: ()? = try? service.deleteAccount(id: data.id)
         XCTAssertNotNil(result)     // deletion succeeded
@@ -79,6 +105,7 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(withStore: store)
         let service = AccountsService(withRepository: repository)
         var accountData = AccountData()
+        accountData.name = "bobby"
         accountData.email = "abc@xyz.com"
         accountData.phone = "<something>"
         let address = Address(line1: "", line2: "", city: "", country: "", code: 0, kind: .home)
@@ -101,6 +128,7 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(withStore: store)
         let service = AccountsService(withRepository: repository)
         var accountData = AccountData()
+        accountData.name = "bobby"
         accountData.email = "abc@xyz.com"
         let account = try! service.createAccount(withData: accountData)
         XCTAssertEqual(account.data.address.inner, [])      // address list is empty

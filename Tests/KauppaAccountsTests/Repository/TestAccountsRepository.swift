@@ -21,7 +21,6 @@ class TestAccountsRepository: XCTestCase {
     // MARK: - Instance
 
     override func setUp() {
-
         super.setUp()
     }
 
