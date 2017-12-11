@@ -17,9 +17,9 @@ public class MailClient {
     let sender: String
     let service: MailServiceCallable
 
-    public init(withService: MailServiceCallable, mailsFrom: String) {
-        sender = mailsFrom
-        service = withService
+    public init(with service: MailServiceCallable, mailsFrom: String) {
+        self.sender = mailsFrom
+        self.service = service
     }
 
     /// Send mail with a `MailFormattable` object.

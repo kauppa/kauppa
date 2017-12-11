@@ -15,6 +15,8 @@ public class OrdersService: OrdersServiceCallable {
     let accountsService: AccountsServiceCallable
     let productsService: ProductsServiceCallable
 
+    var mailService: MailClient? = nil
+
     /// Initialize this service with its repository, along with
     /// instances of clients to account and product services.
     public init(withRepository repository: OrdersRepository,
@@ -30,12 +32,14 @@ public class OrdersService: OrdersServiceCallable {
         let weightCounter = WeightCounter()
         var order = Order()
         var inventoryUpdates = [UUID: UInt32]()
+        var detailedOrder: DetailedOrder = GenericOrder()   // order data for mail service
 
-        let _ = try accountsService.getAccount(id: data.placedBy)
+        let account = try accountsService.getAccount(id: data.placedBy)
         order.placedBy = data.placedBy
+        detailedOrder.placedBy = account
 
         for orderUnit in data.products {
-            let product = try productsService.getProduct(id: orderUnit.id)
+            let product = try productsService.getProduct(id: orderUnit.product)
             if orderUnit.quantity == 0 {
                 continue    // skip zero'ed items
             }
@@ -48,10 +52,10 @@ public class OrdersService: OrdersServiceCallable {
 
             let leftover = available - UInt32(orderUnit.quantity)
             inventoryUpdates[product.id] = leftover
-
-            let orderedUnit = OrderedProduct(id: product.id,
-                                             processedItems: orderUnit.quantity)
-            order.products.append(orderedUnit)
+            order.products.append(orderUnit)
+            let unit = GenericOrderUnit(product: product,
+                                        quantity: orderUnit.quantity)
+            detailedOrder.products.append(unit)
 
             order.totalPrice += Double(orderUnit.quantity) * product.data.price
             var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
@@ -72,7 +76,14 @@ public class OrdersService: OrdersServiceCallable {
         }
 
         order.totalWeight = weightCounter.sum()
-        return try repository.createOrder(withData: order)
+        let orderData = try repository.createOrder(withData: order)
+        orderData.copyValues(into: &detailedOrder)
+        let mailOrder = MailOrder(from: detailedOrder)
+        if let mailer = mailService {
+            mailer.sendMail(to: account.data.email, with: mailOrder)
+        }
+
+        return orderData
     }
 
     public func deleteOrder(id: UUID) throws -> () {
