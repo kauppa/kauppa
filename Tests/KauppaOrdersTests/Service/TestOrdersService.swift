@@ -268,8 +268,8 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService)
         let orderData = OrderData(placedBy: account.id,
-                                  products: [OrderUnit(id: firstProduct.id, quantity: 3),
-                                             OrderUnit(id: secondProduct.id, quantity: 3)])
+                                  products: [OrderUnit(product: firstProduct.id, quantity: 3),
+                                             OrderUnit(product: secondProduct.id, quantity: 3)])
         do {
             let _ = try ordersService.createOrder(data: orderData)
             XCTFail()

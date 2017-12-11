@@ -45,11 +45,11 @@ extension AccountsService: AccountsServiceCallable {
         var accountData = try repository.getAccountData(forId: id)
 
         if let name = data.name {
-            accountData.name = name
-        }
+            if name.isEmpty {
+                throw AccountsError.invalidName
+            }
 
-        if let email = data.email {
-            accountData.email = email
+            accountData.name = name
         }
 
         if let phone = data.phone {
