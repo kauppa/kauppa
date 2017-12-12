@@ -14,7 +14,7 @@ class TestCartService: XCTestCase {
 
     static var allTests: [(String, (TestCartService) -> () throws -> Void)] {
         return [
-            ("Test cart creation", testCartCreation),
+            ("Test item addition to cart", testCartItemAddition),
         ]
     }
 
@@ -28,7 +28,7 @@ class TestCartService: XCTestCase {
         super.tearDown()
     }
 
-    func testCartCreation() {
+    func testCartItemAddition() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
         let productData = ProductData(title: "", subtitle: "", description: "")
@@ -40,8 +40,8 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService)
-        var cartData = CartData()
-        let data = try! service.createCart(withData: cartData)
-        XCTAssertEqual(data.createdOn, data.updatedAt)
+        let cartUnit = CartUnit(id: product.id, quantity: 4)
+        let cart = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
+        XCTAssertEqual(cart.items[0].productId, product.id)     // item exists in cart
     }
 }

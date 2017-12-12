@@ -6,17 +6,12 @@ import KauppaCore
 public struct Cart: Mappable {
     /// Unique identifier for this cart.
     public let id: UUID
-    /// Creation timestamp
-    public let createdOn: Date
     /// Last updated timestamp
-    public var updatedAt: Date
+    public var updatedAt = Date()
     /// Stuff in the cart
-    public var data: CartData
+    public var items: [CartUnit] = []
 
-    public init(id: UUID, createdOn: Date, updatedAt: Date, data: CartData) {
+    public init(withId id: UUID) {
         self.id = id
-        self.createdOn = createdOn
-        self.updatedAt = updatedAt
-        self.data = data
     }
 }

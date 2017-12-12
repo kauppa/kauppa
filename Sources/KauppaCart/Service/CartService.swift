@@ -26,7 +26,20 @@ public class CartService {
 }
 
 extension CartService: CartServiceCallable {
-    public func createCart(withData data: CartData) throws -> Cart {
-        return try repository.createCart(data: data)
+    public func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart {
+        if unit.quantity == 0 {
+            throw CartError.noItemsToProcess
+        }
+
+        let _ = try accountsService.getAccount(id: userId)
+        let product = try productsService.getProduct(id: unit.productId)
+        // FIXME: Verify inventory
+
+        // FIXME: Verify currency
+
+        var items = try repository.getCartItems(forId: userId)
+        items.append(unit)
+
+        return try repository.updateCartItems(forId: userId, items: items)
     }
 }

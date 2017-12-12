@@ -8,7 +8,7 @@ import XCTest
 class TestCartRepository: XCTestCase {
     static var allTests: [(String, (TestCartRepository) -> () throws -> Void)] {
         return [
-            ("Test cart creation", testCartCreation),
+            ("Test getting cart", testCartGet),
         ]
     }
 
@@ -20,14 +20,15 @@ class TestCartRepository: XCTestCase {
         super.tearDown()
     }
 
-    func testCartCreation() {
+    func testCartGet() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
-        let cart = CartData()
-        // These two timestamps should be the same in creation
-        let data = try! repository.createCart(data: cart)
-        XCTAssertEqual(data.createdOn, data.updatedAt)
-        XCTAssertTrue(store.createCalled)       // store has been called for creation
+        let randomId = UUID()   // assume some user with this ID
+        let data = try! repository.getCart(forId: randomId)
+        XCTAssertTrue(store.getCalled)  // store has been queried
+        XCTAssertTrue(store.createCalled)   // new cart has been created in store
+        XCTAssertTrue(data.items.isEmpty)   // no items initially
+        XCTAssertEqual(data.id, randomId)   // cart ID is the same as account ID
         XCTAssertNotNil(repository.carts[data.id])      // repository has the cart
     }
 }

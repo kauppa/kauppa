@@ -15,14 +15,49 @@ public class CartRepository {
         self.store = store
     }
 
-    /// Create a cart with data from the service.
-    public func createCart(data: CartData) throws -> Cart {
-        let id = UUID()
-        let date = Date()
-        let cart = Cart(id: id, createdOn: date,
-                        updatedAt: date, data: data)
+    /// Get the cat associated with a customer account.
+    ///
+    /// Since carts are always associated with a customer account,
+    /// we make sure that a cart always exists for an account.
+    ///
+    /// Whenever the repository asks the store for a cart, the store
+    /// can either return the cart, or respond that the cart doesn't
+    /// exist, or fail with some other error.
+    ///
+    /// In case the store doesn't have a cart, the repository initializes
+    /// one, and propagates any other error.
+    public func getCart(forId id: UUID) throws -> Cart {
+        guard let cart = carts[id] else {
+            let cart: Cart
+            do {
+                cart = try store.getCart(id: id)
+            } catch CartError.cartUnavailable {
+                cart = Cart(withId: id)
+                try store.createCart(data: cart)
+            } catch let err {
+                throw err
+            }
+
+            carts[id] = cart
+            return cart
+        }
+
+        return cart
+    }
+
+    /// Get the items in a customer's cart.
+    public func getCartItems(forId id: UUID) throws -> [CartUnit] {
+        let cart = try getCart(forId: id)
+        return cart.items
+    }
+
+    /// Update the items in a customer's cart.
+    public func updateCartItems(forId id: UUID, items: [CartUnit]) throws -> Cart {
+        var cart = try getCart(forId: id)
+        cart.updatedAt = Date()
+        cart.items = items
         carts[id] = cart
-        try store.createCart(data: cart)
+        try store.updateCart(data: cart)
         return cart
     }
 }

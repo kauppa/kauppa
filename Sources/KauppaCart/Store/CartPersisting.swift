@@ -7,4 +7,7 @@ import KauppaCartModel
 public protocol CartPersisting: Persisting {
     /// Create a cart with data from the repository.
     func createCart(data: Cart) throws -> ()
+
+    /// Update a cart with data from repository.
+    func updateCart(data: Cart) throws -> ()
 }

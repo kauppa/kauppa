@@ -3,6 +3,6 @@ import Foundation
 import KauppaCartModel
 
 public protocol CartServiceCallable {
-    /// Create a cart with the given product data.
-    func createCart(withData data: CartData) throws -> Cart
+    /// Add product item(s) to an account's cart.
+    func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart
 }
