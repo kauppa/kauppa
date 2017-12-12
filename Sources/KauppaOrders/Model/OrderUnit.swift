@@ -77,10 +77,9 @@ public struct GenericOrderUnit<P: Mappable>: Mappable {
         }
 
         tax!.rate = rate
-        let unitTax = rate * 0.01 * netPrice!.value
-        tax!.total = Price(unitTax)
-        let unitGross = netPrice!.value + unitTax
-        grossPrice = Price(unitGross)
+        tax!.total = Price(rate * 0.01 * netPrice!.value)
+        // If the unit is inclusive of tax, then gross price is same as net price.
+        grossPrice = (tax!.inclusive) ? netPrice! : netPrice! + tax!.total
     }
 
     /// Number of items that have been fulfilled and hasn't been scheduled for pickup.

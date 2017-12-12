@@ -67,6 +67,7 @@ class OrdersFactory {
 
         try updateProductInventory()
 
+        order.currency = priceUnit!
         order.placedBy = account.id!
         order.shippingAddress = data.shippingAddress
         order.billingAddress = data.billingAddress
@@ -129,7 +130,10 @@ class OrdersFactory {
     /// Final step: Update the counters which track the sum of values.
     private func updateCounters(for unit: OrderUnit, with product: Product) {
         totalPrice += unit.netPrice!
-        totalTax += unit.tax!.total
+        if !unit.tax!.inclusive {   // Add tax only if product's tax is not inclusive
+            totalTax += unit.tax!.total
+        }
+
         var weight = product.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
         weight.value *= Double(unit.quantity)
         weightCounter.add(weight)
@@ -151,6 +155,7 @@ class OrdersFactory {
         try checkCurrency(for: product)
         try updateConsumedInventory(for: product, with: unit)
         unit.setTax(using: product.taxCategory)    // set the category for taxes
+        unit.tax!.inclusive = product.taxInclusive ?? false
         calculateUnitPrices(for: &unit)
 
         order.products.append(unit)

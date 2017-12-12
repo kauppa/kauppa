@@ -201,6 +201,7 @@ class CartItemModifier {
 
             // Set product category (for calculating tax later)
             unit.setTax(using: product.taxCategory)
+            unit.tax!.inclusive = product.taxInclusive ?? false
             cart.currency = product.currency
             unit.netPrice = Price(Float(unit.quantity)) * product.price
 
