@@ -13,13 +13,13 @@ public protocol CartServiceCallable {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account maintaining this cart.
-    ///   - with: The `CartUnit` that needs to be added to the cart.
+    ///   - with: The `OrderUnit` that needs to be added to the cart.
     ///   - from: The (optional) `Address` from which this request was originated.
     /// - Returns: The `Cart` data (with all the items contained inside).
     /// - Throws: `ServiceError`
     ///   - If the account doesn't exist.
     ///   - If the item couldn't be added to the cart.
-    func addCartItem(for userId: UUID, with unit: CartUnit, from address: Address?) throws -> Cart
+    func addCartItem(for userId: UUID, with unit: OrderUnit, from address: Address?) throws -> Cart
 
     /// Remove a product item from the cart associated with an account.
     ///

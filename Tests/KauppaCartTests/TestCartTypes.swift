@@ -3,6 +3,7 @@ import XCTest
 
 import KauppaCore
 import KauppaAccountsModel
+import KauppaOrdersModel
 @testable import KauppaCartModel
 @testable import KauppaTaxModel
 @testable import TestTypes
@@ -12,15 +13,15 @@ class TestCartTypes: XCTestCase {
         return [
             ("Test cart reset", testCartReset),
             ("Test cart price setting", testCartSetPrices),
-            ("Test cart unit reset", testCartUnitReset),
-            ("Test cart unit price setting", testCartUnitSetPrices),
+            ("Test cart unit reset", testOrderUnitReset),
+            ("Test cart unit price setting", testOrderUnitSetPrices),
             ("Test cart checkout data validation", testCheckoutValidation),
         ]
     }
 
     /// Check that reseting cart unit properly resets the necessary properties.
-    func testCartUnitReset() {
-        var unit = CartUnit(for: UUID(), with: 5)
+    func testOrderUnitReset() {
+        var unit = OrderUnit(for: UUID(), with: 5)
         unit.tax = UnitTax()
         unit.tax!.category = "something"
         unit.tax!.rate = 25.0
@@ -37,8 +38,8 @@ class TestCartTypes: XCTestCase {
     }
 
     /// Test setting tax and prices in cart unit.
-    func testCartUnitSetPrices() {
-        var unit = CartUnit(for: UUID(), with: 5)
+    func testOrderUnitSetPrices() {
+        var unit = OrderUnit(for: UUID(), with: 5)
         unit.tax = UnitTax()
         unit.tax!.category = "drink"
         unit.netPrice = Price(5.0)
@@ -55,7 +56,7 @@ class TestCartTypes: XCTestCase {
     /// Check that reseting cart properly sets all internal properties to `nil`.
     func testCartReset() {
         var cart = Cart(with: UUID())
-        cart.items.append(CartUnit(for: UUID(), with: 5))
+        cart.items.append(OrderUnit(for: UUID(), with: 5))
         cart.netPrice = Price(5.0)
         cart.grossPrice = Price(5.5)
         cart.coupons = ArraySet([UUID()])
@@ -71,8 +72,8 @@ class TestCartTypes: XCTestCase {
     func testCartSetPrices() {
         var cart = Cart(with: UUID())
         cart.netPrice = Price(25.0)
-        cart.items = [CartUnit(for: UUID(), with: 5),
-                      CartUnit(for: UUID(), with: 3)]
+        cart.items = [OrderUnit(for: UUID(), with: 5),
+                      OrderUnit(for: UUID(), with: 3)]
         cart.items[0].tax = UnitTax()
         cart.items[0].tax!.category = "food"
         cart.items[0].netPrice = Price(10.0)

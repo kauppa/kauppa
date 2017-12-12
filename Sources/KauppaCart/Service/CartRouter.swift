@@ -1,8 +1,9 @@
 import Foundation
 
 import KauppaCore
-import KauppaCartModel
 import KauppaCartClient
+import KauppaCartModel
+import KauppaOrdersModel
 
 /// Router specific to the cart service.
 public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
@@ -22,7 +23,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
                 throw ServiceError.invalidAccountId
             }
 
-            guard let unit: CartUnit = request.getJSON() else {
+            guard let unit: OrderUnit = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 

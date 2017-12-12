@@ -2,7 +2,6 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
-import KauppaCartModel
 import KauppaOrdersClient
 import KauppaOrdersModel
 import KauppaShipmentsClient
@@ -30,7 +29,7 @@ public class ShipmentsService {
 
 // NOTE: See the actual protocol in `KauppaShipmentsClient` for exact usage.
 extension ShipmentsService: ShipmentsServiceCallable {
-    public func createShipment(for orderId: UUID, with items: [CartUnit]?) throws -> Shipment {
+    public func createShipment(for orderId: UUID, with items: [OrderUnit]?) throws -> Shipment {
         let order = try ordersService.getOrder(for: orderId)
         let factory = ShipmentsFactory(for: order, with: items)
         let shipment = try factory.createShipment(using: repository)

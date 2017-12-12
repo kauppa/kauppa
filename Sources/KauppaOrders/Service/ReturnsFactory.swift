@@ -1,7 +1,6 @@
 import Foundation
 
 import KauppaCore
-import KauppaCartModel
 import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaProductsModel
@@ -15,7 +14,7 @@ class ReturnsFactory {
     let data: PickupData
     let productsService: ProductsServiceCallable
 
-    private var returnItems = [GenericCartUnit<Product>]()
+    private var returnItems = [GenericOrderUnit<Product>]()
 
     /// Initialize this factory with pickup data and product service.
     ///
@@ -53,7 +52,7 @@ class ReturnsFactory {
 
         var pickupData = PickupItems()
         for unit in returnItems {
-            pickupData.items.append(CartUnit(for: unit.product.id!, with: unit.quantity))
+            pickupData.items.append(OrderUnit(for: unit.product.id!, with: unit.quantity))
         }
 
         let shipment = try shippingService.schedulePickup(for: order.id, with: pickupData)
@@ -65,13 +64,13 @@ class ReturnsFactory {
     /// been scheduled for pickup).
     private func getAllItemsForPickup(for order: inout Order) throws {
         for (i, unit) in order.products.enumerated() {
-            let product = try productsService.getProduct(for: unit.item.product,
+            let product = try productsService.getProduct(for: unit.product,
                                                          from: order.shippingAddress)
             // Only collect "untouched" items (if any) from each unit
             // (i.e., items that have been fulfilled and not scheduled for pickup)
             let fulfilled = unit.untouchedItems()
             if fulfilled > 0 {
-                let returnUnit = GenericCartUnit(for: product, with: fulfilled)
+                let returnUnit = GenericOrderUnit(for: product, with: fulfilled)
                 returnItems.append(returnUnit)
                 order.products[i].status!.pickupQuantity += returnUnit.quantity
             }
@@ -91,7 +90,7 @@ class ReturnsFactory {
                 throw ServiceError.invalidReturnQuantity
             }
 
-            returnItems.append(GenericCartUnit(for: product, with: unit.quantity))
+            returnItems.append(GenericOrderUnit(for: product, with: unit.quantity))
             order.products[i].status!.pickupQuantity += unit.quantity
         }
     }

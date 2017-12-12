@@ -1,7 +1,6 @@
 import Foundation
 
 import KauppaCore
-import KauppaCartModel
 import KauppaOrdersModel
 import KauppaOrdersStore
 
@@ -89,7 +88,7 @@ public class OrdersRepository {
     /// - Returns: `Refund` object
     /// - Throws: `ServiceError` on failure.
     public func createRefund(for orderId: UUID,
-                             with reason: String, items: [CartUnit],
+                             with reason: String, items: [OrderUnit],
                              amount: Price) throws -> Refund
     {
         var refund = Refund(for: orderId, with: reason, amount: amount)

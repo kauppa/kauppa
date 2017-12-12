@@ -1,14 +1,13 @@
 import Foundation
 
 import KauppaCore
-import KauppaCartModel
 
 /// Data required for initiating a refund.
 public struct RefundData: Mappable {
     /// Refund all units in the order.
     public var fullRefund: Bool? = nil
     /// Refund specific units in an order.
-    public var units: [CartUnit]? = nil
+    public var units: [OrderUnit]? = nil
     /// Reason for requesting this refund.
     public let reason: String
 
@@ -41,7 +40,7 @@ public struct Refund: Mappable {
     /// Reason for requesting this refund.
     public let reason: String
     /// Items associated with this refund.
-    public var items = [CartUnit]()
+    public var items = [OrderUnit]()
     /// Refund amount.
     public let amount: Price
 

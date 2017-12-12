@@ -1,6 +1,6 @@
 import Foundation
 
-import KauppaCartModel
+import KauppaOrdersModel
 import KauppaShipmentsModel
 
 /// General API for the shipment service to be implemented by both the
@@ -14,7 +14,7 @@ public protocol ShipmentsServiceCallable {
     ///   - with: (Optional) list of cart units (IDs and quantities).
     /// - Returns: `Shipment`
     /// - Throws: `ServiceError` if the order doesn't exist.
-    func createShipment(for orderId: UUID, with items: [CartUnit]?) throws -> Shipment
+    func createShipment(for orderId: UUID, with items: [OrderUnit]?) throws -> Shipment
 
     /// Change the shipping status to 'shipped' - this also notifies
     /// orders service that the items have been shipped.

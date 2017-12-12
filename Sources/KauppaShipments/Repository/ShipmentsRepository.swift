@@ -2,7 +2,6 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
-import KauppaCartModel
 import KauppaOrdersModel
 import KauppaShipmentsModel
 import KauppaShipmentsStore
@@ -31,7 +30,7 @@ public class ShipmentsRepository {
     ///   - status: (Optional) status for this shipment.
     /// - Returns: `Shipment` object.
     /// - Throws: `ServiceError` on failure.
-    public func createShipment(for orderId: UUID, with items: [CartUnit], to address: Address,
+    public func createShipment(for orderId: UUID, with items: [OrderUnit], to address: Address,
                                status: ShipmentStatus? = nil) throws -> Shipment
     {
         var data = Shipment(for: orderId, with: address)
