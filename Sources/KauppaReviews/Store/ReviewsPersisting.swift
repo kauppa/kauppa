@@ -7,4 +7,7 @@ import KauppaReviewsModel
 public protocol ReviewsPersisting: Persisting {
     /// Create a review with data from the repository.
     func createReview(data: Review) throws -> ()
+
+    /// Update a review associated with an ID.
+    func updateReview(reviewData: Review) throws -> ()
 }

@@ -7,7 +7,9 @@ import KauppaCore
 /// could be updated for an account.
 public struct AccountPatch: Mappable {
     public var name: String? = nil
-    public var email: String? = nil
+    // FIXME: Multiple things to worry when we're changing email
+    // (verification mail and check that account doesn't exist already)
+    // public var email: String? = nil
     public var phone: String? = nil
     public var address: ArraySet<Address>? = nil
 
