@@ -16,4 +16,9 @@ public struct Cart: Mappable {
     public init(withId id: UUID) {
         self.id = id
     }
+
+    public mutating func reset() {
+        items = []
+        currency = nil
+    }
 }

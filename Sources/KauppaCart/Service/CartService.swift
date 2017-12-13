@@ -3,6 +3,7 @@ import Foundation
 import KauppaCore
 import KauppaAccountsClient
 import KauppaOrdersClient
+import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaCartClient
 import KauppaCartModel
@@ -75,6 +76,28 @@ extension CartService: CartServiceCallable {
 
     public func getCart(forAccount userId: UUID) throws -> Cart {
         let _ = try accountsService.getAccount(id: userId)
+        // FIXME: Make sure that product items are available
+
         return try repository.getCart(forId: userId)
+    }
+
+    public func placeOrder(forAccount userId: UUID) throws -> Order {
+        let _ = try accountsService.getAccount(id: userId)
+        var cart = try repository.getCart(forId: userId)
+        if cart.items.isEmpty {
+            throw CartError.noItemsToProcess
+        }
+
+        var units = [OrderUnit]()
+        for unit in cart.items {
+            units.append(OrderUnit(product: unit.productId,
+                                   quantity: unit.quantity))
+        }
+
+        cart.reset()
+        let _ = try repository.updateCart(data: cart)
+
+        let orderData = OrderData(placedBy: userId, products: units)
+        return try ordersService.createOrder(data: orderData)
     }
 }
