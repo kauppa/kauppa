@@ -33,13 +33,44 @@ extension CartService: CartServiceCallable {
 
         let _ = try accountsService.getAccount(id: userId)
         let product = try productsService.getProduct(id: unit.productId)
-        // FIXME: Verify inventory
+        if unit.quantity > product.data.inventory {
+            throw CartError.productUnavailable  // precheck inventory
+        }
 
-        // FIXME: Verify currency
+        var itemExists = false
+        var cart = try repository.getCart(forId: userId)
+        // Make sure that the cart maintains its currency unit
+        if let currency = cart.currency {
+            if currency != product.data.price.unit {
+                throw CartError.ambiguousCurrencies
+            }
+        } else {
+            cart.currency = product.data.price.unit
+        }
 
-        var items = try repository.getCartItems(forId: userId)
-        items.append(unit)
+        // Check if the product already exists
+        for i in 0..<cart.items.count {
+            if cart.items[i].productId == product.id {
+                itemExists = true
+                cart.items[i].quantity += unit.quantity
 
-        return try repository.updateCartItems(forId: userId, items: items)
+                // This is just for notifying the customer. Orders service
+                // will verify this before placing the order.
+                if cart.items[i].quantity > product.data.inventory {
+                    throw CartError.productUnavailable
+                }
+            }
+        }
+
+        if !itemExists {
+            cart.items.append(unit)
+        }
+
+        return try repository.updateCart(data: cart)
+    }
+
+    public func getCart(forAccount userId: UUID) throws -> Cart {
+        let _ = try accountsService.getAccount(id: userId)
+        return try repository.getCart(forId: userId)
     }
 }

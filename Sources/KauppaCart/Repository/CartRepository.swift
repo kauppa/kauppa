@@ -45,18 +45,13 @@ public class CartRepository {
         return cart
     }
 
-    /// Get the items in a customer's cart.
-    public func getCartItems(forId id: UUID) throws -> [CartUnit] {
-        let cart = try getCart(forId: id)
-        return cart.items
-    }
-
     /// Update the items in a customer's cart.
-    public func updateCartItems(forId id: UUID, items: [CartUnit]) throws -> Cart {
-        var cart = try getCart(forId: id)
+    public func updateCart(data: Cart) throws -> Cart {
+        var cart = data
         cart.updatedAt = Date()
-        cart.items = items
-        carts[id] = cart
+        cart.items = data.items
+        cart.currency = data.currency
+        carts[cart.id] = cart
         try store.updateCart(data: cart)
         return cart
     }
