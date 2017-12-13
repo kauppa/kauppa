@@ -94,10 +94,11 @@ extension CartService: CartServiceCallable {
                                    quantity: unit.quantity))
         }
 
+        let orderData = OrderData(placedBy: userId, products: units)
+        let order = try ordersService.createOrder(data: orderData)
+
         cart.reset()
         let _ = try repository.updateCart(data: cart)
-
-        let orderData = OrderData(placedBy: userId, products: units)
-        return try ordersService.createOrder(data: orderData)
+        return order
     }
 }
