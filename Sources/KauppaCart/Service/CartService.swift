@@ -2,6 +2,7 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsClient
+import KauppaOrdersClient
 import KauppaProductsClient
 import KauppaCartClient
 import KauppaCartModel
@@ -12,16 +13,19 @@ public class CartService {
     let repository: CartRepository
     let productsService: ProductsServiceCallable
     let accountsService: AccountsServiceCallable
+    let ordersService: OrdersServiceCallable
 
     /// Initializes a new `CartService` instance with a
     /// repository, accounts and products service.
     public init(withRepository repository: CartRepository,
                 productsService: ProductsServiceCallable,
-                accountsService: AccountsServiceCallable)
+                accountsService: AccountsServiceCallable,
+                ordersService: OrdersServiceCallable)
     {
         self.repository = repository
         self.productsService = productsService
         self.accountsService = accountsService
+        self.ordersService = ordersService
     }
 }
 

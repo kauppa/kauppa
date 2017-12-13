@@ -11,6 +11,7 @@ import KauppaProductsModel
 class TestCartService: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
+    let ordersService = TestOrdersService()
 
     static var allTests: [(String, (TestCartService) -> () throws -> Void)] {
         return [
@@ -44,7 +45,8 @@ class TestCartService: XCTestCase {
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
-                                  accountsService: accountsService)
+                                  accountsService: accountsService,
+                                  ordersService: ordersService)
         let cartUnit = CartUnit(id: product.id, quantity: 4)
         let cart = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
         XCTAssertEqual(cart.items[0].productId, product.id)     // item exists in cart
@@ -55,7 +57,8 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(withStore: store)
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
-                                  accountsService: accountsService)
+                                  accountsService: accountsService,
+                                  ordersService: ordersService)
         let cartUnit = CartUnit(id: UUID(), quantity: 4)
         do {    // random UUID - cannot add item - account doesn't exist
             let _ = try service.addCartItem(forAccount: UUID(), withUnit: cartUnit)
@@ -80,7 +83,8 @@ class TestCartService: XCTestCase {
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
-                                  accountsService: accountsService)
+                                  accountsService: accountsService,
+                                  ordersService: ordersService)
         let cartUnit = CartUnit(id: UUID(), quantity: 4)
         do {    // random UUID - product doesn't exist
             let _ = try service.addCartItem(forAccount: account.id, withUnit: cartUnit)
@@ -101,7 +105,8 @@ class TestCartService: XCTestCase {
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
-                                  accountsService: accountsService)
+                                  accountsService: accountsService,
+                                  ordersService: ordersService)
         var cartUnit = CartUnit(id: product.id, quantity: 15)
         do {
             let _ = try service.addCartItem(forAccount: account.id, withUnit: cartUnit)
@@ -135,7 +140,8 @@ class TestCartService: XCTestCase {
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
-                                  accountsService: accountsService)
+                                  accountsService: accountsService,
+                                  ordersService: ordersService)
         var cartUnit = CartUnit(id: productUsd.id, quantity: 5)
         let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
         cartUnit.productId = productEuro.id

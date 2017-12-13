@@ -100,6 +100,7 @@ let serviceTargets: [Target] = [
             "KauppaCartRepository",
             "KauppaCartModel",
             "KauppaAccountsClient",
+            "KauppaOrdersClient",
             "KauppaProductsClient",
         ],
         path: "Sources/KauppaCart/Service"
@@ -246,6 +247,8 @@ let testTargets: [Target] = [
             "KauppaCore",
             "KauppaAccountsClient",
             "KauppaAccountsModel",
+            "KauppaOrdersClient",
+            "KauppaOrdersModel",
             "KauppaProductsClient",
             "KauppaProductsModel",
             "KauppaCartModel",
