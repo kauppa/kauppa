@@ -5,6 +5,8 @@ import KauppaProductsModel
 /// General API meant for the products service to be used by both the
 /// service and the client.
 public protocol ProductsServiceCallable {
+    /* Product */
+
     /// Create product with the given product data.
     func createProduct(data: ProductData) throws -> Product
 
@@ -22,4 +24,9 @@ public protocol ProductsServiceCallable {
 
     /// Reset individual product properties with the given patch.
     func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product
+
+    /* Product collection */
+
+    /// Create a collection of products with the given data.
+    func createCollection(data: ProductCollectionData) throws -> ProductCollection
 }

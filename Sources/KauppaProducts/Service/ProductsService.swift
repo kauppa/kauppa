@@ -170,4 +170,12 @@ public class ProductsService: ProductsServiceCallable {
 
         return try repository.updateProductData(id: id, data: productData)
     }
+
+    public func createCollection(data: ProductCollectionData) throws -> ProductCollection {
+        for productId in data.products {
+            let _ = try repository.getProductData(id: productId)
+        }
+
+        return try repository.createCollection(with: data)
+    }
 }

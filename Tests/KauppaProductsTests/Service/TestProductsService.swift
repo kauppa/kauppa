@@ -15,6 +15,8 @@ class TestProductsService: XCTestCase {
             ("Test update of product", testProductUpdate),
             ("Test individual property deletion", testPropertyDeletion),
             ("Test individual property addition", testPropertyAddition),
+            ("Test collection creation", testCollectionCreation),
+            ("Test invalid product in collection", testCollectionInvalidProduct),
         ]
     }
 
@@ -174,5 +176,33 @@ class TestProductsService: XCTestCase {
         XCTAssertNil(updatedProduct.data.category)
         XCTAssertNil(updatedProduct.data.color)
         XCTAssertNil(updatedProduct.data.weight)
+    }
+
+    func testCollectionCreation() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        let product1 = try! service.createProduct(data: productData)
+        productData.color = "black"
+        let product2 = try! service.createProduct(data: productData)
+
+        let collection = ProductCollectionData(name: "", description: "",
+                                               products: ArraySet([product1.id, product2.id]))
+        let data = try? service.createCollection(data: collection)
+        XCTAssertNotNil(data)
+    }
+
+    func testCollectionInvalidProduct() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        let collection = ProductCollectionData(name: "", description: "",
+                                               products: ArraySet([UUID()]))
+        do {
+            let _ = try service.createCollection(data: collection)
+        } catch let err {
+            XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
+        }
     }
 }

@@ -5,12 +5,14 @@ import Foundation
 
 public class TestStore: ProductsStorable {
     public var products = [UUID: Product]()
+    public var collections = [UUID: ProductCollection]()
 
     // Variables to indicate the count of function calls
     public var createCalled = false
     public var getCalled = false
     public var deleteCalled = false
     public var updateCalled = false
+    public var collectionCreateCalled = false
 
     public func createNewProduct(productData: Product) throws -> () {
         createCalled = true
@@ -39,6 +41,12 @@ public class TestStore: ProductsStorable {
     public func updateProduct(productData: Product) throws -> () {
         updateCalled = true
         products[productData.id] = productData
+        return ()
+    }
+
+    public func createNewCollection(data: ProductCollection) throws -> () {
+        collectionCreateCalled = true
+        collections[data.id] = data
         return ()
     }
 }

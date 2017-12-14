@@ -13,14 +13,27 @@ public struct ProductCollection: Mappable {
     public let updatedAt: Date
     /// User-supplied data for this collection.
     public let data: ProductCollectionData
+
+    public init(id: UUID, createdOn: Date, updatedAt: Date, data: ProductCollectionData) {
+        self.id = id
+        self.createdOn = createdOn
+        self.updatedAt = updatedAt
+        self.data = data
+    }
 }
 
-/// A collection of products.
+/// Represents a collection of products.
 public struct ProductCollectionData: Mappable {
     /// Name of this collection
     public let name: String
     /// Description for this collection.
     public let description: String
     /// Products added to this collection.
-    public let products = ArraySet<UUID>()
+    public let products: ArraySet<UUID>
+
+    public init(name: String, description: String, products: ArraySet<UUID>) {
+        self.name = name
+        self.description = description
+        self.products = products
+    }
 }
