@@ -2,6 +2,7 @@ import Foundation
 
 import KauppaCore
 
+/// User-supplied information for a product.
 public struct ProductData: Mappable {
     /// Title to be shown everywhere
     public var title: String
@@ -12,7 +13,7 @@ public struct ProductData: Mappable {
     /// Category on which this product belongs to
     public var category: String? = nil
     /// Tags for this product
-    public var tags: [String] = []
+    public var tags = ArraySet<String>()
     /// Size of this product (length, width and height - all are optional)
     public var size: Size? = nil
     /// Color in hex code

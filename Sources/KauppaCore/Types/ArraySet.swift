@@ -4,7 +4,7 @@ import Foundation
 /// for which hashing the items may take more time than it takes for addressing
 /// them in an array.
 public struct ArraySet<Element>: Mappable
-    where Element: Equatable
+    where Element: Hashable
 {
     var inner = [Element]()
 
@@ -20,12 +20,25 @@ public struct ArraySet<Element>: Mappable
 
     public init() {}
 
+    /// Initialize this collection with a sequence of elements.
+    public init<S>(_ sequence: S) where S : Sequence, Element == S.Element {
+        var elements: Set<Element> = []
+        for element in sequence {
+            if !elements.contains(element) {
+                self.inner.append(element)
+            }
+
+            elements.insert(element)
+        }
+    }
+
     public func encode(to encoder: Encoder) throws {
         try self.inner.encode(to: encoder)
     }
 
     public init(from decoder: Decoder) throws {
-        self.inner = try Array<Element>(from: decoder)
+        let array = try Array<Element>(from: decoder)
+        self.init(array)
     }
 
     /// Insert an element into this collection.
@@ -94,5 +107,13 @@ public struct ArraySet<Element>: Mappable
 
         self.inner.remove(at: index)
         return true
+    }
+}
+
+extension ArraySet: Sequence {
+    public typealias Iterator = IndexingIterator<Array<Element>>
+
+    public func makeIterator() -> Iterator {
+        return inner.makeIterator()
     }
 }

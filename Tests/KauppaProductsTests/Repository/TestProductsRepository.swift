@@ -31,6 +31,7 @@ class TestProductsRepository: XCTestCase {
         let creation = expectation(description: "Product created")
         var product = ProductData(title: "", subtitle: "", description: "")
         product.category = "foobar"
+        product.tags = ArraySet(["foo", "bar"])
 
         let data = try? repository.createProduct(data: product)
         XCTAssertNotNil(data)
@@ -38,6 +39,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertEqual(data!.createdOn, data!.updatedAt)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
         XCTAssertTrue(repository.categories.contains("foobar"))   // has category
+        XCTAssertEqual(repository.tags, ["foo", "bar"])
         XCTAssertNotNil(repository.products[data!.id])  // repository now has product data
         creation.fulfill()
 

@@ -22,6 +22,10 @@ public class ProductsRepository {
         if let category = product.data.category {
             categories.insert(category)
         }
+
+        for tag in product.data.tags {
+            tags.insert(tag)
+        }
     }
 
     /// Create product from the given product data.
