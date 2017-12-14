@@ -22,11 +22,6 @@ let modelTargets: [Target] = [
         name: "KauppaProductsModel",
         dependencies: ["KauppaCore"],
         path: "Sources/KauppaProducts/Model"
-    ),
-    .target(
-        name: "KauppaReviewsModel",
-        dependencies: ["KauppaCore"],
-        path: "Sources/KauppaReviews/Model"
     )
 ]
 
@@ -50,11 +45,6 @@ let storeTargets: [Target] = [
         name: "KauppaProductsStore",
         dependencies: ["KauppaCore", "KauppaProductsModel"],
         path: "Sources/KauppaProducts/Store"
-    ),
-    .target(
-        name: "KauppaReviewsStore",
-        dependencies: ["KauppaCore", "KauppaReviewsModel"],
-        path: "Sources/KauppaReviews/Store"
     )
 ]
 
@@ -78,11 +68,6 @@ let repositoryTargets: [Target] = [
         name: "KauppaProductsRepository",
         dependencies: ["KauppaProductsModel", "KauppaProductsStore", "KauppaCore"],
         path: "Sources/KauppaProducts/Repository"
-    ),
-    .target(
-        name: "KauppaReviewsRepository",
-        dependencies: ["KauppaReviewsModel", "KauppaReviewsStore", "KauppaCore"],
-        path: "Sources/KauppaReviews/Repository"
     )
 ]
 
@@ -123,18 +108,6 @@ let serviceTargets: [Target] = [
         path: "Sources/KauppaProducts/Service"
     ),
     .target(
-        name: "KauppaReviewsService",
-        dependencies: [
-            "KauppaCore",
-            "KauppaReviewsClient",
-            "KauppaReviewsRepository",
-            "KauppaReviewsModel",
-            "KauppaAccountsClient",
-            "KauppaProductsClient",
-        ],
-        path: "Sources/KauppaReviews/Service"
-    ),
-    .target(
         name: "KauppaTaxService",
         dependencies: ["KauppaCore"],
         path: "Sources/KauppaTax/Service"
@@ -161,11 +134,6 @@ let clientTargets: [Target] = [
         name: "KauppaProductsClient",
         dependencies: ["KauppaProductsModel"],
         path: "Sources/KauppaProducts/Client"
-    ),
-    .target(
-        name: "KauppaReviewsClient",
-        dependencies: ["KauppaReviewsModel"],
-        path: "Sources/KauppaReviews/Client"
     )
 ]
 
@@ -210,17 +178,6 @@ let daemonTargets: [Target] = [
             "KauppaProductsService",
             "KauppaProductsRepository",
             "KauppaProductsModel",
-            "KauppaCore"
-        ],
-        exclude: ["Client", "Service", "Repository", "Model", "Store"]
-    ),
-    .target(
-        name: "KauppaReviews",
-        dependencies: [
-            "KauppaReviewsClient",
-            "KauppaReviewsService",
-            "KauppaReviewsRepository",
-            "KauppaReviewsModel",
             "KauppaCore"
         ],
         exclude: ["Client", "Service", "Repository", "Model", "Store"]
@@ -282,19 +239,6 @@ let testTargets: [Target] = [
         ]
     ),
     .testTarget(
-        name: "KauppaReviewsTests",
-        dependencies: [
-            "KauppaCore",
-            "KauppaAccountsClient",
-            "KauppaAccountsModel",
-            "KauppaProductsClient",
-            "KauppaProductsModel",
-            "KauppaReviewsModel",
-            "KauppaReviewsRepository",
-            "KauppaReviewsService"
-        ]
-    ),
-    .testTarget(
         name: "KauppaTaxTests",
         dependencies: ["KauppaTaxService", "KauppaCore"])
 ]
@@ -332,10 +276,6 @@ let package = Package(
         .executable(
             name: "KauppaProducts",
             targets: ["KauppaProducts"]
-        ),
-        .executable(
-            name: "KauppaReviews",
-            targets: ["KauppaReviews"]
         ),
         .executable(
             name: "KauppaTax",
