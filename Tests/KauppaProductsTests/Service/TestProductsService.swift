@@ -122,7 +122,7 @@ class TestProductsService: XCTestCase {
                        ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
         XCTAssertEqual(updatedProduct.data.price.value, 30.0)
         XCTAssertEqual(updatedProduct.data.price.unit, .usd)
-        XCTAssertEqual(updatedProduct.data.category, .electronics)
+        XCTAssertEqual(updatedProduct.data.category, "electronics")
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
         XCTAssertEqual(updatedProduct.data.variantId, anotherId)
 
@@ -158,7 +158,7 @@ class TestProductsService: XCTestCase {
         var size = Size()
         size.length = UnitMeasurement(value: 10.0, unit: .centimeter)
         product.size = size
-        product.category = .food
+        product.category = "food"
         // variant is checked in `TestProductVariants`
         let data = try! service.createProduct(data: product)
 

@@ -7,11 +7,21 @@ public class ProductsRepository {
     // FIXME: To avoid running out of memory, we should clean the
     // least recently used items every now and then.
     var products = [UUID: Product]()
+    // Categories can't go beyond say, 100 - so, we're safe here
+    var categories = Set<String>()
+    // Tags can't go beyond say, 1000 - so, we're safe (again).
+    var tags = Set<String>()
 
     let store: ProductsStorable
 
     public init(withStore store: ProductsStorable) {
         self.store = store
+    }
+
+    private func updateCategoriesAndTags(using product: Product) {
+        if let category = product.data.category {
+            categories.insert(category)
+        }
     }
 
     /// Create product from the given product data.
@@ -22,6 +32,8 @@ public class ProductsRepository {
                               updatedAt: date, data: data)
         try self.store.createNewProduct(productData: product)
         products[id] = product
+        updateCategoriesAndTags(using: product)
+
         return product
     }
 
@@ -53,9 +65,11 @@ public class ProductsRepository {
         guard let product = products[id] else {
             let product = try store.getProduct(id: id)
             products[id] = product
+            updateCategoriesAndTags(using: product)
             return product
         }
 
+        updateCategoriesAndTags(using: product)
         return product
     }
 }
