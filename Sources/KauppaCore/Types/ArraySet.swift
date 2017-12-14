@@ -45,6 +45,36 @@ public struct ArraySet<Element>: Mappable
         return (index < self.inner.count) ? self.inner[index] : nil
     }
 
+    /// Get the item matching the given predicate
+    public func get(matching: (Element) -> Bool) -> Element? {
+        for e in inner {
+            if matching(e) {
+                return e
+            }
+        }
+
+        return nil
+    }
+
+    /// Mutate the first element matching the given predicate.
+    ///
+    /// If no element is matched and `defaultValue` is given,
+    /// then that value is appended to this collection.
+    public mutating func mutateOnce(matching: (Element) -> Bool,
+                                    with call: (inout Element) -> Void,
+                                    defaultValue: Element? = nil)
+    {
+        for i in 0..<inner.count {
+            if matching(inner[i]) {
+                return call(&inner[i])
+            }
+        }
+
+        if let value = defaultValue {
+            inner.append(value)
+        }
+    }
+
     /// Remove and return the element (if it exists) at the given index.
     public mutating func remove(at index: Int) -> Element? {
         if index < self.inner.count {

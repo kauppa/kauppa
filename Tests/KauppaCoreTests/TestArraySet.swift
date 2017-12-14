@@ -3,11 +3,21 @@ import XCTest
 
 @testable import KauppaCore
 
+struct TestType: Equatable {
+    var id: UUID
+    var thing: String
+
+    public static func ==(lhs: TestType, rhs: TestType) -> Bool {
+        return lhs.id == rhs.id && lhs.thing == rhs.thing
+    }
+}
+
 class TestArraySet: XCTestCase {
     static var allTests: [(String, (TestArraySet) -> () throws -> Void)] {
         return [
             ("Test array creation", testArrayCreation),
             ("Test array insertion", testArrayInsertion),
+            ("Test array mutation with predicate", testArrayMutationWithPredicate),
             ("Test getting from array", testArrayGet),
             ("Test element removal from array", testArrayRemoval),
             ("Test JSON encoding", testEncodable),
@@ -29,11 +39,39 @@ class TestArraySet: XCTestCase {
         XCTAssertEqual(array.count, 2)
     }
 
+    func testArrayMutationWithPredicate() {
+        var array = ArraySet<TestType>()
+        let id = UUID()
+        XCTAssertFalse(array.insert(TestType(id: id, thing: "foo")))
+        XCTAssertFalse(array.insert(TestType(id: id, thing: "bar")))
+        // Even though this is a different element, our function says
+        // that it's matching, so we'll call it.
+        array.mutateOnce(matching: { $0.thing == "bar" }, with: { value in
+            value.thing = "foobar"
+        })
+        XCTAssertEqual(array.inner[1].thing, "foobar")
+
+        // This won't match the predicate, so `defaultValue` gets inserted.
+        array.mutateOnce(matching: { $0.thing == "bar" }, with: { value in
+            value.thing = "foobar"
+        }, defaultValue: TestType(id: id, thing: "bar"))
+        XCTAssertEqual(array.count, 3)
+    }
+
     func testArrayGet() {
         var array = ArraySet<Int>()
         XCTAssertFalse(array.insert(1))
         XCTAssertEqual(array.get(from: 0), 1)
         XCTAssertNil(array.get(from: 1))    // try out-of-bounds indexing
+    }
+
+    func testArrayGetWithPredicate() {
+        var array = ArraySet<TestType>()
+        let id = UUID()
+        XCTAssertFalse(array.insert(TestType(id: id, thing: "foo")))
+        XCTAssertFalse(array.insert(TestType(id: id, thing: "bar")))
+        let result = array.get(matching: { $0.thing == "bar" })
+        XCTAssertNotNil(result)
     }
 
     func testArrayRemoval() {
