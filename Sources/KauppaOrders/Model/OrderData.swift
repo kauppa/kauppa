@@ -24,4 +24,9 @@ public struct OrderData: Mappable {
     public let placedBy: UUID
     /// List of product IDs and their quantity (as an order unit).
     public let products: [OrderUnit]
+
+    public init(placedBy id: UUID, products: [OrderUnit]) {
+        self.placedBy = id
+        self.products = products
+    }
 }

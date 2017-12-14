@@ -2,6 +2,8 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsClient
+import KauppaOrdersClient
+import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaCartClient
 import KauppaCartModel
@@ -12,16 +14,19 @@ public class CartService {
     let repository: CartRepository
     let productsService: ProductsServiceCallable
     let accountsService: AccountsServiceCallable
+    let ordersService: OrdersServiceCallable
 
     /// Initializes a new `CartService` instance with a
     /// repository, accounts and products service.
     public init(withRepository repository: CartRepository,
                 productsService: ProductsServiceCallable,
-                accountsService: AccountsServiceCallable)
+                accountsService: AccountsServiceCallable,
+                ordersService: OrdersServiceCallable)
     {
         self.repository = repository
         self.productsService = productsService
         self.accountsService = accountsService
+        self.ordersService = ordersService
     }
 }
 
@@ -71,6 +76,29 @@ extension CartService: CartServiceCallable {
 
     public func getCart(forAccount userId: UUID) throws -> Cart {
         let _ = try accountsService.getAccount(id: userId)
+        // FIXME: Make sure that product items are available
+
         return try repository.getCart(forId: userId)
+    }
+
+    public func placeOrder(forAccount userId: UUID) throws -> Order {
+        let _ = try accountsService.getAccount(id: userId)
+        var cart = try repository.getCart(forId: userId)
+        if cart.items.isEmpty {
+            throw CartError.noItemsToProcess
+        }
+
+        var units = [OrderUnit]()
+        for unit in cart.items {
+            units.append(OrderUnit(product: unit.productId,
+                                   quantity: unit.quantity))
+        }
+
+        let orderData = OrderData(placedBy: userId, products: units)
+        let order = try ordersService.createOrder(data: orderData)
+
+        cart.reset()
+        let _ = try repository.updateCart(data: cart)
+        return order
     }
 }
