@@ -29,9 +29,9 @@ public struct ProductCollectionData: Mappable {
     /// Description for this collection.
     public var description: String
     /// Products added to this collection.
-    public var products: ArraySet<UUID>
+    public var products: Set<UUID>
 
-    public init(name: String, description: String, products: ArraySet<UUID>) {
+    public init(name: String, description: String, products: Set<UUID>) {
         self.name = name
         self.description = description
         self.products = products

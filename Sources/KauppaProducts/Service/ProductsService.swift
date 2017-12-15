@@ -204,4 +204,34 @@ public class ProductsService: ProductsServiceCallable {
     public func deleteCollection(id: UUID) throws -> () {
         return try repository.deleteCollection(id: id)
     }
+
+    public func addProduct(toCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection {
+        var collectionData = try repository.getCollectionData(id: id)
+        var products = data.products ?? []
+        if let productId = data.product {
+            products.append(productId)
+        }
+
+        for productId in products {
+            let _ = try repository.getProductData(id: productId)
+            collectionData.products.insert(productId)
+        }
+
+        return try repository.updateCollectionData(id: id, data: collectionData)
+    }
+
+    public func removeProduct(fromCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection {
+        var collectionData = try repository.getCollectionData(id: id)
+        var products = data.products ?? []
+        if let productId = data.product {
+            products.append(productId)
+        }
+
+        for productId in products {
+            // If product exists in our collection, we remove it.
+            collectionData.products.remove(productId)
+        }
+
+        return try repository.updateCollectionData(id: id, data: collectionData)
+    }
 }

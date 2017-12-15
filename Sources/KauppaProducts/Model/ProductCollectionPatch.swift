@@ -8,7 +8,7 @@ import KauppaCore
 public struct ProductCollectionPatch: Mappable {
     public var name: String? = nil
     public var description: String? = nil
-    public var products: ArraySet<UUID>? = nil
+    public var products: Set<UUID>? = nil
 
     public init() {}
 }
@@ -18,7 +18,7 @@ public struct ProductCollectionPatch: Mappable {
 /// merged with union or set subtraction.
 public struct ProductCollectionItemPatch: Mappable {
     public var product: UUID? = nil
-    public var products: ArraySet<UUID>? = nil
+    public var products: [UUID]? = nil
 
     public init() {}
 }

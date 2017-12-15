@@ -19,6 +19,8 @@ class TestProductsService: XCTestCase {
             ("Test invalid product in collection", testCollectionInvalidProduct),
             ("Test collection deletion", testCollectionDeletion),
             ("Test collection update", testCollectionUpdate),
+            ("Test collection add product(s)", testCollectionAdd),
+            ("Test collection remove product(s)", testCollectionRemove),
         ]
     }
 
@@ -190,7 +192,7 @@ class TestProductsService: XCTestCase {
         let product2 = try! service.createProduct(data: productData)
 
         let collection = ProductCollectionData(name: "", description: "",
-                                               products: ArraySet([product1.id, product2.id]))
+                                               products: [product1.id, product2.id])
         let data = try? service.createCollection(data: collection)
         XCTAssertNotNil(data)
     }
@@ -199,8 +201,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let collection = ProductCollectionData(name: "", description: "",
-                                               products: ArraySet([UUID()]))
+        let collection = ProductCollectionData(name: "", description: "", products: [UUID()])
         do {
             let _ = try service.createCollection(data: collection)
             XCTFail()
@@ -213,8 +214,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let collection = ProductCollectionData(name: "", description: "",
-                                               products: ArraySet())
+        let collection = ProductCollectionData(name: "", description: "", products: [])
         let data = try! service.createCollection(data: collection)
         let _ = try! service.deleteCollection(id: data.id)
     }
@@ -225,28 +225,73 @@ class TestProductsService: XCTestCase {
         let service = ProductsService(withRepository: repository)
         let productData = ProductData(title: "", subtitle: "", description: "")
         let product1 = try! service.createProduct(data: productData)
-        let collection = ProductCollectionData(name: "", description: "",
-                                               products: ArraySet())
+        let collection = ProductCollectionData(name: "", description: "", products: [])
         let data = try! service.createCollection(data: collection)
         XCTAssertTrue(data.data.products.isEmpty)
 
         var patch = ProductCollectionPatch()
         patch.name = "foo"
         patch.description = "foobar"
-        patch.products = ArraySet([product1.id])
+        patch.products = [product1.id]
         let updatedCollection = try! service.updateCollection(id: data.id, data: patch)
         XCTAssertTrue(updatedCollection.createdOn != updatedCollection.updatedAt)
         XCTAssertEqual(updatedCollection.data.name, "foo")
         XCTAssertEqual(updatedCollection.data.description, "foobar")
-        XCTAssertEqual(updatedCollection.data.products.inner, [product1.id])
+        XCTAssertEqual(updatedCollection.data.products, [product1.id])
 
         // also check invalid product update
-        patch.products = ArraySet([UUID()])
+        patch.products = [UUID()]
         do {
             let _ = try service.updateCollection(id: data.id, data: patch)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
         }
+    }
+
+    func testCollectionAdd() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        let product1 = try! service.createProduct(data: productData)
+        productData.color = "white"
+        let product2 = try! service.createProduct(data: productData)
+        let collection = ProductCollectionData(name: "", description: "", products: [])
+        let data = try! service.createCollection(data: collection)
+
+        var patch = ProductCollectionItemPatch()
+        patch.product = product1.id
+        patch.products = [product2.id, product2.id, product2.id]    // duplicate
+        let updatedCollection = try! service.addProduct(toCollection: data.id, data: patch)
+        XCTAssertEqual(updatedCollection.data.products, [product1.id, product2.id])     // only two exist
+        patch.product = UUID()  // random ID - no product
+        do {
+            let _ = try service.addProduct(toCollection: data.id, data: patch)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
+        }
+    }
+
+    func testCollectionRemove() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let service = ProductsService(withRepository: repository)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        let product1 = try! service.createProduct(data: productData)
+        productData.color = "white"
+        let product2 = try! service.createProduct(data: productData)
+        let collection = ProductCollectionData(name: "", description: "",
+                                               products: [product1.id, product2.id])
+        let data = try! service.createCollection(data: collection)
+
+        var patch = ProductCollectionItemPatch()
+        patch.product = product1.id
+        // We've already validated products before inserting into a collection.
+        // So, deletion only checks if the ID exists in the collection, and ignores otherwise.
+        patch.products = [product2.id, UUID()]
+        let updatedCollection = try! service.removeProduct(fromCollection: data.id, data: patch)
+        XCTAssertEqual(updatedCollection.data.products, [])
     }
 }
