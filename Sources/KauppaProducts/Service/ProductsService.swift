@@ -177,6 +177,7 @@ public class ProductsService: ProductsServiceCallable {
             let _ = try repository.getProductData(id: productId)
         }
 
+        try data.validate()
         return try repository.createCollection(with: data)
     }
 
@@ -191,6 +192,7 @@ public class ProductsService: ProductsServiceCallable {
             collectionData.description = description
         }
 
+        try collectionData.validate()
         if let products = data.products {
             for productId in products {
                 let _ = try repository.getProductData(id: productId)

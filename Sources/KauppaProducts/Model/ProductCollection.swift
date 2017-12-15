@@ -36,4 +36,14 @@ public struct ProductCollectionData: Mappable {
         self.description = description
         self.products = products
     }
+
+    public func validate() throws {
+        if name.isEmpty {
+            throw ProductsError.invalidCollectionName
+        }
+
+        if description.isEmpty {
+            throw ProductsError.invalidCollectionDescription
+        }
+    }
 }
