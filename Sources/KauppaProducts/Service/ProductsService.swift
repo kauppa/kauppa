@@ -15,6 +15,7 @@ public class ProductsService: ProductsServiceCallable {
     public func createProduct(data: ProductData) throws -> Product {
         var data = data
         data.variants = []  // ensure that variants can't be "set" manually
+        try data.validate()
         var variant: Product? = nil
 
         if let variantId = data.variantId {
@@ -130,7 +131,7 @@ public class ProductsService: ProductsServiceCallable {
         var productData = try repository.getProductData(id: id)
 
         if let image = data.image {
-            let _ = productData.images.insert(image)
+            productData.images.insert(image)
         }
 
         return try repository.updateProductData(id: id, data: productData)
@@ -156,7 +157,7 @@ public class ProductsService: ProductsServiceCallable {
         }
 
         if let index = data.removeImageAt {
-            let _ = productData.images.remove(at: index)
+            productData.images.remove(at: index)
         }
 
         if (data.removeVariant ?? false) {
@@ -176,6 +177,7 @@ public class ProductsService: ProductsServiceCallable {
             let _ = try repository.getProductData(id: productId)
         }
 
+        try data.validate()
         return try repository.createCollection(with: data)
     }
 
@@ -190,6 +192,7 @@ public class ProductsService: ProductsServiceCallable {
             collectionData.description = description
         }
 
+        try collectionData.validate()
         if let products = data.products {
             for productId in products {
                 let _ = try repository.getProductData(id: productId)

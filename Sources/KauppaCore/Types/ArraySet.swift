@@ -44,7 +44,7 @@ public struct ArraySet<Element>: Mappable
     /// Insert an element into this collection.
     ///
     /// Returns `true` if the element existed before, and `false` if it didn't.
-    public mutating func insert(_ element: Element) -> Bool {
+    @discardableResult public mutating func insert(_ element: Element) -> Bool {
         if self.inner.contains(element) {
             return true
         }
@@ -89,7 +89,7 @@ public struct ArraySet<Element>: Mappable
     }
 
     /// Remove and return the element (if it exists) at the given index.
-    public mutating func remove(at index: Int) -> Element? {
+    @discardableResult public mutating func remove(at index: Int) -> Element? {
         if index < self.inner.count {
             return self.inner.remove(at: index)
         } else {
@@ -100,7 +100,7 @@ public struct ArraySet<Element>: Mappable
     /// Remove the element (if it exists) in the collection.
     ///
     /// Returns `true` if it has been removed, and `false` if it doesn't exist.
-    public mutating func remove(_ element: Element) -> Bool {
+    @discardableResult public mutating func remove(_ element: Element) -> Bool {
         guard let index = self.inner.index(of: element) else {
             return false
         }

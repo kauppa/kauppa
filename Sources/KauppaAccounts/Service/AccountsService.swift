@@ -18,14 +18,7 @@ public class AccountsService {
 
 extension AccountsService: AccountsServiceCallable {
     public func createAccount(withData data: AccountData) throws -> Account {
-        if data.name.isEmpty {
-            throw AccountsError.invalidName
-        }
-
-        if !isValidEmail(data.email) {
-            throw AccountsError.invalidEmail
-        }
-
+        try data.validate()
         if let _ = try? repository.getAccount(forEmail: data.email) {
             throw AccountsError.accountExists
         }
@@ -45,10 +38,6 @@ extension AccountsService: AccountsServiceCallable {
         var accountData = try repository.getAccountData(forId: id)
 
         if let name = data.name {
-            if name.isEmpty {
-                throw AccountsError.invalidName
-            }
-
             accountData.name = name
         }
 
@@ -60,6 +49,7 @@ extension AccountsService: AccountsServiceCallable {
             accountData.address = addressList
         }
 
+        try accountData.validate()
         return try repository.updateAccountData(forId: id, data: accountData)
     }
 
@@ -67,9 +57,10 @@ extension AccountsService: AccountsServiceCallable {
         var accountData = try repository.getAccountData(forId: id)
 
         if let address = data.address {
-            let _ = accountData.address.insert(address)
+            accountData.address.insert(address)
         }
 
+        try accountData.validate()
         return try repository.updateAccountData(forId: id, data: accountData)
     }
 
@@ -81,7 +72,7 @@ extension AccountsService: AccountsServiceCallable {
         }
 
         if let index = data.removeAddressAt {
-            let _ = accountData.address.remove(at: index)
+            accountData.address.remove(at: index)
         }
 
         return try repository.updateAccountData(forId: id, data: accountData)

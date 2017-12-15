@@ -41,4 +41,26 @@ public struct ProductData: Mappable {
         self.subtitle = subtitle
         self.description = description
     }
+
+    /// Perform basic validation on product data.
+    public func validate() throws {
+        if title.isEmpty {
+            throw ProductsError.invalidTitle
+        }
+
+        if subtitle.isEmpty {
+            throw ProductsError.invalidSubtitle
+        }
+
+        if description.isEmpty {
+            throw ProductsError.invalidDescription
+        }
+
+        if let color = color {
+            /// Checks whether color is a valid CSS-compliant hex color.
+            if !color.isMatching(regex: "^#(?:[0-9a-fA-F]{3}){1,2}$") {
+                throw ProductsError.invalidColor
+            }
+        }
+    }
 }

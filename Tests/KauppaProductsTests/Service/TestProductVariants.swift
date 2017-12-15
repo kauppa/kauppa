@@ -30,7 +30,7 @@ class TestProductVariants: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let parentProduct = try! service.createProduct(data: productData)
         // imitate another product referencing the previous one
         productData.variantId = parentProduct.id
@@ -45,7 +45,7 @@ class TestProductVariants: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         productData.variantId = UUID()      // random UUID
         let product = try! service.createProduct(data: productData)
         XCTAssertNil(product.data.variantId)    // invalid variant - ignored
@@ -55,7 +55,7 @@ class TestProductVariants: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let productData = ProductData(title: "", subtitle: "", description: "")
+        let productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let parentProduct = try! service.createProduct(data: productData)
 
         let childVariant = try! service.createProduct(data: productData)
@@ -75,7 +75,7 @@ class TestProductVariants: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let parentProduct = try! service.createProduct(data: productData)
 
         /// create a variant
@@ -101,7 +101,7 @@ class TestProductVariants: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let productData = ProductData(title: "", subtitle: "", description: "")
+        let productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let parentProduct = try! service.createProduct(data: productData)
         let firstChild = try! service.createProduct(data: productData)
         let secondChild = try! service.createProduct(data: productData)
@@ -130,11 +130,11 @@ class TestProductVariants: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
-        productData.color = "black"
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        productData.color = "#000"
         let parentProduct = try! service.createProduct(data: productData)
 
-        productData.color = "blue"
+        productData.color = "#fff"
         productData.variantId = parentProduct.id
         let childVariant = try! service.createProduct(data: productData)
         let parent = try! service.getProduct(id: parentProduct.id)
