@@ -3,20 +3,24 @@ import XCTest
 
 @testable import KauppaCore
 @testable import KauppaProductsModel
-@testable import KauppaProducts
+@testable import KauppaProductsRepository
+@testable import KauppaProductsStore
 
 class TestProductsRepository: XCTestCase {
 
     static var allTests: [(String, (TestProductsRepository) -> () throws -> Void)] {
         return [
-            //("Test product creation", testProductCreation),
-            //("Test product deletion", testProductDeletion),
-            //("Test update of product", testProductUpdate),
+            ("Test product creation", testProductCreation),
+            ("Test product deletion", testProductDeletion),
+            ("Test update of product", testProductUpdate),
+            ("Test collection creation", testCollectionCreation),
+            ("Test collection update", testCollectionUpdate),
+            ("Test collection deletion", testCollectionDeletion),
+            ("Test store function calls", testStoreCalls),
         ]
     }
 
     override func setUp() {
-
         super.setUp()
     }
 
@@ -24,109 +28,110 @@ class TestProductsRepository: XCTestCase {
         super.tearDown()
     }
 
-    /*func testProductCreation() {
-        let creation = expectation(description: "Product created")
-        let product = ProductData(title: "", subtitle: "", description: "")
+    func testProductCreation() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        var product = ProductData(title: "", subtitle: "", description: "")
+        product.category = "foobar"
+        product.tags = ArraySet(["foo", "bar"])
 
-        let data = store.createProduct(data: product)!
-        let id = Array(self.store.products.keys)[0]
-        XCTAssertEqual(id, data.id)
-        creation.fulfill()
-
-        waitForExpectations(timeout: 2) { error in
-            XCTAssertNil(error)
-        }
+        let data = try? repository.createProduct(data: product)
+        XCTAssertNotNil(data)
+        // These two timestamps should be the same in creation
+        XCTAssertEqual(data!.createdOn, data!.updatedAt)
+        XCTAssertTrue(store.createCalled)   // store has been called for creation
+        XCTAssertTrue(repository.categories.contains("foobar"))   // has category
+        XCTAssertEqual(repository.tags, ["foo", "bar"])
+        XCTAssertNotNil(repository.products[data!.id])  // repository now has product data
     }
 
     func testProductDeletion() {
-        let deletion = expectation(description: "Product deleted")
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
         let product = ProductData(title: "", subtitle: "", description: "")
 
-        let data = store.createProduct(data: product)
-        XCTAssertNotNil(data)
-        let id = Array(self.store.products.keys)[0]
-        let productData = self.store.deleteProduct(id: id)
-        XCTAssertNotNil(productData)
-        deletion.fulfill()
-
-        waitForExpectations(timeout: 2) { error in
-            XCTAssertNil(error)
-        }
+        let data = try! repository.createProduct(data: product)
+        let result: ()? = try? repository.deleteProduct(id: data.id)
+        XCTAssertNotNil(result)
+        XCTAssertTrue(repository.products.isEmpty)      // repository shouldn't have the product
+        XCTAssertTrue(store.deleteCalled)       // delete should've been called in store (by repository)
     }
 
     func testProductUpdate() {
-        let product = ProductData(title: "", subtitle: "", description: "")
-        let data = store.createProduct(data: product)!
-        let productId = data.id
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        var product = ProductData(title: "", subtitle: "", description: "")
+
+        let data = try! repository.createProduct(data: product)
         XCTAssertEqual(data.createdOn, data.updatedAt)
+        product.title = "Foo"
+        let updatedProduct = try! repository.updateProductData(id: data.id, data: product)
+        // We're just testing the function calls (extensive testing is done in service)
+        XCTAssertEqual(updatedProduct.data.title, "Foo")
+        XCTAssertTrue(store.updateCalled)   // update called on store
+    }
 
-        let anotherProduct = ProductData(title: "", subtitle: "", description: "")
-        let anotherData = store.createProduct(data: anotherProduct)!
-        let anotherId = anotherData.id
-        let randomId = UUID()
+    func testCollectionCreation() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        let product1 = try! repository.createProduct(data: productData)
+        productData.color = "black"
+        let product2 = try! repository.createProduct(data: productData)
 
-        let tests: [(String, Any)] = [
-            ("title", "\"Foobar\""),
-            ("subtitle", "\"Baz\""),
-            ("description", "\"Foo Bar Baz\""),
-            ("size", "{\"length\": {\"value\": 10.0, \"unit\": \"cm\"}}"),
-            ("size", "{\"height\": {\"value\": 1.0, \"unit\": \"m\"}}"),
-            ("size", "{\"width\": {\"value\": 0.5, \"unit\": \"mm\"}}"),
-            ("weight", "{\"value\": 500.0, \"unit\": \"g\"}"),
-            ("color", "\"blue\""),
-            ("inventory", 20),
-            ("category", "\"electronics\""),
-            ("images", ["data:image/gif;base64,foobar"]),
-            ("price", 30.0),
-            ("variantId", "\"\(anotherId)\""),
-            ("variantId", "\"\(productId)\""),      // Self ID (shouldn't update)
-            ("variantId", "\"\(randomId)\""),       // non-existent ID (shouldn't update)
-        ]
+        let collection = ProductCollectionData(name: "", description: "",
+                                               products: [product1.id, product2.id])
+        let data = try! repository.createCollection(with: collection)
+        // These two timestamps should be the same in creation
+        XCTAssertEqual(data.createdOn, data.updatedAt)
+        XCTAssertTrue(store.collectionCreateCalled)     // store has been called for creation
+        XCTAssertNotNil(repository.collections[data.id])    // repository now has collection data
+    }
 
-        for (attribute, value) in tests {
-            let expectation_ = expectation(description: "Updated \(attribute)")
-            let jsonStr = "{\"\(attribute)\": \(value)}"
-            let data: ProductPatch = ProductPatch(
-                title: "",
-                subtitle: "",
-                description: "",
-                category: nil,
-                size: nil,
-                color: "",
-                weight: nil,
-                inventory: 0,
-                images: nil,
-                price: 0.0,
-                variantId: nil
-            )
-            let result = store.updateProduct(id: productId, data: data)
-            XCTAssertNotNil(result)
-            expectation_.fulfill()
-        }
+    func testCollectionUpdate() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        var collection = ProductCollectionData(name: "", description: "", products: [])
+        let data = try! repository.createCollection(with: collection)
+        collection.name = "foo"
+        let updatedCollection = try! repository.updateCollectionData(id: data.id, data: collection)
+        // We're just testing the function calls (extensive testing is done in service)
+        XCTAssertEqual(updatedCollection.data.name, "foo")
+        XCTAssertTrue(store.collectionUpdateCalled)     // update called on store
+    }
 
-        // All successful updates
-        let updatedProduct = store.getProduct(id: productId)!
-        XCTAssertEqual(updatedProduct.data.title, "Foobar")
-        XCTAssertEqual(updatedProduct.data.subtitle, "Baz")
-        XCTAssertEqual(updatedProduct.data.description, "Foo Bar Baz")
-        XCTAssert(updatedProduct.data.size!.length!.value == 10.0)
-        XCTAssert(updatedProduct.data.size!.length!.unit == .centimeter)
-        XCTAssert(updatedProduct.data.size!.width!.value == 0.5)
-        XCTAssert(updatedProduct.data.size!.width!.unit == .millimeter)
-        XCTAssert(updatedProduct.data.size!.height!.value == 1.0)
-        XCTAssert(updatedProduct.data.size!.height!.unit == .meter)
-        XCTAssert(updatedProduct.data.weight!.value == 500.0)
-        XCTAssert(updatedProduct.data.weight!.unit == .gram)
-        XCTAssertEqual(updatedProduct.data.color, "blue")
-        XCTAssertEqual(updatedProduct.data.inventory, 20)
-        XCTAssertEqual(updatedProduct.data.images, tests[10].1 as! [String])
-        XCTAssertEqual(updatedProduct.data.price, 30.0)
-        XCTAssertEqual(updatedProduct.data.category, .electronics)
-        XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
-        XCTAssertEqual(updatedProduct.data.variantId, anotherId)
+    func testCollectionDeletion() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let collection = ProductCollectionData(name: "", description: "", products: [])
+        let data = try! repository.createCollection(with: collection)
+        let result: ()? = try? repository.deleteCollection(id: data.id)
+        XCTAssertNotNil(result)
+        XCTAssertTrue(repository.collections.isEmpty)   // repository shouldn't have the collection
+        XCTAssertTrue(store.collectionDeleteCalled)     // delete should've been called in store
+    }
 
-        waitForExpectations(timeout: 2) { error in
-            XCTAssertNil(error)
-        }
-    }*/
+    func testStoreCalls() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let productData = ProductData(title: "", subtitle: "", description: "")
+        let product = try! repository.createProduct(data: productData)
+        repository.products = [:]       // clear the repository
+        let _ = try? repository.getProduct(id: product.id)
+        XCTAssertTrue(store.getCalled)  // this should've called the store
+        store.getCalled = false         // now, pretend that we never called the store
+        let _ = try? repository.getProduct(id: product.id)
+        // store shouldn't be called, because it was recently fetched by the repository
+        XCTAssertFalse(store.getCalled)
+
+        let collection = ProductCollectionData(name: "", description: "", products: [product.id])
+        let data = try! repository.createCollection(with: collection)
+        repository.collections = [:]    // clear the repository
+        let _ = try? repository.getCollection(id: data.id)
+        XCTAssertTrue(store.collectionGetCalled)    // store should've been called
+        store.collectionGetCalled = false       // pretend that store hasn't been called
+        let _ = try? repository.getCollection(id: data.id)
+        // store shouldn't be called, because it was recently fetched by the repository
+        XCTAssertFalse(store.collectionGetCalled)
+    }
 }

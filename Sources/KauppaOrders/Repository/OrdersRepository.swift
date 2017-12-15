@@ -1,25 +1,36 @@
 import Foundation
 
-import KauppaCore
 import KauppaOrdersModel
+import KauppaOrdersStore
 
 public class OrdersRepository {
+    // FIXME: To avoid running out of memory, we should clean the
+    // least recently used items every now and then.
     var orders = [UUID: Order]()
 
-    public init() {
+    let store: OrdersStorable
 
+    public init(withStore store: OrdersStorable) {
+        self.store = store
     }
 
-    public func createNewOrder(id: UUID, order: Order) {
-        orders[id] = order
+    /// Create an order with service-supplied order data.
+    public func createOrder(withData data: Order) throws -> Order {
+        let id = UUID()
+        let date = Date()
+        var data = data
+        data.id = id
+        data.createdOn = date
+        data.updatedAt = date
+
+        orders[id] = data
+        try store.createNewOrder(orderData: data)
+        return data
     }
 
-    func removeOrderIfExists(id: UUID) -> Order? {
-        if let order = orders[id] {
-            orders.removeValue(forKey: id)
-            return order
-        } else {
-            return nil
-        }
+    /// Delete an order corresponding to an ID.
+    public func deleteOrder(id: UUID) throws -> () {
+        orders.removeValue(forKey: id)
+        return try store.deleteOrder(id: id)
     }
 }

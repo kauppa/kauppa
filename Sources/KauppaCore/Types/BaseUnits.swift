@@ -1,3 +1,4 @@
+/// Months
 public enum Month: UInt8, Codable {
     case january   = 1
     case february  = 2
@@ -13,16 +14,7 @@ public enum Month: UInt8, Codable {
     case december  = 12
 }
 
-public struct UnitMeasurement<T: Codable>: Codable {
-    public var value: Double
-    public var unit: T
-
-    public init(value: Double, unit: T) {
-        self.value = value
-        self.unit = unit
-    }
-}
-
+/// Length units
 public enum Length: String, Codable {
     case millimeter = "mm"
     case centimeter = "cm"
@@ -32,12 +24,7 @@ public enum Length: String, Codable {
     // ...
 }
 
-public struct Size: Codable {
-    public var height: UnitMeasurement<Length>?
-    public var length: UnitMeasurement<Length>?
-    public var width: UnitMeasurement<Length>?
-}
-
+/// Weight units
 public enum Weight: String, Codable {
     case milligram = "mg"
     case gram      = "g"
@@ -46,33 +33,12 @@ public enum Weight: String, Codable {
     // ...
 }
 
-public class WeightCounter {
-    var weight = UnitMeasurement(value: 0.0, unit: Weight.gram)
-
-    public init() {}
-
-    public func add(_ other: UnitMeasurement<Weight>) {
-        switch other.unit {
-            case .milligram:
-                weight.value += other.value * 0.001
-            case .gram:
-                weight.value += other.value
-            case .kilogram:
-                weight.value += other.value * 1000.0
-            case .pound:
-                weight.value += other.value * 453.592
-        }
-    }
-
-    public func sum() -> UnitMeasurement<Weight> {
-        if weight.value > 100.0 {
-            weight.value /= 1000.0
-            weight.unit = .kilogram
-        } else if weight.value < 0.01 {
-            weight.value *= 1000.0
-            weight.unit = .milligram
-        }
-
-        return weight
-    }
+/// Popular currencies
+public enum Currency: String, Codable {
+    case usd   = "USD"
+    case euro  = "EUR"
+    case pound = "GBP"
+    case rupee = "INR"
+    case yen   = "JPY"
+    case ruble = "RUB"
 }
