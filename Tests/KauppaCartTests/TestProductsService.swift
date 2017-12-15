@@ -41,4 +41,9 @@ public class TestProductsService: ProductsServiceCallable {
     public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
         throw ProductsError.invalidProduct
     }
+
+    // NOTE: Not meant to be called by cart
+    public func createCollection(data: ProductCollectionData) throws -> ProductCollection {
+        throw ProductsError.invalidCollection
+    }
 }

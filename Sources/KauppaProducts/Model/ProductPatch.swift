@@ -9,7 +9,7 @@ public struct ProductPatch: Mappable {
     public var title: String? = nil
     public var subtitle: String? = nil
     public var description: String? = nil
-    public var category: ProductCategory? = nil
+    public var category: String? = nil
     public var size: Size? = nil
     public var color: String? = nil
     public var weight: UnitMeasurement<Weight>? = nil

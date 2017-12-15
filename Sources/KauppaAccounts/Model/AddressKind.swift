@@ -1,5 +1,4 @@
 import Foundation
-import KauppaCore
 
 import KauppaCore
 

@@ -14,4 +14,7 @@ public protocol ProductsPersisting: Persisting {
     /// Update a product with the product information. ID will be obtained
     /// from the data.
     func updateProduct(productData: Product) throws -> ()
+
+    /// Create a new collection with information from the repository.
+    func createNewCollection(data: ProductCollection) throws -> ()
 }

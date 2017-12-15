@@ -13,6 +13,7 @@ class TestProductsRepository: XCTestCase {
             ("Test product creation", testProductCreation),
             ("Test product deletion", testProductDeletion),
             ("Test update of product", testProductUpdate),
+            ("Test collection creation", testCollectionCreation),
             ("Test store function calls", testStoreCalls),
         ]
     }
@@ -29,13 +30,17 @@ class TestProductsRepository: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let creation = expectation(description: "Product created")
-        let product = ProductData(title: "", subtitle: "", description: "")
+        var product = ProductData(title: "", subtitle: "", description: "")
+        product.category = "foobar"
+        product.tags = ArraySet(["foo", "bar"])
 
         let data = try? repository.createProduct(data: product)
         XCTAssertNotNil(data)
         // These two timestamps should be the same in creation
         XCTAssertEqual(data!.createdOn, data!.updatedAt)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
+        XCTAssertTrue(repository.categories.contains("foobar"))   // has category
+        XCTAssertEqual(repository.tags, ["foo", "bar"])
         XCTAssertNotNil(repository.products[data!.id])  // repository now has product data
         creation.fulfill()
 
@@ -94,5 +99,22 @@ class TestProductsRepository: XCTestCase {
         let _ = try? repository.getProduct(id: data.id)
         // store shouldn't be called, because it was recently fetched by the repository
         XCTAssertFalse(store.getCalled)
+    }
+
+    func testCollectionCreation() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        let product1 = try! repository.createProduct(data: productData)
+        productData.color = "black"
+        let product2 = try! repository.createProduct(data: productData)
+
+        let collection = ProductCollectionData(name: "", description: "",
+                                               products: ArraySet([product1.id, product2.id]))
+        let data = try! repository.createCollection(with: collection)
+        // These two timestamps should be the same in creation
+        XCTAssertEqual(data.createdOn, data.updatedAt)
+        XCTAssertTrue(store.collectionCreateCalled)     // store has been called for creation
+        XCTAssertNotNil(repository.collections[data.id])    // repository now has collection data
     }
 }

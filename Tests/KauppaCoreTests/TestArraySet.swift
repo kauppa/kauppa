@@ -3,9 +3,13 @@ import XCTest
 
 @testable import KauppaCore
 
-struct TestType: Equatable {
+struct TestType: Hashable {
     var id: UUID
     var thing: String
+
+    public var hashValue: Int {
+        return id.hashValue ^ thing.hashValue
+    }
 
     public static func ==(lhs: TestType, rhs: TestType) -> Bool {
         return lhs.id == rhs.id && lhs.thing == rhs.thing
@@ -40,10 +44,9 @@ class TestArraySet: XCTestCase {
     }
 
     func testArrayMutationWithPredicate() {
-        var array = ArraySet<TestType>()
         let id = UUID()
-        XCTAssertFalse(array.insert(TestType(id: id, thing: "foo")))
-        XCTAssertFalse(array.insert(TestType(id: id, thing: "bar")))
+        var array = ArraySet([TestType(id: id, thing: "foo"),
+                              TestType(id: id, thing: "bar")])
         // Even though this is a different element, our function says
         // that it's matching, so we'll call it.
         array.mutateOnce(matching: { $0.thing == "bar" }, with: { value in
@@ -59,17 +62,15 @@ class TestArraySet: XCTestCase {
     }
 
     func testArrayGet() {
-        var array = ArraySet<Int>()
-        XCTAssertFalse(array.insert(1))
+        let array = ArraySet([1])
         XCTAssertEqual(array.get(from: 0), 1)
         XCTAssertNil(array.get(from: 1))    // try out-of-bounds indexing
     }
 
     func testArrayGetWithPredicate() {
-        var array = ArraySet<TestType>()
         let id = UUID()
-        XCTAssertFalse(array.insert(TestType(id: id, thing: "foo")))
-        XCTAssertFalse(array.insert(TestType(id: id, thing: "bar")))
+        let array = ArraySet([TestType(id: id, thing: "foo"),
+                              TestType(id: id, thing: "bar")])
         let result = array.get(matching: { $0.thing == "bar" })
         XCTAssertNotNil(result)
     }
@@ -86,17 +87,16 @@ class TestArraySet: XCTestCase {
     }
 
     func testEncodable() {
-        var array = ArraySet<Int>()
-        array.inner = [1, 2, 3]
+        let array = ArraySet([1, 2, 3])
         let jsonData = try! JSONEncoder().encode(array)
         let string = String(data: jsonData, encoding: .utf8)!
         XCTAssertEqual(string, "[1,2,3]")
     }
 
     func testDecodable() {
-        let jsonString = "[5, 10, 15]"
+        let jsonString = "[5, 10, 15, 15, 15, 20]"
         let data = jsonString.data(using: .utf8)!
         let array = try! JSONDecoder().decode(ArraySet<Int>.self, from: data)
-        XCTAssertEqual(array.inner, [5, 10, 15])
+        XCTAssertEqual(array.inner, [5, 10, 15, 20])    // duplicates removed whilst retaining order
     }
 }
