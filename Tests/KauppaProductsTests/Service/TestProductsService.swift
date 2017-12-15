@@ -36,7 +36,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let product = ProductData(title: "", subtitle: "", description: "")
+        let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let data = try? service.createProduct(data: product)
         XCTAssertNotNil(data)       // product data should exist
     }
@@ -45,7 +45,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let product = ProductData(title: "", subtitle: "", description: "")
+        let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let data = try! service.createProduct(data: product)
         let result: ()? = try? service.deleteProduct(id: data.id)
         XCTAssertNotNil(result)     // deletion succeeded
@@ -61,7 +61,7 @@ class TestProductsService: XCTestCase {
         let data = try! service.createProduct(data: product)
         let productId = data.id
 
-        let anotherProduct = ProductData(title: "", subtitle: "", description: "")
+        let anotherProduct = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let anotherData = try! service.createProduct(data: anotherProduct)
         let anotherId = anotherData.id
         let randomId = UUID()
@@ -141,7 +141,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let product = ProductData(title: "", subtitle: "", description: "")
+        let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let data = try! service.createProduct(data: product)
         XCTAssertEqual(data.data.images.inner, [])      // no images
 
@@ -156,10 +156,10 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var product = ProductData(title: "", subtitle: "", description: "")
+        var product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         // set all additional attributes required for testing
         product.images.inner = ["data:image/png;base64,bar", "data:image/png;base64,baz"]
-        product.color = "blue"
+        product.color = "#000"
         product.weight = UnitMeasurement(value: 50.0, unit: .gram)
         var size = Size()
         size.length = UnitMeasurement(value: 10.0, unit: .centimeter)
@@ -186,9 +186,9 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(data: productData)
-        productData.color = "black"
+        productData.color = "#000"
         let product2 = try! service.createProduct(data: productData)
 
         let collection = ProductCollectionData(name: "", description: "",
@@ -223,7 +223,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        let productData = ProductData(title: "", subtitle: "", description: "")
+        let productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(data: productData)
         let collection = ProductCollectionData(name: "", description: "", products: [])
         let data = try! service.createCollection(data: collection)
@@ -253,9 +253,9 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(data: productData)
-        productData.color = "white"
+        productData.color = "#FFF"
         let product2 = try! service.createProduct(data: productData)
         let collection = ProductCollectionData(name: "", description: "", products: [])
         let data = try! service.createCollection(data: collection)
@@ -278,9 +278,9 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(data: productData)
-        productData.color = "white"
+        productData.color = "#fff"
         let product2 = try! service.createProduct(data: productData)
         let collection = ProductCollectionData(name: "", description: "",
                                                products: [product1.id, product2.id])

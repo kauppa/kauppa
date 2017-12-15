@@ -4,8 +4,8 @@ import XCTest
 import KauppaCore
 @testable import KauppaAccountsModel
 
-class TestCodableTypes: XCTestCase {
-    static var allTests: [(String, (TestCodableTypes) -> () throws -> Void)] {
+class TestAccountTypes: XCTestCase {
+    static var allTests: [(String, (TestAccountTypes) -> () throws -> Void)] {
         return [
             ("Test address kind", testAddressKind),
             ("Test address", testAddress),

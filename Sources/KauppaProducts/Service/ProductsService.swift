@@ -15,6 +15,7 @@ public class ProductsService: ProductsServiceCallable {
     public func createProduct(data: ProductData) throws -> Product {
         var data = data
         data.variants = []  // ensure that variants can't be "set" manually
+        try data.validate()
         var variant: Product? = nil
 
         if let variantId = data.variantId {

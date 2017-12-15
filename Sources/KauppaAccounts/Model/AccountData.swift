@@ -19,7 +19,8 @@ public struct AccountData: Mappable {
             throw AccountsError.invalidName
         }
 
-        if !isValidEmail(email) {
+        /// A popular regex pattern that matches a wide range of cases.
+        if !email.isMatching(regex: "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)") {
             throw AccountsError.invalidEmail
         }
 
