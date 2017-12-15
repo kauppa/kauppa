@@ -10,9 +10,9 @@ public struct ProductCollection: Mappable {
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp
-    public let updatedAt: Date
+    public var updatedAt: Date
     /// User-supplied data for this collection.
-    public let data: ProductCollectionData
+    public var data: ProductCollectionData
 
     public init(id: UUID, createdOn: Date, updatedAt: Date, data: ProductCollectionData) {
         self.id = id
@@ -25,13 +25,13 @@ public struct ProductCollection: Mappable {
 /// Represents a collection of products.
 public struct ProductCollectionData: Mappable {
     /// Name of this collection
-    public let name: String
+    public var name: String
     /// Description for this collection.
-    public let description: String
+    public var description: String
     /// Products added to this collection.
-    public let products: ArraySet<UUID>
+    public var products: Set<UUID>
 
-    public init(name: String, description: String, products: ArraySet<UUID>) {
+    public init(name: String, description: String, products: Set<UUID>) {
         self.name = name
         self.description = description
         self.products = products

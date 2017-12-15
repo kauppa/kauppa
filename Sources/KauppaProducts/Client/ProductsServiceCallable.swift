@@ -29,4 +29,16 @@ public protocol ProductsServiceCallable {
 
     /// Create a collection of products with the given data.
     func createCollection(data: ProductCollectionData) throws -> ProductCollection
+
+    /// Update an existing collection with the given patch data.
+    func updateCollection(id: UUID, data: ProductCollectionPatch) throws -> ProductCollection
+
+    /// Delete a collection corresponding to the given ID.
+    func deleteCollection(id: UUID) throws -> ()
+
+    /// Add product(s) to an existing collection.
+    func addProduct(toCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection
+
+    /// Remove product(s) from an existing collection.
+    func removeProduct(fromCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection
 }

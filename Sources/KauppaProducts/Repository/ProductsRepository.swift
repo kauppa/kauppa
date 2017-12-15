@@ -81,6 +81,40 @@ public class ProductsRepository {
         return collection
     }
 
+    /// Fetch the entire collection (from repository, if it's available, or store, if not)
+    public func getCollection(id: UUID) throws -> ProductCollection {
+        guard let collection = collections[id] else {
+            let collection = try store.getCollection(id: id)
+            collections[id] = collection
+            return collection
+        }
+
+        return collection
+    }
+
+    /// Get the product data from the collection.
+    public func getCollectionData(id: UUID) throws -> ProductCollectionData {
+        let collection = try getCollection(id: id)
+        return collection.data
+    }
+
+    /// Update a collection with data from the service.
+    public func updateCollectionData(id: UUID, data: ProductCollectionData) throws -> ProductCollection {
+        var collection = try getCollection(id: id)
+        let date = Date()
+        collection.updatedAt = date
+        collection.data = data
+        collections[id] = collection
+        try store.updateCollection(data: collection)
+        return collection
+    }
+
+    /// Delete the collection corresponding to an ID.
+    public func deleteCollection(id: UUID) throws -> () {
+        collections.removeValue(forKey: id)
+        return try store.deleteCollection(id: id)
+    }
+
     private func updateCategoriesAndTags(using product: Product) {
         if let category = product.data.category {
             categories.insert(category)

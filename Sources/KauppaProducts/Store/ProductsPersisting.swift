@@ -17,4 +17,10 @@ public protocol ProductsPersisting: Persisting {
 
     /// Create a new collection with information from the repository.
     func createNewCollection(data: ProductCollection) throws -> ()
+
+    /// Update an existing collection with data from repository.
+    func updateCollection(data: ProductCollection) throws -> ()
+
+    /// Delete a collection corresponding to an ID.
+    func deleteCollection(id: UUID) throws -> ()
 }

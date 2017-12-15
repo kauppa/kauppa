@@ -178,4 +178,60 @@ public class ProductsService: ProductsServiceCallable {
 
         return try repository.createCollection(with: data)
     }
+
+    public func updateCollection(id: UUID, data: ProductCollectionPatch) throws -> ProductCollection {
+        var collectionData = try repository.getCollectionData(id: id)
+
+        if let name = data.name {
+            collectionData.name = name
+        }
+
+        if let description = data.description {
+            collectionData.description = description
+        }
+
+        if let products = data.products {
+            for productId in products {
+                let _ = try repository.getProductData(id: productId)
+            }
+
+            collectionData.products = products
+        }
+
+        return try repository.updateCollectionData(id: id, data: collectionData)
+    }
+
+    public func deleteCollection(id: UUID) throws -> () {
+        return try repository.deleteCollection(id: id)
+    }
+
+    public func addProduct(toCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection {
+        var collectionData = try repository.getCollectionData(id: id)
+        var products = data.products ?? []
+        if let productId = data.product {
+            products.append(productId)
+        }
+
+        for productId in products {
+            let _ = try repository.getProductData(id: productId)
+            collectionData.products.insert(productId)
+        }
+
+        return try repository.updateCollectionData(id: id, data: collectionData)
+    }
+
+    public func removeProduct(fromCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection {
+        var collectionData = try repository.getCollectionData(id: id)
+        var products = data.products ?? []
+        if let productId = data.product {
+            products.append(productId)
+        }
+
+        for productId in products {
+            // If product exists in our collection, we remove it.
+            collectionData.products.remove(productId)
+        }
+
+        return try repository.updateCollectionData(id: id, data: collectionData)
+    }
 }
