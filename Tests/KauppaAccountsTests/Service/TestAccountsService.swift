@@ -110,7 +110,7 @@ class TestAccountsService: XCTestCase {
         accountData.email = "abc@xyz.com"
         accountData.phone = "<something>"
         let address = Address(line1: "", line2: "", city: "", country: "", code: 0, kind: .home)
-        let _ = accountData.address.insert(address)
+        accountData.address.insert(address)
         let account = try! service.createAccount(withData: accountData)
         // check that phone and address exists in returned data
         XCTAssertNotNil(account.data.phone)
@@ -148,7 +148,7 @@ class TestAccountsService: XCTestCase {
         var accountData = AccountData()
         accountData.name = "bobby"
         accountData.email = "abc@xyz.com"
-        let _ = accountData.address.insert(Address(line1: "", line2: "", city: "", country: "", code: 0, kind: .home))
+        accountData.address.insert(Address(line1: "", line2: "", city: "", country: "", code: 0, kind: .home))
         let account = try! service.createAccount(withData: accountData)
         XCTAssertEqual(account.data.name, "bobby")
         XCTAssertEqual(account.data.email, "abc@xyz.com")

@@ -130,7 +130,7 @@ public class ProductsService: ProductsServiceCallable {
         var productData = try repository.getProductData(id: id)
 
         if let image = data.image {
-            let _ = productData.images.insert(image)
+            productData.images.insert(image)
         }
 
         return try repository.updateProductData(id: id, data: productData)
@@ -156,7 +156,7 @@ public class ProductsService: ProductsServiceCallable {
         }
 
         if let index = data.removeImageAt {
-            let _ = productData.images.remove(at: index)
+            productData.images.remove(at: index)
         }
 
         if (data.removeVariant ?? false) {

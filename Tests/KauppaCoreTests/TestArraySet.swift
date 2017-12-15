@@ -30,8 +30,8 @@ class TestArraySet: XCTestCase {
     }
 
     func testArrayCreation() {
-        let array = ArraySet<Int>()
-        XCTAssertTrue(array.isEmpty)
+        let array = ArraySet([1, 2, 3])
+        XCTAssertFalse(array.isEmpty)
     }
 
     func testArrayInsertion() {
@@ -77,12 +77,12 @@ class TestArraySet: XCTestCase {
 
     func testArrayRemoval() {
         var array = ArraySet<Int>()
-        XCTAssertFalse(array.insert(1))
+        array.insert(1)
         XCTAssertTrue(array.remove(1))      // remove the element itself
         XCTAssertFalse(array.remove(10))    // try and remove non-existent element
 
-        XCTAssertFalse(array.insert(5))
-        XCTAssertFalse(array.insert(6))
+        array.insert(5)
+        array.insert(6)
         XCTAssertEqual(array.remove(at: 0), 5)  // removes and returns the element
     }
 

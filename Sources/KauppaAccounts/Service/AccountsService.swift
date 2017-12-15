@@ -67,7 +67,7 @@ extension AccountsService: AccountsServiceCallable {
         var accountData = try repository.getAccountData(forId: id)
 
         if let address = data.address {
-            let _ = accountData.address.insert(address)
+            accountData.address.insert(address)
         }
 
         return try repository.updateAccountData(forId: id, data: accountData)
@@ -81,7 +81,7 @@ extension AccountsService: AccountsServiceCallable {
         }
 
         if let index = data.removeAddressAt {
-            let _ = accountData.address.remove(at: index)
+            accountData.address.remove(at: index)
         }
 
         return try repository.updateAccountData(forId: id, data: accountData)
