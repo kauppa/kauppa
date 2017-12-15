@@ -13,6 +13,9 @@ public class TestStore: ProductsStorable {
     public var deleteCalled = false
     public var updateCalled = false
     public var collectionCreateCalled = false
+    public var collectionUpdateCalled = false
+    public var collectionGetCalled = false
+    public var collectionDeleteCalled = false
 
     public func createNewProduct(productData: Product) throws -> () {
         createCalled = true
@@ -48,5 +51,29 @@ public class TestStore: ProductsStorable {
         collectionCreateCalled = true
         collections[data.id] = data
         return ()
+    }
+
+    public func getCollection(id: UUID) throws -> ProductCollection {
+        collectionGetCalled = true
+        guard let collection = collections[id] else {
+            throw ProductsError.invalidCollection
+        }
+
+        return collection
+    }
+
+    public func updateCollection(data: ProductCollection) throws -> () {
+        collectionUpdateCalled = true
+        collections[data.id] = data
+        return ()
+    }
+
+    public func deleteCollection(id: UUID) throws -> () {
+        collectionDeleteCalled = true
+        if collections.removeValue(forKey: id) != nil {
+            return ()
+        } else {
+            throw ProductsError.invalidCollection
+        }
     }
 }

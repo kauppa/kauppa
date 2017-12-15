@@ -14,6 +14,8 @@ class TestProductsRepository: XCTestCase {
             ("Test product deletion", testProductDeletion),
             ("Test update of product", testProductUpdate),
             ("Test collection creation", testCollectionCreation),
+            ("Test collection update", testCollectionUpdate),
+            ("Test collection deletion", testCollectionDeletion),
             ("Test store function calls", testStoreCalls),
         ]
     }
@@ -87,20 +89,6 @@ class TestProductsRepository: XCTestCase {
         }
     }
 
-    func testStoreCalls() {
-        let store = TestStore()
-        let repository = ProductsRepository(withStore: store)
-        let product = ProductData(title: "", subtitle: "", description: "")
-        let data = try! repository.createProduct(data: product)
-        repository.products = [:]       // clear the repository
-        let _ = try? repository.getProduct(id: data.id)
-        XCTAssertTrue(store.getCalled)  // this should've called the store
-        store.getCalled = false         // now, pretend that we never called the store
-        let _ = try? repository.getProduct(id: data.id)
-        // store shouldn't be called, because it was recently fetched by the repository
-        XCTAssertFalse(store.getCalled)
-    }
-
     func testCollectionCreation() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -116,5 +104,53 @@ class TestProductsRepository: XCTestCase {
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertTrue(store.collectionCreateCalled)     // store has been called for creation
         XCTAssertNotNil(repository.collections[data.id])    // repository now has collection data
+    }
+
+    func testCollectionUpdate() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        var collection = ProductCollectionData(name: "", description: "", products: ArraySet())
+        let data = try! repository.createCollection(with: collection)
+        collection.name = "foo"
+        let updatedCollection = try! repository.updateCollectionData(id: data.id, data: collection)
+        // We're just testing the function calls (extensive testing is done in service)
+        XCTAssertEqual(updatedCollection.data.name, "foo")
+        XCTAssertTrue(store.collectionUpdateCalled)     // update called on store
+    }
+
+    func testCollectionDeletion() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let collection = ProductCollectionData(name: "", description: "", products: ArraySet())
+        let data = try! repository.createCollection(with: collection)
+        let result: ()? = try? repository.deleteCollection(id: data.id)
+        XCTAssertNotNil(result)
+        XCTAssertTrue(repository.collections.isEmpty)   // repository shouldn't have the collection
+        XCTAssertTrue(store.collectionDeleteCalled)     // delete should've been called in store
+    }
+
+    func testStoreCalls() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        let productData = ProductData(title: "", subtitle: "", description: "")
+        let product = try! repository.createProduct(data: productData)
+        repository.products = [:]       // clear the repository
+        let _ = try? repository.getProduct(id: product.id)
+        XCTAssertTrue(store.getCalled)  // this should've called the store
+        store.getCalled = false         // now, pretend that we never called the store
+        let _ = try? repository.getProduct(id: product.id)
+        // store shouldn't be called, because it was recently fetched by the repository
+        XCTAssertFalse(store.getCalled)
+
+        let collection = ProductCollectionData(name: "", description: "",
+                                               products: ArraySet([product.id]))
+        let data = try! repository.createCollection(with: collection)
+        repository.collections = [:]    // clear the repository
+        let _ = try? repository.getCollection(id: data.id)
+        XCTAssertTrue(store.collectionGetCalled)    // store should've been called
+        store.collectionGetCalled = false       // pretend that store hasn't been called
+        let _ = try? repository.getCollection(id: data.id)
+        // store shouldn't be called, because it was recently fetched by the repository
+        XCTAssertFalse(store.collectionGetCalled)
     }
 }
