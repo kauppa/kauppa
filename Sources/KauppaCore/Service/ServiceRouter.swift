@@ -1,5 +1,4 @@
-// Routing provides the rules for routing
-// mechanisms over HTTP.
+/// Router for individual services of Kauppa.
 open class ServiceRouter {
     public init() {}
 }

@@ -430,7 +430,7 @@ let testTargets: [Target] = [
 var targets: [Target] = [
     .target(
         name: "KauppaCore",
-        dependencies: ["RandomKit"]
+        dependencies: ["Kitura", "RandomKit"]
     )
 ]
 
@@ -476,6 +476,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/nvzqz/RandomKit.git", from: "5.0.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura", from: "2.2.0"),
     ],
     targets: targets
 )
