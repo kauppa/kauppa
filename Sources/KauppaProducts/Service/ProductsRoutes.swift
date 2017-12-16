@@ -1,14 +1,31 @@
 import KauppaCore
 
-/// Routes for products service.
-public struct ProductsRoutes {
-    static let globalProducts = "/products"
-    static let singleProduct  = "/products/:id"
+/// Route identifiers for the products service. Each variant is associated with a route,
+/// and it corresponds to a service call.
+public enum ProductsRoutes: UInt8 {
+    case createProduct
+    case getProduct
+    case deleteProduct
+    case updateProduct
+    case addProductProperty
+    case deleteProductProperty
+}
 
-    static let createProduct          = Route(uri: globalProducts, method: .Post)
-    static let getProduct             = Route(uri: singleProduct,  method: .Get)
-    static let deleteProduct          = Route(uri: singleProduct,  method: .Delete)
-    static let updateProduct          = Route(uri: singleProduct,  method: .Put)
-    static let addProductProperty     = Route(uri: singleProduct,  method: .Post)
-    static let deleteProductProperty  = Route(uri: singleProduct,  method: .Delete)
+extension ProductsRoutes: RouteRepresentable {
+    public var route: Route {
+        switch self {
+            case .createProduct:
+                return Route(url: "/products",      method: .post)
+            case .getProduct:
+                return Route(url: "/products/:id",  method: .get)
+            case .deleteProduct:
+                return Route(url: "/products/:id",  method: .delete)
+            case .updateProduct:
+                return Route(url: "/products/:id",  method: .put)
+            case .addProductProperty:
+                return Route(url: "/products/:id",  method: .post)
+            case .deleteProductProperty:
+                return Route(url: "/products/:id",  method: .put)
+        }
+    }
 }

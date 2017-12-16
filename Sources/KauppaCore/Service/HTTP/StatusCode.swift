@@ -1,5 +1,5 @@
 /// Status codes for HTTP responses (required by Kauppa).
-public enum StatusCode: UInt16 {
+public enum HTTPStatusCode: UInt16 {
     case ok                     = 200
     case badRequest             = 400
     case unauthorized           = 401
@@ -9,7 +9,7 @@ public enum StatusCode: UInt16 {
 }
 
 /// Represents objects which are associated with a status codes.
-public protocol StatusCodeConvertible {
+public protocol HTTPStatusCodeConvertible {
     /// Get the status code for this object.
-    func statusCode() -> StatusCode
+    func statusCode() -> HTTPStatusCode
 }

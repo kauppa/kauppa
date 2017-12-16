@@ -24,7 +24,9 @@ open class ServiceRouter<R: Routing>: Routing {
     open func initializeRoutes() {}
 
     /// This is just a wrapper.
-    public func add(route: Route, _ handler: @escaping (Request, Response) -> Void) {
-        self.router.add(route: route, handler)
+    public func add<R>(route repr: R, _ handler: @escaping (Request, Response) -> Void)
+        where R: RouteRepresentable
+    {
+        self.router.add(route: repr, handler)
     }
 }

@@ -4,26 +4,29 @@ extension Router: Routing {
     public typealias Request = RouterRequest
     public typealias Response = RouterResponse
 
-    public func add(route: Route, _ handler: @escaping (Request, Response) -> Void) {
+    public func add<R>(route repr: R, _ handler: @escaping (Request, Response) -> Void) 
+        where R: RouteRepresentable
+    {
+        let route = repr.route
         switch route.method {
-            case  .Get:
-                self.get(route.uri) { request, response, _ in
+            case .get:
+                self.get(route.url) { request, response, _ in
                     handler(request, response)
                 }
-            case .Post:
-                self.post(route.uri) { request, response, _ in
+            case .post:
+                self.post(route.url) { request, response, _ in
                     handler(request, response)
                 }
-            case .Put:
-                self.put(route.uri) { request, response, _ in
+            case .put:
+                self.put(route.url) { request, response, _ in
                     handler(request, response)
                 }
-            case .Patch:
-                self.patch(route.uri) { request, response, _ in
+            case .patch:
+                self.patch(route.url) { request, response, _ in
                     handler(request, response)
                 }
-            case .Delete:
-                self.delete(route.uri) { request, response, _ in
+            case .delete:
+                self.delete(route.url) { request, response, _ in
                     handler(request, response)
                 }
         }

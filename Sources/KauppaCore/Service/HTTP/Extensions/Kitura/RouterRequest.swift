@@ -13,7 +13,7 @@ extension RouterRequest: ServiceRequest {
         return value.parse()
     }
 
-    public func getJson<T: Mappable>() throws -> T {
+    public func getJSON<T: Mappable>() throws -> T {
         return try self.read(as: T.self)
     }
 }

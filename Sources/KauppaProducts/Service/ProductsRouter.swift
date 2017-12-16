@@ -20,7 +20,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
             let address = Address()     // TODO: Get address from request
 
             do {
-                let data: ProductData = try request.getJson()
+                let data: ProductData = try request.getJSON()
                 let product = try self.service.createProduct(data: data, from: address)
                 response.respond(with: product, code: .ok)
             } catch {

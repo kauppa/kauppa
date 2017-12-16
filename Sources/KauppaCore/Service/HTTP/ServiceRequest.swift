@@ -8,5 +8,5 @@ public protocol ServiceRequest {
     func getParameter<T: StringParsable>(for key: String) -> T?
 
     /// Parse this stream as a `Mappable` object.
-    func getJson<T: Mappable>() throws -> T
+    func getJSON<T: Mappable>() throws -> T
 }
