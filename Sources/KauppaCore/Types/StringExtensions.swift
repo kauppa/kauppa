@@ -33,4 +33,9 @@ extension String {
 
         return false
     }
+
+    /// Parse a string into a value of the given type.
+    public func parse<T: StringParsable>() -> T? {
+        return T.from(string: self)
+    }
 }

@@ -1,5 +1,6 @@
 import KauppaCore
 
+/// Routes for products service.
 public struct ProductsRoutes {
     static let globalProducts = "/products"
     static let singleProduct  = "/products/:id"
