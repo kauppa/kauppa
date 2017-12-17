@@ -366,6 +366,10 @@ let testTargets: [Target] = [
         dependencies: ["KauppaCore"]
     ),
     .testTarget(
+        name: "TestTypes",
+        dependencies: ["KauppaCore"]
+    ),
+    .testTarget(
         name: "KauppaCartTests",
         dependencies: [
             "KauppaCore",
@@ -399,6 +403,7 @@ let testTargets: [Target] = [
             "KauppaCore",
             "KauppaNaamioModel",
             "KauppaNaamioService",
+            "TestTypes",
         ]
     ),
     .testTarget(

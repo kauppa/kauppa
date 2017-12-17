@@ -55,3 +55,19 @@ class SampleRouter<Req: Mappable, Resp: Mappable>: Routing {
         routes[repr.route] = handler
     }
 }
+
+enum TestRoute: UInt8 {
+    case foo
+    case bar
+}
+
+extension TestRoute: RouteRepresentable {
+    public var route: Route {
+        switch self {
+            case .foo:
+                return Route(url: "/foo", method: .get)
+            case .bar:
+                return Route(url: "/bar", method: .post)
+        }
+    }
+}

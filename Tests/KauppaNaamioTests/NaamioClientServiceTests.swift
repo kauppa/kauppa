@@ -1,24 +1,9 @@
 import XCTest
 
 import KauppaCore
+@testable import TestTypes
 @testable import KauppaNaamioModel
 @testable import KauppaNaamioService
-
-enum TestRoute: UInt8 {
-    case foo
-    case bar
-}
-
-extension TestRoute: RouteRepresentable {
-    public var route: Route {
-        switch self {
-            case .foo:
-                return Route(url: "/foo", method: .get)
-            case .bar:
-                return Route(url: "/bar", method: .post)
-        }
-    }
-}
 
 class TestNaamioBridgeService: XCTestCase {
     static var allTests: [(String, (TestNaamioBridgeService) -> () throws -> Void)] {
