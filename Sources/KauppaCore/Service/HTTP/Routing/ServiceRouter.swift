@@ -8,8 +8,8 @@
 /// To avoid this nightmare, we use this class - which acts as an abstraction over the router.
 /// Service-specific routers extend from this class and can use only the publicly exposed resources.
 open class ServiceRouter<R: Routing>: Routing {
-    public typealias Response = R.Response
     public typealias Request = R.Request
+    public typealias Response = R.Response
 
     private let router: R
 

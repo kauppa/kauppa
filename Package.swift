@@ -19,6 +19,11 @@ let modelTargets: [Target] = [
         path: "Sources/KauppaCoupon/Model"
     ),
     .target(
+        name: "KauppaNaamioModel",
+        dependencies: ["KauppaCore"],
+        path: "Sources/KauppaNaamio/Model"
+    ),
+    .target(
         name: "KauppaOrdersModel",
         dependencies: [
             "KauppaCore",
@@ -163,6 +168,14 @@ let serviceTargets: [Target] = [
         path: "Sources/KauppaCoupon/Service"
     ),
     .target(
+        name: "KauppaNaamioService",
+        dependencies: [
+            "KauppaCore",
+            "KauppaNaamioModel",
+        ],
+        path: "Sources/KauppaNaamio/Service"
+    ),
+    .target(
         name: "KauppaOrdersService",
         dependencies: [
             "KauppaCore",
@@ -289,6 +302,15 @@ let daemonTargets: [Target] = [
         exclude: ["Client", "Service", "Repository", "Model", "Store"]
     ),
     .target(
+        name: "KauppaNaamio",
+        dependencies: [
+            "KauppaCore",
+            "KauppaNaamioModel",
+            "KauppaNaamioService"
+        ],
+        exclude: ["Model", "Service"]
+    ),
+    .target(
         name: "KauppaOrders",
         dependencies: [
             "KauppaOrdersClient",
@@ -369,6 +391,14 @@ let testTargets: [Target] = [
             "KauppaCouponModel",
             "KauppaCouponRepository",
             "KauppaCouponService"
+        ]
+    ),
+    .testTarget(
+        name: "KauppaNaamioTests",
+        dependencies: [
+            "KauppaCore",
+            "KauppaNaamioModel",
+            "KauppaNaamioService",
         ]
     ),
     .testTarget(
@@ -456,6 +486,10 @@ let package = Package(
         .executable(
             name: "KauppaCoupon",
             targets: ["KauppaCoupon"]
+        ),
+        .executable(
+            name: "KauppaNaamio",
+            targets: ["KauppaNaamio"]
         ),
         .executable(
             name: "KauppaOrders",
