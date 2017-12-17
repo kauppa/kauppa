@@ -21,7 +21,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
 
             do {
                 let data: ProductData = try request.getJSON()
-                let product = try self.service.createProduct(data: data, from: address)
+                let product = try self.service.createProduct(with: data, from: address)
                 response.respond(with: product, code: .ok)
             } catch {
                 // log error and respond back to stream
