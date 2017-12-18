@@ -22,4 +22,10 @@ extension GiftsService: GiftsServiceCallable {
 
         return try repository.createCard(data: cardData)
     }
+
+    public func updateCard(id: UUID, data: GiftCardPatch) throws -> GiftCard {
+        var cardData = try repository.getCardData(forId: id)
+
+        return try repository.updateCardData(id: id, data: cardData)
+    }
 }

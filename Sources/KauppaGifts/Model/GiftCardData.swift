@@ -24,6 +24,9 @@ public struct GiftCardData: Mappable {
     /// Available balance on this card.
     public var balance: UnitMeasurement<Currency> = UnitMeasurement(value: 0.0, unit: .usd)
 
+    /// Date on which this card was disabled.
+    public var disabledOn: Date? = nil
+
     public init() {}
 
     /// Validate this gift card data and modify as required.
