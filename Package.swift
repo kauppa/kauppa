@@ -246,7 +246,7 @@ let testTargets: [Target] = [
 var targets: [Target] = [
     .target(
         name: "KauppaCore",
-        dependencies: []
+        dependencies: ["RandomKit"]
     )
 ]
 
@@ -283,7 +283,7 @@ let package = Package(
         )
     ],
     dependencies: [
-
+        .package(url: "https://github.com/nvzqz/RandomKit.git", from: "5.0.0"),
     ],
     targets: targets
 )
