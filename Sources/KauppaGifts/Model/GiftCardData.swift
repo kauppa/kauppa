@@ -24,6 +24,9 @@ public struct GiftCardData: Mappable {
     /// Available balance on this card.
     public var balance: UnitMeasurement<Currency> = UnitMeasurement(value: 0.0, unit: .usd)
 
+    /// Date on which this card was disabled.
+    public var disabledOn: Date? = nil
+
     public init() {}
 
     /// Validate this gift card data and modify as required.
@@ -44,5 +47,16 @@ public struct GiftCardData: Mappable {
                 throw GiftsError.invalidExpiryDate
             }
         }
+    }
+
+    /// Since gift cards are an alternative mode of payment,
+    /// the full code is shown only once, and only the last
+    /// four characters are shown in the future.
+    ///
+    /// NOTE: This function is supposed to be called only before
+    /// returning a service response. Don't ever call this code
+    /// before mutating the repository.
+    public mutating func hideCode() {
+        self.code = String(repeating: "X", count: 12) + code!.suffix(4)
     }
 }
