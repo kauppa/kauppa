@@ -48,4 +48,15 @@ public struct GiftCardData: Mappable {
             }
         }
     }
+
+    /// Since gift cards are an alternative mode of payment,
+    /// the full code is shown only once, and only the last
+    /// four characters are shown in the future.
+    ///
+    /// NOTE: This function is supposed to be called only before
+    /// returning a service response. Don't ever call this code
+    /// before mutating the repository.
+    public mutating func hideCode() {
+        self.code = String(repeating: "X", count: 12) + code!.suffix(4)
+    }
 }

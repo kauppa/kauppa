@@ -12,6 +12,7 @@ class TestGiftsService: XCTestCase {
             ("Test card creation", testCardCreation),
             ("Test card creation with code", testCardCreationWithCode),
             ("Test card creation with expiry", testCardCreationWithExpiry),
+            ("Test card update", testCardUpdate),
         ]
     }
 
@@ -74,5 +75,38 @@ class TestGiftsService: XCTestCase {
         data.expiresOn = Date(timeIntervalSinceNow: 87000)
         let card = try! service.createCard(withData: data)
         XCTAssertNotNil(card.data.expiresOn)
+    }
+
+    func testCardUpdate() {
+        let store = TestStore()
+        let repository = GiftsRepository(withStore: store)
+        let service = GiftsService(withRepository: repository)
+        let data = GiftCardData()
+        let card = try! service.createCard(withData: data)
+        let code = card.data.code!
+
+        var patch = GiftCardPatch()     // test valid patch
+        patch.note = "foobar"
+        patch.balance = UnitMeasurement(value: 100.0, unit: .usd)
+        patch.disabledOn = Date()
+        patch.expiresOn = Date(timeIntervalSinceNow: 87000)
+
+        let updatedCard = try! service.updateCard(id: card.id, data: patch)
+        XCTAssertTrue(updatedCard.createdOn != updatedCard.updatedAt)
+        XCTAssertEqual(updatedCard.data.note!, "foobar")
+        XCTAssertEqual(updatedCard.data.balance.value, 100.0)
+        XCTAssertEqual(updatedCard.data.disabledOn!, patch.disabledOn!)
+        XCTAssertEqual(updatedCard.data.expiresOn!, patch.expiresOn!)
+        // Check that only the last 4 digits are shown in update.
+        XCTAssertTrue(updatedCard.data.code!.starts(with: "XXXXXXXXXXXX"))
+        XCTAssertEqual(updatedCard.data.code!.suffix(4), code.suffix(4))
+
+        patch.expiresOn = Date()
+        do {    // data is validated for update
+            let _ = try service.updateCard(id: card.id, data: patch)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! GiftsError, GiftsError.invalidExpiryDate)
+        }
     }
 }
