@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "RandomKit",
+        "repositoryURL": "https://github.com/nvzqz/RandomKit.git",
+        "state": {
+          "branch": null,
+          "revision": "06c51cbf8816a5f682aba03da353daf5640830ca",
+          "version": "5.2.3"
+        }
+      },
+      {
+        "package": "Threadly",
+        "repositoryURL": "https://github.com/nvzqz/Threadly.git",
+        "state": {
+          "branch": null,
+          "revision": "261c101fd0a8a42dc3e16fb303d3a79f6e06100f",
+          "version": "1.2.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

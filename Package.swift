@@ -14,6 +14,11 @@ let modelTargets: [Target] = [
         path: "Sources/KauppaCart/Model"
     ),
     .target(
+        name: "KauppaGiftsModel",
+        dependencies: ["KauppaCore"],
+        path: "Sources/KauppaGifts/Model"
+    ),
+    .target(
         name: "KauppaOrdersModel",
         dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaProductsModel"],
         path: "Sources/KauppaOrders/Model"
@@ -37,6 +42,11 @@ let storeTargets: [Target] = [
         path: "Sources/KauppaCart/Store"
     ),
     .target(
+        name: "KauppaGiftsStore",
+        dependencies: ["KauppaCore", "KauppaGiftsModel"],
+        path: "Sources/KauppaGifts/Store"
+    ),
+    .target(
         name: "KauppaOrdersStore",
         dependencies: ["KauppaCore", "KauppaOrdersModel"],
         path: "Sources/KauppaOrders/Store"
@@ -58,6 +68,11 @@ let repositoryTargets: [Target] = [
         name: "KauppaCartRepository",
         dependencies: ["KauppaCartModel", "KauppaCartStore", "KauppaCore"],
         path: "Sources/KauppaCart/Repository"
+    ),
+    .target(
+        name: "KauppaGiftsRepository",
+        dependencies: ["KauppaGiftsModel", "KauppaGiftsStore", "KauppaCore"],
+        path: "Sources/KauppaGifts/Repository"
     ),
     .target(
         name: "KauppaOrdersRepository",
@@ -89,6 +104,16 @@ let serviceTargets: [Target] = [
             "KauppaProductsClient",
         ],
         path: "Sources/KauppaCart/Service"
+    ),
+    .target(
+        name: "KauppaGiftsService",
+        dependencies: [
+            "KauppaCore",
+            "KauppaGiftsClient",
+            "KauppaGiftsRepository",
+            "KauppaGiftsModel",
+        ],
+        path: "Sources/KauppaGifts/Service"
     ),
     .target(
         name: "KauppaOrdersService",
@@ -126,6 +151,11 @@ let clientTargets: [Target] = [
         path: "Sources/KauppaCart/Client"
     ),
     .target(
+        name: "KauppaGiftsClient",
+        dependencies: ["KauppaGiftsModel"],
+        path: "Sources/KauppaGifts/Client"
+    ),
+    .target(
         name: "KauppaOrdersClient",
         dependencies: ["KauppaOrdersModel"],
         path: "Sources/KauppaOrders/Client"
@@ -156,6 +186,17 @@ let daemonTargets: [Target] = [
             "KauppaCartService",
             "KauppaCartRepository",
             "KauppaCartModel",
+            "KauppaCore"
+        ],
+        exclude: ["Client", "Service", "Repository", "Model", "Store"]
+    ),
+    .target(
+        name: "KauppaGifts",
+        dependencies: [
+            "KauppaGiftsClient",
+            "KauppaGiftsService",
+            "KauppaGiftsRepository",
+            "KauppaGiftsModel",
             "KauppaCore"
         ],
         exclude: ["Client", "Service", "Repository", "Model", "Store"]
@@ -214,6 +255,16 @@ let testTargets: [Target] = [
         ]
     ),
     .testTarget(
+        name: "KauppaGiftsTests",
+        dependencies: [
+            "KauppaCore",
+            "KauppaGiftsClient",
+            "KauppaGiftsModel",
+            "KauppaGiftsRepository",
+            "KauppaGiftsService"
+        ]
+    ),
+    .testTarget(
         name: "KauppaOrdersTests",
         dependencies: [
             "KauppaCore",
@@ -246,7 +297,7 @@ let testTargets: [Target] = [
 var targets: [Target] = [
     .target(
         name: "KauppaCore",
-        dependencies: []
+        dependencies: ["RandomKit"]
     )
 ]
 
@@ -270,6 +321,10 @@ let package = Package(
             targets: ["KauppaCart"]
         ),
         .executable(
+            name: "KauppaGifts",
+            targets: ["KauppaGifts"]
+        ),
+        .executable(
             name: "KauppaOrders",
             targets: ["KauppaOrders"]
         ),
@@ -283,7 +338,7 @@ let package = Package(
         )
     ],
     dependencies: [
-
+        .package(url: "https://github.com/nvzqz/RandomKit.git", from: "5.0.0"),
     ],
     targets: targets
 )
