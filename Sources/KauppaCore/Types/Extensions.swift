@@ -13,6 +13,11 @@ extension String {
         })
     }
 
+    /// Checks if the given string is alphanumeric.
+    public func isAlphaNumeric() -> Bool {
+        return !isEmpty && range(of: "[^a-zA-Z0-9]", options: .regularExpression) == nil
+    }
+
     /// Checks whether a string matches the given regex pattern.
     public func isMatching(regex: String) -> Bool {
         do {

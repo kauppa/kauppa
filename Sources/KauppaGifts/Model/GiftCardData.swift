@@ -11,7 +11,7 @@ public struct GiftCardData: Mappable {
     /// will have the account's ID.
     public var accountId: UUID? = nil
 
-    /// Code for this gift card. Should be an uppercase alphanumeric
+    /// Code for this gift card - should be an uppercase alphanumeric
     /// string of 16 chars.
     public var code: String? = nil
 
@@ -21,11 +21,28 @@ public struct GiftCardData: Mappable {
     /// Custom note for this card.
     public var note: String? = nil
 
-    /// Initial worth of this gift card.
-    public var initialValue: UnitMeasurement<Currency> = UnitMeasurement(value: 0.0, unit: .usd)
-
     /// Available balance on this card.
     public var balance: UnitMeasurement<Currency> = UnitMeasurement(value: 0.0, unit: .usd)
 
     public init() {}
+
+    /// Validate this gift card data and modify as required.
+    public mutating func validate() throws {
+        if let code = code {
+            if code.count != 16 || !code.isAlphaNumeric() {
+                throw GiftsError.invalidCode
+            }
+
+            self.code = code.uppercased()
+        } else {
+            self.code = String.randomAlphaNumeric(len: 16)
+        }
+
+        if let date = expiresOn {
+            let interval = date.timeIntervalSinceNow / (60 * 60 * 24)
+            if interval < 1 {   // should be at least one day
+                throw GiftsError.invalidExpiryDate
+            }
+        }
+    }
 }

@@ -13,10 +13,12 @@ public struct GiftCard: Mappable {
     /// Data associated with the gift card.
     public var data: GiftCardData
 
-    public init(id: UUID, createdOn: Date, updatedAt: Date, data: GiftCardData) {
+    public init(withData data: GiftCardData) {
+        let id = UUID()
+        let date = Date()
         self.id = id
-        self.createdOn = createdOn
-        self.updatedAt = updatedAt
+        self.createdOn = date
+        self.updatedAt = date
         self.data = data
     }
 }

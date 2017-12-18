@@ -17,11 +17,8 @@ public class GiftsRepository {
 
     /// Create a gift card with data from the service.
     public func createCard(data: GiftCardData) throws -> GiftCard {
-        let id = UUID()
-        let date = Date()
-        let card = GiftCard(id: id, createdOn: date,
-                            updatedAt: date, data: data)
-        cards[id] = card
+        let card = GiftCard(withData: data)
+        cards[card.id] = card
         try store.createCard(data: card)
         return card
     }

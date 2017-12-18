@@ -17,6 +17,9 @@ public class GiftsService {
 
 extension GiftsService: GiftsServiceCallable {
     public func createCard(withData data: GiftCardData) throws -> GiftCard {
-        return try repository.createCard(data: data)
+        var cardData = data
+        try cardData.validate()
+
+        return try repository.createCard(data: cardData)
     }
 }
