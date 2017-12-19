@@ -5,12 +5,14 @@ import Foundation
 
 public class TestStore: OrdersStorable {
     public var orders = [UUID: Order]()
+    public var refunds = [UUID: Refund]()
 
     // Variables to indicate the count of function calls
     public var createCalled = false
     public var getCalled = false
     public var deleteCalled = false
     public var updateCalled = false
+    public var refundCreated = false
 
     public func createNewOrder(orderData: Order) throws -> () {
         createCalled = true
@@ -39,6 +41,12 @@ public class TestStore: OrdersStorable {
             throw OrdersError.invalidOrder
         }
 
+        return ()
+    }
+
+    public func createRefund(data: Refund) throws -> () {
+        refundCreated = true
+        refunds[data.id] = data
         return ()
     }
 }

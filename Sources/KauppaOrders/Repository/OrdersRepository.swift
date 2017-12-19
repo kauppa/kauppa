@@ -7,6 +7,7 @@ public class OrdersRepository {
     // FIXME: To avoid running out of memory, we should clean the
     // least recently used items every now and then.
     var orders = [UUID: Order]()
+    var refunds = [UUID: Refund]()
 
     let store: OrdersStorable
 
@@ -60,5 +61,18 @@ public class OrdersRepository {
     public func deleteOrder(id: UUID) throws -> () {
         orders.removeValue(forKey: id)
         return try store.deleteOrder(id: id)
+    }
+
+    /// Create a refund for an order.
+    public func createRefund(forOrder orderId: UUID,
+                             reason: String, items: [OrderUnit]) throws -> Refund
+    {
+        let id = UUID()
+        var refund = Refund(id: UUID(), createdOn: Date(),
+                            orderId: orderId, reason: reason)
+        refund.items = items
+        refunds[id] = refund
+        try store.createRefund(data: refund)
+        return refund
     }
 }

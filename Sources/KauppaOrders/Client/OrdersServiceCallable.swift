@@ -11,6 +11,9 @@ public protocol OrdersServiceCallable {
     /// Cancel an existing order.
     func cancelOrder(id: UUID) throws -> Order
 
+    /// Initiate refund for an order with the given data.
+    func initiateRefund(forId id: UUID, data: RefundData) throws -> Order
+
     /// Delete an order corresponding to a given ID.
     func deleteOrder(id: UUID) throws -> ()
 }

@@ -13,4 +13,7 @@ public protocol OrdersPersisting: Persisting {
 
     /// Delete an order corresponding to an ID.
     func deleteOrder(id: UUID) throws -> ()
+
+    /// Create a refund with data from repository.
+    func createRefund(data: Refund) throws -> ()
 }

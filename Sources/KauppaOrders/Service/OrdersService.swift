@@ -109,6 +109,36 @@ public class OrdersService: OrdersServiceCallable {
         return try repository.updateOrder(withData: order, skipDate: true)
     }
 
+    public func initiateRefund(forId id: UUID, data: RefundData) throws -> Order {
+        if data.reason.isEmpty {
+            throw OrdersError.invalidRefundReason
+        }
+
+        var order = try repository.getOrder(id: id)
+        if let _ = order.cancelledAt {
+            throw OrdersError.cancelledOrder
+        }
+
+        if order.paymentStatus == .refunded {
+            throw OrdersError.refundedOrder
+        }
+
+        if order.paymentStatus != .paid {
+            throw OrdersError.processingPayment
+        }
+
+        // var refundItems = []
+        // TODO: Poke payment service
+
+        if data.fullRefund ?? false {
+            order.paymentStatus = .refunded
+        } else {
+            //
+        }
+
+        return try repository.updateOrder(withData: order)
+    }
+
     public func deleteOrder(id: UUID) throws -> () {
         return try repository.deleteOrder(id: id)
     }

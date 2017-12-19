@@ -5,7 +5,11 @@ public struct OrderUnitStatus: Mappable {
     /// Quantity sent to the customer.
     public var fulfilledQuantity: UInt8
     /// Status of this ordered unit.
-    public var fulfillment: FulfillmentStatus
+    public var fulfillment: FulfillmentStatus? = nil
+
+    public init(quantity: UInt8) {
+        fulfilledQuantity = quantity
+    }
 }
 
 /// Status of payment for an order.
@@ -18,14 +22,36 @@ public enum PaymentStatus: String, Mappable {
     case partialRefund = "partially refunded"
     /// Payment was successful.
     case paid = "paid"
+
+    /// Check the equality of this type.
+    public static func ==(lhs: PaymentStatus, rhs: PaymentStatus) -> Bool {
+        switch (lhs, rhs) {
+            case (.pending, .pending),
+                 (.refunded, .refunded),
+                 (.partialRefund, .partialRefund),
+                 (.paid, .paid):
+                return true
+            default:
+                return false
+        }
+    }
 }
 
 /// Status of an order.
 public enum FulfillmentStatus: String, Mappable {
     /// Order has been successfully placed.
     case fulfilled = "fulfilled"
-    /// Order has been cancelled.
-    case cancelled = "cancelled"
     /// At least one item has been fulfilled.
     case partial = "partially fulfilled"
+
+    /// Check the equality of this type.
+    public static func ==(lhs: FulfillmentStatus, rhs: FulfillmentStatus) -> Bool {
+        switch (lhs, rhs) {
+            case (.fulfilled, .fulfilled),
+                 (.partial, .partial):
+                return true
+            default:
+                return false
+        }
+    }
 }
