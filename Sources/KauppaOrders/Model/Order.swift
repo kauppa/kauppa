@@ -23,6 +23,12 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     public var totalPrice: UnitMeasurement<Currency>
     /// Total weight of this purchase (includes the quantity)
     public var totalWeight: UnitMeasurement<Weight>
+    /// Status of this order.
+    public var fulfillment: FulfillmentStatus? = nil
+    /// Payment status for this order.
+    public var paymentStatus: PaymentStatus = .pending
+    /// Cancellation date (if this order was cancelled)
+    public var cancelledAt: Date? = nil
 
     public init() {
         self.totalItems = 0

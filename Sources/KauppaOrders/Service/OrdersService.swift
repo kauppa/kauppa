@@ -101,6 +101,10 @@ public class OrdersService: OrdersServiceCallable {
         return orderData
     }
 
+    public func cancelOrder(id: UUID) throws -> () {
+        ///
+    }
+
     public func deleteOrder(id: UUID) throws -> () {
         return try repository.deleteOrder(id: id)
     }

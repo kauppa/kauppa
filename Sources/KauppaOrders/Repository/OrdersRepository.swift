@@ -28,6 +28,26 @@ public class OrdersRepository {
         return data
     }
 
+    /// Get an order corresponding to an ID.
+    public func getOrder(id: UUID) throws -> Order {
+        guard let order = orders[id] else {
+            let order = try store.getOrder(id: id)
+            orders[id] = order
+            return order
+        }
+
+        return order
+    }
+
+    /// Update an order with the given data from the service.
+    public func updateOrder(withData data: Order) throws -> Order {
+        var order = data
+        order.updatedAt = Date()
+        orders[order.id!] = order
+        try store.updateOrder(data: order)
+        return order
+    }
+
     /// Delete an order corresponding to an ID.
     public func deleteOrder(id: UUID) throws -> () {
         orders.removeValue(forKey: id)

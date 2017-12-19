@@ -8,11 +8,28 @@ public class TestStore: OrdersStorable {
 
     // Variables to indicate the count of function calls
     public var createCalled = false
+    public var getCalled = false
     public var deleteCalled = false
+    public var updateCalled = false
 
     public func createNewOrder(orderData: Order) throws -> () {
         createCalled = true
         orders[orderData.id!] = orderData
+        return ()
+    }
+
+    public func getOrder(id: UUID) throws -> Order {
+        getCalled = true
+        guard let order = orders[id] else {
+            throw OrdersError.invalidOrder
+        }
+
+        return order
+    }
+
+    public func updateOrder(data: Order) throws -> () {
+        updateCalled = true
+        orders[data.id!] = data
         return ()
     }
 
