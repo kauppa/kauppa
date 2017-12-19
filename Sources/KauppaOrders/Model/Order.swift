@@ -19,7 +19,7 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     public var products = [P]()
     /// Total number of items processed (includes the quantity)
     public var totalItems: UInt16
-    /// Total price of all items (includes the quantity)
+    /// Total price of all items (includes the quantity) without tax/shipping.
     public var totalPrice: UnitMeasurement<Currency>
     /// Total weight of this purchase (includes the quantity)
     public var totalWeight: UnitMeasurement<Weight>

@@ -26,7 +26,7 @@ public class TestOrdersService: OrdersServiceCallable {
     }
 
     // NOTE: Not meant to be called by cart
-    public func cancelOrder(id: UUID) throws -> () {
+    public func cancelOrder(id: UUID) throws -> Order {
         throw OrdersError.invalidOrder
     }
 }

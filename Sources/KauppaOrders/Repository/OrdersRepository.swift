@@ -40,9 +40,17 @@ public class OrdersRepository {
     }
 
     /// Update an order with the given data from the service.
-    public func updateOrder(withData data: Order) throws -> Order {
+    ///
+    /// It takes an optional parameter `skipDate` for skipping
+    /// updating the `updatedAt` date object, because `Order` struct
+    /// has a lot of fields for indicating different kinds of dates
+    /// and we want the dates to be consistent whenever we make a change.
+    public func updateOrder(withData data: Order, skipDate: Bool = false) throws -> Order {
         var order = data
-        order.updatedAt = Date()
+        if !skipDate {
+            order.updatedAt = Date()
+        }
+
         orders[order.id!] = order
         try store.updateOrder(data: order)
         return order
