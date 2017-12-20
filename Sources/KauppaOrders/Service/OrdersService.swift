@@ -173,9 +173,7 @@ public class OrdersService: OrdersServiceCallable {
                 }
 
                 let fulfilled = unitStatus.fulfilledQuantity
-                if fulfilled == 0 {     // Check if item has reached the customer
-                    throw OrdersError.unrefundableItem(productData.id)
-                } else if unit.quantity > fulfilled {
+                if unit.quantity > fulfilled {
                     throw OrdersError.invalidOrderQuantity(productData.id, fulfilled)
                 }
 
@@ -193,16 +191,17 @@ public class OrdersService: OrdersServiceCallable {
             }
         }
 
+        if refundItems.isEmpty {
+            throw OrdersError.noItemsToProcess
+        }
+
+        // If we've come this far, then it's either a partial refund or full refund.
         if atleastOneItemExists {
             order.paymentStatus = .partialRefund
             order.fulfillment = .partial
         } else {
             order.paymentStatus = .refunded
             order.fulfillment = nil
-        }
-
-        if refundItems.isEmpty {
-            throw OrdersError.noItemsToProcess
         }
 
         // We can assume that all products in a successfully placed
