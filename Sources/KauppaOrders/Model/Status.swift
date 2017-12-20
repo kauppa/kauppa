@@ -22,6 +22,8 @@ public enum PaymentStatus: String, Mappable {
     case partialRefund = "partially refunded"
     /// Payment was successful.
     case paid = "paid"
+    /// Payment failed.
+    case failed = "failed"
 
     /// Check the equality of this type.
     public static func ==(lhs: PaymentStatus, rhs: PaymentStatus) -> Bool {
@@ -29,7 +31,8 @@ public enum PaymentStatus: String, Mappable {
             case (.pending, .pending),
                  (.refunded, .refunded),
                  (.partialRefund, .partialRefund),
-                 (.paid, .paid):
+                 (.paid, .paid),
+                 (.failed, .failed):
                 return true
             default:
                 return false
@@ -37,7 +40,7 @@ public enum PaymentStatus: String, Mappable {
     }
 }
 
-/// Status of an order.
+/// Status of an order. This is usually changed by the shipping service.
 public enum FulfillmentStatus: String, Mappable {
     /// Order has been successfully placed.
     case fulfilled = "fulfilled"

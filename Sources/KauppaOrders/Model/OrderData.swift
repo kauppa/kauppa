@@ -12,6 +12,10 @@ public struct GenericOrderUnit<P: Mappable>: Mappable {
     /// Desired quantity of this product (when this order was placed)
     public let quantity: UInt8
     /// Status of this order unit.
+    ///
+    /// `nil` indicates that none of the items in this unit
+    /// has been fulfilled. It's either not delivered to the customer
+    /// or the entire unit has been returned by the customer.
     public var status: OrderUnitStatus? = nil
 
     public init(product: P, quantity: UInt8) {
