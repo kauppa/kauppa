@@ -128,14 +128,12 @@ public class OrdersService: OrdersServiceCallable {
                 break
         }
 
+        var atleastOneItemExists = false
         var refundItems = [GenericOrderUnit<Product>]()
         // TODO: Investigate payment processing
         // TODO: Support restocking inventory
 
         if data.fullRefund ?? false {
-            order.paymentStatus = .refunded
-            order.fulfillment = nil
-
             for i in 0..<order.products.count {
                 let product = try productsService.getProduct(id: order.products[i].product)
                 // Only collect fulfilled items (if any) from each unit.
@@ -175,7 +173,7 @@ public class OrdersService: OrdersServiceCallable {
                 }
 
                 let fulfilled = unitStatus.fulfilledQuantity
-                if fulfilled == 0 {
+                if fulfilled == 0 {     // Check if item has reached the customer
                     throw OrdersError.unrefundableItem(productData.id)
                 } else if unit.quantity > fulfilled {
                     throw OrdersError.invalidOrderQuantity(productData.id, fulfilled)
@@ -184,9 +182,23 @@ public class OrdersService: OrdersServiceCallable {
                 let unit = GenericOrderUnit(product: productData,
                                             quantity: unit.quantity)
                 refundItems.append(unit)
-                order.products[i].status!.fulfilledQuantity -= unit.quantity
-                order.products[i].status!.fulfillment = .partial
+                if fulfilled == unit.quantity {     // all items have been refunded in this unit
+                    order.products[i].status = nil
+                } else {
+                    order.products[i].status!.fulfilledQuantity -= unit.quantity
+                    order.products[i].status!.fulfillment = .partial
+                }
+
+                atleastOneItemExists = atleastOneItemExists || fulfilled > unit.quantity
             }
+        }
+
+        if atleastOneItemExists {
+            order.paymentStatus = .partialRefund
+            order.fulfillment = .partial
+        } else {
+            order.paymentStatus = .refunded
+            order.fulfillment = nil
         }
 
         if refundItems.isEmpty {
