@@ -134,6 +134,8 @@ public class OrdersService: OrdersServiceCallable {
 
         if data.fullRefund ?? false {
             order.paymentStatus = .refunded
+            order.fulfillment = nil
+
             for i in 0..<order.products.count {
                 let product = try productsService.getProduct(id: order.products[i].product)
                 // Only collect fulfilled items (if any) from each unit.

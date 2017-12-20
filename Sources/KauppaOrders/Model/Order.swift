@@ -46,5 +46,9 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
         data.totalItems = totalItems
         data.totalPrice = totalPrice
         data.totalWeight = totalWeight
+        data.fulfillment = fulfillment
+        data.paymentStatus = paymentStatus
+        data.cancelledAt = cancelledAt
+        data.refunds = refunds
     }
 }

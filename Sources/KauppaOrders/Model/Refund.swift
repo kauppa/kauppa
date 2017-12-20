@@ -5,13 +5,17 @@ import KauppaCore
 /// Data required for initiating a refund.
 public struct RefundData: Mappable {
     /// Refund all units in the order.
-    public let fullRefund: Bool? = nil
+    public var fullRefund: Bool? = nil
     /// Refund specific units in an order.
     public let units: [OrderUnit]? = nil
     /// Reason for requesting this refund.
     public let reason: String
     /// Whether the inventory should be restocked for this refund.
     public let restock: Bool? = nil
+
+    public init(reason: String) {
+        self.reason = reason
+    }
 }
 
 /// Refund created for an order (or some units in an order).
