@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 import KauppaOrdersModel
 import KauppaOrdersStore
 
@@ -65,11 +66,12 @@ public class OrdersRepository {
 
     /// Create a refund for an order.
     public func createRefund(forOrder orderId: UUID,
-                             reason: String, items: [OrderUnit]) throws -> Refund
+                             reason: String, items: [OrderUnit],
+                             amount: UnitMeasurement<Currency>) throws -> Refund
     {
         let id = UUID()
         var refund = Refund(id: UUID(), createdOn: Date(),
-                            orderId: orderId, reason: reason)
+                            orderId: orderId, reason: reason, amount: amount)
         refund.items = items
         refunds[id] = refund
         try store.createRefund(data: refund)

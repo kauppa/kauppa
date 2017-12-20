@@ -26,11 +26,16 @@ public struct Refund: Mappable {
     public let reason: String
     /// Items associated with this refund.
     public var items = [OrderUnit]()
+    /// Refund amount.
+    public let amount: UnitMeasurement<Currency>
 
-    public init(id: UUID, createdOn: Date, orderId: UUID, reason: String) {
+    public init(id: UUID, createdOn: Date, orderId: UUID,
+                reason: String, amount: UnitMeasurement<Currency>)
+    {
         self.id = id
         self.createdOn = createdOn
         self.orderId = orderId
         self.reason = reason
+        self.amount = amount
     }
 }
