@@ -19,10 +19,18 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     public var products = [P]()
     /// Total number of items processed (includes the quantity)
     public var totalItems: UInt16
-    /// Total price of all items (includes the quantity)
+    /// Total price of all items (includes the quantity) without tax/shipping.
     public var totalPrice: UnitMeasurement<Currency>
     /// Total weight of this purchase (includes the quantity)
     public var totalWeight: UnitMeasurement<Weight>
+    /// Status of this order.
+    public var fulfillment: FulfillmentStatus? = nil
+    /// Payment status for this order.
+    public var paymentStatus: PaymentStatus = .pending
+    /// Cancellation date (if this order was cancelled)
+    public var cancelledAt: Date? = nil
+    /// Refunds created for this order.
+    public var refunds = [UUID]()
 
     public init() {
         self.totalItems = 0
@@ -38,5 +46,9 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
         data.totalItems = totalItems
         data.totalPrice = totalPrice
         data.totalWeight = totalWeight
+        data.fulfillment = fulfillment
+        data.paymentStatus = paymentStatus
+        data.cancelledAt = cancelledAt
+        data.refunds = refunds
     }
 }

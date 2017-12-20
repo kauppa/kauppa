@@ -23,6 +23,7 @@ class TestOrdersService: XCTestCase {
             ("Test order zero quantity", testOrderWithZeroQuantity),
             ("Test order with one product having zero quantity", testOrderWithOneProductHavingZeroQuantity),
             ("Test order with duplicate products", testOrderWithDuplicateProducts),
+            ("Test order cancellation", testOrderCancellation),
             ("Test order deletion", testOrderDeletion),
         ]
     }
@@ -276,6 +277,29 @@ class TestOrdersService: XCTestCase {
         } catch let err {
             XCTAssertTrue(err as! OrdersError == OrdersError.ambiguousCurrencies)
         }
+    }
+
+    func testOrderCancellation() {
+        let store = TestStore()
+        let repository = OrdersRepository(withStore: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.inventory = 5
+        let product = try! productsService.createProduct(data: productData)
+
+        let accountData = AccountData()
+        let account = try! accountsService.createAccount(withData: accountData)
+
+        let ordersService = OrdersService(withRepository: repository,
+                                          accountsService: accountsService,
+                                          productsService: productsService)
+        let orderData = OrderData(placedBy: account.id,
+                                  products: [OrderUnit(product: product.id, quantity: 3)])
+        let order = try! ordersService.createOrder(data: orderData)
+        XCTAssertNotNil(order.id)
+        XCTAssertNil(order.cancelledAt)
+
+        let updatedOrder = try! ordersService.cancelOrder(id: order.id!)
+        XCTAssertNotNil(updatedOrder.cancelledAt)
     }
 
     func testOrderDeletion() {

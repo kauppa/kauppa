@@ -101,6 +101,115 @@ public class OrdersService: OrdersServiceCallable {
         return orderData
     }
 
+    public func cancelOrder(id: UUID) throws -> Order {
+        var order = try repository.getOrder(id: id)
+        let date = Date()
+        order.cancelledAt = date
+        order.updatedAt = date
+        return try repository.updateOrder(withData: order, skipDate: true)
+    }
+
+    public func initiateRefund(forId id: UUID, data: RefundData) throws -> Order {
+        if data.reason.isEmpty {
+            throw OrdersError.invalidRefundReason
+        }
+
+        var order = try repository.getOrder(id: id)
+        if let _ = order.cancelledAt {
+            throw OrdersError.cancelledOrder
+        }
+
+        switch order.paymentStatus {
+            case .refunded:
+                throw OrdersError.refundedOrder
+            case .failed, .pending:
+                throw OrdersError.paymentNotReceived
+            default:
+                break
+        }
+
+        var refundItems = [GenericOrderUnit<Product>]()
+        // TODO: Investigate payment processing
+        // TODO: Support restocking inventory
+
+        if data.fullRefund ?? false {
+            order.paymentStatus = .refunded
+            order.fulfillment = nil
+
+            for i in 0..<order.products.count {
+                let product = try productsService.getProduct(id: order.products[i].product)
+                // Only collect fulfilled items (if any) from each unit.
+                if let unitStatus = order.products[i].status {
+                    if unitStatus.fulfilledQuantity > 0 {
+                        let unit = GenericOrderUnit(product: product,
+                                                    quantity: unitStatus.fulfilledQuantity)
+                        refundItems.append(unit)
+                    }
+                }
+
+                // Null represents that none of the items have been fulfilled.
+                order.products[i].status = nil
+            }
+        } else {
+            for unit in data.units ?? [] {
+                var product: Product? = nil
+                var unitIdx: Int? = nil
+                for i in 0..<order.products.count {
+                    let id = order.products[i].product
+                    if unit.product != id {
+                        continue
+                    }
+
+                    product = try productsService.getProduct(id: id)
+                    unitIdx = i
+                }
+
+                // Make sure that all products in the request are valid
+                guard let productData = product, let i = unitIdx else {
+                    throw OrdersError.invalidOrderItem
+                }
+
+                // Only fulfilled items can be refunded.
+                guard let unitStatus = order.products[i].status else {
+                    throw OrdersError.unrefundableItem(productData.id)
+                }
+
+                let fulfilled = unitStatus.fulfilledQuantity
+                if fulfilled == 0 {
+                    throw OrdersError.unrefundableItem(productData.id)
+                } else if unit.quantity > fulfilled {
+                    throw OrdersError.invalidOrderQuantity(productData.id, fulfilled)
+                }
+
+                let unit = GenericOrderUnit(product: productData,
+                                            quantity: unit.quantity)
+                refundItems.append(unit)
+                order.products[i].status!.fulfilledQuantity -= unit.quantity
+                order.products[i].status!.fulfillment = .partial
+            }
+        }
+
+        if refundItems.isEmpty {
+            throw OrdersError.noItemsToProcess
+        }
+
+        // We can assume that all products in a successfully placed
+        // order *will* have the same currency.
+        let currency = refundItems[0].product.data.price.unit
+        var totalPrice = UnitMeasurement(value: 0.0, unit: currency)
+        var items = [OrderUnit]()
+        for item in refundItems {
+            totalPrice.value += item.product.data.price.value * Double(item.quantity)
+            let unit = OrderUnit(product: item.product.id, quantity: item.quantity)
+            items.append(unit)
+        }
+
+        let refund = try repository.createRefund(forOrder: order.id!, reason: data.reason,
+                                                 items: items, amount: totalPrice)
+        order.refunds.append(refund.id)
+        return try repository.updateOrder(withData: order)
+    }
+
     public func deleteOrder(id: UUID) throws -> () {
         return try repository.deleteOrder(id: id)
     }
