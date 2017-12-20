@@ -7,7 +7,7 @@ public struct RefundData: Mappable {
     /// Refund all units in the order.
     public var fullRefund: Bool? = nil
     /// Refund specific units in an order.
-    public let units: [OrderUnit]? = nil
+    public var units: [OrderUnit]? = nil
     /// Reason for requesting this refund.
     public let reason: String
     /// Whether the inventory should be restocked for this refund.
