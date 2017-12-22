@@ -101,6 +101,10 @@ public class OrdersService: OrdersServiceCallable {
         return orderData
     }
 
+    public func getOrder(forId id: UUID) throws -> Order {
+        return try repository.getOrder(id: id)
+    }
+
     public func cancelOrder(id: UUID) throws -> Order {
         var order = try repository.getOrder(id: id)
         let date = Date()

@@ -18,13 +18,12 @@ public class OrdersRepository {
 
     /// Create an order with service-supplied order data.
     public func createOrder(withData data: Order) throws -> Order {
-        let id = UUID()
         let date = Date()
         var data = data
+        let id = UUID()
         data.id = id
         data.createdOn = date
         data.updatedAt = date
-
         orders[id] = data
         try store.createNewOrder(orderData: data)
         return data

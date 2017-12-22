@@ -8,6 +8,9 @@ public protocol OrdersServiceCallable {
     /// Create an order from the given order data.
     func createOrder(data: OrderData) throws -> Order
 
+    /// Get an order corresponding to an ID.
+    func getOrder(forId id: UUID) throws -> Order
+
     /// Cancel an existing order.
     func cancelOrder(id: UUID) throws -> Order
 

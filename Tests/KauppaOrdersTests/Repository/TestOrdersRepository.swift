@@ -29,7 +29,7 @@ class TestOrdersRepository: XCTestCase {
         let data = try? repository.createOrder(withData: orderData)
         XCTAssertNotNil(data)
         // creation and updated timestamps should be the same during creation
-        XCTAssertEqual(data!.createdOn, data!.updatedAt)
+        XCTAssertEqual(data!.createdOn!, data!.updatedAt!)
         XCTAssertNotNil(repository.orders[data!.id!])   // valid order ID
         XCTAssertTrue(store.createCalled)       // store's create method called by repository
     }
