@@ -31,6 +31,8 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     public var cancelledAt: Date? = nil
     /// Refunds created for this order.
     public var refunds = [UUID]()
+    /// Shipments initiated for this order.
+    public var shipments = [UUID: ShipmentStatus]()
 
     public init() {
         self.totalItems = 0

@@ -30,7 +30,7 @@ let modelTargets: [Target] = [
     ),
     .target(
         name: "KauppaShipmentsModel",
-        dependencies: ["KauppaCore"],
+        dependencies: ["KauppaCore", "KauppaOrdersModel"],
         path: "Sources/KauppaShipments/Model"
     )
 ]
@@ -340,6 +340,7 @@ let testTargets: [Target] = [
         name: "KauppaShipmentsTests",
         dependencies: [
             "KauppaOrdersClient",
+            "KauppaOrdersModel",
             "KauppaShipmentsModel",
             "KauppaShipmentsRepository",
             "KauppaShipmentsService",

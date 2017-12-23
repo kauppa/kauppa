@@ -23,8 +23,7 @@ public class ShipmentsService {
 
 extension ShipmentsService: ShipmentsServiceCallable {
     public func createShipment(forOrder id: UUID) throws -> Shipment {
-        let _ = try ordersService.getOrder(forId: id)
-
-        return try repository.createShipment(forOrder: id)
+        let order = try ordersService.getOrder(forId: id)
+        return try repository.createShipment(forOrder: id, items: order.products)
     }
 }

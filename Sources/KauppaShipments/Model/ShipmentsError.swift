@@ -14,7 +14,7 @@ extension ShipmentsError: LocalizedError {
     }
 }
 
-extension ShipmentsError {
+extension ShipmentsError: Equatable {
     /// Check the equality of this result.
     public static func ==(lhs: ShipmentsError, rhs: ShipmentsError) -> Bool {
         switch (lhs, rhs) {

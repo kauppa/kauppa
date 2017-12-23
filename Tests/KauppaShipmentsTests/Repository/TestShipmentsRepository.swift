@@ -22,7 +22,7 @@ class TestShipmentsRepository: XCTestCase {
     func testShipmentCreation() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)
-        let data = try! repository.createShipment(forOrder: UUID())
+        let data = try! repository.createShipment(forOrder: UUID(), items: [])
         // creation and updated timestamps should be the same during creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertNotNil(repository.shipments[data.id])  // valid shipment ID

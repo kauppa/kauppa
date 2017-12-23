@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaOrdersModel
 
 /// Shipment data that exists in repository and store.
 public struct Shipment: Mappable {
@@ -12,6 +13,10 @@ public struct Shipment: Mappable {
     public var updatedAt: Date
     /// Order to which this shipment is bound.
     public let orderId: UUID
+    /// Items from the order.
+    public var items = [OrderUnit]()
+    /// Status of this shipment.
+    public var status = ShipmentStatus.shipping
 
     public init(id: UUID, createdOn: Date, updatedAt: Date, orderId: UUID) {
         self.id = id

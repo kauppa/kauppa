@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaOrdersModel
 import KauppaShipmentsModel
 import KauppaShipmentsStore
 
@@ -16,9 +17,10 @@ public class ShipmentsRepository {
     }
 
     /// Create a shipment object for an order.
-    public func createShipment(forOrder id: UUID) throws -> Shipment {
+    public func createShipment(forOrder id: UUID, items: [OrderUnit]) throws -> Shipment {
         let date = Date()
-        let data = Shipment(id: UUID(), createdOn: date, updatedAt: date, orderId: id)
+        var data = Shipment(id: UUID(), createdOn: date, updatedAt: date, orderId: id)
+        data.items = items
         try store.createShipment(data: data)
         shipments[data.id] = data
         return data
