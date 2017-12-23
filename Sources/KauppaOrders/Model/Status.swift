@@ -29,6 +29,7 @@ public enum ShipmentStatus: String, Mappable {
     public static func ==(lhs: ShipmentStatus, rhs: ShipmentStatus) -> Bool {
         switch (lhs, rhs) {
             case (.shipped, .shipped),
+                 (.shipping, .shipping),
                  (.delivered, .delivered),
                  (.pickup, .pickup),
                  (.returned, .returned):

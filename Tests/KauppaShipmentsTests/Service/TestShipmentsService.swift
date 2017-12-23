@@ -3,11 +3,13 @@ import XCTest
 
 import KauppaCore
 import KauppaOrdersModel
+@testable import KauppaAccountsModel
 @testable import KauppaShipmentsModel
 @testable import KauppaShipmentsRepository
 @testable import KauppaShipmentsService
 
 class TestShipmentsService: XCTestCase {
+    let address = Address(line1: "", line2: "", city: "", country: "", code: "", kind: nil)
     var ordersService = TestOrdersService()
 
     static var allTests: [(String, (TestShipmentsService) -> () throws -> Void)] {
@@ -31,6 +33,7 @@ class TestShipmentsService: XCTestCase {
         let service = ShipmentsService(withRepository: repository, ordersService: ordersService)
         let id = UUID()
         ordersService.order.id = id
+        ordersService.order.shippingAddress = address
         ordersService.order.products = [OrderUnit(product: UUID(), quantity: 10)]
         let data = try! service.createShipment(forOrder: id)
         XCTAssertEqual(data.createdOn, data.updatedAt)      // created and updated timestamps are equal

@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaAccountsModel
 import KauppaOrdersClient
 import KauppaShipmentsClient
 import KauppaShipmentsModel
@@ -24,6 +25,7 @@ public class ShipmentsService {
 extension ShipmentsService: ShipmentsServiceCallable {
     public func createShipment(forOrder id: UUID) throws -> Shipment {
         let order = try ordersService.getOrder(forId: id)
-        return try repository.createShipment(forOrder: id, items: order.products)
+        let address = order.shippingAddress!    // safe to unwrap here
+        return try repository.createShipment(forOrder: id, address: address, items: order.products)
     }
 }
