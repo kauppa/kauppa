@@ -9,6 +9,7 @@ import KauppaOrdersRepository
 import KauppaProductsClient
 import KauppaProductsModel
 import KauppaShipmentsClient
+import KauppaShipmentsModel
 
 /// Service that manages orders placed by customers.
 public class OrdersService: OrdersServiceCallable {
@@ -233,6 +234,12 @@ public class OrdersService: OrdersServiceCallable {
                                                  items: items, amount: totalPrice)
         order.refunds.append(refund.id)
         return try repository.updateOrder(withData: order)
+    }
+
+    public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
+        let _ = try repository.getOrder(id: id)
+        // TODO: Detect changes from shipment data (refund, return, etc.)
+        return ()
     }
 
     public func deleteOrder(id: UUID) throws -> () {

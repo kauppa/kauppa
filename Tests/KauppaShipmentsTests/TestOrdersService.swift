@@ -3,10 +3,11 @@ import XCTest
 
 import KauppaOrdersClient
 import KauppaOrdersModel
+import KauppaShipmentsModel
 
 public class TestOrdersService: OrdersServiceCallable {
     var order = Order(placedBy: UUID())
-    var callback: ((OrderData) -> Void)? = nil
+    var callback: ((Any) -> Void)? = nil
     var error: OrdersError? = nil
 
     // NOTE: Not meant to be called by shipments
@@ -21,6 +22,18 @@ public class TestOrdersService: OrdersServiceCallable {
         }
 
         return order
+    }
+
+    public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
+        if let callback = callback {
+            callback(data as Any)
+        }
+
+        if let err = error {
+            throw err
+        }
+
+        return ()
     }
 
     // NOTE: Not meant to be called by shipments

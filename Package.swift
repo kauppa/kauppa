@@ -197,7 +197,7 @@ let clientTargets: [Target] = [
     ),
     .target(
         name: "KauppaOrdersClient",
-        dependencies: ["KauppaOrdersModel"],
+        dependencies: ["KauppaOrdersModel", "KauppaShipmentsModel"],
         path: "Sources/KauppaOrders/Client"
     ),
     .target(
@@ -305,6 +305,7 @@ let testTargets: [Target] = [
             "KauppaOrdersModel",
             "KauppaProductsClient",
             "KauppaProductsModel",
+            "KauppaShipmentsModel",
             "KauppaCartModel",
             "KauppaCartRepository",
             "KauppaCartService"

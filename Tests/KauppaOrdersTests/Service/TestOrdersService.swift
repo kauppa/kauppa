@@ -11,7 +11,7 @@ import KauppaProductsModel
 class TestOrdersService: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
-    let shippingService = TestShipmentsService()
+    var shippingService = TestShipmentsService()
 
     static var allTests: [(String, (TestOrdersService) -> () throws -> Void)] {
         return [
@@ -32,6 +32,7 @@ class TestOrdersService: XCTestCase {
     override func setUp() {
         productsService.products = [:]
         accountsService.accounts = [:]
+        shippingService = TestShipmentsService()
         super.setUp()
     }
 
@@ -72,10 +73,15 @@ class TestOrdersService: XCTestCase {
             inventoryUpdated.fulfill()
         }
 
+        let shipmentInitiated = expectation(description: "shipment has been notified")
+        shippingService.callback = { (id: Any) in
+            let _ = id as! UUID
+            shipmentInitiated.fulfill()
+        }
+
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
-        XCTAssertNotNil(order.id)
         // Make sure that the quantity is tracked while summing up values
         XCTAssertEqual(order.totalItems, 3)
         XCTAssertEqual(order.totalWeight.value, 15.0)
