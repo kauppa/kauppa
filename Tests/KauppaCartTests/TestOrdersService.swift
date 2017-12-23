@@ -5,7 +5,7 @@ import KauppaOrdersClient
 import KauppaOrdersModel
 
 public class TestOrdersService: OrdersServiceCallable {
-    var order = Order()
+    var order = Order(placedBy: UUID())
     var callback: ((OrderData) -> Void)? = nil
     var error: OrdersError? = nil
 

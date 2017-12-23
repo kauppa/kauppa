@@ -8,12 +8,14 @@ import KauppaOrdersModel
 import KauppaOrdersRepository
 import KauppaProductsClient
 import KauppaProductsModel
+import KauppaShipmentsClient
 
 /// Service that manages orders placed by customers.
 public class OrdersService: OrdersServiceCallable {
     let repository: OrdersRepository
     let accountsService: AccountsServiceCallable
     let productsService: ProductsServiceCallable
+    let shippingService: ShipmentsServiceCallable
 
     var mailService: MailClient? = nil
 
@@ -21,20 +23,23 @@ public class OrdersService: OrdersServiceCallable {
     /// instances of clients to account and product services.
     public init(withRepository repository: OrdersRepository,
                 accountsService: AccountsServiceCallable,
-                productsService: ProductsServiceCallable)
+                productsService: ProductsServiceCallable,
+                shippingService: ShipmentsServiceCallable)
     {
         self.repository = repository
         self.accountsService = accountsService
         self.productsService = productsService
+        self.shippingService = shippingService
     }
 
     public func createOrder(data: OrderData) throws -> Order {
         let weightCounter = WeightCounter()
-        var order = Order()
-        var inventoryUpdates = [UUID: UInt32]()
-        var detailedOrder: DetailedOrder = GenericOrder()   // order data for mail service
-
         let account = try accountsService.getAccount(id: data.placedBy)
+        var order = Order(placedBy: account.id)
+        var inventoryUpdates = [UUID: UInt32]()
+        // order data for mail service
+        var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
+
         order.placedBy = data.placedBy
         order.shippingAddress = data.shippingAddress
         order.billingAddress = data.billingAddress
@@ -93,6 +98,9 @@ public class OrdersService: OrdersServiceCallable {
 
         order.totalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
         order.totalWeight = weightCounter.sum()
+        let shipment = try shippingService.createShipment(forOrder: order.id)
+        order.shipments[shipment.id] = shipment.status
+
         let orderData = try repository.createOrder(withData: order)
         orderData.copyValues(into: &detailedOrder)
         let mailOrder = MailOrder(from: detailedOrder)
@@ -221,7 +229,7 @@ public class OrdersService: OrdersServiceCallable {
             items.append(unit)
         }
 
-        let refund = try repository.createRefund(forOrder: order.id!, reason: data.reason,
+        let refund = try repository.createRefund(forOrder: order.id, reason: data.reason,
                                                  items: items, amount: totalPrice)
         order.refunds.append(refund.id)
         return try repository.updateOrder(withData: order)

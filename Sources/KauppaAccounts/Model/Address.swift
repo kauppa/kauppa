@@ -20,6 +20,26 @@ public struct Address: Mappable, Hashable {
     /// Label for this address.
     public let kind: AddressKind?
 
+    public init() {
+        line1 = ""
+        line2 = ""
+        city = ""
+        country = ""
+        code = ""
+        kind = nil
+    }
+
+    public init(line1: String, line2: String, city: String, country: String,
+                code: String, kind: AddressKind? = nil)
+    {
+        self.line1 = line1
+        self.line2 = line2
+        self.city = city
+        self.country = country
+        self.code = code
+        self.kind = kind
+    }
+
     /// Try some basic validations on the address.
     public func validate() throws {
         if line1.isEmpty {

@@ -7,20 +7,15 @@ import KauppaAccountsModel
 public typealias Order = GenericOrder<UUID, OrderUnit>
 
 /// Generic order structure for holding product data.
-///
-/// NOTE: Even though a lot of the fields in this object are nullable,
-/// it's guaranteed that an order *will* have the ID, placedBy, createdOn, updatedAt,
-/// non-empty `products`, non-zero totalItems and totalPrice, and the billing
-/// and shipping addresses.
 public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     /// Unique identifier for this order.
-    public var id: UUID? = nil
+    public var id: UUID
     /// User ID associated with this order.
-    public var placedBy: U? = nil
+    public var placedBy: U
     /// Creation timestamp
-    public var createdOn: Date? = nil
+    public var createdOn: Date
     /// Last updated timestamp
-    public var updatedAt: Date? = nil
+    public var updatedAt: Date
     /// List of product IDs and the associated quantity
     public var products = [P]()
     /// Total number of items processed (includes the quantity)
@@ -40,11 +35,19 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     /// Shipments initiated for this order.
     public var shipments = [UUID: ShipmentStatus]()
     /// Billing address for this order.
-    public var billingAddress: Address? = nil
+    public var billingAddress: Address
     /// Shipping Address for this order.
-    public var shippingAddress: Address? = nil
+    public var shippingAddress: Address
 
-    public init() {}
+    public init(placedBy account: U) {
+        id = UUID()
+        let date = Date()
+        createdOn = date
+        updatedAt = date
+        placedBy = account
+        billingAddress = Address()
+        shippingAddress = Address()
+    }
 
     /// Copy the type-independent values from this type to a mail-specific order.
     public func copyValues<U, P>(into data: inout GenericOrder<U, P>) {

@@ -145,7 +145,8 @@ let serviceTargets: [Target] = [
             "KauppaOrdersRepository",
             "KauppaOrdersModel",
             "KauppaAccountsClient",
-            "KauppaProductsClient"
+            "KauppaProductsClient",
+            "KauppaShipmentsClient",
         ],
         path: "Sources/KauppaOrders/Service"
     ),
