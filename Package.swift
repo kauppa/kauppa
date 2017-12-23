@@ -114,6 +114,7 @@ let serviceTargets: [Target] = [
             "KauppaCartClient",
             "KauppaCartRepository",
             "KauppaCartModel",
+            "KauppaAccountsModel",
             "KauppaAccountsClient",
             "KauppaOrdersClient",
             "KauppaProductsClient",

@@ -2,8 +2,8 @@ import Foundation
 import XCTest
 
 import KauppaCore
-import KauppaAccountsModel
 import KauppaProductsModel
+@testable import KauppaAccountsModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
 @testable import KauppaOrdersService
@@ -11,6 +11,7 @@ import KauppaProductsModel
 class TestRefunds: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
+    let address = Address(line1: "", line2: "", city: "", country: "", code: "", kind: nil)
 
     static var allTests: [(String, (TestRefunds) -> () throws -> Void)] {
         return [
@@ -49,7 +50,7 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService)
-        let orderData = OrderData(placedBy: account.id,
+        let orderData = OrderData(shippingAddress: address, billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
         var initial = try! ordersService.createOrder(data: orderData)
@@ -103,7 +104,7 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService)
-        let orderData = OrderData(placedBy: account.id,
+        let orderData = OrderData(shippingAddress: address, billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2),
                                              OrderUnit(product: product3.id, quantity: 1)])
@@ -189,7 +190,7 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService)
-        let orderData = OrderData(placedBy: account.id,
+        let orderData = OrderData(shippingAddress: address, billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
         let _ = try! ordersService.cancelOrder(id: order.id!)
@@ -214,7 +215,7 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService)
-        let orderData = OrderData(placedBy: account.id,
+        let orderData = OrderData(shippingAddress: address, billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         var order = try! ordersService.createOrder(data: orderData)
         let refundData = RefundData(reason: "Booya!")
@@ -251,7 +252,7 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService)
-        let orderData = OrderData(placedBy: account.id,
+        let orderData = OrderData(shippingAddress: address, billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
         var initial = try! ordersService.createOrder(data: orderData)

@@ -2,9 +2,9 @@ import Foundation
 import XCTest
 
 import KauppaCore
-import KauppaAccountsModel
 import KauppaOrdersModel
 import KauppaProductsModel
+@testable import KauppaAccountsModel
 @testable import KauppaCartModel
 @testable import KauppaCartRepository
 @testable import KauppaCartService
@@ -171,7 +171,9 @@ class TestCartService: XCTestCase {
         let product = try! productsService.createProduct(data: productData)
         let anotherProduct = try! productsService.createProduct(data: productData)
 
-        let accountData = AccountData()
+        var accountData = AccountData()
+        let address = Address(line1: "foo", line2: "bar", city: "baz", country: "bleh", code: "666", kind: nil)
+        accountData.address.insert(address)
         let account = try! accountsService.createAccount(withData: accountData)
 
         let service = CartService(withRepository: repository,
@@ -194,8 +196,7 @@ class TestCartService: XCTestCase {
             orderPlaced.fulfill()
         }
 
-        let _ = try! service.placeOrder(forAccount: account.id)
-
+        let _ = try! service.placeOrder(forAccount: account.id, data: CheckoutData())
         let cart = try! service.getCart(forAccount: account.id)
         XCTAssertTrue(cart.items.isEmpty)   // check that items have been flushed
 
@@ -214,7 +215,7 @@ class TestCartService: XCTestCase {
                                   accountsService: accountsService,
                                   ordersService: ordersService)
         do {    // empty cart should fail
-            let _ = try service.placeOrder(forAccount: account.id)
+            let _ = try service.placeOrder(forAccount: account.id, data: CheckoutData())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CartError, CartError.noItemsToProcess)
@@ -230,8 +231,10 @@ class TestCartService: XCTestCase {
 
         ordersService.error = OrdersError.productUnavailable
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        var accountData = AccountData()
+        let address = Address(line1: "foo", line2: "bar", city: "baz", country: "bleh", code: "666", kind: nil)
+        accountData.address.insert(address)
+        var account = try! accountsService.createAccount(withData: accountData)
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
@@ -240,7 +243,7 @@ class TestCartService: XCTestCase {
         let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
 
         do {    // errors from orders service should be propagated
-            let _ = try service.placeOrder(forAccount: account.id)
+            let _ = try service.placeOrder(forAccount: account.id, data: CheckoutData())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, OrdersError.productUnavailable)
@@ -248,5 +251,17 @@ class TestCartService: XCTestCase {
 
         let cart = try! service.getCart(forAccount: account.id)
         XCTAssertFalse(cart.items.isEmpty)      // cart items should stay in case of failure
+
+        ordersService.error = nil
+        accountData = AccountData()
+        account = try! accountsService.createAccount(withData: accountData)
+        let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
+
+        do {    // checking out requires a valid shipping address (user doesn't have any)
+            let _ = try service.placeOrder(forAccount: account.id, data: CheckoutData())
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! CartError, CartError.invalidAddress)
+        }
     }
 }

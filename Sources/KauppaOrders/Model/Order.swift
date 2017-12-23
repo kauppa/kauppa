@@ -1,11 +1,17 @@
 import Foundation
 
 import KauppaCore
+import KauppaAccountsModel
 
 /// Order that only has the product IDs and quantity
 public typealias Order = GenericOrder<UUID, OrderUnit>
 
 /// Generic order structure for holding product data.
+///
+/// NOTE: Even though a lot of the fields in this object are nullable,
+/// it's guaranteed that an order *will* have the ID, placedBy, createdOn, updatedAt,
+/// non-empty `products`, non-zero totalItems and totalPrice, and the billing
+/// and shipping addresses.
 public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     /// Unique identifier for this order.
     public var id: UUID? = nil
@@ -18,11 +24,11 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     /// List of product IDs and the associated quantity
     public var products = [P]()
     /// Total number of items processed (includes the quantity)
-    public var totalItems: UInt16
+    public var totalItems: UInt16 = 0
     /// Total price of all items (includes the quantity) without tax/shipping.
-    public var totalPrice: UnitMeasurement<Currency>
+    public var totalPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
     /// Total weight of this purchase (includes the quantity)
-    public var totalWeight: UnitMeasurement<Weight>
+    public var totalWeight = UnitMeasurement(value: 0.0, unit: Weight.gram)
     /// Status of this order.
     public var fulfillment: FulfillmentStatus? = nil
     /// Payment status for this order.
@@ -33,12 +39,12 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     public var refunds = [UUID]()
     /// Shipments initiated for this order.
     public var shipments = [UUID: ShipmentStatus]()
+    /// Billing address for this order.
+    public var billingAddress: Address? = nil
+    /// Shipping Address for this order.
+    public var shippingAddress: Address? = nil
 
-    public init() {
-        self.totalItems = 0
-        self.totalPrice = UnitMeasurement(value: 0.0, unit: .usd)
-        self.totalWeight = UnitMeasurement(value: 0.0, unit: .gram)
-    }
+    public init() {}
 
     /// Copy the type-independent values from this type to a mail-specific order.
     public func copyValues<U, P>(into data: inout GenericOrder<U, P>) {
@@ -52,5 +58,8 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
         data.paymentStatus = paymentStatus
         data.cancelledAt = cancelledAt
         data.refunds = refunds
+        data.shipments = shipments
+        data.billingAddress = billingAddress
+        data.shippingAddress = shippingAddress
     }
 }

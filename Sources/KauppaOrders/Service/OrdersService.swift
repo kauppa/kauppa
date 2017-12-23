@@ -36,6 +36,8 @@ public class OrdersService: OrdersServiceCallable {
 
         let account = try accountsService.getAccount(id: data.placedBy)
         order.placedBy = data.placedBy
+        order.shippingAddress = data.shippingAddress
+        order.billingAddress = data.billingAddress
         detailedOrder.placedBy = account
 
         var productPrice = 0.0

@@ -18,7 +18,7 @@ public struct Address: Mappable, Hashable {
     /// See the complications here - https://stackoverflow.com/a/7185241/
     public let code: String
     /// Label for this address.
-    public let kind: AddressKind
+    public let kind: AddressKind?
 
     /// Try some basic validations on the address.
     public func validate() throws {
@@ -36,6 +36,10 @@ public struct Address: Mappable, Hashable {
 
         if code.isEmpty {
             throw AccountsError.invalidAddress(.invalidCode)
+        }
+
+        guard let kind = kind else {
+            return
         }
 
         switch kind {

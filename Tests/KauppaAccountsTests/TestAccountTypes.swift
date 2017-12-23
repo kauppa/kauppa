@@ -33,10 +33,10 @@ class TestAccountTypes: XCTestCase {
 
     func testAddress() {
         let tests = [
-            (Address(line1: "", line2: "", city: "baz", country: "bleh", code: "666", kind: .home), "line data"),
-            (Address(line1: "foo", line2: "", city: "", country: "bleh", code: "666", kind: .home), "city"),
-            (Address(line1: "foo", line2: "", city: "baz", country: "", code: "666", kind: .home), "country"),
-            (Address(line1: "foo", line2: "", city: "baz", country: "bleh", code: "", kind: .home), "code"),
+            (Address(line1: "", line2: "", city: "baz", country: "bleh", code: "666", kind: nil), "line data"),
+            (Address(line1: "foo", line2: "", city: "", country: "bleh", code: "666", kind: nil), "city"),
+            (Address(line1: "foo", line2: "", city: "baz", country: "", code: "666", kind: nil), "country"),
+            (Address(line1: "foo", line2: "", city: "baz", country: "bleh", code: "", kind: nil), "code"),
             (Address(line1: "foo", line2: "", city: "baz", country: "bleh", code: "666", kind: .custom("")), "tag")
         ]
 
