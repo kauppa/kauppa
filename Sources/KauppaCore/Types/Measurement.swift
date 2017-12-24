@@ -10,7 +10,7 @@ public struct UnitMeasurement<T: Codable>: Codable {
 }
 
 /// Size values (length, width and height - all optional)
-public struct Size: Codable {
+public struct Dimensions: Codable {
     public var height: UnitMeasurement<Length>? = nil
     public var length: UnitMeasurement<Length>? = nil
     public var width: UnitMeasurement<Length>? = nil

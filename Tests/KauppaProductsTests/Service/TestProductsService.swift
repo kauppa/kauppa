@@ -111,9 +111,9 @@ class TestProductsService: XCTestCase {
             ("title", "\"Foobar\""),
             ("subtitle", "\"Baz\""),
             ("description", "\"Foo Bar Baz\""),
-            ("size", "{\"length\": {\"value\": 10.0, \"unit\": \"cm\"}}"),
-            ("size", "{\"height\": {\"value\": 1.0, \"unit\": \"m\"}}"),
-            ("size", "{\"width\": {\"value\": 0.5, \"unit\": \"mm\"}}"),
+            ("dimensions", "{\"length\": {\"value\": 10.0, \"unit\": \"cm\"}}"),
+            ("dimensions", "{\"height\": {\"value\": 1.0, \"unit\": \"m\"}}"),
+            ("dimensions", "{\"width\": {\"value\": 0.5, \"unit\": \"mm\"}}"),
             ("weight", "{\"value\": 500.0, \"unit\": \"g\"}"),
             ("color", "\"blue\""),
             ("inventory", 20),
@@ -154,12 +154,12 @@ class TestProductsService: XCTestCase {
         XCTAssertEqual(updatedProduct.data.title, "Foobar")
         XCTAssertEqual(updatedProduct.data.subtitle, "Baz")
         XCTAssertEqual(updatedProduct.data.description, "Foo Bar Baz")
-        XCTAssert(updatedProduct.data.size!.length!.value == 10.0)
-        XCTAssert(updatedProduct.data.size!.length!.unit == .centimeter)
-        XCTAssert(updatedProduct.data.size!.width!.value == 0.5)
-        XCTAssert(updatedProduct.data.size!.width!.unit == .millimeter)
-        XCTAssert(updatedProduct.data.size!.height!.value == 1.0)
-        XCTAssert(updatedProduct.data.size!.height!.unit == .meter)
+        XCTAssert(updatedProduct.data.dimensions!.length!.value == 10.0)
+        XCTAssert(updatedProduct.data.dimensions!.length!.unit == .centimeter)
+        XCTAssert(updatedProduct.data.dimensions!.width!.value == 0.5)
+        XCTAssert(updatedProduct.data.dimensions!.width!.unit == .millimeter)
+        XCTAssert(updatedProduct.data.dimensions!.height!.value == 1.0)
+        XCTAssert(updatedProduct.data.dimensions!.height!.unit == .meter)
         XCTAssert(updatedProduct.data.weight!.value == 500.0)
         XCTAssert(updatedProduct.data.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.data.color, "blue")
@@ -236,9 +236,9 @@ class TestProductsService: XCTestCase {
         product.images.inner = ["data:image/png;base64,bar", "data:image/png;base64,baz"]
         product.color = "#000"
         product.weight = UnitMeasurement(value: 50.0, unit: .gram)
-        var size = Size()
-        size.length = UnitMeasurement(value: 10.0, unit: .centimeter)
-        product.size = size
+        var dimensions = Dimensions()
+        dimensions.length = UnitMeasurement(value: 10.0, unit: .centimeter)
+        product.dimensions = dimensions
         product.category = "food"
         // variant is checked in `TestProductVariants`
         let data = try! service.createProduct(with: product, from: Address())
@@ -246,13 +246,13 @@ class TestProductsService: XCTestCase {
         var patch = ProductPropertyDeletionPatch()
         patch.removeCategory = true
         patch.removeColor = true
-        patch.removeSize = true
+        patch.removeDimensions = true
         patch.removeWeight = true
         patch.removeImageAt = 0     // remove image at zero'th index
         let updatedProduct = try! service.deleteProductProperty(for: data.id, with: patch,
                                                                 from: Address())
         XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,baz"])
-        XCTAssertNil(updatedProduct.data.size)
+        XCTAssertNil(updatedProduct.data.dimensions)
         XCTAssertNil(updatedProduct.data.category)
         XCTAssertNil(updatedProduct.data.color)
         XCTAssertNil(updatedProduct.data.weight)

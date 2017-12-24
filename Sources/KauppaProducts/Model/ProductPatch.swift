@@ -10,7 +10,7 @@ public struct ProductPatch: Mappable {
     public var subtitle: String? = nil
     public var description: String? = nil
     public var category: String? = nil
-    public var size: Size? = nil
+    public var dimensions: Dimensions? = nil
     public var color: String? = nil
     public var weight: UnitMeasurement<Weight>? = nil
     public var inventory: UInt32? = nil
@@ -35,7 +35,7 @@ public struct ProductPropertyAdditionPatch: Mappable {
 public struct ProductPropertyDeletionPatch: Mappable {
     public var removeCategory: Bool? = nil
     public var removeColor: Bool? = nil
-    public var removeSize: Bool? = nil
+    public var removeDimensions: Bool? = nil
     public var removeWeight: Bool? = nil
     public var removeImageAt: Int? = nil
     public var removeVariant: Bool? = nil

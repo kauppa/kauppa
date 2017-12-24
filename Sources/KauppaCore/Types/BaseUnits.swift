@@ -42,3 +42,26 @@ public enum Currency: String, Codable {
     case yen   = "JPY"
     case ruble = "RUB"
 }
+
+/// Temperature units
+public enum Temperature: String, Codable {
+    case kelvin     = "K"
+    case celsius    = "C"
+    case fahrenheit = "F"
+}
+
+// Area units
+public enum Area: String, Codable {
+    case squareCentimeter = "sq. cm"
+    case squareInch       = "sq. in"
+    case squareFoot       = "sq. ft"
+    case squareMeter      = "sq. m"
+}
+
+// Volume units
+public enum Volume: String, Codable {
+    case cubicInch  = "cu. in"
+    case cubicFoot  = "cu. ft"
+    case cubicMeter = "cu. m"
+    case liter      = "l"
+}

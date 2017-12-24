@@ -16,7 +16,7 @@ public struct ProductData: Mappable {
     /// Tags for this product
     public var tags = ArraySet<String>()
     /// Size of this product (length, width and height - all are optional)
-    public var size: Size? = nil
+    public var dimensions: Dimensions? = nil
     /// Color in hex code
     public var color: String? = nil
     /// Weight of this product in some chosen measurement.

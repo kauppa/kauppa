@@ -83,18 +83,18 @@ extension ProductsService: ProductsServiceCallable {
             productData.description = description
         }
 
-        if let size = data.size {
-            if productData.size == nil {
-                productData.size = size
+        if let dimensions = data.dimensions {
+            if productData.dimensions == nil {
+                productData.dimensions = dimensions
             } else {
-                if let length = size.length {
-                    productData.size!.length = length
+                if let length = dimensions.length {
+                    productData.dimensions!.length = length
                 }
-                if let width = size.width {
-                    productData.size!.width = width
+                if let width = dimensions.width {
+                    productData.dimensions!.width = width
                 }
-                if let height = size.height {
-                    productData.size!.height = height
+                if let height = dimensions.height {
+                    productData.dimensions!.height = height
                 }
             }
         }
@@ -178,8 +178,8 @@ extension ProductsService: ProductsServiceCallable {
             productData.color = nil
         }
 
-        if (data.removeSize ?? false) {
-            productData.size =  nil
+        if (data.removeDimensions ?? false) {
+            productData.dimensions =  nil
         }
 
         if (data.removeWeight ?? false) {
