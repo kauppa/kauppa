@@ -15,6 +15,9 @@ public protocol ProductsPersisting: Persisting {
     /// from the data.
     func updateProduct(with data: Product) throws -> ()
 
+    /// Create an attribute using the given data.
+    func createAttribute(with data: Attribute) throws -> ()
+
     /// Create a new collection with information from the repository.
     func createNewCollection(with data: ProductCollection) throws -> ()
 

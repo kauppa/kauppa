@@ -8,6 +8,9 @@ public protocol ProductsQuerying: Querying {
     /// Get the product data corresponding to an ID.
     func getProduct(for id: UUID) throws -> Product
 
+    /// Get the attribute data for the given ID.
+    func getAttribute(for id: UUID) throws -> Attribute
+
     /// Get the collection data corresponding to an ID.
     func getCollection(for id: UUID) throws -> ProductCollection
 }

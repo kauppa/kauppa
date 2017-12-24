@@ -18,6 +18,11 @@ class ProductsFactory {
         self.address = address
     }
 
+    /// Validate the product's custom attributes (create/update the data correspondingly).
+    private func validateCustomAttributes() throws {
+        //
+    }
+
     /// Method to create product using the initialized data.
     func createProduct(using taxService: TaxServiceCallable) throws -> Product {
         try data.validate()

@@ -5,11 +5,24 @@ import KauppaCore
 /// An attribute defined by the user.
 public struct Attribute: Mappable {
     /// Unique ID of this attribute.
-    public var id: UUID
-    /// Name of this attribute (case insensitive)
+    public let id: UUID
+    /// Lower-case name of this attribute.
     public var name: String
     /// Type of this attribute.
-    public var type: BaseType
+    public let type: BaseType
+    /// Creation timestamp
+    public let createdOn: Date
+    /// Last updated timestamp
+    public let updatedAt: Date
+
+    public init(with name: String, and type: BaseType) {
+        let date = Date()
+        id = UUID()
+        self.name = name
+        self.type = type
+        createdOn = date
+        updatedAt = date
+    }
 }
 
 /// Attribute object used in product data.
@@ -23,5 +36,5 @@ public struct AttributeValue<Value: Mappable, Unit: Mappable>: Mappable {
     /// Value for this attribute (mandatory).
     public var value: Value
     /// Unit used by this attribute's value (optional).
-    public var unit: Unit
+    public var unit: Unit? = nil
 }

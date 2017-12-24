@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 import KauppaProductsModel
 import KauppaProductsStore
 
@@ -8,6 +9,7 @@ public class ProductsRepository {
     // least recently used items every now and then.
     var products = [UUID: Product]()
     var collections = [UUID: ProductCollection]()
+    var attributes = [UUID: Attribute]()
 
     // Categories can't go beyond say, 100 - so, we're safe here
     var categories = Set<String>()
@@ -62,6 +64,25 @@ public class ProductsRepository {
 
         updateCategoriesAndTags(using: product)
         return product
+    }
+
+    /// Create an attribute with the given name and type.
+    public func createAttribute(with name: String, and type: BaseType) throws -> Attribute {
+        let attribute = Attribute(with: name.lowercased(), and: type)
+        attributes[attribute.id] = attribute
+        try store.createAttribute(with: attribute)
+        return attribute
+    }
+
+    /// Get the attribute for the given ID.
+    public func getAttribute(for id: UUID) throws -> Attribute {
+        guard let attribute = attributes[id] else {
+            let attribute = try store.getAttribute(for: id)
+            attributes[id] = attribute
+            return attribute
+        }
+
+        return attribute
     }
 
     /// Create a product collection with data from the service.

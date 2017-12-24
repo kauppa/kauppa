@@ -9,33 +9,43 @@ public enum BaseType: String, Codable {
     case temperature
     case volume
 
-    /// Get the corresponding Swift type for this type's value.
-    public func swiftBaseType() -> Any.Type {
+    /// Check whether this type needs an unit.
+    public var hasUnit: Bool {
         switch self {
-            case .string:
-                return String.self
-            case .number:
-                return UInt32.self
+            case .area, .currency, .length, .mass, .temperature, .volume:
+                return true
             default:
-                return Float32.self
+                return false
         }
     }
 
-    /// Get the corresponding unit type for this type's unit (if it's required).
-    public func swiftUnitType() -> Any.Type? {
+    /// Parse the given value into Swift representable value.
+    public func parse(value: String) -> Any? {
+        switch self {
+            case .string:
+                return value
+            case .number:
+                return UInt32(value)
+            default:
+                return Float32(value)
+        }
+    }
+
+    /// Parse the given unit into Swift representable value.
+    public func parse(unit: String) -> Any? {
         switch self {
             case .area:
-                return Area.self
+                return Area(rawValue: unit)
             case .currency:
-                return Currency.self
+                return Currency(rawValue: unit)
             case .length:
-                return Length.self
+                return Length(rawValue: unit)
             case .mass:
-                return Weight.self
+                return Weight(rawValue: unit)
             case .temperature:
-                return Temperature.self
+                return Temperature(rawValue: unit)
             case .volume:
-                return Volume.self
+                return Volume(rawValue: unit)
             default:
                 return nil
         }
