@@ -16,7 +16,7 @@ public class TestStore: OrdersStorable {
 
     public func createNewOrder(orderData: Order) throws -> () {
         createCalled = true
-        orders[orderData.id!] = orderData
+        orders[orderData.id] = orderData
         return ()
     }
 
@@ -31,7 +31,7 @@ public class TestStore: OrdersStorable {
 
     public func updateOrder(data: Order) throws -> () {
         updateCalled = true
-        orders[data.id!] = data
+        orders[data.id] = data
         return ()
     }
 

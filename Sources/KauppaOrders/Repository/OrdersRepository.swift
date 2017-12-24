@@ -18,14 +18,7 @@ public class OrdersRepository {
 
     /// Create an order with service-supplied order data.
     public func createOrder(withData data: Order) throws -> Order {
-        let id = UUID()
-        let date = Date()
-        var data = data
-        data.id = id
-        data.createdOn = date
-        data.updatedAt = date
-
-        orders[id] = data
+        orders[data.id] = data
         try store.createNewOrder(orderData: data)
         return data
     }
@@ -53,7 +46,7 @@ public class OrdersRepository {
             order.updatedAt = Date()
         }
 
-        orders[order.id!] = order
+        orders[order.id] = order
         try store.updateOrder(data: order)
         return order
     }

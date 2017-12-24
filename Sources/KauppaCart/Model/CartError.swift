@@ -6,6 +6,7 @@ public enum CartError: Error {
     case noItemsToProcess
     case productUnavailable
     case ambiguousCurrencies
+    case invalidAddress
 }
 
 extension CartError: LocalizedError {
@@ -19,6 +20,8 @@ extension CartError: LocalizedError {
                 return "Product unavailable in inventory"
             case .ambiguousCurrencies:
                 return "Cannot add product with a different currency"
+            case .invalidAddress:
+                return "Invalid shipping/billing address"
         }
     }
 }
@@ -29,7 +32,8 @@ extension CartError {
         switch (lhs, rhs) {
             case (.productUnavailable, .productUnavailable),
                  (.noItemsToProcess, .noItemsToProcess),
-                 (.ambiguousCurrencies, .ambiguousCurrencies):
+                 (.ambiguousCurrencies, .ambiguousCurrencies),
+                 (.invalidAddress, .invalidAddress):
                 return true
             default:
                 return false

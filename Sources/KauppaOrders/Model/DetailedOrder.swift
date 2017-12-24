@@ -28,7 +28,7 @@ extension MailOrder: MailFormattable {
     // FIXME: This is just a stub - needs beautification
     public func createMailDescription() -> String {
         return """
-Order ID: \(inner.id!)
+Order ID: \(inner.id)
 """
     }
 }
