@@ -43,6 +43,8 @@ public struct ProductData: Mappable {
     /// ID of the (parent) product to which this is a variant. Attaching this will
     /// automatically add this product to the parent's variants.
     public var variantId: UUID? = nil
+    /// List of custom attributes defined/used in the product.
+    public var attributes = [AttributeValue]()
 
     public init(title: String, subtitle: String, description: String) {
         self.title = title
