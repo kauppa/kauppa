@@ -13,7 +13,7 @@ public struct Attribute: Mappable {
 }
 
 /// Attribute object used in product data.
-public struct AttributeValue: Mappable {
+public struct AttributeValue<Value: Mappable, Unit: Mappable>: Mappable {
     /// Unique ID of this attribute (optional because this is set by the service once it's defined).
     public var id: UUID? = nil
     /// Name of this attribute - case insensitive (optional because it's required only during definition).
@@ -21,7 +21,7 @@ public struct AttributeValue: Mappable {
     /// Type of this attribute (optional because it's required only during definition).
     public var type: BaseType? = nil
     /// Value for this attribute (mandatory).
-    public var value: String
+    public var value: Value
     /// Unit used by this attribute's value (optional).
-    public var unit: String
+    public var unit: Unit
 }

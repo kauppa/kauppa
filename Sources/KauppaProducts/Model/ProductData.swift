@@ -44,7 +44,7 @@ public struct ProductData: Mappable {
     /// automatically add this product to the parent's variants.
     public var variantId: UUID? = nil
     /// List of custom attributes defined/used in the product.
-    public var attributes = [AttributeValue]()
+    public var attributes = [AttributeValue<String, String>]()
 
     public init(title: String, subtitle: String, description: String) {
         self.title = title

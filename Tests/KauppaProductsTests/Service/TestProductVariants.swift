@@ -39,9 +39,11 @@ class TestProductVariants: XCTestCase {
         let parentProduct = try! service.createProduct(with: productData, from: Address())
         // imitate another product referencing the previous one
         productData.variantId = parentProduct.id
+        productData.variants = [parentProduct.id]       // try setting the `variants` field
         let childVariant = try! service.createProduct(with: productData, from: Address())
         let parent = try! service.getProduct(for: parentProduct.id, from: Address())
         // should automatically add the variant to parent's list
+        XCTAssertEqual(childVariant.data.variants, [])      // field has been reset
         XCTAssertEqual(parent.data.variants, [childVariant.id])
         XCTAssertNotNil(childVariant.data.variantId)
     }

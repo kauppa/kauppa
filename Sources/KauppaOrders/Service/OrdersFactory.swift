@@ -18,7 +18,7 @@ class OrdersFactory {
     let productsService: ProductsServiceCallable
 
     /// The `Order` struct that should be extracted once the factory has processed.
-    public private(set) var order: Order
+    private(set) var order: Order
 
     // Initial values required for keeping track of order properties during creation.
     private var productPrice = 0.0
@@ -38,6 +38,43 @@ class OrdersFactory {
         self.data = data
         self.account = account
         order = Order(placedBy: account.id)
+    }
+
+    /// Method to create an order using the provided data (entrypoint for factory production).
+    func createOrder(with shippingService: ShipmentsServiceCallable,
+                     using couponService: CouponServiceCallable,
+                     calculatingWith taxService: TaxServiceCallable) throws
+    {
+        taxRate = try taxService.getTaxRate(for: data.shippingAddress)
+        for orderUnit in data.products {
+            try feed(orderUnit)
+        }
+
+        try updateProductInventory()
+
+        order.placedBy = account.id
+        order.shippingAddress = data.shippingAddress
+        order.billingAddress = data.billingAddress
+        order.totalTax = UnitMeasurement(value: totalTax, unit: priceUnit!)
+        order.netPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
+        order.totalWeight = weightCounter.sum()
+        order.grossPrice = try applyCouponsOnPrice(using: couponService)
+
+        try updateCoupons(using: couponService)
+
+        let shipment = try shippingService.createShipment(for: order.id)
+        order.shipments[shipment.id] = shipment.status
+    }
+
+    /// Method to create detailed order for mail service.
+    ///
+    /// NOTE: This should be called only after `createOrder(withShipping:)`
+    func createOrder() -> DetailedOrder {
+        var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
+        detailedOrder.products = units
+        detailedOrder.appliedCoupons = appliedCoupons
+        order.copyValues(into: &detailedOrder)
+        return detailedOrder
     }
 
     /// Step 1: Check that the product currency matches with other items' currencies.
@@ -145,42 +182,5 @@ class OrdersFactory {
             patch.balance = coupon.data.balance
             appliedCoupons[i] = try couponService.updateCoupon(for: coupon.id, with: patch)
         }
-    }
-
-    /// Method to create an order using the data provided to this factory.
-    func createOrder(with shippingService: ShipmentsServiceCallable,
-                     using couponService: CouponServiceCallable,
-                     calculatingWith taxService: TaxServiceCallable) throws
-    {
-        taxRate = try taxService.getTaxRate(for: data.shippingAddress)
-        for orderUnit in data.products {
-            try feed(orderUnit)
-        }
-
-        try updateProductInventory()
-
-        order.placedBy = account.id
-        order.shippingAddress = data.shippingAddress
-        order.billingAddress = data.billingAddress
-        order.totalTax = UnitMeasurement(value: totalTax, unit: priceUnit!)
-        order.netPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
-        order.totalWeight = weightCounter.sum()
-        order.grossPrice = try applyCouponsOnPrice(using: couponService)
-
-        try updateCoupons(using: couponService)
-
-        let shipment = try shippingService.createShipment(for: order.id)
-        order.shipments[shipment.id] = shipment.status
-    }
-
-    /// Method to create detailed order for mail service.
-    ///
-    /// NOTE: This should be called only after `createOrder(withShipping:)`
-    func createOrder() -> DetailedOrder {
-        var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
-        detailedOrder.products = units
-        detailedOrder.appliedCoupons = appliedCoupons
-        order.copyValues(into: &detailedOrder)
-        return detailedOrder
     }
 }

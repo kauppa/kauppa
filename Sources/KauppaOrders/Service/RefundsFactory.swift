@@ -20,6 +20,31 @@ class RefundsFactory {
         productsService = service
     }
 
+    /// Method to initiate refund using the given order data (entrypoint for factory production).
+    func initiateRefund(for order: inout Order,
+                        using repository: OrdersRepository) throws
+    {
+        if data.reason.isEmpty {
+            throw OrdersError.invalidReason
+        }
+
+        try order.validateForRefund()
+
+        if data.fullRefund ?? false {
+            try getAllRefundableItems(for: &order)
+        } else {
+            try getSpecifiedItemsForRefund(for: &order)
+        }
+
+        if refundItems.isEmpty {
+            throw OrdersError.noItemsToProcess
+        }
+
+        try setStatus(for: &order)
+        let refund = try createRefund(for: order.id, using: repository)
+        order.refunds.append(refund.id)
+    }
+
     /// Fills `refundItems` with all refundable items in this order. If there aren't any fulfilled
     /// quantity after processing the refundable items in an unit, then the unit status
     /// will be set to `nil`
@@ -104,29 +129,5 @@ class RefundsFactory {
 
         return try repository.createRefund(for: id, with: data.reason,
                                            items: items, amount: totalPrice)
-    }
-
-    func initiateRefund(for order: inout Order,
-                        using repository: OrdersRepository) throws
-    {
-        if data.reason.isEmpty {
-            throw OrdersError.invalidReason
-        }
-
-        try order.validateForRefund()
-
-        if data.fullRefund ?? false {
-            try getAllRefundableItems(for: &order)
-        } else {
-            try getSpecifiedItemsForRefund(for: &order)
-        }
-
-        if refundItems.isEmpty {
-            throw OrdersError.noItemsToProcess
-        }
-
-        try setStatus(for: &order)
-        let refund = try createRefund(for: order.id, using: repository)
-        order.refunds.append(refund.id)
     }
 }
