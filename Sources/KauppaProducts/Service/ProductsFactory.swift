@@ -20,12 +20,42 @@ class ProductsFactory {
 
     /// Validate the product's custom attributes (create/update the data correspondingly).
     private func validateCustomAttributes() throws {
-        //
+        for customAttribute in data.custom {
+            var customAttribute = customAttribute
+
+            if let id = customAttribute.id {
+                let attribute = try repository.getAttribute(for: id)
+                customAttribute.name = attribute.name
+                customAttribute.type = attribute.type
+            } else {
+                try customAttribute.validate()
+                let attribute = try repository.createAttribute(with: customAttribute.name!,
+                                                               and: customAttribute.type!)
+                customAttribute.id = attribute.id
+                customAttribute.name = attribute.name
+            }
+
+            guard let _ = customAttribute.type!.parse(value: customAttribute.value) else {
+                throw ProductsError.invalidAttributeValue
+            }
+
+            if customAttribute.type!.hasUnit {
+                guard let unit = customAttribute.unit else {
+                    throw ProductsError.attributeRequiresUnit
+                }
+
+                guard let _ = customAttribute.type!.parse(unit: unit) else {
+                    throw ProductsError.invalidAttributeUnit
+                }
+            }
+        }
     }
 
     /// Method to create product using the initialized data.
     func createProduct(using taxService: TaxServiceCallable) throws -> Product {
         try data.validate()
+        try validateCustomAttributes()
+
         var variant: Product? = nil
 
         // Check the variant data (if provided)
@@ -58,6 +88,8 @@ class ProductsFactory {
 
     /// Method to update the product using the initialized data and the provided patch.
     func updateProduct(for id: UUID, using patch: ProductPatch, taxService: TaxServiceCallable) throws {
+        try validateCustomAttributes()
+
         if let title = patch.title {
             data.title = title
         }

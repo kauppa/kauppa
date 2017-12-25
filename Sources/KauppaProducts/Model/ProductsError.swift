@@ -12,6 +12,13 @@ public enum ProductsError: Error {
     case invalidProduct
     /// No product collection found for the given UUID.
     case invalidCollection
+    /// No product found for the given UUID.
+    case invalidAttribute
+    case invalidAttributeName
+    case invalidAttributeValue
+    case attributeRequiresType
+    case attributeRequiresUnit
+    case invalidAttributeUnit
 }
 
 extension ProductsError: LocalizedError {
@@ -33,6 +40,18 @@ extension ProductsError: LocalizedError {
                 return "No product found for the given UUID"
             case .invalidCollection:
                 return "No collection found for the given UUID"
+            case .invalidAttribute:
+                return "No attribute found for the given UUID"
+            case .invalidAttributeName:
+                return "Invalid name for the given attribute"
+            case .invalidAttributeValue:
+                return "Invalid value for the given attribute"
+            case .attributeRequiresType:
+                return "Type is required for the attribute"
+            case .attributeRequiresUnit:
+                return "Unit is required for the attribute"
+            case .invalidAttributeUnit:
+                return "Invalid unit for the given attribute"
         }
     }
 }
@@ -48,7 +67,13 @@ extension ProductsError {
                  (.invalidDescription, .invalidDescription),
                  (.invalidCollectionName, .invalidCollectionName),
                  (.invalidCollectionDescription, .invalidCollectionDescription),
-                 (.invalidColor, .invalidColor):
+                 (.invalidColor, .invalidColor),
+                 (.invalidAttribute, .invalidAttribute),
+                 (.invalidAttributeName, .invalidAttributeName),
+                 (.invalidAttributeValue, .invalidAttributeValue),
+                 (.attributeRequiresUnit, .attributeRequiresUnit),
+                 (.invalidAttributeUnit, .invalidAttributeUnit),
+                 (.attributeRequiresType, .attributeRequiresType):
                 return true
             default:
                 return false

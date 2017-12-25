@@ -25,8 +25,11 @@ public struct Attribute: Mappable {
     }
 }
 
+/// A custom attribute declared/defined while creating/updating a product.
+public typealias CustomAttribute = AttributeValue<String, String>
+
 /// Attribute object used in product data.
-public struct AttributeValue<Value: Mappable, Unit: Mappable>: Mappable {
+public struct AttributeValue<V: Mappable, U: Mappable>: Mappable {
     /// Unique ID of this attribute (optional because this is set by the service once it's defined).
     public var id: UUID? = nil
     /// Name of this attribute - case insensitive (optional because it's required only during definition).
@@ -34,7 +37,20 @@ public struct AttributeValue<Value: Mappable, Unit: Mappable>: Mappable {
     /// Type of this attribute (optional because it's required only during definition).
     public var type: BaseType? = nil
     /// Value for this attribute (mandatory).
-    public var value: Value
+    public var value: V
     /// Unit used by this attribute's value (optional).
-    public var unit: Unit? = nil
+    public var unit: U? = nil
+}
+
+extension AttributeValue where V == String, U == String {
+    /// Validate the user-defined attribute for possible errors.
+    public func validate() throws {
+        guard name != nil else {
+            throw ProductsError.invalidAttributeName
+        }
+
+        guard type != nil else {
+            throw ProductsError.attributeRequiresType
+        }
+    }
 }

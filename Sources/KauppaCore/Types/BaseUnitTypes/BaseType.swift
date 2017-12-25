@@ -6,6 +6,7 @@ public enum BaseType: String, Codable {
     case mass
     case number
     case string
+    case boolean
     case temperature
     case volume
 
@@ -24,6 +25,8 @@ public enum BaseType: String, Codable {
         switch self {
             case .string:
                 return value
+            case .boolean:
+                return Bool(value)
             case .number:
                 return UInt32(value)
             default:
@@ -32,7 +35,7 @@ public enum BaseType: String, Codable {
     }
 
     /// Parse the given unit into Swift representable value.
-    public func parse(unit: String) -> Any? {
+    public func parse(unit: String) -> Unit? {
         switch self {
             case .area:
                 return Area(rawValue: unit)

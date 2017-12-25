@@ -1,5 +1,5 @@
 /// Popular currencies
-public enum Currency: String, Codable {
+public enum Currency: String, Codable, Unit {
     case usd   = "USD"
     case euro  = "EUR"
     case pound = "GBP"
