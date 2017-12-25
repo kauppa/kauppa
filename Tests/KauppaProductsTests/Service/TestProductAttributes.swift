@@ -1,8 +1,8 @@
 import Foundation
 import XCTest
 
-import KauppaCore
 import KauppaAccountsModel
+@testable import KauppaCore
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository
 @testable import KauppaProductsService
@@ -14,6 +14,7 @@ class TestProductAttributes: XCTestCase {
         return [
             ("Test attribute creation through products", testAttributeCreation),
             ("Test updating custom attribute values", testAttributeValueUpdates),
+            ("Test enum variants creation", testEnumVariantsCreation),
         ]
     }
 
@@ -84,6 +85,7 @@ class TestProductAttributes: XCTestCase {
         }
     }
 
+    /// Check that existing attributes can be updated to new values.
     func testAttributeValueUpdates() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
@@ -139,5 +141,51 @@ class TestProductAttributes: XCTestCase {
             XCTAssertEqual(updatedProduct.data.custom[i].value, value)
             XCTAssertEqual(updatedProduct.data.custom[i].unit, unit)
         }
+    }
+
+    /// Test for possible errors in enum creation through products.
+    func testEnumVariantsCreation() {
+        let store = TestStore()
+        let repository = ProductsRepository(with: store)
+        let service = ProductsService(with: repository, taxService: taxService)
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+
+        var attribute = CustomAttribute(with: "bar")
+        attribute.name = "foobar"
+        attribute.type = BaseType(rawValue: "enum")
+        productData.custom.append(attribute)
+
+        let tests: [(String, [String]?, ProductsError)] = [
+            // no variants
+            ("", nil,                       ProductsError.notEnoughVariants),
+            // empty variant
+            ("", ["", "booya"],             ProductsError.invalidEnumVariant),
+            // single variant
+            ("foo", ["foo"],                ProductsError.notEnoughVariants),
+            // single variant after removing duplicates
+            ("foo", ["foo", "fOO", "foO"],  ProductsError.notEnoughVariants),
+            // value not in variants
+            ("foo", ["bar", "baz"],         ProductsError.invalidAttributeValue)
+        ]
+
+        for (value, variants, error) in tests {
+            productData.custom[0].value = value
+            if let variants = variants {
+                productData.custom[0].variants = ArraySet(variants)
+            }
+
+            do {
+                let _ = try service.createProduct(with: productData, from: Address())
+                XCTFail()
+            } catch let err {
+                XCTAssertEqual(err as! ProductsError, error)
+            }
+        }
+
+        productData.custom[0].variants = ArraySet(["foo", "bar", "baz"])
+        productData.custom[0].value = "Foo"
+        let product = try! service.createProduct(with: productData, from: Address())
+        XCTAssertNotNil(product.data.custom[0].id)
+        XCTAssertEqual(product.data.custom[0].value, "foo")
     }
 }

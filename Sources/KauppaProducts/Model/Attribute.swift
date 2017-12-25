@@ -57,39 +57,60 @@ extension AttributeValue where V == String, U == String {
             throw ProductsError.invalidAttributeName
         }
 
+        guard let type = type else {
+            throw ProductsError.attributeRequiresType
+        }
+
         if (name.isEmpty) {
             throw ProductsError.invalidAttributeName
         }
 
         self.name = name.lowercased()
 
-        guard let type = type else {
-            throw ProductsError.attributeRequiresType
-        }
-
         if type == .enum_ {
-            value = value.lowercased()
-            guard let declaredVariants = self.variants else {
-                throw ProductsError.notEnoughVariants
-            }
-
-            var variants = ArraySet<String>()
-            for variant in declaredVariants {
-                if variant.isEmpty {
-                    throw ProductsError.invalidEnumVariant
-                }
-
-                variants.insert(variant.lowercased())
-            }
-
-            if variants.count < 2 {
-                throw ProductsError.notEnoughVariants
-            }
-
-            self.variants = variants
+            try validateEnum()
+        } else if (value.isEmpty) {
+            throw ProductsError.invalidAttributeValue
         }
 
-        if (value.isEmpty) {
+        guard let _ = type.parse(value: value) else {
+            throw ProductsError.invalidAttributeValue
+        }
+
+        if type.hasUnit {
+            guard let unit = unit else {
+                throw ProductsError.attributeRequiresUnit
+            }
+
+            guard let _ = type.parse(unit: unit) else {
+                throw ProductsError.invalidAttributeUnit
+            }
+        }
+    }
+
+    /// Validate enum variants for possible errors.
+    private mutating func validateEnum() throws {
+        guard let declaredVariants = self.variants else {
+            throw ProductsError.notEnoughVariants
+        }
+
+        var newVariants = ArraySet<String>()
+        for variant in declaredVariants {
+            if variant.isEmpty {
+                throw ProductsError.invalidEnumVariant
+            }
+
+            newVariants.insert(variant.lowercased())
+        }
+
+        if newVariants.count < 2 {
+            throw ProductsError.notEnoughVariants
+        }
+
+        self.value = value.lowercased()
+        self.variants = newVariants
+
+        if !newVariants.contains(self.value) {
             throw ProductsError.invalidAttributeValue
         }
     }

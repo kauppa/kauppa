@@ -25,43 +25,30 @@ class ProductsFactory {
 
             if let id = customAttribute.id {
                 let attribute = try repository.getAttribute(for: id)
+                // Set the necessary stuff required for validation.
                 customAttribute.name = attribute.name
                 customAttribute.type = attribute.type
                 if attribute.type == .enum_ {
                     customAttribute.variants = attribute.variants
                 }
+
+                try customAttribute.validate()
             } else {
                 try customAttribute.validate()
                 let attribute = try repository.createAttribute(with: customAttribute.name!,
-                                                               and: customAttribute.type!)
+                                                               and: customAttribute.type!,
+                                                               variants: customAttribute.variants)
                 customAttribute.id = attribute.id
                 customAttribute.name = attribute.name
             }
 
-            guard let _ = customAttribute.type!.parse(value: customAttribute.value) else {
-                throw ProductsError.invalidAttributeValue
-            }
-
-            if customAttribute.type! == .enum_ {
-                if !customAttribute.variants!.contains(customAttribute.value) {
-                    throw ProductsError.invalidAttributeValue
-                }
-            }
-
-            if customAttribute.type!.hasUnit {
-                guard let unit = customAttribute.unit else {
-                    throw ProductsError.attributeRequiresUnit
-                }
-
-                guard let _ = customAttribute.type!.parse(unit: unit) else {
-                    throw ProductsError.invalidAttributeUnit
-                }
-            }
-
-            // Reset the name and type.
+            // Set ID, value, unit and reset name, type and variants.
             data.custom[index].id = customAttribute.id
+            data.custom[index].value = customAttribute.value
+            data.custom[index].unit = customAttribute.unit
             data.custom[index].name = nil
             data.custom[index].type = nil
+            data.custom[index].variants = nil
         }
     }
 
