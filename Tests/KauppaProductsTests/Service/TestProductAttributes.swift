@@ -83,4 +83,61 @@ class TestProductAttributes: XCTestCase {
             }
         }
     }
+
+    func testAttributeValueUpdates() {
+        let store = TestStore()
+        let repository = ProductsRepository(with: store)
+        let service = ProductsService(with: repository, taxService: taxService)
+        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+
+        let initialValues = [
+            ("price", "currency", "3.75", "USD"),
+            ("altitude", "length", "10", "km"),
+            ("reducedWeight", "mass", "20", "kg"),
+            ("someFount", "number", "127", nil),
+            ("name", "string", "foobar", nil),
+        ]
+
+        for (name, type, value, unit) in initialValues {
+            var attribute = CustomAttribute(with: value)
+            attribute.name = name
+            attribute.type = BaseType(rawValue: type)
+            attribute.unit = unit
+            productData.custom.append(attribute)
+        }
+
+        let baseProduct = try! service.createProduct(with: productData, from: Address())
+        for (i, (_, _, value, unit)) in initialValues.enumerated() {
+            XCTAssertNil(baseProduct.data.custom[i].name)
+            XCTAssertNil(baseProduct.data.custom[i].type)
+            XCTAssertEqual(baseProduct.data.custom[i].value, value)
+            XCTAssertEqual(baseProduct.data.custom[i].unit, unit)
+        }
+
+        let finalValues = [
+            ("2.5", "EUR"),
+            ("5", "km"),
+            ("20", "lb"),
+            ("255", nil),
+            ("booya", nil)
+        ]
+
+        var attributes = [CustomAttribute]()
+        for (oldAttr, (value, unit)) in zip(baseProduct.data.custom, finalValues) {
+            var attribute = CustomAttribute(with: value)
+            attribute.unit = unit
+            attribute.id = oldAttr.id
+            attributes.append(attribute)
+        }
+
+        var patch = ProductPatch()
+        patch.custom = attributes
+        let updatedProduct = try! service.updateProduct(for: baseProduct.id, with: patch, from: Address())
+
+        for (i, (value, unit)) in finalValues.enumerated() {
+            XCTAssertEqual(updatedProduct.data.custom[i].id, baseProduct.data.custom[i].id)
+            XCTAssertEqual(updatedProduct.data.custom[i].value, value)
+            XCTAssertEqual(updatedProduct.data.custom[i].unit, unit)
+        }
+    }
 }
