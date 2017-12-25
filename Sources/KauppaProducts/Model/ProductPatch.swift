@@ -18,6 +18,7 @@ public struct ProductPatch: Mappable {
     public var price: UnitMeasurement<Currency>? = nil
     public var taxInclusive: Bool? = nil
     public var variantId: UUID? = nil
+    public var custom: [CustomAttribute]? = nil
 
     public init() {}
 }

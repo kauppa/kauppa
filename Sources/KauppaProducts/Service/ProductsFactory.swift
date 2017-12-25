@@ -18,9 +18,9 @@ class ProductsFactory {
         self.address = address
     }
 
-    /// Validate the product's custom attributes (create/update the data correspondingly).
+    /// Validate the product's custom attributes (create/update the store data correspondingly).
     private func validateCustomAttributes() throws {
-        for customAttribute in data.custom {
+        for (index, customAttribute) in data.custom.enumerated() {
             var customAttribute = customAttribute
 
             if let id = customAttribute.id {
@@ -48,6 +48,11 @@ class ProductsFactory {
                     throw ProductsError.invalidAttributeUnit
                 }
             }
+
+            // Reset the name and type.
+            data.custom[index].id = customAttribute.id
+            data.custom[index].name = nil
+            data.custom[index].type = nil
         }
     }
 
@@ -88,8 +93,6 @@ class ProductsFactory {
 
     /// Method to update the product using the initialized data and the provided patch.
     func updateProduct(for id: UUID, using patch: ProductPatch, taxService: TaxServiceCallable) throws {
-        try validateCustomAttributes()
-
         if let title = patch.title {
             data.title = title
         }
@@ -116,6 +119,11 @@ class ProductsFactory {
                     data.dimensions!.height = height
                 }
             }
+        }
+
+        if let custom = patch.custom {
+            data.custom = custom
+            try validateCustomAttributes()
         }
 
         if let color = patch.color {

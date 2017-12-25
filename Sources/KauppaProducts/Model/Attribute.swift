@@ -40,17 +40,29 @@ public struct AttributeValue<V: Mappable, U: Mappable>: Mappable {
     public var value: V
     /// Unit used by this attribute's value (optional).
     public var unit: U? = nil
+
+    public init(with value: V) {
+        self.value = value
+    }
 }
 
 extension AttributeValue where V == String, U == String {
     /// Validate the user-defined attribute for possible errors.
     public func validate() throws {
-        guard name != nil else {
+        guard let name = name else {
+            throw ProductsError.invalidAttributeName
+        }
+
+        if (name.isEmpty) {
             throw ProductsError.invalidAttributeName
         }
 
         guard type != nil else {
             throw ProductsError.attributeRequiresType
+        }
+
+        if (value.isEmpty) {
+            throw ProductsError.invalidAttributeValue
         }
     }
 }
