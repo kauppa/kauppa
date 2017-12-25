@@ -60,6 +60,11 @@ public struct ArraySet<Element>: Mappable
         }
     }
 
+    /// Checks whether an element exists in this collection.
+    public func contains(_ element: Element) -> Bool {
+        return self.inner.contains(element)
+    }
+
     /// Index this collection (i.e., get the element if it exists at the index)
     public func get(from index: Int) -> Element? {
         return (index < self.inner.count) ? self.inner[index] : nil

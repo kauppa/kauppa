@@ -67,8 +67,14 @@ public class ProductsRepository {
     }
 
     /// Create an attribute with the given name and type.
-    public func createAttribute(with name: String, and type: BaseType) throws -> Attribute {
-        let attribute = Attribute(with: name.lowercased(), and: type)
+    public func createAttribute(with name: String, and type: BaseType,
+                                variants: ArraySet<String>? = nil) throws -> Attribute
+    {
+        var attribute = Attribute(with: name.lowercased(), and: type)
+        if let variants = variants {
+            attribute.variants = variants
+        }
+
         attributes[attribute.id] = attribute
         try store.createAttribute(with: attribute)
         return attribute

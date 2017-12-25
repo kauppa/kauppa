@@ -27,6 +27,9 @@ class ProductsFactory {
                 let attribute = try repository.getAttribute(for: id)
                 customAttribute.name = attribute.name
                 customAttribute.type = attribute.type
+                if attribute.type == .enum_ {
+                    customAttribute.variants = attribute.variants
+                }
             } else {
                 try customAttribute.validate()
                 let attribute = try repository.createAttribute(with: customAttribute.name!,
@@ -37,6 +40,12 @@ class ProductsFactory {
 
             guard let _ = customAttribute.type!.parse(value: customAttribute.value) else {
                 throw ProductsError.invalidAttributeValue
+            }
+
+            if customAttribute.type! == .enum_ {
+                if !customAttribute.variants!.contains(customAttribute.value) {
+                    throw ProductsError.invalidAttributeValue
+                }
             }
 
             if customAttribute.type!.hasUnit {

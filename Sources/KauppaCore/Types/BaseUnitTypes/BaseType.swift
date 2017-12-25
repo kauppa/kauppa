@@ -1,12 +1,13 @@
 /// Basic types supported by Kauppa.
 public enum BaseType: String, Codable {
     case area
+    case boolean
     case currency
+    case enum_       = "enum"
     case length
     case mass
     case number
     case string
-    case boolean
     case temperature
     case volume
 
@@ -23,7 +24,7 @@ public enum BaseType: String, Codable {
     /// Parse the given value into Swift representable value.
     public func parse(value: String) -> Any? {
         switch self {
-            case .string:
+            case .string, .enum_:
                 return value
             case .boolean:
                 return Bool(value)

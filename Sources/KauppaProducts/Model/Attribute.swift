@@ -10,6 +10,8 @@ public struct Attribute: Mappable {
     public var name: String
     /// Type of this attribute.
     public let type: BaseType
+    /// If this were an enum, then the variants of the enum.
+    public var variants: ArraySet<String>? = nil
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp
@@ -36,6 +38,8 @@ public struct AttributeValue<V: Mappable, U: Mappable>: Mappable {
     public var name: String? = nil
     /// Type of this attribute (optional because it's required only during definition).
     public var type: BaseType? = nil
+    /// If this were an enum, then the variants of the enum.
+    public var variants: ArraySet<String>? = nil
     /// Value for this attribute (mandatory).
     public var value: V
     /// Unit used by this attribute's value (optional).
@@ -48,7 +52,7 @@ public struct AttributeValue<V: Mappable, U: Mappable>: Mappable {
 
 extension AttributeValue where V == String, U == String {
     /// Validate the user-defined attribute for possible errors.
-    public func validate() throws {
+    public mutating func validate() throws {
         guard let name = name else {
             throw ProductsError.invalidAttributeName
         }
@@ -57,8 +61,32 @@ extension AttributeValue where V == String, U == String {
             throw ProductsError.invalidAttributeName
         }
 
-        guard type != nil else {
+        self.name = name.lowercased()
+
+        guard let type = type else {
             throw ProductsError.attributeRequiresType
+        }
+
+        if type == .enum_ {
+            value = value.lowercased()
+            guard let declaredVariants = self.variants else {
+                throw ProductsError.notEnoughVariants
+            }
+
+            var variants = ArraySet<String>()
+            for variant in declaredVariants {
+                if variant.isEmpty {
+                    throw ProductsError.invalidEnumVariant
+                }
+
+                variants.insert(variant.lowercased())
+            }
+
+            if variants.count < 2 {
+                throw ProductsError.notEnoughVariants
+            }
+
+            self.variants = variants
         }
 
         if (value.isEmpty) {
