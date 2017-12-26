@@ -4,18 +4,10 @@ variables:
   CONTAINER_IMAGE: $CI_REGISTRY_IMAGE
   CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
 
-cache:
-  key: "$CI_PROJECT_NAME"
-  untracked: false
-  policy: push
-  #paths:
-   # - .build/
-
 stages:
   - build
   - test
-  - release
-  #- deploy
+  - deploy
 
 before_script:
   # install ssh-agent
@@ -32,7 +24,7 @@ before_script:
   - mkdir -p ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
-build-app:
+build:linux:
   image: ibmcom/swift-ubuntu:latest
   stage: build
   script:
@@ -48,7 +40,7 @@ build-app:
   only:
     - release   
 
-review-app:
+review:
   image: ibmcom/swift-ubuntu:latest
   stage: test
   script:
@@ -60,7 +52,7 @@ review-app:
   except: 
     - master
 
-test-app:
+test:
   image: ibmcom/swift-ubuntu:latest
   stage: test
   script:
@@ -74,9 +66,9 @@ test-app:
     paths:
     - .build/debug
 
-release-image:
+build:container:
   image: docker:latest
-  stage: release
+  stage: deploy
   services:
     - docker:dind
   before_script:
@@ -90,21 +82,3 @@ release-image:
     - docker
   only: 
     - release
-
-#release-image:
-#  image: docker:latest
-#  stage: release
-#  script:
-#    - docker pull $CONTAINER_TEST_IMAGE
-#    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
-#    - docker push $CONTAINER_RELEASE_IMAGE
-#  only:
-#    - release
-
-#deploy:
-#  image: ibmcom/swift-ubuntu:latest
-#  stage: deploy
-#  script:
-#    - ./deploy.sh
-#  only:
-#    - master
