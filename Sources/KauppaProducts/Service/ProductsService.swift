@@ -75,8 +75,8 @@ extension ProductsService: ProductsServiceCallable {
     {
         var productData = try repository.getProductData(for: id)
 
-        if (data.removeCategory ?? false) {
-            productData.category = nil
+        if (data.removeTaxCategory ?? false) {
+            productData.taxCategory = nil
         }
 
         if (data.removeColor ?? false) {

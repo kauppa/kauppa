@@ -45,7 +45,7 @@ class CartItemCreator {
 
         let product = try productsService.getProduct(for: unit.product, from: address)
         // set product category (for calculating tax later)
-        unit.setTax(using: product.data.category)
+        unit.setTax(using: product.data.taxCategory)
 
         if unit.quantity > product.data.inventory {
             throw CartError.productUnavailable      // precheck inventory

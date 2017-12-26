@@ -34,14 +34,12 @@ class TestProductsRepository: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         var product = ProductData(title: "", subtitle: "", description: "")
-        product.category = "foobar"
         product.tags = ArraySet(["foo", "bar"])
 
         let data = try! repository.createProduct(with: Product(with: product))
         // These two timestamps should be the same in creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
-        XCTAssertTrue(repository.categories.contains("foobar"))   // has category
         XCTAssertEqual(repository.tags, ["foo", "bar"])
         XCTAssertNotNil(repository.products[data.id])   // repository now has product data
     }

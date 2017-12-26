@@ -100,7 +100,7 @@ class TestProductsService: XCTestCase {
             ("weight", "{\"value\": 500.0, \"unit\": \"g\"}"),
             ("color", "\"blue\""),
             ("inventory", 20),
-            ("category", "\"electronics\""),
+            ("taxCategory", "\"electronics\""),
             ("images", ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"]),
             ("price", "{\"value\": 30.0, \"unit\": \"USD\"}"),
             ("variantId", "\"\(anotherId)\""),
@@ -151,7 +151,7 @@ class TestProductsService: XCTestCase {
                        ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
         XCTAssertEqual(updatedProduct.data.price.value, 30.0)
         XCTAssertEqual(updatedProduct.data.price.unit, .usd)
-        XCTAssertEqual(updatedProduct.data.category, "electronics")
+        XCTAssertEqual(updatedProduct.data.taxCategory, "electronics")
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
         XCTAssertEqual(updatedProduct.data.variantId, anotherId)
 
@@ -180,7 +180,7 @@ class TestProductsService: XCTestCase {
         XCTAssertFalse(product.data.taxInclusive)
 
         var patch = ProductPatch()
-        patch.category = "food"
+        patch.taxCategory = "food"
         product = try! service.updateProduct(for: product.id, with: patch, from: Address())
         XCTAssertNotNil(product.data.tax)
         XCTAssertEqual(product.data.tax!.category!, "food")
@@ -223,12 +223,12 @@ class TestProductsService: XCTestCase {
         var dimensions = Dimensions()
         dimensions.length = UnitMeasurement(value: 10.0, unit: .centimeter)
         product.dimensions = dimensions
-        product.category = "food"
+        product.taxCategory = "food"
         // variant is checked in `TestProductVariants`
         let data = try! service.createProduct(with: product, from: Address())
 
         var patch = ProductPropertyDeletionPatch()
-        patch.removeCategory = true
+        patch.removeTaxCategory = true
         patch.removeColor = true
         patch.removeDimensions = true
         patch.removeWeight = true
@@ -237,7 +237,7 @@ class TestProductsService: XCTestCase {
                                                                 from: Address())
         XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,baz"])
         XCTAssertNil(updatedProduct.data.dimensions)
-        XCTAssertNil(updatedProduct.data.category)
+        XCTAssertNil(updatedProduct.data.taxCategory)
         XCTAssertNil(updatedProduct.data.color)
         XCTAssertNil(updatedProduct.data.weight)
     }

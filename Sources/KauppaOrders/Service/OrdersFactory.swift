@@ -156,7 +156,7 @@ class OrdersFactory {
                                                      from: data.shippingAddress)
         try checkCurrency(for: product)
         try updateConsumedInventory(for: product, with: unit)
-        unit.item.setTax(using: product.data.category)      // set the category for taxes
+        unit.item.setTax(using: product.data.taxCategory)       // set the category for taxes
         calculateUnitPrices(for: &unit)
 
         order.products.append(unit)

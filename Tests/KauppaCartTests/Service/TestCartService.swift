@@ -76,10 +76,10 @@ class TestCartService: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         productData.price.value = 7.0       // default is USD
-        productData.category = "some unknown category"      // tax should default to general
+        productData.taxCategory = "some unknown category"       // tax should default to general
         let product = try! productsService.createProduct(with: productData, from: Address())
         productData.price.value = 13.0
-        productData.category = "food"
+        productData.taxCategory = "food"
         let anotherProduct = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()

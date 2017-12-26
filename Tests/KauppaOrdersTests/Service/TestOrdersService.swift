@@ -53,12 +53,12 @@ class TestOrdersService: XCTestCase {
         let store = TestStore()
         let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
-        productData.category = "food"
+        productData.taxCategory = "food"
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(with: productData, from: Address())
-        productData.category = "drink"  // create another product with a different category
+        productData.taxCategory = "drink"   // create another product with a different category
         productData.price.value = 4.0
         let anotherProduct = try! productsService.createProduct(with: productData, from: Address())
 

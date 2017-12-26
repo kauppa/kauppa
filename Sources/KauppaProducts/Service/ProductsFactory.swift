@@ -128,8 +128,8 @@ class ProductsFactory {
             data.price = price
         }
 
-        if let category = patch.category {
-            data.category = category
+        if let category = patch.taxCategory {
+            data.taxCategory = category
         }
 
         if patch.taxInclusive ?? false {

@@ -82,15 +82,14 @@ public class ProductsRepository {
     /// - Returns: `Product` object (if it exists).
     /// - Throws: `ProductsError` on failure.
     public func getProduct(for id: UUID) throws -> Product {
-        guard let product = products[id] else {
-            let product = try store.getProduct(for: id)
+        var product = products[id]
+        if product == nil {
+            product = try store.getProduct(for: id)
             products[id] = product
-            updateCategoriesAndTags(using: product)
-            return product
         }
 
-        updateCategoriesAndTags(using: product)
-        return product
+        updateCategoriesAndTags(using: product!)
+        return product!
     }
 
     /// Create an attribute with the given name and type.
@@ -203,9 +202,7 @@ public class ProductsRepository {
 
     /// Update the in-memory tags and collections using the product data.
     private func updateCategoriesAndTags(using product: Product) {
-        if let category = product.data.category {
-            categories.insert(category)
-        }
+        // TODO: Update this when categories come into play.
 
         for tag in product.data.tags {
             tags.insert(tag)

@@ -13,8 +13,6 @@ public struct ProductData: Mappable {
     public var description: String
     /// Overview of this product.
     public var overview: String? = nil
-    /// Category on which this product belongs to
-    public var category: String? = nil
     /// Tags for this product
     public var tags = ArraySet<String>()
     /// Dimensions of this product (length, width and height - all are optional)
@@ -37,6 +35,8 @@ public struct ProductData: Mappable {
     public var taxInclusive: Bool = false
     /// Tax data for this product.
     public var tax: UnitTax? = nil
+    /// Category of the product when it comes to calculating tax.
+    public var taxCategory: String? = nil
     /// (child) variants of this product. For now, the variants belong to a single parent
     /// product, and hence this is an internal property. It shouldn't be updated
     /// manually by the user. Instead, the user should attach the ID of the parent
@@ -62,7 +62,7 @@ public struct ProductData: Mappable {
     public mutating func stripTax(using taxRate: TaxRate) {
         tax = nil
         var rate = taxRate.general
-        if let category = self.category {
+        if let category = self.taxCategory {
             if let r = taxRate.categories[category] {
                 rate = r
             }
@@ -83,7 +83,7 @@ public struct ProductData: Mappable {
     public mutating func setTax(using taxRate: TaxRate) {
         tax = UnitTax()     // initialize tax data
         var rate = taxRate.general
-        if let category = self.category {
+        if let category = self.taxCategory {
             if let r = taxRate.categories[category] {
                 // If the category exists, set that category for tax.
                 tax!.category = category
