@@ -11,6 +11,8 @@ public struct ProductData: Mappable {
     public var subtitle: String
     /// A description of this product
     public var description: String
+    /// Overview of this product.
+    public var overview: String? = nil
     /// Category on which this product belongs to
     public var category: String? = nil
     /// Tags for this product
@@ -53,8 +55,7 @@ public struct ProductData: Mappable {
         self.description = description
     }
 
-    /// Reset `tax` field and strip tax from price using the given `TaxRate`
-    /// if it's inclusive of tax.
+    /// Strip tax from price using the given `TaxRate` if it's inclusive of tax.
     ///
     /// - Parameters:
     ///   - using: The `TaxRate` to be used for calculation.

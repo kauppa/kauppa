@@ -10,7 +10,7 @@ import KauppaTaxClient
 /// checks variants, custom attributes, sets tax and creates/updates product in the repository.
 class ProductsFactory {
     var data: ProductData
-    let address: Address
+    let address: Address?
     let repository: ProductsRepository
 
     /// Initialize this factory with the product data, repository and the address
@@ -18,11 +18,16 @@ class ProductsFactory {
     ///
     /// - Parameters:
     ///   - for: The `ProductData` used by this factory.
-    init(for data: ProductData, with repository: ProductsRepository, from address: Address) {
+    ///   - with: `ProductsRepository`
+    ///   - from: (Optional) address from which this product was created.
+    init(for data: ProductData, with repository: ProductsRepository, from address: Address? = nil) {
         self.data = data
         self.repository = repository
-        self.data.variants = []     // ensure that variants can't be "set" manually
         self.address = address
+
+        // ensure that some properties can't be "set" manually
+        self.data.variants = []
+        self.data.tax = nil
     }
 
     /// Method to create product using the initialized data (entrypoint to factory).
@@ -51,9 +56,6 @@ class ProductsFactory {
             }
         }
 
-        let taxRate = try taxService.getTaxRate(for: address)
-        data.stripTax(using: taxRate)
-
         let product = Product(with: data)
         let _ = try repository.createProduct(with: product)
         if let variant = variant {
@@ -69,10 +71,10 @@ class ProductsFactory {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product to be updated.
-    ///   - using: The `ProductPatch` data used for updating the product.
-    ///   - taxService: Anything that implements `TaxServiceCallable`
+    ///   - with: The `ProductPatch` data used for updating the product.
+    ///   - using: Anything that implements `TaxServiceCallable`
     /// - Throws: `ProductsError` on failure.
-    func updateProduct(for id: UUID, using patch: ProductPatch, taxService: TaxServiceCallable) throws {
+    func updateProduct(for id: UUID, with patch: ProductPatch, using taxService: TaxServiceCallable) throws {
         if let title = patch.title {
             data.title = title
         }
@@ -132,8 +134,6 @@ class ProductsFactory {
 
         if patch.taxInclusive ?? false {
             data.taxInclusive = true
-            let taxRate = try taxService.getTaxRate(for: address)
-            data.stripTax(using: taxRate)
         }
 
         /// NOTE: `variants` cannot be updated directly.

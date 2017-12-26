@@ -51,33 +51,16 @@ class TestProductsService: XCTestCase {
     func testProductCreationInclusiveTax() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
-        var rate = TaxRate()
-        rate.general = 10.0
-        rate.categories["food"] = 8.0
-        taxService.rate = rate
+        taxService.rate = nil
         let service = ProductsService(with: repository, taxService: taxService)
         var data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         data.taxInclusive = true
         data.price.value = 10.0
 
-        var product = try! service.createProduct(with: data, from: Address())
-        XCTAssertFalse(product.data.taxInclusive)
-        var price = product.data.price.value
-        XCTAssertTrue(price > 9.090909 && price < 9.09091)
-        XCTAssertNil(product.data.tax!.category)
-        XCTAssertEqual(product.data.tax!.rate, 10.0)
-        var tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 0.9090909 && tax < 0.909091)
-
-        data.category = "food"      // matching category - applies associated tax rate
-        product = try! service.createProduct(with: data, from: Address())
-        XCTAssertFalse(product.data.taxInclusive)
-        price = product.data.price.value
-        XCTAssertTrue(price > 9.259259 && price < 9.25926)
-        XCTAssertEqual(product.data.tax!.category!, "food")
-        XCTAssertEqual(product.data.tax!.rate, 8.0)
-        tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 0.7407407 && tax < 0.7407408)
+        let product = try! service.createProduct(with: data, from: nil)
+        XCTAssertTrue(product.data.taxInclusive)
+        XCTAssertEqual(product.data.price.value, 10)
+        XCTAssertNil(product.data.tax)
     }
 
     // Service supports product deletion
@@ -185,28 +168,29 @@ class TestProductsService: XCTestCase {
         rate.categories["food"] = 12.0
         taxService.rate = rate
         let service = ProductsService(with: repository, taxService: taxService)
-        let data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        data.price = UnitMeasurement(value: 10.0, unit: .usd)
+
         var product = try! service.createProduct(with: data, from: Address())
+        XCTAssertNotNil(product.data.tax)
+        XCTAssertEqual(product.data.tax!.rate, 18.0)
+        let tax = product.data.tax!.total.value
+        XCTAssertTrue(tax > 1.79999999999 && tax < 1.80000000001)
+        XCTAssertNil(product.data.tax!.category)
+        XCTAssertFalse(product.data.taxInclusive)
 
         var patch = ProductPatch()
-        patch.price = UnitMeasurement(value: 10.0, unit: .usd)
-        patch.taxInclusive = true
-        product = try! service.updateProduct(for: product.id, with: patch, from: Address())
-        var price = product.data.price.value
-        XCTAssertTrue(price > 8.47457627 && price < 8.47457628)
-        XCTAssertNil(product.data.tax!.category)
-        XCTAssertEqual(product.data.tax!.rate, 18.0)
-        var tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 1.525423728 && tax < 1.525423729)
-
         patch.category = "food"
         product = try! service.updateProduct(for: product.id, with: patch, from: Address())
-        price = product.data.price.value
-        XCTAssertTrue(price > 8.92857142 && price < 8.92857143)
+        XCTAssertNotNil(product.data.tax)
         XCTAssertEqual(product.data.tax!.category!, "food")
         XCTAssertEqual(product.data.tax!.rate, 12.0)
-        tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 1.071428571 && tax < 1.071428572)
+        XCTAssertEqual(product.data.tax!.total.value, 1.2)
+
+        patch.taxInclusive = true
+        product = try! service.updateProduct(for: product.id, with: patch, from: Address())
+        XCTAssertTrue(product.data.taxInclusive)
+        XCTAssertNil(product.data.tax)
     }
 
     // Service supports adding items to collection properties.

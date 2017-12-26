@@ -25,17 +25,22 @@ public class ProductsService {
 // NOTE: See the actual protocol in `KauppaProductsClient` for exact usage.
 extension ProductsService: ProductsServiceCallable {
     public func createProduct(with data: ProductData,
-                              from address: Address) throws -> Product
+                              from address: Address?) throws -> Product
     {
         let factory = ProductsFactory(for: data, with: repository, from: address)
         let product = try factory.createProduct(using: taxService)
         return try getProduct(for: product.id, from: address)
     }
 
-    public func getProduct(for id: UUID, from address: Address) throws -> Product {
+    public func getProduct(for id: UUID, from address: Address?) throws -> Product {
         var product = try repository.getProduct(for: id)
-        let taxRate = try taxService.getTaxRate(for: address)
-        product.data.setTax(using: taxRate)
+        if !product.data.taxInclusive {
+            if let address = address {
+                let taxRate = try taxService.getTaxRate(for: address)
+                product.data.setTax(using: taxRate)
+            }
+        }
+
         return product
     }
 
@@ -44,16 +49,16 @@ extension ProductsService: ProductsServiceCallable {
     }
 
     public func updateProduct(for id: UUID, with data: ProductPatch,
-                              from address: Address) throws -> Product
+                              from address: Address?) throws -> Product
     {
         let productData = try repository.getProductData(for: id)
         let factory = ProductsFactory(for: productData, with: repository, from: address)
-        try factory.updateProduct(for: id, using: data, taxService: taxService)
+        try factory.updateProduct(for: id, with: data, using: taxService)
         return try getProduct(for: id, from: address)
     }
 
     public func addProductProperty(for id: UUID, with data: ProductPropertyAdditionPatch,
-                                   from address: Address) throws -> Product
+                                   from address: Address?) throws -> Product
     {
         var productData = try repository.getProductData(for: id)
 
@@ -66,7 +71,7 @@ extension ProductsService: ProductsServiceCallable {
     }
 
     public func deleteProductProperty(for id: UUID, with data: ProductPropertyDeletionPatch,
-                                      from address: Address) throws -> Product
+                                      from address: Address?) throws -> Product
     {
         var productData = try repository.getProductData(for: id)
 
