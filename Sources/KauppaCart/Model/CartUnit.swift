@@ -28,7 +28,10 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
 
     /// Initialize tax data (if it's not been done already)
     /// and set the tax category for this unit.
-    public mutating func setTax(category: String? = nil) {
+    ///
+    /// - Parameters:
+    ///   - using: The category (or) tax class for this cart unit as a string.
+    public mutating func setTax(using category: String? = nil) {
         if tax == nil {
             tax = UnitTax()
         }
@@ -37,6 +40,9 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
     }
 
     /// Set the tax-related properties using the given `TaxRate`
+    ///
+    /// - Parameters:
+    ///   - using: The `TaxRate` to be used for calculating the prices.
     ///
     /// NOTE: This requires the `tax` and `netPrice` to be set for this unit.
     /// If this item belongs to a category, then it should be set in the `tax` property.
@@ -56,7 +62,12 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
         grossPrice = UnitMeasurement(value: unitGross, unit: currency)
     }
 
-    public init(product: P, quantity: UInt8) {
+    /// Initialize this `CartUnit` with a product and the quantity of items.
+    ///
+    /// - Parameters:
+    ///   - for: An object which represents the product.
+    ///   - with: The quantity of that product.
+    public init(for product: P, with quantity: UInt8) {
         self.product = product
         self.quantity = quantity
     }

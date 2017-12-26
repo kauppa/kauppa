@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaCore
-import KauppaTaxModel
+@testable import KauppaTaxModel
 @testable import KauppaProductsModel
 
 class TestProductTypes: XCTestCase {

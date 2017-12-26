@@ -48,7 +48,7 @@ public class TestStore: TaxStorable {
         countries[data.id] = data
     }
 
-    public func deleteCountry(id: UUID) throws -> () {
+    public func deleteCountry(for id: UUID) throws -> () {
         deleteCountryCalled = true
         countries.removeValue(forKey: id)
     }
@@ -84,7 +84,7 @@ public class TestStore: TaxStorable {
         regions[data.id] = data
     }
 
-    public func deleteRegion(id: UUID) throws -> () {
+    public func deleteRegion(for id: UUID) throws -> () {
         deleteRegionCalled = true
         regions.removeValue(forKey: id)
     }

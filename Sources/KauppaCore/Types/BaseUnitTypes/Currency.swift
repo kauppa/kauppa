@@ -1,4 +1,4 @@
-/// Popular currencies
+/// Default currencies
 public enum Currency: String, Codable, Unit {
     case usd   = "USD"
     case euro  = "EUR"

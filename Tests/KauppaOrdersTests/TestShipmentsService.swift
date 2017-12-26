@@ -7,8 +7,7 @@ import KauppaShipmentsClient
 import KauppaShipmentsModel
 
 public class TestShipmentsService: ShipmentsServiceCallable {
-    public var shipment: Shipment? = Shipment(id: UUID(), createdOn: Date(), updatedAt: Date(),
-                                              orderId: UUID(), address: Address())
+    public var shipment: Shipment? = Shipment(for: UUID(), with: Address())
     public var callback: ((Any) -> Void)? = nil
 
     public func createShipment(for id: UUID) throws -> Shipment {

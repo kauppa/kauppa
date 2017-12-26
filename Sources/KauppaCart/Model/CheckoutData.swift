@@ -8,6 +8,4 @@ public struct CheckoutData: Mappable {
     public var shippingAddressAt: Int = 0
     /// Billing address for this order (if null, shipping address is used)
     public var billingAddressAt: Int? = nil
-
-    public init() {}
 }

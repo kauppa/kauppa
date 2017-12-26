@@ -3,7 +3,7 @@ import XCTest
 
 import KauppaAccountsModel
 import KauppaTaxClient
-import KauppaTaxModel
+@testable import KauppaTaxModel
 
 class TestTaxService: TaxServiceCallable {
     var rate: TaxRate? = nil
@@ -18,12 +18,12 @@ class TestTaxService: TaxServiceCallable {
     }
 
     // NOTE: Not meant to be called by orders
-    public func updateCountry(id: UUID, with data: CountryPatch) throws -> Country {
+    public func updateCountry(for id: UUID, with data: CountryPatch) throws -> Country {
         throw TaxError.invalidCountryId
     }
 
     // NOTE: Not meant to be called by orders
-    public func deleteCountry(id: UUID) throws -> () {
+    public func deleteCountry(for id: UUID) throws -> () {
         throw TaxError.invalidCountryId
     }
 
@@ -33,12 +33,12 @@ class TestTaxService: TaxServiceCallable {
     }
 
     // NOTE: Not meant to be called by orders
-    public func updateRegion(id: UUID, with data: RegionPatch) throws -> Region {
+    public func updateRegion(for id: UUID, with data: RegionPatch) throws -> Region {
         throw TaxError.invalidRegionId
     }
 
     // NOTE: Not meant to be called by orders
-    public func deleteRegion(id: UUID) throws -> () {
+    public func deleteRegion(for id: UUID) throws -> () {
         throw TaxError.invalidRegionId
     }
 }

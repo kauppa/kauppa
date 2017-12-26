@@ -6,7 +6,7 @@ import KauppaCore
 /// repository and store.
 public struct ProductCollection: Mappable {
     /// Unique identifier for this collection.
-    public let id: UUID
+    public let id = UUID()
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp
@@ -14,10 +14,14 @@ public struct ProductCollection: Mappable {
     /// User-supplied data for this collection.
     public var data: ProductCollectionData
 
-    public init(id: UUID, createdOn: Date, updatedAt: Date, data: ProductCollectionData) {
-        self.id = id
-        self.createdOn = createdOn
-        self.updatedAt = updatedAt
+    /// Initialize an instance with the collection data.
+    ///
+    /// - Parameters:
+    ///   - with: `ProductCollectionData`
+    public init(with data: ProductCollectionData) {
+        let date = Date()
+        self.createdOn = date
+        self.updatedAt = date
         self.data = data
     }
 }
@@ -31,12 +35,17 @@ public struct ProductCollectionData: Mappable {
     /// Products added to this collection.
     public var products: Set<UUID>
 
-    public init(name: String, description: String, products: Set<UUID>) {
+    /// Initialize an instance with name, description and list of products (for tests).
+    init(name: String, description: String, products: Set<UUID>) {
         self.name = name
         self.description = description
         self.products = products
     }
 
+    /// Validate this instance for possible errors. Currently, it checks the name
+    /// and description.
+    ///
+    /// - Throws: `ProductsError` for invalid data.
     public func validate() throws {
         if name.isEmpty {
             throw ProductsError.invalidCollectionName

@@ -12,7 +12,7 @@ public class TestProductsService: ProductsServiceCallable {
     var callbacks = [UUID: ProductsCallback]()
 
     public func createProduct(with data: ProductData, from address: Address) throws -> Product {
-        let product = Product(data: data)
+        let product = Product(with: data)
         products[product.id] = product
         return product
     }

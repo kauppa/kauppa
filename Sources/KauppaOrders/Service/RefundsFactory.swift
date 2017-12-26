@@ -7,7 +7,9 @@ import KauppaOrdersRepository
 import KauppaProductsClient
 import KauppaProductsModel
 
-/// Factory class for creating order refunds.
+/// Factory class for creating order refunds. This iterates over the given
+/// items, checks whether they exist in the order, whether they've been
+/// fulfilled and creates a refund for the order.
 class RefundsFactory {
     let data: RefundData
     let productsService: ProductsServiceCallable
@@ -15,12 +17,24 @@ class RefundsFactory {
     private var atleastOneItemExists = false
     private var refundItems = [GenericCartUnit<Product>]()
 
+    /// Initialize this factory with refund data and products service.
+    ///
+    /// - Parameters:
+    ///   - with: `RefundData` object for creating the refund.
+    ///   - using: Anything that implements `ProductsServiceCallable`
     init(with data: RefundData, using service: ProductsServiceCallable) {
         self.data = data
         productsService = service
     }
 
     /// Method to initiate refund using the given order data (entrypoint for factory production).
+    ///
+    /// - Parameters:
+    ///   - for: The ID of the order in which this refund should be issued.
+    ///   - using: `OrdersRepository`
+    /// - Throws:
+    ///   - `OrdersError` if there were failures in refund creation.
+    ///   - `ProductsError` if there was an error in getting the product.
     func initiateRefund(for order: inout Order,
                         using repository: OrdersRepository) throws
     {
@@ -55,8 +69,8 @@ class RefundsFactory {
             // Only collect fulfilled items (if any) from each unit.
             if let unitStatus = unit.status {
                 if unitStatus.refundableQuantity > 0 {
-                    let refundUnit = GenericCartUnit(product: product,
-                                                     quantity: unitStatus.refundableQuantity)
+                    let refundUnit = GenericCartUnit(for: product,
+                                                     with: unitStatus.refundableQuantity)
                     data.products[i].status!.refundableQuantity = 0    // reset refundable quantity
                     refundItems.append(refundUnit)
                 }
@@ -86,7 +100,7 @@ class RefundsFactory {
                 throw OrdersError.invalidRefundQuantity(product.id, refundable)
             }
 
-            refundItems.append(GenericCartUnit(product: product, quantity: unit.quantity))
+            refundItems.append(GenericCartUnit(for: product, with: unit.quantity))
             order.products[i].status!.refundableQuantity -= unit.quantity
 
             // Check whether all items have been refunded in this unit
@@ -123,7 +137,7 @@ class RefundsFactory {
         var items = [CartUnit]()
         for item in refundItems {
             totalPrice.value += item.product.data.price.value * Double(item.quantity)
-            let unit = CartUnit(product: item.product.id, quantity: item.quantity)
+            let unit = CartUnit(for: item.product.id, with: item.quantity)
             items.append(unit)
         }
 

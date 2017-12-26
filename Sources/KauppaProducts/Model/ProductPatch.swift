@@ -20,14 +20,13 @@ public struct ProductPatch: Mappable {
     public var variantId: UUID? = nil
     public var custom: [CustomAttribute]? = nil
 
+    /// Initialize an empty instance with all fields set to `nil`
     public init() {}
 }
 
 /// This adds individual items to the collections residing in `ProductData`
 public struct ProductPropertyAdditionPatch: Mappable {
     public var image: String? = nil
-
-    public init() {}
 }
 
 /// This has the nullable items from `ProductData` - any delete
@@ -40,6 +39,4 @@ public struct ProductPropertyDeletionPatch: Mappable {
     public var removeWeight: Bool? = nil
     public var removeImageAt: Int? = nil
     public var removeVariant: Bool? = nil
-
-    public init() {}
 }

@@ -8,7 +8,7 @@ import KauppaOrdersModel
 /// Shipment data that exists in repository and store.
 public struct Shipment: Mappable {
     /// Unique identifier for this shipment.
-    public let id: UUID
+    public let id = UUID()
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp
@@ -22,21 +22,21 @@ public struct Shipment: Mappable {
     /// Status of this shipment.
     public var status = ShipmentStatus.shipping
 
-    /// Empty init (for testing)
-    public init() {
+    /// Initialize an instance for the given order and shipping address.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the associated order.
+    ///   - with: The `Address` of this shipment.
+    public init(for orderId: UUID, with address: Address) {
         let date = Date()
-        id = UUID()
-        createdOn = date
-        updatedAt = date
-        orderId = UUID()
-        address = Address()
-    }
-
-    public init(id: UUID, createdOn: Date, updatedAt: Date, orderId: UUID, address: Address) {
-        self.id = id
-        self.createdOn = createdOn
-        self.updatedAt = updatedAt
+        self.createdOn = date
+        self.updatedAt = date
         self.orderId = orderId
         self.address = address
+    }
+
+    /// Empty init (for testing)
+    init() {
+        self.init(for: UUID(), with: Address())
     }
 }

@@ -3,12 +3,12 @@ import XCTest
 
 import KauppaCore
 import KauppaCartModel
-import KauppaProductsModel
-import KauppaShipmentsModel
 @testable import KauppaAccountsModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
 @testable import KauppaOrdersService
+@testable import KauppaProductsModel
+@testable import KauppaShipmentsModel
 
 class TestReturns: XCTestCase {
     let productsService = TestProductsService()
@@ -61,13 +61,13 @@ class TestReturns: XCTestCase {
                                           couponService: couponService,
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
-                                  products: [OrderUnit(product: product1.id, quantity: 3),
-                                             OrderUnit(product: product2.id, quantity: 2)])
+                                  products: [OrderUnit(for: product1.id, with: 3),
+                                             OrderUnit(for: product2.id, with: 2)])
         var initial = try! ordersService.createOrder(with: orderData)   // create an order
         // Set the data which is usually set by shipping service.
-        initial.products[0].status = OrderUnitStatus(quantity: 3)
+        initial.products[0].status = OrderUnitStatus(for: 3)
         initial.products[0].status!.fulfillment = .fulfilled
-        initial.products[1].status = OrderUnitStatus(quantity: 2)
+        initial.products[1].status = OrderUnitStatus(for: 2)
         initial.products[1].status!.fulfillment = .fulfilled
         let order = try! repository.updateOrder(with: initial)
         let pickupScheduled = expectation(description: "Order items have been scheduled for pickup")
@@ -122,16 +122,16 @@ class TestReturns: XCTestCase {
                                           couponService: couponService,
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
-                                  products: [OrderUnit(product: product1.id, quantity: 3),
-                                             OrderUnit(product: product2.id, quantity: 2),
-                                             OrderUnit(product: product3.id, quantity: 1)])
+                                  products: [OrderUnit(for: product1.id, with: 3),
+                                             OrderUnit(for: product2.id, with: 2),
+                                             OrderUnit(for: product3.id, with: 1)])
         var initial = try! ordersService.createOrder(with: orderData)
         // Set the data which is usually set by shipping service.
-        initial.products[0].status = OrderUnitStatus(quantity: 3)
+        initial.products[0].status = OrderUnitStatus(for: 3)
         initial.products[0].status!.fulfillment = .fulfilled
-        initial.products[1].status = OrderUnitStatus(quantity: 2)
+        initial.products[1].status = OrderUnitStatus(for: 2)
         initial.products[1].status!.fulfillment = .fulfilled
-        initial.products[2].status = OrderUnitStatus(quantity: 1)
+        initial.products[2].status = OrderUnitStatus(for: 1)
         initial.products[2].status!.fulfillment = .fulfilled
         let order = try! repository.updateOrder(with: initial)
         let pickup1Scheduled = expectation(description: "pickup scheduled for first partial return")
@@ -150,8 +150,8 @@ class TestReturns: XCTestCase {
         }
 
         var pickupData = PickupData()   // first partial return
-        pickupData.units = [CartUnit(product: product1.id, quantity: 1),
-                            CartUnit(product: product3.id, quantity: 1)]
+        pickupData.units = [CartUnit(for: product1.id, with: 1),
+                            CartUnit(for: product3.id, with: 1)]
         var updatedOrder = try! ordersService.returnOrder(for: order.id, with: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 1)
@@ -182,8 +182,8 @@ class TestReturns: XCTestCase {
             pickup2Scheduled.fulfill()
         }
 
-        pickupData.units = [CartUnit(product: product1.id, quantity: 2),
-                            CartUnit(product: product2.id, quantity: 1)]
+        pickupData.units = [CartUnit(for: product1.id, with: 2),
+                            CartUnit(for: product2.id, with: 1)]
         updatedOrder = try! ordersService.returnOrder(for: order.id, with: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[1].status!.fulfilledQuantity, 2)
@@ -213,7 +213,7 @@ class TestReturns: XCTestCase {
                                           couponService: couponService,
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
-                                  products: [OrderUnit(product: product.id, quantity: 3)])
+                                  products: [OrderUnit(for: product.id, with: 3)])
         let order = try! ordersService.createOrder(with: orderData)
         let _ = try! ordersService.cancelOrder(for: order.id)
         let pickupData = PickupData()
@@ -246,16 +246,16 @@ class TestReturns: XCTestCase {
                                           couponService: couponService,
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
-                                  products: [OrderUnit(product: product1.id, quantity: 3),
-                                             OrderUnit(product: product2.id, quantity: 2)])
+                                  products: [OrderUnit(for: product1.id, with: 3),
+                                             OrderUnit(for: product2.id, with: 2)])
         var initial = try! ordersService.createOrder(with: orderData)
         // Set the data which is usually set by shipping service.
-        initial.products[0].status = OrderUnitStatus(quantity: 3)
+        initial.products[0].status = OrderUnitStatus(for: 3)
         initial.products[0].status!.fulfillment = .fulfilled
         let order = try! repository.updateOrder(with: initial)
 
         var pickupData = PickupData()
-        pickupData.units = [CartUnit(product: UUID(), quantity: 2)]
+        pickupData.units = [CartUnit(for: UUID(), with: 2)]
         do {    // Test invalid product
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
@@ -263,7 +263,7 @@ class TestReturns: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
         }
 
-        pickupData.units = [CartUnit(product: product2.id, quantity: 2)]
+        pickupData.units = [CartUnit(for: product2.id, with: 2)]
         do {    // Test unfulfilled item
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
@@ -271,7 +271,7 @@ class TestReturns: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id))
         }
 
-        pickupData.units = [CartUnit(product: product1.id, quantity: 5)]
+        pickupData.units = [CartUnit(for: product1.id, with: 5)]
         do {    // Test invalid quantity for fulfilled item
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()

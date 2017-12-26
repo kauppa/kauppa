@@ -56,7 +56,7 @@ class TestTaxRepository: XCTestCase {
         try! repository.createCountry(with: data)
         XCTAssertFalse(repository.countries.isEmpty)
         XCTAssertFalse(repository.countryNames.isEmpty)
-        try! repository.deleteCountry(id: data.id)
+        try! repository.deleteCountry(for: data.id)
         XCTAssertTrue(repository.countries.isEmpty)
         XCTAssertTrue(repository.countryNames.isEmpty)
         XCTAssertTrue(store.deleteCountryCalled)
@@ -93,7 +93,7 @@ class TestTaxRepository: XCTestCase {
         let repository = TaxRepository(with: store)
         try! repository.createRegion(with: data)
         XCTAssertFalse(repository.regions.isEmpty)
-        try! repository.deleteRegion(id: data.id)
+        try! repository.deleteRegion(for: data.id)
         XCTAssertTrue(repository.regions.isEmpty)
         XCTAssertTrue(store.deleteRegionCalled)
     }
@@ -123,10 +123,10 @@ class TestTaxRepository: XCTestCase {
         let regionData = Region(name: "bar", taxRate: TaxRate(), kind: .city, country: countryData.id)
         try! repository.createRegion(with: regionData)
         repository.regions = [:]    // clear the repository
-        let _ = try! repository.getRegion(id: regionData.id)
+        let _ = try! repository.getRegion(for: regionData.id)
         XCTAssertTrue(store.getRegionCalled)
         store.getRegionCalled = false
-        let _ = try! repository.getRegion(id: regionData.id)
+        let _ = try! repository.getRegion(for: regionData.id)
         XCTAssertFalse(store.getRegionCalled)
 
         repository.countryNames = [:]       // reset the country names

@@ -10,8 +10,6 @@ public struct AccountPatch: Mappable {
     public var emails: ArraySet<Email>? = nil
     public var phoneNumbers: ArraySet<Phone>? = nil
     public var address: ArraySet<Address>? = nil
-
-    public init() {}
 }
 
 /// This adds individual items to the collections residing in `AccountData`
@@ -19,8 +17,6 @@ public struct AccountPropertyAdditionPatch: Mappable {
     public var email: Email? = nil
     public var phone: Phone? = nil
     public var address: Address? = nil
-
-    public init() {}
 }
 
 /// This has the nullable items from `AccountData` - any delete
@@ -33,6 +29,4 @@ public struct AccountPropertyDeletionPatch: Mappable {
     public var removeAddressAt: Int? = nil
     /// Remove email at the given index
     public var removeEmailAt: Int? = nil
-
-    public init() {}
 }

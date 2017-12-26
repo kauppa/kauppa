@@ -16,6 +16,13 @@ public struct OrderData: Mappable {
     /// List of UUIDs of the coupons applied by the user.
     public var appliedCoupons = ArraySet<UUID>()
 
+    /// Initialize an instance with the given data.
+    ///
+    /// - Parameters:
+    ///   - shippingAddress: Shipping address for the order.
+    ///   - billingAddress: Billing address for the order.
+    ///   - placedBy: `UUID` of the account which placed the order.
+    ///   - products: List of `OrderUnit` (which holds product IDs and quantities)
     public init(shippingAddress: Address, billingAddress: Address? = nil,
                 placedBy id: UUID, products: [OrderUnit])
     {

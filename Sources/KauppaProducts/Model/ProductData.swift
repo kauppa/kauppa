@@ -15,7 +15,7 @@ public struct ProductData: Mappable {
     public var category: String? = nil
     /// Tags for this product
     public var tags = ArraySet<String>()
-    /// Size of this product (length, width and height - all are optional)
+    /// Dimensions of this product (length, width and height - all are optional)
     public var dimensions: Dimensions? = nil
     /// Color in hex code
     public var color: String? = nil
@@ -46,7 +46,8 @@ public struct ProductData: Mappable {
     /// List of custom attributes defined/used in the product.
     public var custom = [CustomAttribute]()
 
-    public init(title: String, subtitle: String, description: String) {
+    /// Initialize this object with title, subtitle and description (for tests).
+    init(title: String, subtitle: String, description: String) {
         self.title = title
         self.subtitle = subtitle
         self.description = description
@@ -54,6 +55,9 @@ public struct ProductData: Mappable {
 
     /// Reset `tax` field and strip tax from price using the given `TaxRate`
     /// if it's inclusive of tax.
+    ///
+    /// - Parameters:
+    ///   - using: The `TaxRate` to be used for calculation.
     public mutating func stripTax(using taxRate: TaxRate) {
         tax = nil
         var rate = taxRate.general
@@ -72,6 +76,9 @@ public struct ProductData: Mappable {
     /// Set the tax-related properties using the given `TaxRate`
     ///
     /// NOTE: The `price` should be exclusive of tax.
+    ///
+    /// - Parameters:
+    ///   - using: The `TaxRate` to be used for calculation.
     public mutating func setTax(using taxRate: TaxRate) {
         tax = UnitTax()     // initialize tax data
         var rate = taxRate.general
@@ -88,7 +95,10 @@ public struct ProductData: Mappable {
         tax!.total = UnitMeasurement(value: unitTax, unit: price.unit)
     }
 
-    /// Perform basic validation on product data.
+    /// Perform basic validation on product data. Currently, this checks the
+    /// title, subtitle, description and color (for valid hex value).
+    ///
+    /// - Throws: `ProductsError` for invalid data.
     public func validate() throws {
         if title.isEmpty {
             throw ProductsError.invalidTitle

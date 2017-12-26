@@ -3,7 +3,7 @@ import XCTest
 
 import KauppaCore
 import KauppaCartModel
-import KauppaTaxModel
+@testable import KauppaTaxModel
 
 class TestCartTypes: XCTestCase {
     static var allTests: [(String, (TestCartTypes) -> () throws -> Void)] {
@@ -17,7 +17,7 @@ class TestCartTypes: XCTestCase {
 
     /// Check that reseting cart unit properly resets the necessary properties.
     func testCartUnitReset() {
-        var unit = CartUnit(product: UUID(), quantity: 5)
+        var unit = CartUnit(for: UUID(), with: 5)
         unit.tax = UnitTax()
         unit.tax!.category = "something"
         unit.tax!.rate = 25.0
@@ -35,7 +35,7 @@ class TestCartTypes: XCTestCase {
 
     /// Test setting tax and prices in cart unit.
     func testCartUnitSetPrices() {
-        var unit = CartUnit(product: UUID(), quantity: 5)
+        var unit = CartUnit(for: UUID(), with: 5)
         unit.tax = UnitTax()
         unit.tax!.category = "drink"
         unit.netPrice = UnitMeasurement(value: 5.0, unit: Currency.usd)
@@ -52,7 +52,7 @@ class TestCartTypes: XCTestCase {
     /// Check that reseting cart properly sets all internal properties to `nil`.
     func testCartReset() {
         var cart = Cart(with: UUID())
-        cart.items.append(CartUnit(product: UUID(), quantity: 5))
+        cart.items.append(CartUnit(for: UUID(), with: 5))
         cart.netPrice = UnitMeasurement(value: 5.0, unit: Currency.usd)
         cart.grossPrice = UnitMeasurement(value: 5.5, unit: Currency.usd)
         cart.coupons = ArraySet([UUID()])
@@ -68,8 +68,8 @@ class TestCartTypes: XCTestCase {
     func testCartSetPrices() {
         var cart = Cart(with: UUID())
         cart.netPrice = UnitMeasurement(value: 25.0, unit: Currency.usd)
-        cart.items = [CartUnit(product: UUID(), quantity: 5),
-                      CartUnit(product: UUID(), quantity: 3)]
+        cart.items = [CartUnit(for: UUID(), with: 5),
+                      CartUnit(for: UUID(), with: 3)]
         cart.items[0].tax = UnitTax()
         cart.items[0].tax!.category = "food"
         cart.items[0].netPrice = UnitMeasurement(value: 10.0, unit: Currency.usd)

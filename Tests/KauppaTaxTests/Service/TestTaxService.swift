@@ -1,7 +1,7 @@
 import XCTest
 
-import KauppaAccountsModel
-import KauppaTaxModel
+@testable import KauppaAccountsModel
+@testable import KauppaTaxModel
 import KauppaTaxService
 import KauppaTaxRepository
 
@@ -109,7 +109,7 @@ class TestTaxService: XCTestCase {
         patch.name = "Finland"
         rate.general = 14.0
         patch.taxRate = rate
-        let newData = try! service.updateCountry(id: country.id, with: patch)
+        let newData = try! service.updateCountry(for: country.id, with: patch)
         XCTAssertEqual(newData.name, "Finland")
         XCTAssertEqual(newData.taxRate.general, 14.0)
         XCTAssertTrue(newData.taxRate.categories.isEmpty)
@@ -137,7 +137,7 @@ class TestTaxService: XCTestCase {
 
         for (testCase, error) in cases {
             do {
-                let _ = try service.updateCountry(id: country.id, with: testCase)
+                let _ = try service.updateCountry(for: country.id, with: testCase)
                 XCTFail()
             } catch let err {
                 XCTAssertEqual(err as! TaxError, error)
@@ -152,7 +152,7 @@ class TestTaxService: XCTestCase {
         let service = TaxService(with: repository)
         let data = CountryData(name: "foo", taxRate: TaxRate())
         let country = try! service.createCountry(with: data)
-        try! service.deleteCountry(id: country.id)
+        try! service.deleteCountry(for: country.id)
     }
 
     /// Testing service support for region creation
@@ -270,7 +270,7 @@ class TestTaxService: XCTestCase {
         patch.taxRate = TaxRate()
         patch.taxRate!.general = 20.0
         patch.taxRate!.categories["electronics"] = 25.0
-        let newData = try! service.updateRegion(id: region.id, with: patch)
+        let newData = try! service.updateRegion(for: region.id, with: patch)
         XCTAssertEqual(newData.name, "foobar")
         XCTAssertEqual(newData.taxRate.general, 20.0)
         XCTAssertEqual(newData.taxRate.categories["electronics"]!, 25.0)
@@ -304,7 +304,7 @@ class TestTaxService: XCTestCase {
 
         for (testCase, error) in cases {
             do {
-                let _ = try service.updateRegion(id: region.id, with: testCase)
+                let _ = try service.updateRegion(for: region.id, with: testCase)
                 XCTFail()
             } catch let err {
                 XCTAssertEqual(err as! TaxError, error)
@@ -321,6 +321,6 @@ class TestTaxService: XCTestCase {
         let country = try! service.createCountry(with: data)
         let regionData = RegionData(name: "baz", taxRate: TaxRate(), kind: .province)
         let region = try! service.addRegion(to: country.id, data: regionData)
-        try! service.deleteRegion(id: region.id)
+        try! service.deleteRegion(for: region.id)
     }
 }

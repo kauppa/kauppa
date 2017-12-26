@@ -9,8 +9,6 @@ public struct ProductCollectionPatch: Mappable {
     public var name: String? = nil
     public var description: String? = nil
     public var products: Set<UUID>? = nil
-
-    public init() {}
 }
 
 /// This representes individual products to be added/removed to/from
@@ -19,6 +17,4 @@ public struct ProductCollectionPatch: Mappable {
 public struct ProductCollectionItemPatch: Mappable {
     public var product: UUID? = nil
     public var products: [UUID]? = nil
-
-    public init() {}
 }

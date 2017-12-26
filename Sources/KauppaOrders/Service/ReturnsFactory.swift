@@ -7,19 +7,34 @@ import KauppaProductsModel
 import KauppaShipmentsClient
 import KauppaShipmentsModel
 
-/// Factory for scheduling pickup of items.
+/// Factory for scheduling pickup of items. This checks for the items' existence in the order,
+/// collects them, validates whether they can be returned (and how many) and finally schedules
+/// pickup for those items in the shipments service.
 class ReturnsFactory {
     let data: PickupData
     let productsService: ProductsServiceCallable
 
     private var returnItems = [GenericCartUnit<Product>]()
 
+    /// Initialize this factory with pickup data and product service.
+    ///
+    /// - Parameters:
+    ///   - with: `PickupData`
+    ///   - using: Anything that implements `ProductsServiceCallable`
     init(with data: PickupData, using service: ProductsServiceCallable) {
         self.data = data
         productsService = service
     }
 
     /// Method to initiate pickup based on the given order data (entrypoint for factory production).
+    ///
+    /// - Parameters:
+    ///   - for: The actual `Order` associated with this pickup.
+    ///   - using: Anything that implements `ShipmentsServiceCallable`
+    /// - Throws:
+    ///   - `ProductsError` if the product doesn't exist.
+    ///   - `OrdersError` if the specified item(s) cannot be returned.
+    ///   - `ShipmentsError` if there was an error in scheduling the pickup.
     func initiatePickup(for order: inout Order,
                         with shippingService: ShipmentsServiceCallable) throws
     {
@@ -37,7 +52,7 @@ class ReturnsFactory {
 
         var pickupData = PickupItems()
         for unit in returnItems {
-            pickupData.items.append(CartUnit(product: unit.product.id, quantity: unit.quantity))
+            pickupData.items.append(CartUnit(for: unit.product.id, with: unit.quantity))
         }
 
         let shipment = try shippingService.schedulePickup(for: order.id, with: pickupData)
@@ -55,7 +70,7 @@ class ReturnsFactory {
             // (i.e., items that have been fulfilled and not scheduled for pickup)
             let fulfilled = unit.untouchedItems()
             if fulfilled > 0 {
-                let returnUnit = GenericCartUnit(product: product, quantity: fulfilled)
+                let returnUnit = GenericCartUnit(for: product, with: fulfilled)
                 returnItems.append(returnUnit)
                 order.products[i].status!.pickupQuantity += returnUnit.quantity
             }
@@ -75,7 +90,7 @@ class ReturnsFactory {
                 throw OrdersError.invalidReturnQuantity(product.id, fulfilled)
             }
 
-            returnItems.append(GenericCartUnit(product: product, quantity: unit.quantity))
+            returnItems.append(GenericCartUnit(for: product, with: unit.quantity))
             order.products[i].status!.pickupQuantity += unit.quantity
         }
     }

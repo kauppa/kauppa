@@ -26,9 +26,11 @@ public struct CouponData: Mappable {
     /// Date on which this coupon was disabled.
     public var disabledOn: Date? = nil
 
-    public init() {}
+    init() {}
 
     /// Validate this coupon data and modify as required.
+    ///
+    /// - Throws: `CouponError` if an error was encountered.
     public mutating func validate() throws {
         if let code = code {
             if code.count != 16 || !code.isAlphaNumeric() {
@@ -37,7 +39,7 @@ public struct CouponData: Mappable {
 
             self.code = code.uppercased()
         } else {
-            self.code = String.randomAlphaNumeric(len: 16)
+            self.code = String.randomAlphaNumeric(ofLength: 16)
         }
 
         if let date = expiresOn {
@@ -52,6 +54,10 @@ public struct CouponData: Mappable {
     /// validity before making any changes. If the coupon is valid, then it deducts
     /// the amount from the coupon and the given price. This only mutates the `balance`
     /// property of a `Coupon`
+    ///
+    /// - Parameters:
+    ///   - from: The price to which the change should be made.
+    /// - Throws: `CouponError` if there was an error in changing the price.
     public mutating func deductPrice(from price: inout UnitMeasurement<Currency>) throws {
         if let date = expiresOn {
             if date < Date() {

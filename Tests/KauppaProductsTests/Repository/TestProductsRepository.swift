@@ -37,7 +37,7 @@ class TestProductsRepository: XCTestCase {
         product.category = "foobar"
         product.tags = ArraySet(["foo", "bar"])
 
-        let data = try! repository.createProduct(with: Product(data: product))
+        let data = try! repository.createProduct(with: Product(with: product))
         // These two timestamps should be the same in creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
@@ -61,7 +61,7 @@ class TestProductsRepository: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         var product = ProductData(title: "", subtitle: "", description: "")
-        let data = try! repository.createProduct(with: Product(data: product))
+        let data = try! repository.createProduct(with: Product(with: product))
         XCTAssertEqual(data.createdOn, data.updatedAt)
         product.title = "Foo"
         let updatedProduct = try! repository.updateProduct(for: data.id, with: product)
@@ -76,9 +76,9 @@ class TestProductsRepository: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
-        let product1 = try! repository.createProduct(with: Product(data: productData))
+        let product1 = try! repository.createProduct(with: Product(with: productData))
         productData.color = "black"
-        let product2 = try! repository.createProduct(with: Product(data: productData))
+        let product2 = try! repository.createProduct(with: Product(with: productData))
 
         let collection = ProductCollectionData(name: "", description: "",
                                                products: [product1.id, product2.id])

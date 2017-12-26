@@ -13,11 +13,18 @@ public class TaxRepository {
     let store: TaxStorable
 
     /// Initialize this repository with the given store.
+    ///
+    /// - Parameters:
+    ///   - with: Anything that implements `TaxStorable`
     public init(with store: TaxStorable) {
         self.store = store
     }
 
     /// Create a country with validated data from the service.
+    ///
+    /// - Parameters:
+    ///   - with: The `Country` object.
+    /// - Throws: `TaxError` on failure.
     public func createCountry(with data: Country) throws -> () {
         countries[data.id] = data
         countryNames[data.name] = data.id
@@ -25,6 +32,11 @@ public class TaxRepository {
     }
 
     /// Get the country for a given name (fetch it from store if it's not available)
+    ///
+    /// - Parameters:
+    ///   - name: The name of the country.
+    /// - Returns: `Country` (if it exists).
+    /// - Throws: `TaxError` on failure.
     public func getCountry(name: String) throws -> Country {
         guard let id = countryNames[name] else {
             let data = try store.getCountry(name: name)
@@ -36,6 +48,11 @@ public class TaxRepository {
     }
 
     /// Get the country for a given ID (fetch it from store if it's not available in repository)
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the country.
+    /// - Returns: `Country` (if it exists).
+    /// - Throws: `TaxError` on failure.
     public func getCountry(id: UUID) throws -> Country {
         guard let data = countries[id] else {
             let data = try store.getCountry(id: id)
@@ -47,11 +64,17 @@ public class TaxRepository {
     }
 
     /// Get the region matching a given name and belonging to a given country.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the region.
+    ///   - for: The name of the country to which this region belongs to.
+    /// - Returns: `Region` (if it exists).
+    /// - Throws: `TaxError` on failure.
     public func getRegion(name: String, for countryName: String) throws -> Region {
         let country = try getCountry(name: countryName)
         var region: Region? = nil
         if let id = regionNames[name] {
-            let r = try getRegion(id: id)
+            let r = try getRegion(for: id)
             // Ensure that the region belongs to the given country.
             if r.countryId == country.id {
                 region = r
@@ -68,6 +91,11 @@ public class TaxRepository {
     }
 
     /// Update the country data in repository and store.
+    ///
+    /// - Parameters:
+    ///   - with: Updated `Country` object from the service.
+    /// - Returns: Updated `Country` (if it exists).
+    /// - Throws: `TaxError` on failure.
     public func updateCountry(with data: Country) throws -> Country {
         var data = data
         data.updatedAt = Date()
@@ -77,15 +105,24 @@ public class TaxRepository {
     }
 
     /// Delete the country matching the given ID from cache and store.
-    public func deleteCountry(id: UUID) throws -> () {
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the country.
+    /// - Throws: `TaxError` on failure.
+    public func deleteCountry(for id: UUID) throws -> () {
         let country = try getCountry(id: id)
         countries.removeValue(forKey: country.id)
         countryNames.removeValue(forKey: country.name)
-        return try store.deleteCountry(id: id)
+        return try store.deleteCountry(for: id)
     }
 
     /// Get the region for a given ID (fetch it from store if it's not available in repository)
-    public func getRegion(id: UUID) throws -> Region {
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the region.
+    /// - Returns: `Region` object (if it exists).
+    /// - Throws: `TaxError` on failure.
+    public func getRegion(for id: UUID) throws -> Region {
         guard let data = regions[id] else {
             let data = try store.getRegion(id: id)
             regions[id] = data
@@ -96,12 +133,21 @@ public class TaxRepository {
     }
 
     /// Create a region with the validated data from the service.
+    ///
+    /// - Parameters:
+    ///   - with: The `Region` object from the service.
+    /// - Throws: `TaxError` on failure.
     public func createRegion(with data: Region) throws -> () {
         regions[data.id] = data
         try store.createRegion(with: data)
     }
 
     /// Update the region data in repository and store.
+    ///
+    /// - Parameters:
+    ///   - with: The updated `Region` object from the service.
+    /// - Returns: Updated `Region` object (if it exists).
+    /// - Throws: `TaxError` on failure.
     public func updateRegion(with data: Region) throws -> Region {
         var data = data
         data.updatedAt = Date()
@@ -111,8 +157,12 @@ public class TaxRepository {
     }
 
     /// Delete a region matching the given ID from cache and store.
-    public func deleteRegion(id: UUID) throws -> () {
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the region.
+    /// - Throws: `TaxError` on failure.
+    public func deleteRegion(for id: UUID) throws -> () {
         regions.removeValue(forKey: id)
-        try store.deleteRegion(id: id)
+        try store.deleteRegion(for: id)
     }
 }

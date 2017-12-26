@@ -23,6 +23,14 @@ public class CartService {
 
     /// Initializes a new `CartService` instance with a repository,
     /// accounts, products, coupon, orders and tax service.
+    ///
+    /// - Parameters:
+    ///   - with: `CartRepository`
+    ///   - productsService: Anything that implements `ProductsServiceCallable`
+    ///   - accountsService: Anything that implements `AccountsServiceCallable`
+    ///   - couponService: Anything that implements `CouponServiceCallable`
+    ///   - ordersService: Anything that implements `OrdersServiceCallable`
+    ///   - taxService: Anything that implements `TaxServiceCallable`
     public init(with repository: CartRepository,
                 productsService: ProductsServiceCallable,
                 accountsService: AccountsServiceCallable,
@@ -46,7 +54,7 @@ extension CartService: CartServiceCallable {
     {
         let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(for: userId)
-        let itemCreator = CartItemCreator(from: account, forCart: cart, with: unit)
+        let itemCreator = CartItemCreator(from: account, for: cart, with: unit)
         try itemCreator.updateCartData(using: productsService, with: address)
         try repository.updateCart(with: itemCreator.cart)
         return try getCart(for: userId, from: address)
@@ -109,7 +117,7 @@ extension CartService: CartServiceCallable {
 
         var units = [OrderUnit]()
         for unit in cart.items {
-            units.append(OrderUnit(product: unit.product, quantity: unit.quantity))
+            units.append(OrderUnit(for: unit.product, with: unit.quantity))
         }
 
         var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,

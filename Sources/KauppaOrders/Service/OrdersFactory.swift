@@ -11,7 +11,9 @@ import KauppaShipmentsClient
 import KauppaTaxClient
 import KauppaTaxModel
 
-/// Factory class for creating orders.
+/// Factory class for creating orders. This iterates over the list of products, verifies
+/// that the products exist in the inventory, checks their currencies, updates the inventory,
+///  validates coupons, calculates prices and finally places the order.
 class OrdersFactory {
     let data: OrderData
     let account: Account
@@ -31,6 +33,12 @@ class OrdersFactory {
     private var inventoryUpdates = [UUID: UInt32]()
     private var appliedCoupons = [Coupon]()
 
+    /// Initialize this factory with the order data, account and product service.
+    ///
+    /// - Parameters:
+    ///   - with: The `OrderData` source for placing the order.
+    ///   - from: The `Account` which placed this order.
+    ///   - using: Anything that implements `ProductsServiceCallable`
     init(with data: OrderData, from account: Account,
          using productsService: ProductsServiceCallable)
     {
@@ -41,6 +49,15 @@ class OrdersFactory {
     }
 
     /// Method to create an order using the provided data (entrypoint for factory production).
+    ///
+    /// - Parameters:
+    ///   - with: Anything that implements `ShipmentsServiceCallable`
+    ///   - using: Anything that implements `CouponServiceCallable`
+    ///   - calculatingWith: Anything that implements `TaxServiceCallable`
+    /// - Throws:
+    ///   - `OrdersError` if there were no items
+    ///   - `CouponError` if there was an error validating the coupons.
+    ///   - `ShipmentsError` if there was an error in queueing shipment.
     func createOrder(with shippingService: ShipmentsServiceCallable,
                      using couponService: CouponServiceCallable,
                      calculatingWith taxService: TaxServiceCallable) throws
@@ -67,6 +84,8 @@ class OrdersFactory {
     }
 
     /// Method to create detailed order for mail service.
+    ///
+    /// - Returns: `DetailedOrder` with account, coupons and products information.
     ///
     /// NOTE: This should be called only after `createOrder(withShipping:)`
     func createOrder() -> DetailedOrder {
@@ -137,11 +156,11 @@ class OrdersFactory {
                                                      from: data.shippingAddress)
         try checkCurrency(for: product)
         try updateConsumedInventory(for: product, with: unit)
-        unit.item.setTax(category: product.data.category)   // set the category for taxes
+        unit.item.setTax(using: product.data.category)      // set the category for taxes
         calculateUnitPrices(for: &unit)
 
         order.products.append(unit)
-        units.append(GenericOrderUnit(product: product, quantity: unit.item.quantity))
+        units.append(GenericOrderUnit(for: product, with: unit.item.quantity))
         updateCounters(for: unit, with: product)
     }
 
@@ -154,8 +173,9 @@ class OrdersFactory {
         for (id, leftover) in inventoryUpdates {
             var patch = ProductPatch()
             patch.inventory = leftover
-            let _ = try productsService.updateProduct(for: id, with: patch,
-                                                      from: data.shippingAddress)
+            // FIXME: This shouldn't fail. If it does, the changes should be rolled back.
+            let _ = try? productsService.updateProduct(for: id, with: patch,
+                                                       from: data.shippingAddress)
         }
     }
 

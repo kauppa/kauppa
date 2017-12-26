@@ -1,6 +1,6 @@
 import XCTest
 
-import KauppaTaxModel
+@testable import KauppaTaxModel
 
 class TestTaxTypes: XCTestCase {
     static var allTests: [(String, (TestTaxTypes) -> () throws -> Void)] {

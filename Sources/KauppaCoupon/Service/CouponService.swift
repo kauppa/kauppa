@@ -10,6 +10,9 @@ public class CouponService {
     let repository: CouponRepository
 
     /// Initializes a new `CouponService` instance with a repository.
+    ///
+    /// - Parameters:
+    ///   - with: `CouponRepository`
     public init(with repository: CouponRepository) {
         self.repository = repository
     }

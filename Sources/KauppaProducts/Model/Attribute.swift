@@ -17,6 +17,11 @@ public struct Attribute: Mappable {
     /// Last updated timestamp
     public let updatedAt: Date
 
+    /// Initialize an instance with name and type.
+    ///
+    /// - Parameters:
+    ///   - with: The name of this attribute.
+    ///   - and: The `BaseType` of this attribute.
     public init(with name: String, and type: BaseType) {
         let date = Date()
         id = UUID()
@@ -45,6 +50,10 @@ public struct AttributeValue<V: Mappable, U: Mappable>: Mappable {
     /// Unit used by this attribute's value (optional).
     public var unit: U? = nil
 
+    /// Initialize an instance with a value. All other fields are set to `nil`
+    ///
+    /// - Parameters:
+    ///   - with: The `value` of this attribute.
     public init(with value: V) {
         self.value = value
     }
@@ -52,6 +61,8 @@ public struct AttributeValue<V: Mappable, U: Mappable>: Mappable {
 
 extension AttributeValue where V == String, U == String {
     /// Validate the user-defined attribute for possible errors.
+    ///
+    /// - Throws: `ProductsError` on failure in validation.
     public mutating func validate() throws {
         guard let name = name else {
             throw ProductsError.invalidAttributeName

@@ -6,11 +6,18 @@ import KauppaProductsModel
 import KauppaProductsRepository
 import KauppaTaxClient
 
+/// Factory class for creating/updating product. This validates the product data,
+/// checks variants, custom attributes, sets tax and creates/updates product in the repository.
 class ProductsFactory {
     var data: ProductData
     let address: Address
     let repository: ProductsRepository
 
+    /// Initialize this factory with the product data, repository and the address
+    /// of the account.
+    ///
+    /// - Parameters:
+    ///   - for: The `ProductData` used by this factory.
     init(for data: ProductData, with repository: ProductsRepository, from address: Address) {
         self.data = data
         self.repository = repository
@@ -18,41 +25,12 @@ class ProductsFactory {
         self.address = address
     }
 
-    /// Validate the product's custom attributes (create/update the store data correspondingly).
-    private func validateCustomAttributes() throws {
-        for (index, customAttribute) in data.custom.enumerated() {
-            var customAttribute = customAttribute
-
-            if let id = customAttribute.id {
-                let attribute = try repository.getAttribute(for: id)
-                // Set the necessary stuff required for validation.
-                customAttribute.name = attribute.name
-                customAttribute.type = attribute.type
-                if attribute.type == .enum_ {
-                    customAttribute.variants = attribute.variants
-                }
-
-                try customAttribute.validate()
-            } else {
-                try customAttribute.validate()
-                let attribute = try repository.createAttribute(with: customAttribute.name!,
-                                                               and: customAttribute.type!,
-                                                               variants: customAttribute.variants)
-                customAttribute.id = attribute.id
-                customAttribute.name = attribute.name
-            }
-
-            // Set ID, value, unit and reset name, type and variants.
-            data.custom[index].id = customAttribute.id
-            data.custom[index].value = customAttribute.value
-            data.custom[index].unit = customAttribute.unit
-            data.custom[index].name = nil
-            data.custom[index].type = nil
-            data.custom[index].variants = nil
-        }
-    }
-
-    /// Method to create product using the initialized data.
+    /// Method to create product using the initialized data (entrypoint to factory).
+    ///
+    /// - Parameters:
+    ///   - using: Anything that implements `TaxServiceCallable`
+    /// - Returns: `Product` (if it was successfully created).
+    /// - Throws: `ProductsError` on failure.
     func createProduct(using taxService: TaxServiceCallable) throws -> Product {
         try data.validate()
         try validateCustomAttributes()
@@ -76,7 +54,7 @@ class ProductsFactory {
         let taxRate = try taxService.getTaxRate(for: address)
         data.stripTax(using: taxRate)
 
-        let product = Product(data: data)
+        let product = Product(with: data)
         let _ = try repository.createProduct(with: product)
         if let variant = variant {
             var variantData = variant.data
@@ -88,6 +66,12 @@ class ProductsFactory {
     }
 
     /// Method to update the product using the initialized data and the provided patch.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the product to be updated.
+    ///   - using: The `ProductPatch` data used for updating the product.
+    ///   - taxService: Anything that implements `TaxServiceCallable`
+    /// - Throws: `ProductsError` on failure.
     func updateProduct(for id: UUID, using patch: ProductPatch, taxService: TaxServiceCallable) throws {
         if let title = patch.title {
             data.title = title
@@ -166,11 +150,45 @@ class ProductsFactory {
                 var variantData = variant.data
                 if !variantData.variants.contains(id) {
                     variantData.variants.insert(id)
-                    let _ = try repository.updateProduct(for: variant.id, with: variantData)
+                    let _ = try? repository.updateProduct(for: variant.id, with: variantData)
                 }
             }
         }
 
         let _ = try repository.updateProduct(for: id, with: data)
+    }
+
+    /// Validate the product's custom attributes (create/update the store data correspondingly).
+    private func validateCustomAttributes() throws {
+        for (index, customAttribute) in data.custom.enumerated() {
+            var customAttribute = customAttribute
+
+            if let id = customAttribute.id {
+                let attribute = try repository.getAttribute(for: id)
+                // Set the necessary stuff required for validation.
+                customAttribute.name = attribute.name
+                customAttribute.type = attribute.type
+                if attribute.type == .enum_ {
+                    customAttribute.variants = attribute.variants
+                }
+
+                try customAttribute.validate()
+            } else {
+                try customAttribute.validate()
+                let attribute = try repository.createAttribute(with: customAttribute.name!,
+                                                               and: customAttribute.type!,
+                                                               variants: customAttribute.variants)
+                customAttribute.id = attribute.id
+                customAttribute.name = attribute.name
+            }
+
+            // Set ID, value, unit and reset name, type and variants.
+            data.custom[index].id = customAttribute.id
+            data.custom[index].value = customAttribute.value
+            data.custom[index].unit = customAttribute.unit
+            data.custom[index].name = nil
+            data.custom[index].type = nil
+            data.custom[index].variants = nil
+        }
     }
 }

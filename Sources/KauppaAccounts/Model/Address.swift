@@ -2,7 +2,7 @@ import Foundation
 
 import KauppaCore
 
-/// An address representation.
+/// An object representing an address.
 public struct Address: Mappable, Hashable {
     /// Name of the person (associated with this address)
     public let name: String
@@ -24,8 +24,7 @@ public struct Address: Mappable, Hashable {
     /// Label for this address.
     public let label: String?
 
-    /// Initialize an empty address for tests. This will fail in the actual
-    /// service when it gets validated.
+    /// Initialize an empty address (for tests).
     public init() {
         name = ""
         line1 = ""
@@ -51,7 +50,8 @@ public struct Address: Mappable, Hashable {
         self.label = label
     }
 
-    /// Try some basic validations on the address.
+    /// Try some basic validations on the address. This checks if any of the fields
+    /// in the address are empty.
     public func validate() throws {
         if name.isEmpty {
             throw AccountsError.invalidAddress(.invalidName)

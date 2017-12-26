@@ -18,11 +18,15 @@ public struct Cart: Mappable {
     /// Coupons applied in this cart.
     public var coupons = ArraySet<UUID>()
 
+    /// Initialize this cart with an ID.
+    ///
+    /// - Parameters:
+    ///   - with: The `UUID` of this cart.
     public init(with id: UUID) {
         self.id = id
     }
 
-    /// Reset this cart (called to clear the items once the cart has been checked out)
+    /// Reset this cart (called to clear the items once the cart has been checked out).
     public mutating func reset() {
         items = []
         netPrice = nil
@@ -32,6 +36,9 @@ public struct Cart: Mappable {
 
     /// Set tax rate for items in the cart using the given `TaxRate`
     /// and calculate the gross price.
+    ///
+    /// - Parameters:
+    ///   - using: The `TaxRate` to be used for calculating the gross prices.
     ///
     /// NOTE: This requires the `netPrice` to be set for the cart and the items in it.
     /// If an item belongs to a category, then the category should be set in its `tax` property.

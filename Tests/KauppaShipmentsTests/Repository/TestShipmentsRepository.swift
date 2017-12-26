@@ -28,7 +28,7 @@ class TestShipmentsRepository: XCTestCase {
     func testShipmentCreation() {
         let store = TestStore()
         let repository = ShipmentsRepository(with: store)
-        let data = try! repository.createShipment(for: UUID(), address: address, items: [])
+        let data = try! repository.createShipment(for: UUID(), with: [], to: address)
         // creation and updated timestamps should be the same during creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertNotNil(repository.shipments[data.id])  // valid shipment ID
@@ -40,7 +40,7 @@ class TestShipmentsRepository: XCTestCase {
     func testShipmentUpdate() {
         let store = TestStore()
         let repository = ShipmentsRepository(with: store)
-        var data = try! repository.createShipment(for: UUID(), address: address, items: [])
+        var data = try! repository.createShipment(for: UUID(), with: [], to: address)
         XCTAssertEqual(data.createdOn, data.updatedAt)
         data.status = .pickup
         let updatedData = try! repository.updateShipment(with: data)
@@ -53,7 +53,7 @@ class TestShipmentsRepository: XCTestCase {
     func testStoreCalls() {
         let store = TestStore()
         let repository = ShipmentsRepository(with: store)
-        let data = try! repository.createShipment(for: UUID(), address: address, items: [])
+        let data = try! repository.createShipment(for: UUID(), with: [], to: address)
         repository.shipments = [:]      // clear the repository
         let _ = try! repository.getShipment(for: data.id)
         XCTAssertTrue(store.getCalled)  // this should've called the store

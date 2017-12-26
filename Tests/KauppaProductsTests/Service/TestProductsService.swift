@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaAccountsModel
-import KauppaTaxModel
+@testable import KauppaTaxModel
 @testable import KauppaCore
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository

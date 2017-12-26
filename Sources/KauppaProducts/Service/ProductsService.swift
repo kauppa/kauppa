@@ -11,6 +11,11 @@ public class ProductsService {
     let repository: ProductsRepository
     let taxService: TaxServiceCallable
 
+    /// Initialize this service with a repository and tax service.
+    ///
+    /// - Parameters:
+    ///   - with: `ProductsRepository`
+    ///   - taxService: Anything that implements `TaxServiceCallable`
     public init(with repository: ProductsRepository, taxService: TaxServiceCallable) {
         self.repository = repository
         self.taxService = taxService
