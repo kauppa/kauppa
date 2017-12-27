@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "CircuitBreaker",
+        "repositoryURL": "https://github.com/IBM-Swift/CircuitBreaker.git",
+        "state": {
+          "branch": null,
+          "revision": "81581e3fb094ab4879aa2c5ce54201f1dbce0a7f",
+          "version": "5.0.1"
+        }
+      },
+      {
         "package": "Kitura",
         "repositoryURL": "https://github.com/IBM-Swift/Kitura",
         "state": {
@@ -107,6 +116,15 @@
           "branch": null,
           "revision": "3a87b64a97fb8e923f52f2a68e31e7bd4fc46b42",
           "version": "0.12.84"
+        }
+      },
+      {
+        "package": "SwiftyRequest",
+        "repositoryURL": "https://github.com/IBM-Swift/SwiftyRequest.git",
+        "state": {
+          "branch": null,
+          "revision": "82d49d1bde19c4acfc63c276b67c8a25ac434e52",
+          "version": "1.1.2"
         }
       },
       {

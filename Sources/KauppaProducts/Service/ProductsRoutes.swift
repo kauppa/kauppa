@@ -7,8 +7,6 @@ public enum ProductsRoutes: UInt8 {
     case getProduct
     case deleteProduct
     case updateProduct
-    case addProductProperty
-    case deleteProductProperty
 }
 
 extension ProductsRoutes: RouteRepresentable {
@@ -21,10 +19,6 @@ extension ProductsRoutes: RouteRepresentable {
             case .deleteProduct:
                 return Route(url: "/products/:id",  method: .delete)
             case .updateProduct:
-                return Route(url: "/products/:id",  method: .put)
-            case .addProductProperty:
-                return Route(url: "/products/:id",  method: .post)
-            case .deleteProductProperty:
                 return Route(url: "/products/:id",  method: .put)
         }
     }

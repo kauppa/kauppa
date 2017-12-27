@@ -16,12 +16,12 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
 
     /// Overridden routes for products service.
     public override func initializeRoutes() {
-        add(route: ProductsRoutes.createProduct) { request, response in
-            let address = Address()     // TODO: Get address from request
+        // TODO: Figure out how to use address for tax service.
 
+        add(route: ProductsRoutes.createProduct) { request, response in
             do {
                 let data: ProductData = try request.getJSON()
-                let product = try self.service.createProduct(with: data, from: address)
+                let product = try self.service.createProduct(with: data, from: nil)
                 response.respond(with: product, code: .ok)
             } catch {
                 // log error and respond back to stream

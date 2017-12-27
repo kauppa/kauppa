@@ -7,9 +7,3 @@ public enum HTTPStatusCode: UInt16 {
     case notFound               = 404
     case internalServerError    = 500
 }
-
-/// Represents objects which are associated with a status codes.
-public protocol HTTPStatusCodeConvertible {
-    /// Get the status code for this object.
-    func statusCode() -> HTTPStatusCode
-}
