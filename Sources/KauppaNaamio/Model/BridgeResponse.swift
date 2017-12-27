@@ -11,6 +11,10 @@ public struct BridgeResponse<R: ServiceResponse>: ServiceResponse {
         self.response = response
     }
 
+    public func setHeader(key: String, value: String) {
+        self.response.setHeader(key: key, value: value)
+    }
+
     public func respond(with data: Data, code: HTTPStatusCode) {
         self.response.respond(with: data, code: code)
     }

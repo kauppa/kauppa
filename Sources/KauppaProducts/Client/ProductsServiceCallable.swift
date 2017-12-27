@@ -26,6 +26,7 @@ public protocol ProductsServiceCallable {
     /// - Throws: `ServiceError` (if it doesn't).
     func getProduct(for id: UUID, from address: Address?) throws -> Product
 
+    // FIXME: Remove this or change this to support pagination.
     func getProducts() throws -> [Product]
 
     /// Delete product corresponding to a given ID.

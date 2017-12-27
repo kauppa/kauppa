@@ -1,11 +1,14 @@
 import Foundation
 import SwiftyRequest
 
+/// Wrapper class for `RestRequest` from `SwiftyRequest`
 public class SwiftyRestRequest: ClientCallable {
+    /// This is `RestResponse<Data>` wrapped in another class.
     public typealias Response = SwiftyRestResponse
 
     private let client: RestRequest
 
+    /// Translates Kauppa's HTTP methods to SwiftyRequest's HTTP method.
     static func translateMethod(from method: HTTPMethod) -> SwiftyRequest.HTTPMethod {
         switch method {
             case .get:

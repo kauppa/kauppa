@@ -17,7 +17,7 @@ public struct MappableArray<T>: Mappable {
 
     public init(from decoder: Decoder) throws {
         let array = try Array<T>(from: decoder)
-        self.init(array)
+        self.init(for: array)
     }
 
     public func encode(to encoder: Encoder) throws {

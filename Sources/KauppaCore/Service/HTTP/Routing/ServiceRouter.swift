@@ -14,7 +14,7 @@ open class ServiceRouter<R: Routing> {
     private let router: R
 
     /// Initialize the router for this service. Note that this also initializes the routes
-    /// necessary for the service.
+    /// necessary for the service by calling the overridable method `initializeRoutes`.
     public init(with router: R) {
         self.router = router
         self.initializeRoutes()
@@ -23,7 +23,14 @@ open class ServiceRouter<R: Routing> {
     /// Stub. Child classes should override this function with their own set of routes.
     open func initializeRoutes() {}
 
-    /// This is just a wrapper.
+    /// Wrapper for the actual route addition. Although this has the same signature as
+    /// `add` method from `Routing` protocol, this  converts the throwable closure
+    /// into a non-throwable one, by catching the error and encoding it appropriately
+    /// as a `ServiceStatusMessage` object with the error code.
+    ///
+    /// - Parameters:
+    ///   - route: A `RouteRepresentable` object.
+    ///   - The closure which gets the associated request and response object from the service call.
     public func add<R>(route repr: R, _ handler: @escaping (Request, Response) throws -> Void)
         where R: RouteRepresentable
     {

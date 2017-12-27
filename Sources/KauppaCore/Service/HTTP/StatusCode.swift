@@ -10,6 +10,8 @@ public enum HTTPStatusCode: UInt16 {
 }
 
 extension ServiceError {
+    /// An extension for the `ServiceError` so that each error
+    /// is associated with a status code.
     public var statusCode: HTTPStatusCode {
         switch self {
             case .jsonSerialization, .unknownError:

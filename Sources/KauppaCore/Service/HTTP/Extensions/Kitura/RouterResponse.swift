@@ -8,4 +8,8 @@ extension RouterResponse: ServiceResponse {
         statusCode = KituraNet.HTTPStatusCode(rawValue: Int(code.rawValue))!
         send(data: data)
     }
+
+    public func setHeader(key: String, value: String) {
+        headers.append(key, value: value)
+    }
 }

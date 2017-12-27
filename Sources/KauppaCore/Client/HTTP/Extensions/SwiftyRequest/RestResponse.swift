@@ -1,6 +1,8 @@
 import Foundation
 import SwiftyRequest
 
+/// Wrapper for the `RestResponse` - we had to go for a class because (at the time of
+/// this writing), Swift didn't allow us to extend constrained types with a protocol.
 public class SwiftyRestResponse: ClientResponse {
     private let inner: RestResponse<Data>
 
