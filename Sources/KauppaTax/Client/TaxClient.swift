@@ -4,7 +4,7 @@ import KauppaCore
 import KauppaAccountsModel
 import KauppaTaxModel
 
-public class TaxServiceClient<C: ClientCallable>: ServiceClient<C, TaxRoutes> {
+public class TaxServiceClient<C: ClientCallable>: ServiceClient<C, TaxRoutes>, TaxServiceCallable {
     public func getTaxRate(for address: Address) throws -> TaxRate {
         let client = try createClient(for: .getTaxRate)
         try client.setJSON(using: address)
