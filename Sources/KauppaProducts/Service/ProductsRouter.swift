@@ -50,5 +50,11 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
             let product = try self.service.updateProduct(for: id, with: data, from: nil)
             response.respondJSON(with: product, code: .ok)
         }
+
+        add(route: ProductsRoutes.getAllProducts) { request, response in
+            let products = try self.service.getProducts()
+            let data = MappableArray(for: products)
+            response.respondJSON(with: data, code: .ok)
+        }
     }
 }
