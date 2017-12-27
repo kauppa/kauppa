@@ -48,7 +48,15 @@ let productsService = ProductsService(with: repository, taxService: taxClient)
 let router = Router()       // Kitura's router
 let serviceRouter = ProductsRouter(with: router, service: productsService)
 
+var servicePort = 8090
+if let port = ProcessInfo.processInfo.environment["KAUPPA_SERVICE_PORT"] {
+    if let port = Int(port) {
+        servicePort = port
+    }
+}
+
+print("Listening to requests on port \(servicePort)")
 // FIXME: This should be managed by the controller
-Kitura.addHTTPServer(onPort: 8000, with: router)
+Kitura.addHTTPServer(onPort: servicePort, with: router)
 
 Kitura.run()

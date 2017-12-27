@@ -33,7 +33,10 @@ extension ServiceResponse {
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
         let encoded = try! encoder.encode(data)
 
-        self.setHeader("Content-Type", "application/json")
+        // FIXME: Remove this!
+        self.setHeader(key: "Access-Control-Allow-Origin", value: "*")
+
+        self.setHeader(key: "Content-Type", value: "application/json")
         self.respond(with: encoded, code: code)
     }
 }

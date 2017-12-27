@@ -35,6 +35,10 @@ typealias ResponseCallback<T> = (T, HTTPStatusCode) -> Void
 struct TestResponse<J: Mappable>: ServiceResponse {
     var callback: ResponseCallback<J>? = nil
 
+    public func setHeader(key: String, value: String) {
+        //
+    }
+
     public func respond(with data: Data, code: HTTPStatusCode) {
         if let callback = callback {
             let object = try! JSONDecoder().decode(J.self, from: data)
