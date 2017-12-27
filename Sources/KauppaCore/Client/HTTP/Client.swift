@@ -1,12 +1,12 @@
+import Dispatch
 import Foundation
 
-open class HTTPClient<C: ClientCallable>: ClientCallable {
+open class ServiceClient<C: ClientCallable, E: ServiceError>: ClientCallable {
     public typealias Response = C.Response
-    public typealias ClientError = C.ClientError
 
     private let client: C
 
-    public required init(with method: HTTPMethod, on url: String) {
+    required public init(with method: HTTPMethod, on url: URL) {
         self.client = C(with: method, on: url)
     }
 
@@ -14,12 +14,15 @@ open class HTTPClient<C: ClientCallable>: ClientCallable {
         self.client.setBody(using: data)
     }
 
-    public func requestRaw(_ handler: @escaping (Response) throws -> Void) {
+    public func requestRaw(_ handler: @escaping (Response) -> Void) {
         self.client.requestRaw(handler)
     }
 
-    public func request<D: Mappable>(_ handler: @escaping (D) throws -> Void) {
-        self.requestRaw() { response in
+    public func request<D: Mappable>() throws -> D {
+        var result: Result<D, E>? = nil
+        var otherError: GenericError = GenericError.unknownError
+
+        let task: (Response) throws -> Void = { response in
             guard let data = response.getData() else {
                 throw GenericError.clientHTTPData
             }
@@ -27,18 +30,17 @@ open class HTTPClient<C: ClientCallable>: ClientCallable {
             let code = response.statusCode
             if code.rawValue < 400 {
                 do {
-                    let jsonData: D = try JSONDecoder().decode(D.self, from: data)
-                    try handler(jsonData)
+                    let decoded = try JSONDecoder().decode(D.self, from: data)
+                    result = .ok(decoded)
+                    return
                 } catch {
                     throw GenericError.jsonParse
                 }
-
-                return
             }
 
             do {
                 let error = try JSONDecoder().decode(MappableServiceError.self, from: data)
-                guard let serviceError = ClientError(rawValue: error.code) else {
+                guard let serviceError = E(rawValue: error.code) else {
                     throw GenericError.jsonErrorParse
                 }
 
@@ -47,5 +49,32 @@ open class HTTPClient<C: ClientCallable>: ClientCallable {
                 throw GenericError.jsonErrorParse
             }
         }
+
+        let group = DispatchGroup()
+        group.enter()
+
+        DispatchQueue.main.async {
+            self.requestRaw() { response in
+                do {
+                    try task(response)
+                } catch let err as E {
+                    result = .err(err)
+                } catch let err as GenericError {
+                    otherError = err
+                } catch {
+                    //
+                }
+
+                group.leave()
+            }
+        }
+
+        group.wait()
+
+        if let result = result {
+            return try result.unwrapOrThrow()
+        }
+
+        throw otherError
     }
 }
