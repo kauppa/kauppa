@@ -1,11 +1,50 @@
-///
-public protocol ServiceError: Error, RawRepresentable
-    where RawValue == UInt16
-{
-    //
+public enum ServiceError: UInt16, Error {
+    /* Generic errors */
+    case clientHTTPData
+
+    case jsonParse
+    case jsonErrorParse
+    case jsonSerialization
+    case unknownError
+
+    /* Products service errors */
+
+    // Products-related errors
+    case invalidProductTitle
+    case invalidProductSubtitle
+    case invalidProductDescription
+    case invalidProductColor
+
+    // Collection-related errors
+    case invalidCollectionName
+    case invalidCollectionDescription
+    case invalidCollectionProduct
+    case invalidCollection
+
+    // Custom attribute related errors
+    case invalidAttributeId
+    case invalidAttributeName
+    case invalidAttributeValue
+    case attributeRequiresType
+    case attributeRequiresUnit
+    case invalidAttributeUnit
+    case notEnoughVariants
+    case invalidEnumVariant
+
+    /* Tax service errors */
+
+    case invalidTaxRate
+    case invalidCountryId
+    case invalidRegionId
+    case invalidCategoryTaxRate
+    case invalidCountryName
+    case invalidRegionName
+    case noMatchingCountry
+    case noMatchingRegion
 }
 
-public struct MappableServiceError: Mappable {
-    ///
-    public let code: UInt16
+extension ServiceError {
+    public static func ==(lhs: ServiceError, rhs: ServiceError) -> Bool {
+        return lhs.rawValue == rhs.rawValue
+    }
 }
