@@ -76,7 +76,7 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
                     let decoder = JSONDecoder()
                     let dateFormatter = DateFormatter()
                     // NOTE: This format should be same as the one in `ServiceResponse` implementation.
-                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+zzzz"
+                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
                     decoder.dateDecodingStrategy = .formatted(dateFormatter)
                     let decoded = try decoder.decode(D.self, from: data)
                     result = .ok(decoded)

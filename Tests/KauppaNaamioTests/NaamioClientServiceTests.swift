@@ -22,7 +22,7 @@ class TestNaamioBridgeService: XCTestCase {
 
     // Test that the bridge service properly initializes and is able to add routes.
     func testBridgeInit() {
-        let router = SampleRouter<String, String>()     // assume this is a third party router.
+        let router = SampleRouter<String>()     // assume this is a third party router.
 
         let bridge = NaamioClientBridge(for: router)
         XCTAssertTrue(bridge.routes.isEmpty)

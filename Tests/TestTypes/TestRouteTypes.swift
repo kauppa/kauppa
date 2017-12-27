@@ -2,6 +2,8 @@ import Foundation
 
 import KauppaCore
 
+extension String: Error {}
+
 /// Request object conforming to `ServiceRequest` used throughout testing
 struct TestRequest<J: Mappable>: ServiceRequest {
     var headers = [String: String]()
@@ -29,28 +31,31 @@ struct TestRequest<J: Mappable>: ServiceRequest {
     }
 }
 
-typealias ResponseCallback<T> = (T, HTTPStatusCode) -> Void
+typealias ResponseCallback = (Data, HTTPStatusCode) -> Void
+typealias HeaderCallback = (String, String) -> Void
 
 /// Response object conforming to `ServiceResponse` used throughout testing
-struct TestResponse<J: Mappable>: ServiceResponse {
-    var callback: ResponseCallback<J>? = nil
+struct TestResponse: ServiceResponse {
+    var callback: ResponseCallback? = nil
+    var headerCallback: HeaderCallback? = nil
 
     public func setHeader(key: String, value: String) {
-        //
+        if let callback = headerCallback {
+            callback(key, value)
+        }
     }
 
     public func respond(with data: Data, code: HTTPStatusCode) {
         if let callback = callback {
-            let object = try! JSONDecoder().decode(J.self, from: data)
-            callback(object, code)
+            callback(data, code)
         }
     }
 }
 
 /// Router object conforming to `Routing` used throughout testing
-class SampleRouter<Req: Mappable, Resp: Mappable>: Routing {
+class SampleRouter<Req: Mappable>: Routing {
     typealias Request = TestRequest<Req>
-    typealias Response = TestResponse<Resp>
+    typealias Response = TestResponse
 
     var routes = [Route: (Request, Response) throws -> Void]()
 
@@ -64,6 +69,7 @@ class SampleRouter<Req: Mappable, Resp: Mappable>: Routing {
 enum TestRoute: UInt8 {
     case foo
     case bar
+    case baz
 }
 
 extension TestRoute: RouteRepresentable {
@@ -73,6 +79,8 @@ extension TestRoute: RouteRepresentable {
                 return Route(url: "/foo", method: .get)
             case .bar:
                 return Route(url: "/bar", method: .post)
+            case .baz:
+                return Route(url: "/baz", method: .put)
         }
     }
 }
