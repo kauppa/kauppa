@@ -6,4 +6,5 @@ public enum HTTPStatusCode: UInt16 {
     case forbidden              = 403
     case notFound               = 404
     case internalServerError    = 500
+    case unknown                = 999
 }
