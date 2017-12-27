@@ -87,6 +87,14 @@ class ProductsFactory {
             data.description = description
         }
 
+        if let overview = patch.overview {
+            data.overview = overview
+        }
+
+        if let tags = patch.tags {
+            data.tags = tags
+        }
+
         if let dimensions = patch.dimensions {
             if data.dimensions == nil {
                 data.dimensions = dimensions

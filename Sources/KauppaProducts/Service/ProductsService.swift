@@ -75,6 +75,10 @@ extension ProductsService: ProductsServiceCallable {
     {
         var productData = try repository.getProductData(for: id)
 
+        if (data.removeOverview ?? false) {
+            productData.overview = nil
+        }
+
         if (data.removeTaxCategory ?? false) {
             productData.taxCategory = nil
         }
@@ -89,6 +93,10 @@ extension ProductsService: ProductsServiceCallable {
 
         if (data.removeWeight ?? false) {
             productData.weight = nil
+        }
+
+        if let index = data.removeTagAt {
+            productData.tags.remove(at: index)
         }
 
         if let index = data.removeImageAt {

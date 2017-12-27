@@ -9,13 +9,15 @@ public struct ProductPatch: Mappable {
     public var title: String? = nil
     public var subtitle: String? = nil
     public var description: String? = nil
-    public var taxCategory: String? = nil
+    public var overview: String? = nil
+    public var tags: ArraySet<String>? = nil
     public var dimensions: Dimensions? = nil
     public var color: String? = nil
     public var weight: UnitMeasurement<Weight>? = nil
     public var inventory: UInt32? = nil
     public var images: ArraySet<String>? = nil
     public var price: UnitMeasurement<Currency>? = nil
+    public var taxCategory: String? = nil
     public var taxInclusive: Bool? = nil
     public var variantId: UUID? = nil
     public var custom: [CustomAttribute]? = nil
@@ -33,6 +35,8 @@ public struct ProductPropertyAdditionPatch: Mappable {
 /// request having one or more of these fields set to `true`
 /// will reset that field in `ProductData`
 public struct ProductPropertyDeletionPatch: Mappable {
+    public var removeOverview: Bool? = nil
+    public var removeTagAt: Int? = nil
     public var removeTaxCategory: Bool? = nil
     public var removeColor: Bool? = nil
     public var removeDimensions: Bool? = nil
