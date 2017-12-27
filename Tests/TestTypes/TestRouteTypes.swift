@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 
 /// Request object conforming to `ServiceRequest` used throughout testing
@@ -33,9 +35,10 @@ typealias ResponseCallback<T> = (T, HTTPStatusCode) -> Void
 struct TestResponse<J: Mappable>: ServiceResponse {
     var callback: ResponseCallback<J>? = nil
 
-    public func respond<T: Mappable>(with data: T, code: HTTPStatusCode) {
+    public func respond(with data: Data, code: HTTPStatusCode) {
         if let callback = callback {
-            callback(data as! J, code)
+            let object = try! JSONDecoder().decode(J.self, from: data)
+            callback(object, code)
         }
     }
 }

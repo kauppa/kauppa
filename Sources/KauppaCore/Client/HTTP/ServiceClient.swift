@@ -30,7 +30,12 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
             let code = response.statusCode
             if code.rawValue < 400 {
                 do {
-                    let decoded = try JSONDecoder().decode(D.self, from: data)
+                    let decoder = JSONDecoder()
+                    let dateFormatter = DateFormatter()
+                    // NOTE: This should be same as `ServiceResponse` implementation.
+                    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+zzzz"
+                    decoder.dateDecodingStrategy = .formatted(dateFormatter)
+                    let decoded = try decoder.decode(D.self, from: data)
                     result = .ok(decoded)
                 } catch {
                     //

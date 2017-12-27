@@ -1,9 +1,11 @@
+import Foundation
+
 import Kitura
 import KituraNet
 
 extension RouterResponse: ServiceResponse {
-    public func respond<T: Mappable>(with data: T, code: HTTPStatusCode) {
+    public func respond(with data: Data, code: HTTPStatusCode) {
         statusCode = KituraNet.HTTPStatusCode(rawValue: Int(code.rawValue))!
-        send(json: data)
+        send(data: data)
     }
 }

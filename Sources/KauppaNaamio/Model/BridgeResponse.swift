@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 
 /// Wrapper object around the response which is responsible for translating the
@@ -9,8 +11,7 @@ public struct BridgeResponse<R: ServiceResponse>: ServiceResponse {
         self.response = response
     }
 
-    public func respond<T: Mappable>(with data: T, code: HTTPStatusCode) {
-        // TODO: Translate data to Naamio dictionary.
+    public func respond(with data: Data, code: HTTPStatusCode) {
         self.response.respond(with: data, code: code)
     }
 }

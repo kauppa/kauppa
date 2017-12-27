@@ -26,19 +26,19 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
             }
 
             let product = try self.service.createProduct(with: data, from: nil)
-            response.respond(with: product, code: .ok)
+            response.respondJSON(with: product, code: .ok)
         }
 
         add(route: ProductsRoutes.getProduct) { request, response in
             let id: UUID = request.getParameter(for: "id")!
             let product = try self.service.getProduct(for: id, from: nil)
-            response.respond(with: product, code: .ok)
+            response.respondJSON(with: product, code: .ok)
         }
 
         add(route: ProductsRoutes.deleteProduct) { request, response in
             let id: UUID = request.getParameter(for: "id")!
             try self.service.deleteProduct(for: id)
-            response.respond(with: ServiceStatusMessage(), code: .ok)
+            response.respondJSON(with: ServiceStatusMessage(), code: .ok)
         }
 
         add(route: ProductsRoutes.updateProduct) { request, response in
@@ -48,7 +48,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
 
             let id: UUID = request.getParameter(for: "id")!
             let product = try self.service.updateProduct(for: id, with: data, from: nil)
-            response.respond(with: product, code: .ok)
+            response.respondJSON(with: product, code: .ok)
         }
     }
 }

@@ -32,12 +32,12 @@ open class ServiceRouter<R: Routing> {
                 try handler(request, response)
             } catch let error as ServiceError {
                 let status = ServiceStatusMessage(error: error)
-                response.respond(with: status, code: error.statusCode)
+                response.respondJSON(with: status, code: error.statusCode)
             } catch {
                 let error = ServiceError.unknownError
                 // TODO: Log unknown error
                 let status = ServiceStatusMessage(error: error)
-                response.respond(with: status, code: error.statusCode)
+                response.respondJSON(with: status, code: error.statusCode)
             }
         }
     }
