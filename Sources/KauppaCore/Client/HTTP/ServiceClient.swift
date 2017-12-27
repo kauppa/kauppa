@@ -101,7 +101,7 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
                     return
                 }
 
-                throw serviceError
+                result = .err(serviceError)
             } catch {
                 throw ServiceError.jsonErrorParse
             }
@@ -113,10 +113,12 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
         let group = DispatchGroup()
         group.enter()
 
-        DispatchQueue.main.async {
+        DispatchQueue.global().async {
             client.requestRaw() { response in
                 do {
                     try task(response)
+                } catch let err as ServiceError {
+                    result = .err(err)
                 } catch {
                     //
                 }
