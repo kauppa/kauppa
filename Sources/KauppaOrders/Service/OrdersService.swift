@@ -81,6 +81,11 @@ extension OrdersService: OrdersServiceCallable {
         return try repository.getOrder(for: id)
     }
 
+    // FIXME: Remove this!
+    public func getOrders() throws -> [Order] {
+        return try repository.getOrders()
+    }
+
     public func cancelOrder(for id: UUID) throws -> Order {
         var order = try repository.getOrder(for: id)
         let date = Date()

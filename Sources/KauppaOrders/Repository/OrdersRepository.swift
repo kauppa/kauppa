@@ -46,6 +46,11 @@ public class OrdersRepository {
         return order
     }
 
+    // FIXME: Stub for service. Support pagination.
+    public func getOrders() throws -> [Order] {
+        return Array(orders.values)
+    }
+
     /// Update an order with the given data from the service.
     ///
     /// It takes an optional parameter `skipDate` for skipping
