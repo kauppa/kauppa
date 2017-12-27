@@ -10,16 +10,17 @@ public enum ServiceError: UInt16, Error {
     /* Products service errors */
 
     // Products-related errors
+    case invalidProductId
     case invalidProductTitle
     case invalidProductSubtitle
     case invalidProductDescription
     case invalidProductColor
 
     // Collection-related errors
+    case invalidCollectionId
     case invalidCollectionName
     case invalidCollectionDescription
     case invalidCollectionProduct
-    case invalidCollection
 
     // Custom attribute related errors
     case invalidAttributeId

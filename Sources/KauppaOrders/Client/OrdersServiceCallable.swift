@@ -13,7 +13,7 @@ public protocol OrdersServiceCallable {
     /// - Returns: An `Order`
     /// - Throws:
     ///   - `AccountsError` if the account doesn't exist
-    ///   - `ProductsError` if one of the products doesn't exist
+    ///   - `ServiceError` if one of the products doesn't exist
     ///   - `OrdersError` if the order couldn't be placed.
     func createOrder(with data: OrderData) throws -> Order
 

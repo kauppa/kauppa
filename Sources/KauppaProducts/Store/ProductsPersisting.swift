@@ -9,14 +9,14 @@ public protocol ProductsPersisting: Persisting {
     ///
     /// - Parameters:
     ///   - with: The `Product` object from the repository.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createNewProduct(with data: Product) throws -> ()
 
     /// Delete a product corresponding to an ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func deleteProduct(for id: UUID) throws -> ()
 
     /// Update a product with the product information. ID will be obtained
@@ -24,34 +24,34 @@ public protocol ProductsPersisting: Persisting {
     ///
     /// - Parameters:
     ///   - with: The updated `Product` object from the repository.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateProduct(with data: Product) throws -> ()
 
     /// Create an attribute using the given data.
     ///
     /// - Parameters:
     ///   - with: `Attribute` object from repository.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createAttribute(with data: Attribute) throws -> ()
 
     /// Create a new collection with information from the repository.
     ///
     /// - Parameters:
     ///   - with: `ProductCollection` object from repository.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createNewCollection(with data: ProductCollection) throws -> ()
 
     /// Update an existing collection with data from repository.
     ///
     /// - Parameters:
     ///   - with: Updated `ProductCollection` from repository.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateCollection(with data: ProductCollection) throws -> ()
 
     /// Delete a collection corresponding to an ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func deleteCollection(for id: UUID) throws -> ()
 }

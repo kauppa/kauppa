@@ -35,7 +35,7 @@ class ProductsFactory {
     /// - Parameters:
     ///   - using: Anything that implements `TaxServiceCallable`
     /// - Returns: `Product` (if it was successfully created).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createProduct(using taxService: TaxServiceCallable) throws -> Product {
         try data.validate()
         try validateCustomAttributes()
@@ -73,7 +73,7 @@ class ProductsFactory {
     ///   - for: The `UUID` of the product to be updated.
     ///   - with: The `ProductPatch` data used for updating the product.
     ///   - using: Anything that implements `TaxServiceCallable`
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateProduct(for id: UUID, with patch: ProductPatch, using taxService: TaxServiceCallable) throws {
         if let title = patch.title {
             data.title = title

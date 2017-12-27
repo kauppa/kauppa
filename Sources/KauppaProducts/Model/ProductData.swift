@@ -99,24 +99,24 @@ public struct ProductData: Mappable {
     /// Perform basic validation on product data. Currently, this checks the
     /// title, subtitle, description and color (for valid hex value).
     ///
-    /// - Throws: `ProductsError` for invalid data.
+    /// - Throws: `ServiceError` for invalid data.
     public func validate() throws {
         if title.isEmpty {
-            throw ProductsError.invalidTitle
+            throw ServiceError.invalidProductTitle
         }
 
         if subtitle.isEmpty {
-            throw ProductsError.invalidSubtitle
+            throw ServiceError.invalidProductSubtitle
         }
 
         if description.isEmpty {
-            throw ProductsError.invalidDescription
+            throw ServiceError.invalidProductDescription
         }
 
         if let color = color {
             /// Checks whether color is a valid CSS-compliant hex color.
             if !color.isMatching(regex: "^#(?:[0-9a-fA-F]{3}){1,2}$") {
-                throw ProductsError.invalidColor
+                throw ServiceError.invalidProductColor
             }
         }
     }

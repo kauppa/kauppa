@@ -17,7 +17,7 @@ public struct BridgeRequest<R: ServiceRequest>: ServiceRequest {
         return self.getParameter(for: key)
     }
 
-    public func getJSON<T: Mappable>() throws -> T {
-        return try self.getJSON()
+    public func getJSON<T: Mappable>() -> T? {
+        return self.getJSON()
     }
 }

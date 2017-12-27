@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 import KauppaAccountsModel
 import KauppaProductsClient
@@ -19,13 +21,18 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
         // TODO: Figure out how to use address for tax service.
 
         add(route: ProductsRoutes.createProduct) { request, response in
-            do {
-                let data: ProductData = try request.getJSON()
-                let product = try self.service.createProduct(with: data, from: nil)
-                response.respond(with: product, code: .ok)
-            } catch {
-                // log error and respond back to stream
+            guard let data: ProductData = request.getJSON() else {
+                throw ServiceError.clientHTTPData
             }
+
+            let product = try self.service.createProduct(with: data, from: nil)
+            response.respond(with: product, code: .ok)
+        }
+
+        add(route: ProductsRoutes.getProduct) { request, response in
+            let id: UUID = request.getParameter(for: "id")!
+            let product = try self.service.getProduct(for: id, from: nil)
+            response.respond(with: product, code: .ok)
         }
     }
 }

@@ -31,7 +31,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - with: `ProductData`
     /// - Returns: `Product` initialized with the given data.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createProduct(with data: Product) throws -> Product {
         try self.store.createNewProduct(with: data)
         products[data.id] = data
@@ -43,7 +43,7 @@ public class ProductsRepository {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func deleteProduct(for id: UUID) throws -> () {
         products.removeValue(forKey: id)
         return try store.deleteProduct(for: id)
@@ -54,7 +54,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product.
     /// - Returns: `ProductData` for that product (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getProductData(for id: UUID) throws -> ProductData {
         let product = try getProduct(for: id)
         return product.data
@@ -65,7 +65,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product.
     /// - Returns: Updated `Product` object (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func updateProduct(for id: UUID, with data: ProductData) throws -> Product {
         var product = try getProduct(for: id)
         product.updatedAt = Date()
@@ -80,7 +80,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product.
     /// - Returns: `Product` object (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getProduct(for id: UUID) throws -> Product {
         var product = products[id]
         if product == nil {
@@ -99,7 +99,7 @@ public class ProductsRepository {
     ///   - and: The `BaseType` of the attribute.
     ///   - variants: (Optional) list of variants (if it's an enum).
     /// - Returns: `Attribute` with the given data.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createAttribute(with name: String, and type: BaseType,
                                 variants: ArraySet<String>? = nil) throws -> Attribute
     {
@@ -118,7 +118,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the attribute.
     /// - Returns: `Attribute` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getAttribute(for id: UUID) throws -> Attribute {
         guard let attribute = attributes[id] else {
             let attribute = try store.getAttribute(for: id)
@@ -134,7 +134,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
     /// - Returns: `ProductCollection`
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createCollection(with data: ProductCollectionData) throws
                                 -> ProductCollection
     {
@@ -149,7 +149,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
     /// - Returns: `ProductCollection` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getCollection(for id: UUID) throws -> ProductCollection {
         guard let collection = collections[id] else {
             let collection = try store.getCollection(for: id)
@@ -165,7 +165,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
     /// - Returns: `ProductCollectionData` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getCollectionData(for id: UUID) throws -> ProductCollectionData {
         let collection = try getCollection(for: id)
         return collection.data
@@ -177,7 +177,7 @@ public class ProductsRepository {
     ///   - for: The `UUID` of the product collection.
     ///   - with: `ProductCollectionData`
     /// - Returns: Updated `ProductCollection` (if it exists)
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func updateCollection(for id: UUID, with data: ProductCollectionData) throws
                                 -> ProductCollection
     {
@@ -194,7 +194,7 @@ public class ProductsRepository {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func deleteCollection(for id: UUID) throws -> () {
         collections.removeValue(forKey: id)
         return try store.deleteCollection(for: id)

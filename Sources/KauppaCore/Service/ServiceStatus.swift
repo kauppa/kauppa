@@ -12,8 +12,8 @@ public struct ServiceStatusMessage: Mappable {
     ///
     public var code: UInt16? = nil
 
-    public init(_ status: ServiceStatus, error: ServiceError? = nil) {
-        self.status = status
+    public init(error: ServiceError? = nil) {
+        status = error == nil ? .ok : .error
         if let error = error {
             code = error.rawValue
         }

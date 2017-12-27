@@ -10,7 +10,7 @@ public protocol ProductsQuerying: Querying {
     /// - Parameters:
     ///   - for: The `UUID` of the product.
     /// - Returns: `Product` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getProduct(for id: UUID) throws -> Product
 
     /// Get the attribute data for the given ID.
@@ -18,7 +18,7 @@ public protocol ProductsQuerying: Querying {
     /// - Parameters:
     ///   - for: The `UUID` of the attribute.
     /// - Returns: `Attribute` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getAttribute(for id: UUID) throws -> Attribute
 
     /// Get the collection data corresponding to an ID.
@@ -26,6 +26,6 @@ public protocol ProductsQuerying: Querying {
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
     /// - Returns: `ProductCollection` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getCollection(for id: UUID) throws -> ProductCollection
 }

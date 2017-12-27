@@ -268,7 +268,7 @@ class TestProductsService: XCTestCase {
             let _ = try service.createCollection(with: collection)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidProductId)
         }
     }
 
@@ -309,7 +309,7 @@ class TestProductsService: XCTestCase {
             let _ = try service.updateCollection(for: data.id, with: patch)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidProductId)
         }
     }
 
@@ -335,7 +335,7 @@ class TestProductsService: XCTestCase {
             let _ = try service.addProduct(to: data.id, using: patch)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidProductId)
         }
     }
 

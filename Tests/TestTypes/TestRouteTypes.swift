@@ -1,7 +1,5 @@
 import KauppaCore
 
-extension String: Error {}
-
 /// Request object conforming to `ServiceRequest` used throughout testing
 struct TestRequest<J: Mappable>: ServiceRequest {
     var headers = [String: String]()
@@ -20,12 +18,12 @@ struct TestRequest<J: Mappable>: ServiceRequest {
         return nil
     }
 
-    public func getJSON<T: Mappable>() throws -> T {
+    public func getJSON<T: Mappable>() -> T? {
         if let value = json {
-            return value as! T
+            return value as? T
+        } else {
+            return nil
         }
-
-        throw "No JSON in request"
     }
 }
 
@@ -47,9 +45,9 @@ class SampleRouter<Req: Mappable, Resp: Mappable>: Routing {
     typealias Request = TestRequest<Req>
     typealias Response = TestResponse<Resp>
 
-    var routes = [Route: (Request, Response) -> Void]()
+    var routes = [Route: (Request, Response) throws -> Void]()
 
-    public func add<R>(route repr: R, _ handler: @escaping (Request, Response) -> Void)
+    public func add<R>(route repr: R, _ handler: @escaping (Request, Response) throws -> Void)
         where R: RouteRepresentable
     {
         routes[repr.route] = handler

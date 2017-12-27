@@ -8,3 +8,14 @@ public enum HTTPStatusCode: UInt16 {
     case internalServerError    = 500
     case unknown                = 999
 }
+
+extension ServiceError {
+    public var statusCode: HTTPStatusCode {
+        switch self {
+            case .jsonSerialization, .unknownError:
+                return .internalServerError
+            default:
+                return .badRequest
+        }
+    }
+}

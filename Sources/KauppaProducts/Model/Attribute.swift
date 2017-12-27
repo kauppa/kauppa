@@ -62,18 +62,18 @@ public struct AttributeValue<V: Mappable, U: Mappable>: Mappable {
 extension AttributeValue where V == String, U == String {
     /// Validate the user-defined attribute for possible errors.
     ///
-    /// - Throws: `ProductsError` on failure in validation.
+    /// - Throws: `ServiceError` on failure in validation.
     public mutating func validate() throws {
         guard let name = name else {
-            throw ProductsError.invalidAttributeName
+            throw ServiceError.invalidAttributeName
         }
 
         guard let type = type else {
-            throw ProductsError.attributeRequiresType
+            throw ServiceError.attributeRequiresType
         }
 
         if (name.isEmpty) {
-            throw ProductsError.invalidAttributeName
+            throw ServiceError.invalidAttributeName
         }
 
         self.name = name.lowercased()
@@ -81,20 +81,20 @@ extension AttributeValue where V == String, U == String {
         if type == .enum_ {
             try validateEnum()
         } else if (value.isEmpty) {
-            throw ProductsError.invalidAttributeValue
+            throw ServiceError.invalidAttributeValue
         }
 
         guard let _ = type.parse(value: value) else {
-            throw ProductsError.invalidAttributeValue
+            throw ServiceError.invalidAttributeValue
         }
 
         if type.hasUnit {
             guard let unit = unit else {
-                throw ProductsError.attributeRequiresUnit
+                throw ServiceError.attributeRequiresUnit
             }
 
             guard let _ = type.parse(unit: unit) else {
-                throw ProductsError.invalidAttributeUnit
+                throw ServiceError.invalidAttributeUnit
             }
         }
     }
@@ -102,27 +102,27 @@ extension AttributeValue where V == String, U == String {
     /// Validate enum variants for possible errors.
     private mutating func validateEnum() throws {
         guard let declaredVariants = self.variants else {
-            throw ProductsError.notEnoughVariants
+            throw ServiceError.notEnoughVariants
         }
 
         var newVariants = ArraySet<String>()
         for variant in declaredVariants {
             if variant.isEmpty {
-                throw ProductsError.invalidEnumVariant
+                throw ServiceError.invalidEnumVariant
             }
 
             newVariants.insert(variant.lowercased())
         }
 
         if newVariants.count < 2 {
-            throw ProductsError.notEnoughVariants
+            throw ServiceError.notEnoughVariants
         }
 
         self.value = value.lowercased()
         self.variants = newVariants
 
         if !newVariants.contains(self.value) {
-            throw ProductsError.invalidAttributeValue
+            throw ServiceError.invalidAttributeValue
         }
     }
 }

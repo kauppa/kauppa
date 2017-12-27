@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 @testable import KauppaProductsStore
 @testable import KauppaProductsModel
 
@@ -30,7 +31,7 @@ public class TestStore: ProductsStorable {
     public func getProduct(for id: UUID) throws -> Product {
         getCalled = true
         guard let product = products[id] else {
-            throw ProductsError.invalidProduct
+            throw ServiceError.invalidProductId
         }
 
         return product
@@ -41,7 +42,7 @@ public class TestStore: ProductsStorable {
         if products.removeValue(forKey: id) != nil {
             return
         } else {
-            throw ProductsError.invalidProduct
+            throw ServiceError.invalidProductId
         }
     }
 
@@ -58,7 +59,7 @@ public class TestStore: ProductsStorable {
     public func getCollection(for id: UUID) throws -> ProductCollection {
         collectionGetCalled = true
         guard let collection = collections[id] else {
-            throw ProductsError.invalidCollection
+            throw ServiceError.invalidCollectionId
         }
 
         return collection
@@ -74,7 +75,7 @@ public class TestStore: ProductsStorable {
         if collections.removeValue(forKey: id) != nil {
             return
         } else {
-            throw ProductsError.invalidCollection
+            throw ServiceError.invalidCollectionId
         }
     }
 
@@ -86,7 +87,7 @@ public class TestStore: ProductsStorable {
     public func getAttribute(for id: UUID) throws -> Attribute {
         attributeGetCalled = true
         guard let attribute = attributes[id] else {
-            throw ProductsError.invalidAttribute
+            throw ServiceError.invalidAttributeId
         }
 
         return attribute

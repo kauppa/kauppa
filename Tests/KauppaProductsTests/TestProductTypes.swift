@@ -17,24 +17,24 @@ class TestProductTypes: XCTestCase {
 
     func testProductData() {
         var data = ProductData(title: "", subtitle: "", description: "")
-        var tests = [(ProductData, ProductsError)]()
-        tests.append((data, ProductsError.invalidTitle))
+        var tests = [(ProductData, ServiceError)]()
+        tests.append((data, ServiceError.invalidProductTitle))
         data.title = "foo"
-        tests.append((data, ProductsError.invalidSubtitle))
+        tests.append((data, ServiceError.invalidProductSubtitle))
         data.subtitle = "bar"
-        tests.append((data, ProductsError.invalidDescription))
+        tests.append((data, ServiceError.invalidProductDescription))
         data.description = "foobar"
         data.color = "#sadaddad"
-        tests.append((data, ProductsError.invalidColor))
+        tests.append((data, ServiceError.invalidProductColor))
         data.color = "#"
-        tests.append((data, ProductsError.invalidColor))
+        tests.append((data, ServiceError.invalidProductColor))
 
         for (testCase, error) in tests {
             do {
                 try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! ProductsError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
@@ -89,17 +89,17 @@ class TestProductTypes: XCTestCase {
 
     func testCollectionData() {
         var data = ProductCollectionData(name: "", description: "", products: [])
-        var tests = [(ProductCollectionData, ProductsError)]()
-        tests.append((data, ProductsError.invalidCollectionName))
+        var tests = [(ProductCollectionData, ServiceError)]()
+        tests.append((data, ServiceError.invalidCollectionName))
         data.name = "foo"
-        tests.append((data, ProductsError.invalidCollectionDescription))
+        tests.append((data, ServiceError.invalidCollectionDescription))
 
         for (testCase, error) in tests {
             do {
                 try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! ProductsError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
