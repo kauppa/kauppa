@@ -23,6 +23,10 @@ public class TestProductsService: ProductsServiceCallable {
         return product
     }
 
+    public func getProducts() throws -> [Product] {
+        return []
+    }
+
     // NOTE: Not meant to be called by cart
     public func deleteProduct(for id: UUID) throws -> () {
         throw ServiceError.invalidProductId

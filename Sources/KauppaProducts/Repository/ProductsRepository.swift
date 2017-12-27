@@ -49,6 +49,10 @@ public class ProductsRepository {
         return try store.deleteProduct(for: id)
     }
 
+    public func getProducts() throws -> [Product] {
+        return Array(products.values)
+    }
+
     /// Get the product data corresponding to an ID.
     ///
     /// - Parameters:

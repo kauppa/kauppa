@@ -44,6 +44,10 @@ extension ProductsService: ProductsServiceCallable {
         return product
     }
 
+    public func getProducts() throws -> [Product] {
+        return try repository.getProducts()
+    }
+
     public func deleteProduct(for id: UUID) throws -> () {
         return try repository.deleteProduct(for: id)
     }

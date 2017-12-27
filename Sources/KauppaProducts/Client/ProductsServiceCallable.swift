@@ -26,6 +26,8 @@ public protocol ProductsServiceCallable {
     /// - Throws: `ServiceError` (if it doesn't).
     func getProduct(for id: UUID, from address: Address?) throws -> Product
 
+    func getProducts() throws -> [Product]
+
     /// Delete product corresponding to a given ID.
     ///
     /// - Parameters:
