@@ -101,3 +101,21 @@ tag:container:
     - tags
   dependencies:
     - build:linux
+
+nightly:container:
+  image: docker:latest
+  stage: deploy
+  services:
+    - docker:dind
+  script:
+    - echo -n $DOCKER_HUB_SECRET | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+    - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:nightly
+    - docker push $CONTAINER_IMAGE:nightly
+  when: on_success
+  tags:
+    - docker
+  only:
+    - schedules
+  dependencies:
+    - build:linux
