@@ -1,21 +1,13 @@
 variables:
   DOCKER_DRIVER: overlay
-  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
-  CONTAINER_IMAGE: $CI_REGISTRY_IMAGE
-  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
-
-cache:
-  key: "$CI_PROJECT_NAME"
-  untracked: false
-  policy: push
-  #paths:
-   # - .build/
+  CONTAINER_IMAGE: naamio/kauppa #$CI_REGISTRY_IMAGE
+  CONTAINER_TEST_IMAGE: $CONTAINER_IMAGE:$CI_BUILD_REF_NAME #$CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: $CONTAINER_IMAGE:latest #$CI_REGISTRY_IMAGE:latest
 
 stages:
   - build
   - test
-  - release
-  #- deploy
+  - deploy
 
 before_script:
   # install ssh-agent
@@ -32,7 +24,7 @@ before_script:
   - mkdir -p ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
-build-app:
+build:linux:
   image: ibmcom/swift-ubuntu:latest
   stage: build
   script:
@@ -48,7 +40,7 @@ build-app:
   only:
     - release   
 
-review-app:
+review:
   image: ibmcom/swift-ubuntu:latest
   stage: test
   script:
@@ -60,7 +52,7 @@ review-app:
   except: 
     - master
 
-test-app:
+test:
   image: ibmcom/swift-ubuntu:latest
   stage: test
   script:
@@ -74,37 +66,56 @@ test-app:
     paths:
     - .build/debug
 
-release-image:
+build:container:
   image: docker:latest
-  stage: release
+  stage: deploy
   services:
     - docker:dind
-  before_script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
   script:
+    - echo -n $DOCKER_HUB_SECRET | docker login -u $DOCKER_HUB_USERNAME --password-stdin
     - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
-    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:latest
-    - docker push $CONTAINER_IMAGE:latest
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
+    - docker push $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
   when: manual
   tags:
     - docker
   only: 
     - release
+  dependencies:
+    - build:linux
 
-#release-image:
-#  image: docker:latest
-#  stage: release
-#  script:
-#    - docker pull $CONTAINER_TEST_IMAGE
-#    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
-#    - docker push $CONTAINER_RELEASE_IMAGE
-#  only:
-#    - release
+tag:container:
+  image: docker:latest
+  stage: deploy
+  services:
+    - docker:dind
+  script:
+    - echo -n $DOCKER_HUB_SECRET | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+    - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
+    - docker push $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
+  when: manual
+  tags:
+    - docker
+  only: 
+    - tags
+  dependencies:
+    - build:linux
 
-#deploy:
-#  image: ibmcom/swift-ubuntu:latest
-#  stage: deploy
-#  script:
-#    - ./deploy.sh
-#  only:
-#    - master
+nightly:container:
+  image: docker:latest
+  stage: deploy
+  services:
+    - docker:dind
+  script:
+    - echo -n $DOCKER_HUB_SECRET | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+    - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:nightly
+    - docker push $CONTAINER_IMAGE:nightly
+  when: on_success
+  tags:
+    - docker
+  only:
+    - schedules
+  dependencies:
+    - build:linux
