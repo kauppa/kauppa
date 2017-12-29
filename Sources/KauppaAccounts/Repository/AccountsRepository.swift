@@ -26,7 +26,7 @@ public class AccountsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the account.
     /// - Returns: `Account` (if it exists) in the repository or store.
-    /// - Throws: `AccountsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getAccount(for id: UUID) throws -> Account {
         guard let account = accounts[id] else {
             let account = try store.getAccount(for: id)
@@ -42,7 +42,7 @@ public class AccountsRepository {
     /// - Parameters:
     ///   - for: The email of the account as a string.
     /// - Returns: `Account` (if it exists) in the repository or store.
-    /// - Throws: `AccountsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getAccount(for email: String) throws -> Account {
         guard let id = emails[email] else {
             let account = try store.getAccount(for: email)
@@ -58,7 +58,7 @@ public class AccountsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the account.
     /// - Returns: `AccountData` for the `Account` (if it exists) in the repository or store.
-    /// - Throws: `AccountsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getAccountData(for id: UUID) throws -> AccountData {
         let account = try getAccount(for: id)
         return account.data
@@ -69,7 +69,7 @@ public class AccountsRepository {
     /// - Parameters:
     ///   - with: The `AccountData` for this account
     /// - Returns: The created `Account`
-    /// - Throws: `AccountsError` if there were errors.
+    /// - Throws: `ServiceError` if there were errors.
     public func createAccount(with data: AccountData) throws -> Account {
         let account = Account(with: data)
         for email in data.emails {
@@ -85,7 +85,7 @@ public class AccountsRepository {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account.
-    /// - Throws: `AccountsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func deleteAccount(for id: UUID) throws -> () {
         accounts.removeValue(forKey: id)
         try store.deleteAccount(for: id)
@@ -97,7 +97,7 @@ public class AccountsRepository {
     ///   - for: The `UUID` of the account.
     ///   - with: The updated `AccountData`
     /// - Returns: The `Account` containing the updated data.
-    /// - Throws: `AccountsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func updateAccount(for id: UUID, with data: AccountData) throws -> Account {
         var account = try getAccount(for: id)
         let date = Date()

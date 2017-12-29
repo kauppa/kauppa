@@ -1,8 +1,73 @@
 import Foundation
 
 import KauppaCore
+import KauppaAccountsModel
+import KauppaAccountsClient
 
-/// Routes service requests to the given service-layer.
+/// Router specific to the accounts service.
 public class AccountsRouter<R: Routing>: ServiceRouter<R> {
-    //
+    let service: AccountsServiceCallable
+
+    /// Initializes this router with a `Routing` object and
+    /// an `AccountsServiceCallable` object.
+    public init(with router: R, service: AccountsServiceCallable) {
+        self.service = service
+        super.init(with: router)
+    }
+
+    /// Overridden routes for accounts service.
+    public override func initializeRoutes() {
+        add(route: AccountsRoutes.createAccount) { request, response in
+            guard let data: AccountData = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let account = try self.service.createAccount(with: data)
+            response.respondJSON(with: account, code: .ok)
+        }
+
+        add(route: AccountsRoutes.verifyEmail) { request, response in
+            guard let data: AccountPropertyAdditionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            guard let email = data.email else {
+                throw ServiceError.invalidAccountEmail
+            }
+
+            try self.service.verifyEmail(email.value)
+            response.respondJSON(with: ServiceStatusMessage(), code: .ok)
+        }
+
+        add(route: AccountsRoutes.getAccount) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidAccountId
+            }
+
+            let account = try self.service.getAccount(for: id)
+            response.respondJSON(with: account, code: .ok)
+        }
+
+        add(route: AccountsRoutes.deleteAccount) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidAccountId
+            }
+
+            try self.service.deleteAccount(for: id)
+            response.respondJSON(with: ServiceStatusMessage(), code: .ok)
+        }
+
+        add(route: AccountsRoutes.updateAccount) { request, response in
+            guard let data: AccountPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidAccountId
+            }
+
+            let account = try self.service.updateAccount(for: id, with: data)
+            response.respondJSON(with: account, code: .ok)
+        }
+    }
 }

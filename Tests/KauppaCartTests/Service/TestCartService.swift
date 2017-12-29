@@ -242,14 +242,14 @@ class TestCartService: XCTestCase {
             let _ = try service.addCartItem(for: UUID(), with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! AccountsError, AccountsError.invalidAccount)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidAccountId)
         }
 
         do {    // random UUID - cannot get cart - account doesn't exist
             let _ = try service.getCart(for: UUID(), from: Address())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! AccountsError, AccountsError.invalidAccount)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidAccountId)
         }
     }
 

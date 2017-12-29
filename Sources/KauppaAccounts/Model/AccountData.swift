@@ -16,26 +16,26 @@ public struct AccountData: Mappable {
     /// Try some basic validations on the data. It checks that the name and emails aren't empty,
     /// evaluates the emails against a regex and validates addresses (if specified).
     ///
-    /// - Throws: `AccountsError` if any of the underlying data fails during validation.
+    /// - Throws: `ServiceError` if any of the underlying data fails during validation.
     public func validate() throws {
         if name.isEmpty {
-            throw AccountsError.invalidName
+            throw ServiceError.invalidAccountName
         }
 
         if emails.isEmpty {
-            throw AccountsError.emailRequired
+            throw ServiceError.accountEmailRequired
         }
 
         for email in emails {
             /// A popular regex pattern that matches a wide range of cases.
             if !email.value.isMatching(regex: "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)") {
-                throw AccountsError.invalidEmail
+                throw ServiceError.invalidAccountEmail
             }
         }
 
         for number in phoneNumbers {
             if number.value.isEmpty {
-                throw AccountsError.invalidPhone
+                throw ServiceError.invalidAccountPhone
             }
         }
 

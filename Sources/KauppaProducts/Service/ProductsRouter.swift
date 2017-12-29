@@ -30,13 +30,19 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
         }
 
         add(route: ProductsRoutes.getProduct) { request, response in
-            let id: UUID = request.getParameter(for: "id")!
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
             let product = try self.service.getProduct(for: id, from: nil)
             response.respondJSON(with: product, code: .ok)
         }
 
         add(route: ProductsRoutes.deleteProduct) { request, response in
-            let id: UUID = request.getParameter(for: "id")!
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
             try self.service.deleteProduct(for: id)
             response.respondJSON(with: ServiceStatusMessage(), code: .ok)
         }
@@ -46,7 +52,10 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
                 throw ServiceError.clientHTTPData
             }
 
-            let id: UUID = request.getParameter(for: "id")!
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
             let product = try self.service.updateProduct(for: id, with: data, from: nil)
             response.respondJSON(with: product, code: .ok)
         }

@@ -9,6 +9,25 @@ public enum ServiceError: UInt16, Error {
     case jsonSerialization
     case unknownError
 
+    /* Accounts service errors */
+
+    // Accounts-related errors
+    case accountExists
+    case accountEmailRequired
+    case invalidAccountEmail
+    case invalidAccountId
+    case invalidAccountName
+    case invalidAccountPhone
+
+    // Address-related errors
+    case invalidAddressName
+    case invalidAddressLineData
+    case invalidAddressCity
+    case invalidAddressProvince
+    case invalidAddressCountry
+    case invalidAddressCode
+    case invalidAddressLabel
+
     /* Products service errors */
 
     // Products-related errors

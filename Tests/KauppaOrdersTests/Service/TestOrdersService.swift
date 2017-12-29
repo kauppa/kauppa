@@ -198,7 +198,7 @@ class TestOrdersService: XCTestCase {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! AccountsError, AccountsError.invalidAccount)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidAccountId)
         }
     }
 
