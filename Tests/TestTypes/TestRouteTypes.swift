@@ -70,6 +70,7 @@ enum TestRoute: UInt8 {
     case foo
     case bar
     case baz
+    case boo
 }
 
 extension TestRoute: RouteRepresentable {
@@ -81,6 +82,8 @@ extension TestRoute: RouteRepresentable {
                 return Route(url: "/bar", method: .post)
             case .baz:
                 return Route(url: "/baz", method: .put)
+            case .boo:
+                return Route(url: "/:id/:booya/", method: .delete)
         }
     }
 }

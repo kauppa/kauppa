@@ -2,7 +2,8 @@
 public enum ServiceError: UInt16, Error {
     /* Generic errors */
     case clientHTTPData
-
+    case invalidRegex
+    case missingURLParameter
     case jsonParse
     case jsonErrorParse
     case jsonSerialization

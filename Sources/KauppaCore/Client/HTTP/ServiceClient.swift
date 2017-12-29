@@ -35,8 +35,32 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
     /// - Throws: `ServiceError` if the parameter values are invalid.
     public func createClient(for repr: R, with parameters: [String: String]? = nil) throws -> C {
         let route = repr.route
-        // TODO: Fill the generic URL with the given parameters.
-        let endpoint = URL(string: route.url, relativeTo: self.endpoint)!
+        var url = route.url
+        var keys: [String]
+
+        // Get the captured parameters
+        do {
+            let regex = try NSRegularExpression(pattern: ":([^\\/]+)\\/?")
+            let results = regex.matches(in: url, range: NSRange(url.startIndex..., in: url))
+            keys = results.map() { String(url[Range($0.range(at: 1), in: url)!]) }
+        } catch {
+            throw ServiceError.invalidRegex
+        }
+
+        // Replace parameters with supplied values.
+        for key in keys {
+            guard let parameters = parameters else {
+                throw ServiceError.missingURLParameter
+            }
+
+            guard let value = parameters[key] else {
+                throw ServiceError.missingURLParameter
+            }
+
+            url = url.replacingOccurrences(of: ":\(key)", with: value)
+        }
+
+        let endpoint = URL(string: url, relativeTo: self.endpoint)!
         return C(with: route.method, on: endpoint)
     }
 
