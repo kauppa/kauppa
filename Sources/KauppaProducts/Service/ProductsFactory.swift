@@ -172,6 +172,7 @@ class ProductsFactory {
         let _ = try repository.updateProduct(for: id, with: data)
     }
 
+    /// Validate the categories in product data and create/update the store correspondingly.
     private func validateCategories() throws {
         var categories = [Category]()
 
