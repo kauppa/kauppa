@@ -9,12 +9,12 @@ public struct ArraySet<Element>: Mappable
     var inner = [Element]()
 
     /// Checks if the array is empty
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         return self.inner.isEmpty
     }
 
     /// Returns the number of items in this collection.
-    var count: Int {
+    public var count: Int {
         return self.inner.count
     }
 

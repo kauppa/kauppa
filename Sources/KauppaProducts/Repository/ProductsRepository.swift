@@ -49,8 +49,7 @@ public class ProductsRepository {
     /// Update the product data for a given product ID.
     public func updateProductData(id: UUID, data: ProductData) throws -> Product {
         var product = try getProduct(id: id)
-        let date = Date()
-        product.updatedAt = date
+        product.updatedAt = Date()
         product.data = data
         products[id] = product
         try store.updateProduct(productData: product)

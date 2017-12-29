@@ -13,5 +13,5 @@ public protocol CartServiceCallable {
     func getCart(forAccount userId: UUID) throws -> Cart
 
     /// Queue the items in the cart to orders service for placing an order.
-    func placeOrder(forAccount userId: UUID) throws -> Order
+    func placeOrder(forAccount userId: UUID, data: CheckoutData) throws -> Order
 }

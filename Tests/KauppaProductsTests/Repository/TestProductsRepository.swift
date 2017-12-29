@@ -68,6 +68,7 @@ class TestProductsRepository: XCTestCase {
         let updatedProduct = try! repository.updateProductData(id: data.id, data: product)
         // We're just testing the function calls (extensive testing is done in service)
         XCTAssertEqual(updatedProduct.data.title, "Foo")
+        XCTAssertTrue(updatedProduct.createdOn != updatedProduct.updatedAt)
         XCTAssertTrue(store.updateCalled)   // update called on store
     }
 

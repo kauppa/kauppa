@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaAccountsModel
 import KauppaAccountsClient
 import KauppaOrdersClient
 import KauppaOrdersModel
@@ -39,7 +40,7 @@ extension CartService: CartServiceCallable {
         let _ = try accountsService.getAccount(id: userId)
         let product = try productsService.getProduct(id: unit.productId)
         if unit.quantity > product.data.inventory {
-            throw CartError.productUnavailable  // precheck inventory
+            throw CartError.productUnavailable      // precheck inventory
         }
 
         var itemExists = false
@@ -81,11 +82,24 @@ extension CartService: CartServiceCallable {
         return try repository.getCart(forId: userId)
     }
 
-    public func placeOrder(forAccount userId: UUID) throws -> Order {
-        let _ = try accountsService.getAccount(id: userId)
+    public func placeOrder(forAccount userId: UUID, data: CheckoutData) throws -> Order {
+        let account = try accountsService.getAccount(id: userId)
         var cart = try repository.getCart(forId: userId)
         if cart.items.isEmpty {
             throw CartError.noItemsToProcess
+        }
+
+        guard let shippingAddress = account.data.address.get(from: data.shippingAddressAt) else {
+            throw CartError.invalidAddress
+        }
+
+        var billingAddress: Address? = nil
+        if let idx = data.billingAddressAt {
+            guard let address = account.data.address.get(from: idx) else {
+                throw CartError.invalidAddress
+            }
+
+            billingAddress = address
         }
 
         var units = [OrderUnit]()
@@ -94,7 +108,8 @@ extension CartService: CartServiceCallable {
                                    quantity: unit.quantity))
         }
 
-        let orderData = OrderData(placedBy: userId, products: units)
+        let orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
+                                  placedBy: userId, products: units)
         let order = try ordersService.createOrder(data: orderData)
 
         cart.reset()
