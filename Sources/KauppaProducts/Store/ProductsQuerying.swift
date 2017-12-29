@@ -21,6 +21,12 @@ public protocol ProductsQuerying: Querying {
     /// - Throws: `ServiceError` on failure.
     func getAttribute(for id: UUID) throws -> Attribute
 
+    func getCategory(for id: UUID) throws -> Category
+
+    func getCategory(for name: String) throws -> Category
+
+    func getCategories() throws -> [Category]
+
     /// Get the collection data corresponding to an ID.
     ///
     /// - Parameters:

@@ -13,6 +13,8 @@ public struct ProductData: Mappable {
     public var description: String
     /// Overview of this product.
     public var overview: String? = nil
+    /// Categories for this product.
+    public var categories = [Category]()
     /// Tags for this product
     public var tags = ArraySet<String>()
     /// Dimensions of this product (length, width and height - all are optional)

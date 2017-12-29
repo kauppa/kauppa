@@ -34,6 +34,9 @@ public protocol ProductsPersisting: Persisting {
     /// - Throws: `ServiceError` on failure.
     func createAttribute(with data: Attribute) throws -> ()
 
+    ///
+    func createCategory(with data: Category) throws -> ()
+
     /// Create a new collection with information from the repository.
     ///
     /// - Parameters:

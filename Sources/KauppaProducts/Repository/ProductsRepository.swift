@@ -11,8 +11,9 @@ public class ProductsRepository {
     var collections = [UUID: ProductCollection]()
     var attributes = [UUID: Attribute]()
 
-    // Categories can't go beyond say, 100 - so, we're safe here
-    var categories = Set<String>()
+    var categories = [UUID: Category]()
+    // Categories can't go beyond say, 100 - so, we're safe here.
+    var categoryNames = [String: UUID]()
     // Tags can't go beyond say, 1000 - so, we're safe (again).
     var tags = Set<String>()
 
@@ -32,11 +33,14 @@ public class ProductsRepository {
     ///   - with: `ProductData`
     /// - Returns: `Product` initialized with the given data.
     /// - Throws: `ServiceError` on failure.
-    public func createProduct(with data: Product) throws -> Product {
-        try self.store.createNewProduct(with: data)
-        products[data.id] = data
-        updateCategoriesAndTags(using: data)
-        return data
+    public func createProduct(with product: Product) throws -> Product {
+        try self.store.createNewProduct(with: product)
+        products[product.id] = product
+
+        // Update in-memory tags
+        tags.formUnion(product.data.tags)
+
+        return product
     }
 
     /// Delete the product corresponding to an ID.
@@ -76,6 +80,10 @@ public class ProductsRepository {
         product.data = data
         products[id] = product
         try store.updateProduct(with: product)
+
+        // Update in-memory tags
+        tags.formUnion(product.data.tags)
+
         return product
     }
 
@@ -92,8 +100,43 @@ public class ProductsRepository {
             products[id] = product
         }
 
-        updateCategoriesAndTags(using: product!)
         return product!
+    }
+
+    public func createCategory(with data: Category) throws -> Category {
+        var category = data
+        let id = UUID()
+        let name = category.name!.lowercased()
+        category.id = id
+        category.name = name
+
+        categories[id] = category
+        categoryNames[name] = id
+
+        try store.createCategory(with: category)
+        return category
+    }
+
+    public func getCategory(for id: UUID) throws -> Category {
+        guard let category = categories[id] else {
+            let category = try store.getCategory(for: id)
+            categoryNames[category.name!] = id
+            categories[id] = category
+            return category
+        }
+
+        return category
+    }
+
+    public func getCategory(for name: String) throws -> Category {
+        guard let id = categoryNames[name] else {
+            let category = try store.getCategory(for: name)
+            categoryNames[category.name!] = category.id!
+            categories[category.id!] = category
+            return category
+        }
+
+        return try getCategory(for: id)
     }
 
     /// Create an attribute with the given name and type.
@@ -202,14 +245,5 @@ public class ProductsRepository {
     public func deleteCollection(for id: UUID) throws -> () {
         collections.removeValue(forKey: id)
         return try store.deleteCollection(for: id)
-    }
-
-    /// Update the in-memory tags and collections using the product data.
-    private func updateCategoriesAndTags(using product: Product) {
-        // TODO: Update this when categories come into play.
-
-        for tag in product.data.tags {
-            tags.insert(tag)
-        }
     }
 }

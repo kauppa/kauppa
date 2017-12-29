@@ -8,6 +8,7 @@ public class TestStore: ProductsStorable {
     public var products = [UUID: Product]()
     public var collections = [UUID: ProductCollection]()
     public var attributes = [UUID: Attribute]()
+    public var categories = [UUID: Category]()
 
     // Variables to indicate the count of function calls
     public var createCalled = false
@@ -22,6 +23,9 @@ public class TestStore: ProductsStorable {
 
     public var attributeCreationCalled = false
     public var attributeGetCalled = false
+
+    public var categoryCreationCalled = false
+    public var categoryGetCalled = false
 
     public func createNewProduct(with data: Product) throws -> () {
         createCalled = true
@@ -91,5 +95,32 @@ public class TestStore: ProductsStorable {
         }
 
         return attribute
+    }
+
+    public func createCategory(with data: Category) throws -> () {
+        categoryCreationCalled = true
+        categories[data.id!] = data
+    }
+
+    public func getCategory(for id: UUID) throws -> Category {
+        categoryGetCalled = true
+        guard let category = Array(categories.values).first(where: { $0.id! == id }) else {
+            throw ServiceError.invalidCategoryId
+        }
+
+        return category
+    }
+
+    public func getCategory(for name: String) throws -> Category {
+        categoryGetCalled = true
+        guard let category = Array(categories.values).first(where: { $0.name! == name }) else {
+            throw ServiceError.invalidCategoryName
+        }
+
+        return category
+    }
+
+    public func getCategories() throws -> [Category] {
+        return Array(categories.values)
     }
 }

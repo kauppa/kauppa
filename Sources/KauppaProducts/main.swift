@@ -38,6 +38,20 @@ class NoOpStore: ProductsStorable {
     public func getAttribute(for id: UUID) throws -> Attribute {
         throw ServiceError.invalidAttributeId
     }
+
+    public func createCategory(with data: Category) throws -> () {}
+
+    public func getCategory(for id: UUID) throws -> Category {
+        throw ServiceError.invalidCategoryId
+    }
+
+    public func getCategory(for name: String) throws -> Category {
+        throw ServiceError.invalidCategoryName
+    }
+
+    public func getCategories() throws -> [Category] {
+        return []
+    }
 }
 
 

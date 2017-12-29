@@ -99,6 +99,10 @@ extension ProductsService: ProductsServiceCallable {
             productData.weight = nil
         }
 
+        if let index = data.removeCategoryAt {
+            productData.categories.remove(at: index)
+        }
+
         if let index = data.removeTagAt {
             productData.tags.remove(at: index)
         }

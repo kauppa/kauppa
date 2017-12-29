@@ -10,6 +10,7 @@ public struct ProductPatch: Mappable {
     public var subtitle: String? = nil
     public var description: String? = nil
     public var overview: String? = nil
+    public var categories: [Category]? = nil
     public var tags: ArraySet<String>? = nil
     public var dimensions: Dimensions? = nil
     public var color: String? = nil
@@ -36,6 +37,7 @@ public struct ProductPropertyAdditionPatch: Mappable {
 /// will reset that field in `ProductData`
 public struct ProductPropertyDeletionPatch: Mappable {
     public var removeOverview: Bool? = nil
+    public var removeCategoryAt: Int? = nil
     public var removeTagAt: Int? = nil
     public var removeTaxCategory: Bool? = nil
     public var removeColor: Bool? = nil

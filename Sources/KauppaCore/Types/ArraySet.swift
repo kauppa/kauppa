@@ -89,13 +89,7 @@ public struct ArraySet<Element>: Mappable
     ///   - matching: The predicate function used for matching the element.
     /// - Returns: The element (if it exists) or `nil`
     public func get(matching: (Element) -> Bool) -> Element? {
-        for e in inner {
-            if matching(e) {
-                return e
-            }
-        }
-
-        return nil
+        return inner.first(where: matching)
     }
 
     /// Mutate the first element matching the given predicate.

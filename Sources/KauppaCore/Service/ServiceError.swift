@@ -32,6 +32,10 @@ public enum ServiceError: UInt16, Error {
     case notEnoughVariants
     case invalidEnumVariant
 
+    // Category-related errors
+    case invalidCategoryId
+    case invalidCategoryName
+
     /* Tax service errors */
 
     case invalidTaxRate

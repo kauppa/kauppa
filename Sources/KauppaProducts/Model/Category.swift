@@ -5,9 +5,9 @@ import KauppaCore
 /// A product/collection category.
 public struct Category: Mappable {
     /// Unique ID of this category.
-    public let id = UUID()
+    public var id: UUID? = UUID()
     /// Name of this category.
-    public var name: String
+    public var name: String? = nil
     /// Description for this category.
     public var description: String? = nil
 
