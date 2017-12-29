@@ -16,7 +16,9 @@ class TestProductsRepository: XCTestCase {
             ("Test collection creation", testCollectionCreation),
             ("Test collection update", testCollectionUpdate),
             ("Test collection deletion", testCollectionDeletion),
-            ("Test store function calls", testStoreCalls),
+            ("Test store function calls", testProductStoreCalls),
+            ("Test attribute store calls", testAttributeCalls),
+            ("Test category store calls", testCategoryCalls),
         ]
     }
 
@@ -28,8 +30,8 @@ class TestProductsRepository: XCTestCase {
         super.tearDown()
     }
 
-    // This doesn't carry any validation - it just ensures that the repository can create a
-    // product with necessary timestamps and calls the store.
+    /// This doesn't carry any validation - it just ensures that the repository can create a
+    /// product with necessary timestamps and calls the store.
     func testProductCreation() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
@@ -44,7 +46,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertNotNil(repository.products[data.id])   // repository now has product data
     }
 
-    // Repository should call the store for product deletion and delete cached data.
+    /// Repository should call the store for product deletion and delete cached data.
     func testProductDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
@@ -54,7 +56,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.deleteCalled)       // delete should've been called in store (by repository)
     }
 
-    // Updating a product should change the timestamp, update cache, and should call the store.
+    /// Updating a product should change the timestamp, update cache, and should call the store.
     func testProductUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
@@ -69,7 +71,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.updateCalled)   // update called on store
     }
 
-    // Same thing as product creation - for colleciton (product IDs are checked by service).
+    /// Same thing as product creation - for colleciton (product IDs are checked by service).
     func testCollectionCreation() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
@@ -87,7 +89,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertNotNil(repository.collections[data.id])    // repository now has collection data
     }
 
-    // Same as product update - for collection
+    /// Same as product update - for collection
     func testCollectionUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
@@ -100,7 +102,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.collectionUpdateCalled)     // update called on store
     }
 
-    // Same as product deleteion - for collection
+    /// Same as product deleteion - for collection
     func testCollectionDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
@@ -112,8 +114,8 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.collectionDeleteCalled)     // delete should've been called in store
     }
 
-    // Ensures that product and collection repositories call the stores appropriately.
-    func testStoreCalls() {
+    /// Ensures that product and collection repositories call the stores appropriately.
+    func testProductStoreCalls() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let product = try! repository.createProduct(with: Product())
@@ -134,5 +136,52 @@ class TestProductsRepository: XCTestCase {
         let _ = try! repository.getCollection(for: data.id)
         // store shouldn't be called, because it was recently fetched by the repository
         XCTAssertFalse(store.collectionGetCalled)
+    }
+
+    /// Test that attribute creation and getting properly calls store.
+    func testAttributeCalls() {
+        let store = TestStore()
+        let repository = ProductsRepository(with: store)
+        let attribute = try! repository.createAttribute(with: "FOO", and: .enum_,
+                                                        variants: ArraySet(["Bar", "Baz"]))
+        XCTAssertNotNil(attribute.variants)
+        XCTAssertEqual(attribute.variants!.inner, ["bar", "baz"])
+        XCTAssertEqual(attribute.name, "foo")
+
+        repository.attributes = [:]
+        XCTAssertFalse(store.attributeGetCalled)
+        let _ = try! repository.getAttribute(for: attribute.id)
+        XCTAssertTrue(store.attributeGetCalled)
+
+        store.attributeGetCalled = false
+        let _ = try! repository.getAttribute(for: attribute.id)
+        XCTAssertFalse(store.attributeGetCalled)
+    }
+
+    /// Test that category creation and getting properly calls store.
+    func testCategoryCalls() {
+        let store = TestStore()
+        let repository = ProductsRepository(with: store)
+        let category = try! repository.createCategory(with: Category(name: "fOOBar"))
+        XCTAssertTrue(store.categoryCreationCalled)
+        XCTAssertNotNil(category.id)
+        XCTAssertNotNil(category.name)
+        XCTAssertEqual(category.name!, "foobar")
+
+        repository.categories = [:]
+        XCTAssertFalse(store.categoryGetCalled)
+        let _ = try! repository.getCategory(for: category.id!)
+        XCTAssertTrue(store.categoryGetCalled)
+
+        store.categoryGetCalled = false
+        repository.categoryNames = [:]
+        let _ = try! repository.getCategory(for: category.name!)
+        XCTAssertTrue(store.categoryGetCalled)
+
+        store.categoryGetCalled = false
+        let _ = try! repository.getCategory(for: category.id!)
+        XCTAssertFalse(store.categoryGetCalled)
+        let _ = try! repository.getCategory(for: category.name!)
+        XCTAssertFalse(store.categoryGetCalled)
     }
 }

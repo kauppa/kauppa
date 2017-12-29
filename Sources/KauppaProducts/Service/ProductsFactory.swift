@@ -184,6 +184,10 @@ class ProductsFactory {
             } else if var name = category.name {
                 // Category has been addressed with name.
                 name = name.lowercased()
+                if name.isEmpty {
+                    continue
+                }
+
                 if let data = try? repository.getCategory(for: name) {
                     // Category name already exists. Re-use its ID.
                     category = data
@@ -193,6 +197,7 @@ class ProductsFactory {
                 }
             } else {
                 // Invalid category data - ignore.
+                continue
             }
 
             // Append only if category doesn't already exist in product data.

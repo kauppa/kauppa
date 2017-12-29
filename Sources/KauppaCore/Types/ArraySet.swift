@@ -119,6 +119,19 @@ public struct ArraySet<Element>: Mappable
         }
     }
 
+    /// Create a new instance with a mapping function applied over all the elements.
+    ///
+    /// - Parameters:
+    ///   - The mapping closure that creates an element using the iterated element.
+    /// - Returns: The mapped `ArraySet`
+    public func map<E>(_ decorator: (Element) -> E) -> ArraySet<E>
+        where E: Hashable
+    {
+        var arraySet = ArraySet<E>()
+        arraySet.inner = self.inner.map(decorator)
+        return arraySet
+    }
+
     /// Remove and return the element (if it exists) at the given index.
     ///
     /// - Parameters:

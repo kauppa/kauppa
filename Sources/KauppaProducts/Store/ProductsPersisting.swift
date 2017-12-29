@@ -34,7 +34,11 @@ public protocol ProductsPersisting: Persisting {
     /// - Throws: `ServiceError` on failure.
     func createAttribute(with data: Attribute) throws -> ()
 
+    /// Create a category using the given data.
     ///
+    /// - Parameters:
+    ///   - with: `Category` object from repository.
+    /// - Throws: `ServiceError` on failure.
     func createCategory(with data: Category) throws -> ()
 
     /// Create a new collection with information from the repository.

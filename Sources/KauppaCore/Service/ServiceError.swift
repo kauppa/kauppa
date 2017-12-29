@@ -1,3 +1,4 @@
+/// Service error used throughout Kauppa services. The errors have their own error codes.
 public enum ServiceError: UInt16, Error {
     /* Generic errors */
     case clientHTTPData

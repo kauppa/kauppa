@@ -9,11 +9,13 @@ public class ProductsRepository {
     // least recently used items every now and then.
     var products = [UUID: Product]()
     var collections = [UUID: ProductCollection]()
+
     var attributes = [UUID: Attribute]()
 
-    var categories = [UUID: Category]()
     // Categories can't go beyond say, 100 - so, we're safe here.
+    var categories = [UUID: Category]()
     var categoryNames = [String: UUID]()
+
     // Tags can't go beyond say, 1000 - so, we're safe (again).
     var tags = Set<String>()
 
@@ -53,6 +55,7 @@ public class ProductsRepository {
         return try store.deleteProduct(for: id)
     }
 
+    // FIXME: Stub for service. Remove/change this.
     public func getProducts() throws -> [Product] {
         return Array(products.values)
     }
@@ -103,6 +106,15 @@ public class ProductsRepository {
         return product!
     }
 
+    /// Create a category using the given data.
+    ///
+    /// NOTE: This assumes that the name has been validated by the service
+    /// and that it exists.
+    ///
+    /// - Parameters:
+    ///   - with: `Category` object from the service.
+    /// - Returns: The created `Category` object.
+    /// - Throws: `ServiceError` on failure.
     public func createCategory(with data: Category) throws -> Category {
         var category = data
         let id = UUID()
@@ -117,6 +129,12 @@ public class ProductsRepository {
         return category
     }
 
+    /// Get the category for the given ID.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the category.
+    /// - Returns: `Category` (if it exists).
+    /// - Throws: `ServiceError` on failure.
     public func getCategory(for id: UUID) throws -> Category {
         guard let category = categories[id] else {
             let category = try store.getCategory(for: id)
@@ -128,6 +146,12 @@ public class ProductsRepository {
         return category
     }
 
+    /// Get the category for the given name.
+    ///
+    /// - Parameters:
+    ///   - for: The name of the category as a string.
+    /// - Returns: `Category` (if it exists).
+    /// - Throws: `ServiceError` on failure.
     public func getCategory(for name: String) throws -> Category {
         guard let id = categoryNames[name] else {
             let category = try store.getCategory(for: name)
@@ -152,7 +176,7 @@ public class ProductsRepository {
     {
         var attribute = Attribute(with: name.lowercased(), and: type)
         if let variants = variants {
-            attribute.variants = variants
+            attribute.variants = variants.map() { $0.lowercased() }
         }
 
         attributes[attribute.id] = attribute
