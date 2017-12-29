@@ -8,21 +8,27 @@ public enum AccountsRoutes: UInt8 {
     case getAccount
     case deleteAccount
     case updateAccount
+    case addAccountProperty
+    case deleteAccountProperty
 }
 
 extension AccountsRoutes: RouteRepresentable {
     public var route: Route {
         switch self {
             case .createAccount:
-                return Route(url: "/accounts",      method: .post)
+                return Route(url: "/accounts",                  method: .post)
             case .verifyEmail:
-                return Route(url: "/emails",        method: .post)
+                return Route(url: "/emails",                    method: .post)
             case .getAccount:
-                return Route(url: "/accounts/:id",  method: .get)
+                return Route(url: "/accounts/:id",              method: .get)
             case .deleteAccount:
-                return Route(url: "/accounts/:id",  method: .delete)
+                return Route(url: "/accounts/:id",              method: .delete)
             case .updateAccount:
-                return Route(url: "/accounts/:id",  method: .put)
+                return Route(url: "/accounts/:id",              method: .put)
+            case .addAccountProperty:
+                return Route(url: "/accounts/:id/properties",   method: .post)
+            case .deleteAccountProperty:
+                return Route(url: "/accounts/:id/properties",   method: .delete)
         }
     }
 }

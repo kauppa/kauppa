@@ -69,5 +69,31 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R> {
             let account = try self.service.updateAccount(for: id, with: data)
             response.respondJSON(with: account, code: .ok)
         }
+
+        add(route: AccountsRoutes.addAccountProperty) { request, response in
+            guard let data: AccountPropertyAdditionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidAccountId
+            }
+
+            let account = try self.service.addAccountProperty(to: id, using: data)
+            response.respondJSON(with: account, code: .ok)
+        }
+
+        add(route: AccountsRoutes.deleteAccountProperty) { request, response in
+            guard let data: AccountPropertyDeletionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidAccountId
+            }
+
+            let account = try self.service.deleteAccountProperty(from: id, using: data)
+            response.respondJSON(with: account, code: .ok)
+        }
     }
 }

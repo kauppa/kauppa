@@ -95,7 +95,7 @@ class TestServiceClient: XCTestCase {
         }
 
         let id = UUID()
-        let params = ["id": "\(id)", "booya": "yay"]
+        let params: [String: CustomStringConvertible] = ["id": id, "booya": "yay"]
         let client = try! service.createClient(for: TestRoute.boo, with: params)
         XCTAssertEqual(client.url, URL(string: "/\(id)/yay/", relativeTo: URL(string: "http://foo.bar")!))
     }

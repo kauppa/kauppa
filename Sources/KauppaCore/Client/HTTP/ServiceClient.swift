@@ -33,7 +33,7 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
     ///   - with: The values for parameters in the route.
     /// - Returns: The `ClientCallable` object initialized with the URL and HTTP method.
     /// - Throws: `ServiceError` if the parameter values are invalid.
-    public func createClient(for repr: R, with parameters: [String: String]? = nil) throws -> C {
+    public func createClient(for repr: R, with parameters: [String: CustomStringConvertible]? = nil) throws -> C {
         let route = repr.route
         var url = route.url
         var keys: [String]
@@ -57,7 +57,7 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
                 throw ServiceError.missingURLParameter
             }
 
-            url = url.replacingOccurrences(of: ":\(key)", with: value)
+            url = url.replacingOccurrences(of: ":\(key)", with: value.description)
         }
 
         let endpoint = URL(string: url, relativeTo: self.endpoint)!

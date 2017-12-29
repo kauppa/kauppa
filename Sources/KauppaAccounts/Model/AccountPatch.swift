@@ -17,6 +17,9 @@ public struct AccountPropertyAdditionPatch: Mappable {
     public var email: Email? = nil
     public var phone: Phone? = nil
     public var address: Address? = nil
+
+    /// Initialize an empty version of this type.
+    public init() {}
 }
 
 /// This has the nullable items from `AccountData` - any delete
