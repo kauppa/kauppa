@@ -65,7 +65,7 @@ class TestCartService: XCTestCase {
             let _ = try service.placeOrder(for: account.id, with: CheckoutData())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CartError, CartError.noItemsToProcess)
+            XCTAssertEqual(err as! ServiceError, ServiceError.noItemsToProcess)
         }
     }
 
@@ -153,7 +153,7 @@ class TestCartService: XCTestCase {
             let _ = try service.applyCoupon(for: account.id, using: "", from: Address())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CartError, .noItemsInCart)
+            XCTAssertEqual(err as! ServiceError, .noItemsInCart)
         }
 
         var couponData = CouponData()       // create coupon
@@ -296,7 +296,7 @@ class TestCartService: XCTestCase {
             let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CartError, CartError.productUnavailable)
+            XCTAssertEqual(err as! ServiceError, ServiceError.productUnavailable)
         }
 
         cartUnit.quantity = 5       // now, we can add it to the cart.
@@ -307,7 +307,7 @@ class TestCartService: XCTestCase {
             let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CartError, CartError.productUnavailable)
+            XCTAssertEqual(err as! ServiceError, ServiceError.productUnavailable)
         }
     }
 
@@ -336,7 +336,7 @@ class TestCartService: XCTestCase {
             let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CartError, CartError.ambiguousCurrencies)
+            XCTAssertEqual(err as! ServiceError, ServiceError.ambiguousCurrencies)
         }
     }
 
@@ -441,7 +441,7 @@ class TestCartService: XCTestCase {
             let _ = try service.placeOrder(for: account.id, with: CheckoutData())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CartError, CartError.invalidAddress)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidAddress)
         }
     }
 }

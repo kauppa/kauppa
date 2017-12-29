@@ -28,6 +28,15 @@ public enum ServiceError: UInt16, Error {
     case invalidAddressCode
     case invalidAddressLabel
 
+    /* Cart service errors */
+
+    case cartUnavailable
+    case noItemsInCart
+    case noItemsToProcess
+    case productUnavailable
+    case ambiguousCurrencies
+    case invalidAddress
+
     /* Products service errors */
 
     // Products-related errors

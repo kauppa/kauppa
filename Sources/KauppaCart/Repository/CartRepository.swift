@@ -40,7 +40,7 @@ public class CartRepository {
             let cart: Cart
             do {
                 cart = try store.getCart(for: id)
-            } catch CartError.cartUnavailable {
+            } catch ServiceError.cartUnavailable {
                 cart = Cart(with: id)
                 try store.createCart(with: cart)
             } catch let err {

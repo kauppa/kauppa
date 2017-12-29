@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 @testable import KauppaCartModel
 @testable import KauppaCartStore
 
@@ -19,7 +20,7 @@ public class TestStore: CartStorable {
     public func getCart(for id: UUID) throws -> Cart {
         getCalled = true
         guard let cart = carts[id] else {
-            throw CartError.cartUnavailable
+            throw ServiceError.cartUnavailable
         }
 
         return cart

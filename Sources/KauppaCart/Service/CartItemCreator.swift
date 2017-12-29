@@ -32,15 +32,15 @@ class CartItemCreator {
     ///
     /// - Parameters:
     ///   - using: Anything that implements `ProductsServiceCallable`
-    ///   - with: `Address` of the account.
-    /// - Throws:
-    ///   - `ServiceError` if the product doesn't exist.
-    ///   - `CartError` when error occurs in adding the product.
+    ///   - with: (Optional) `Address` of the account.
+    /// - Throws: `ServiceError`
+    ///   - If the product doesn't exist.
+    ///   - If there was an error in adding the product.
     func updateCartData(using productsService: ProductsServiceCallable,
-                        with address: Address) throws
+                        with address: Address?) throws
     {
         if unit.quantity == 0 {
-            throw CartError.noItemsToProcess
+            throw ServiceError.noItemsToProcess
         }
 
         let product = try productsService.getProduct(for: unit.product, from: address)
@@ -48,7 +48,7 @@ class CartItemCreator {
         unit.setTax(using: product.data.taxCategory)
 
         if unit.quantity > product.data.inventory {
-            throw CartError.productUnavailable      // precheck inventory
+            throw ServiceError.productUnavailable      // precheck inventory
         }
 
         let netPrice = Double(unit.quantity) * product.data.price.value
@@ -66,7 +66,7 @@ class CartItemCreator {
     private func checkPrice(for product: Product) throws {
         if let price = cart.netPrice {
             if price.unit != product.data.price.unit {
-                throw CartError.ambiguousCurrencies
+                throw ServiceError.ambiguousCurrencies
             }
         } else {    // initialize price if it's not been done already
             cart.netPrice = UnitMeasurement(value: 0.0, unit: product.data.price.unit)
@@ -85,7 +85,7 @@ class CartItemCreator {
                 // This is just for notifying the customer. Orders service
                 // will verify this before placing the order anyway.
                 if cart.items[i].quantity > product.data.inventory {
-                    throw CartError.productUnavailable
+                    throw ServiceError.productUnavailable
                 }
             }
         }
