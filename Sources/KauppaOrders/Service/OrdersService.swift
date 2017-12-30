@@ -135,7 +135,7 @@ public class OrdersService: OrdersServiceCallable {
         }
 
         switch order.paymentStatus {
-        case .refunded:     // All items have been refunded
+            case .refunded:     // All items have been refunded
                 throw OrdersError.refundedOrder
             case .failed, .pending:
                 throw OrdersError.paymentNotReceived
@@ -244,6 +244,7 @@ public class OrdersService: OrdersServiceCallable {
 
         var atleastOneItemExists = false
         var returnItems = [OrderUnit]()
+        // TODO: Check if items have already been scheduled for pickup.
 
         if data.pickupAll ?? false {
             for i in 0..<order.products.count {

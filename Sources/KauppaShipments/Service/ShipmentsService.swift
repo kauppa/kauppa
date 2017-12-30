@@ -37,7 +37,10 @@ extension ShipmentsService: ShipmentsServiceCallable {
                                              items: data.items, status: .pickup)
     }
 
-    public func completePickup(id: UUID) throws -> () {
-        ///
+    public func completePickup(id: UUID) throws -> Shipment {
+        var data = try repository.getShipment(id: id)
+        data.status = .returned
+        try ordersService.updateShipment(forId: data.orderId, data: data)
+        return try repository.updateShipment(data: data)
     }
 }

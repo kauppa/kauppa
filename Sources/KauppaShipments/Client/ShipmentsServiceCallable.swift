@@ -14,5 +14,5 @@ public protocol ShipmentsServiceCallable {
 
     /// Complete picking up items - This means that the items have been
     /// returned to some local warehouse.
-    func completePickup(id: UUID) throws -> ()
+    func completePickup(id: UUID) throws -> Shipment
 }
