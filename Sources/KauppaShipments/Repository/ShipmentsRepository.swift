@@ -18,10 +18,17 @@ public class ShipmentsRepository {
     }
 
     /// Create a shipment object for an order.
-    public func createShipment(forOrder id: UUID, address: Address, items: [OrderUnit]) throws -> Shipment {
+    public func createShipment(forOrder id: UUID, address: Address, items: [OrderUnit],
+                               status: ShipmentStatus? = nil) throws -> Shipment
+    {
         let date = Date()
-        var data = Shipment(id: UUID(), createdOn: date, updatedAt: date, orderId: id, address: address)
+        var data = Shipment(id: UUID(), createdOn: date, updatedAt: date,
+                            orderId: id, address: address)
         data.items = items
+        if let status = status {
+            data.status = status
+        }
+
         try store.createShipment(data: data)
         shipments[data.id] = data
         return data

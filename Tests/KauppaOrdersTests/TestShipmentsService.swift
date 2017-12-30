@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaAccountsModel
+import KauppaOrdersModel
 import KauppaShipmentsClient
 import KauppaShipmentsModel
 
@@ -20,5 +21,10 @@ public class TestShipmentsService: ShipmentsServiceCallable {
         }
 
         return data
+    }
+
+    /// TODO: Complete this
+    public func schedulePickup(forOrder id: UUID, data: PickupItems) throws -> Shipment {
+        throw ShipmentsError.invalidShipment
     }
 }

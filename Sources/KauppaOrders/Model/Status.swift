@@ -4,6 +4,9 @@ import KauppaCore
 public struct OrderUnitStatus: Mappable {
     /// Quantity sent to the customer.
     public var fulfilledQuantity: UInt8
+    /// Quantity returned by the customer. This represents the items
+    /// that have been picked up. They're refundable.
+    public var refundableQuantity: UInt8 = 0
     /// Status of this ordered unit.
     public var fulfillment: FulfillmentStatus? = nil
 

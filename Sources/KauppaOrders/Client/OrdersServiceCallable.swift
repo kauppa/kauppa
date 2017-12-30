@@ -15,6 +15,9 @@ public protocol OrdersServiceCallable {
     /// Cancel an existing order.
     func cancelOrder(id: UUID) throws -> Order
 
+    /// Initiate return for a fulfilled order.
+    func returnOrder(id: UUID, data: PickupData) throws -> Order
+
     /// Update shipment for an order.
     func updateShipment(forId id: UUID, data: Shipment) throws -> ()
 

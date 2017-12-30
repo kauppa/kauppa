@@ -37,6 +37,11 @@ public class TestOrdersService: OrdersServiceCallable {
     }
 
     // NOTE: Not meant to be called by cart
+    public func returnOrder(id: UUID, data: PickupData) throws -> Order {
+        throw OrdersError.invalidOrder
+    }
+
+    // NOTE: Not meant to be called by cart
     public func cancelOrder(id: UUID) throws -> Order {
         throw OrdersError.invalidOrder
     }

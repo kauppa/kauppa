@@ -126,7 +126,7 @@ public class OrdersService: OrdersServiceCallable {
 
     public func initiateRefund(forId id: UUID, data: RefundData) throws -> Order {
         if data.reason.isEmpty {
-            throw OrdersError.invalidRefundReason
+            throw OrdersError.invalidReason
         }
 
         var order = try repository.getOrder(id: id)
@@ -135,7 +135,7 @@ public class OrdersService: OrdersServiceCallable {
         }
 
         switch order.paymentStatus {
-            case .refunded:
+        case .refunded:     // All items have been refunded
                 throw OrdersError.refundedOrder
             case .failed, .pending:
                 throw OrdersError.paymentNotReceived
@@ -184,7 +184,7 @@ public class OrdersService: OrdersServiceCallable {
 
                 // Only fulfilled items can be refunded.
                 guard let unitStatus = order.products[i].status else {
-                    throw OrdersError.unrefundableItem(productData.id)
+                    throw OrdersError.unfulfilledItem(productData.id)
                 }
 
                 let fulfilled = unitStatus.fulfilledQuantity
@@ -233,6 +233,74 @@ public class OrdersService: OrdersServiceCallable {
         let refund = try repository.createRefund(forOrder: order.id, reason: data.reason,
                                                  items: items, amount: totalPrice)
         order.refunds.append(refund.id)
+        return try repository.updateOrder(withData: order)
+    }
+
+    public func returnOrder(id: UUID, data: PickupData) throws -> Order {
+        var order = try repository.getOrder(id: id)
+        if let _ = order.cancelledAt {
+            throw OrdersError.cancelledOrder
+        }
+
+        var atleastOneItemExists = false
+        var returnItems = [OrderUnit]()
+
+        if data.pickupAll ?? false {
+            for i in 0..<order.products.count {
+                let product = try productsService.getProduct(id: order.products[i].product)
+                // Only collect fulfilled items (if any) from each unit.
+                if let unitStatus = order.products[i].status {
+                    if unitStatus.fulfilledQuantity > 0 {
+                        let unit = OrderUnit(product: product.id,
+                                             quantity: unitStatus.fulfilledQuantity)
+                        returnItems.append(unit)
+                    }
+                }
+            }
+        } else {
+            for unit in data.units ?? [] {
+                var product: Product? = nil
+                var unitIdx: Int? = nil
+                for i in 0..<order.products.count {
+                    let id = order.products[i].product
+                    if unit.product != id {
+                        continue
+                    }
+
+                    product = try productsService.getProduct(id: id)
+                    unitIdx = i
+                }
+
+                // Make sure that all products are valid
+                guard let productData = product, let i = unitIdx else {
+                    throw OrdersError.invalidOrderItem
+                }
+
+                // Only fulfilled (delivered) items can be returned.
+                guard let unitStatus = order.products[i].status else {
+                    throw OrdersError.unfulfilledItem(productData.id)
+                }
+
+                let fulfilled = unitStatus.fulfilledQuantity
+                if unit.quantity > fulfilled {
+                    throw OrdersError.invalidOrderQuantity(productData.id, fulfilled)
+                }
+
+                let unit = OrderUnit(product: productData.id, quantity: unit.quantity)
+                returnItems.append(unit)
+                atleastOneItemExists = atleastOneItemExists || fulfilled > unit.quantity
+            }
+        }
+
+        if returnItems.isEmpty {
+            throw OrdersError.noItemsToProcess
+        }
+
+        var pickupData = PickupItems()
+        pickupData.items = returnItems
+        let shipment = try shippingService.schedulePickup(forOrder: order.id, data: pickupData)
+        order.shipments[shipment.id] = shipment.status
+
         return try repository.updateOrder(withData: order)
     }
 

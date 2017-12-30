@@ -177,7 +177,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(forId: UUID(), data: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidRefundReason)
+            XCTAssertEqual(err as! OrdersError, .invalidReason)
         }
     }
 
@@ -283,7 +283,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .unrefundableItem(product2.id))
+            XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id))
         }
 
         refundData.units = [OrderUnit(product: product1.id, quantity: 5)]
