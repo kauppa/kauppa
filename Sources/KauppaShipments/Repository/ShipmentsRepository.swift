@@ -33,4 +33,26 @@ public class ShipmentsRepository {
         shipments[data.id] = data
         return data
     }
+
+    /// Get the shipment for a given ID.
+    public func getShipment(id: UUID) throws -> Shipment {
+        guard let shipment = shipments[id] else {
+            let data = try store.getShipment(id: id)
+            shipments[id] = data
+            return data
+        }
+
+        return shipment
+    }
+
+    /// Update shipment with data from the service.
+    public func updateShipment(data: Shipment) throws -> Shipment {
+        var shipment = try getShipment(id: data.id)
+        shipment.updatedAt = Date()
+        shipment.items = data.items
+        shipment.status = data.status
+        shipments[data.id] = shipment
+        try store.updateShipment(data: shipment)
+        return shipment
+    }
 }

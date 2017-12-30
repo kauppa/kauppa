@@ -36,4 +36,8 @@ extension ShipmentsService: ShipmentsServiceCallable {
         return try repository.createShipment(forOrder: id, address: address,
                                              items: data.items, status: .pickup)
     }
+
+    public func completePickup(id: UUID) throws -> () {
+        ///
+    }
 }
