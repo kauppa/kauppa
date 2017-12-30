@@ -71,6 +71,17 @@ extension CartService: CartServiceCallable {
         return try getCart(for: userId, from: address)
     }
 
+    public func updateCart(for userId: UUID, with items: [CartUnit],
+                           from address: Address?) throws -> Cart
+    {
+        let account = try accountsService.getAccount(for: userId)
+        let cart = try repository.getCart(for: userId)
+        let modifier = CartItemModifier(for: cart, from: account)
+        try modifier.replaceItems(with: items, using: productsService, from: address)
+        try repository.updateCart(with: modifier.cart)
+        return try getCart(for: userId, from: address)
+    }
+
     public func applyCoupon(for userId: UUID, using code: String,
                             from address: Address?) throws -> Cart
     {

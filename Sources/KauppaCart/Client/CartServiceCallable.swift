@@ -15,9 +15,9 @@ public protocol CartServiceCallable {
     ///   - for: The `UUID` of the account maintaining this cart.
     ///   - with: The `CartUnit` that needs to be added to the cart.
     ///   - from: The (optional) `Address` from which this request was originated.
-    /// - Returns: The `Cart` data (with all the items contained inside)
+    /// - Returns: The `Cart` data (with all the items contained inside).
     /// - Throws: `ServiceError`
-    ///   - If the account doesn't exist (or)
+    ///   - If the account doesn't exist.
     ///   - If the item couldn't be added to the cart.
     func addCartItem(for userId: UUID, with unit: CartUnit, from address: Address?) throws -> Cart
 
@@ -27,11 +27,24 @@ public protocol CartServiceCallable {
     ///   - for: The `UUID` of the account maintaining this cart.
     ///   - with: The `UUID` of the product to be removed from the cart.
     ///   - from: The (optional) `Address` from which this request was originated.
-    /// - Returns: The `Cart` data (with all the items contained inside)
+    /// - Returns: The `Cart` data (with all the items contained inside).
     /// - Throws: `ServiceError`
     ///   - If the account doesn't exist.
     ///   - If the item is not found in the cart.
     func removeCartItem(for userId: UUID, with itemId: UUID, from address: Address?) throws -> Cart
+
+    /// Update the cart with the given list of items. This replaces all items from the existing
+    /// cart with the new IDs and quantities.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the account maintaining this cart.
+    ///   - with: The list of `CartUnit` objects.
+    ///   - from: The (optional) `Address` from which this request was originated.
+    /// - Returns: Updated `Cart` data (with all the items contained inside).
+    /// - Throws: `ServiceError`
+    ///   - If the account doesn't exist.
+    ///   - If the item couldn't be added to the cart.
+    func updateCart(for userId: UUID, with items: [CartUnit], from address: Address?) throws -> Cart
 
     /// Apply a coupon to this cart.
     ///

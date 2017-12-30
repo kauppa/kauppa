@@ -33,7 +33,7 @@ class CartItemModifier {
     ///   - from: (Optional) `Address` of the account.
     /// - Throws: `ServiceError`
     ///   - If the product doesn't exist.
-    ///   - If there was an error in adding the product.
+    ///   - If there was an error in adding the product (low on inventory or invalid quantity).
     func addCartItem(using productsService: ProductsServiceCallable,
                      with unit: CartUnit, from address: Address?) throws
     {
@@ -88,6 +88,34 @@ class CartItemModifier {
         }
     }
 
+    /// Replaces all items in the cart with the given list of items. This resets the
+    /// existing cart, filters duplicate items (for efficiency) and continuously calls
+    /// `addCartItem` to add items to the cart.
+    ///
+    /// - Parameters:
+    ///   - with: The list of `CartUnit` objects.
+    ///   - using: Anything that implements `ProductsServiceCallable`
+    /// - Throws: `ServiceError`
+    ///   - If the product doesn't exist.
+    ///   - If there was an error in adding the product (low on inventory or invalid quantity).
+    func replaceItems(with items: [CartUnit], using productsService: ProductsServiceCallable,
+                      from address: Address?) throws
+    {
+        var newItems = [CartUnit]()
+        items.forEach { item in
+            if let idx = newItems.index(where: { $0.product == item.product }) {
+                newItems[idx].quantity += item.quantity
+            } else {
+                newItems.append(item)
+            }
+        }
+
+        cart.items = []
+        try newItems.forEach { item in
+            try addCartItem(using: productsService, with: item, from: address)
+        }
+    }
+
     /// Function to make sure that the cart maintains its currency unit.
     private func checkPrice(for product: Product) throws {
         if let price = cart.netPrice {
@@ -103,18 +131,22 @@ class CartItemModifier {
     private func updateExistingItem(for product: Product, with unit: CartUnit) throws -> Bool {
         var itemExists = false
         for (i, item) in cart.items.enumerated() {
-            if item.product == product.id {
-                itemExists = true
-                cart.items[i].quantity += unit.quantity
-                let netPrice = Double(cart.items[i].quantity) * product.data.price.value
-                cart.items[i].netPrice!.value = netPrice
-
-                // This is just for notifying the customer. Orders service
-                // will verify this before placing the order anyway.
-                if cart.items[i].quantity > product.data.inventory {
-                    throw ServiceError.productUnavailable
-                }
+            if item.product != product.id {
+                continue
             }
+
+            itemExists = true
+            cart.items[i].quantity += unit.quantity
+            let netPrice = Double(cart.items[i].quantity) * product.data.price.value
+            cart.items[i].netPrice!.value = netPrice
+
+            // This is just for notifying the customer. Orders service
+            // will verify this before placing the order anyway.
+            if cart.items[i].quantity > product.data.inventory {
+                throw ServiceError.productUnavailable
+            }
+
+            break
         }
 
         return itemExists

@@ -23,6 +23,7 @@ class TestCartService: XCTestCase {
             ("Test empty cart", testEmptyCart),
             ("Test item addition to cart", testCartItemAddition),
             ("Test item removal from cart", testCartItemRemoval),
+            ("Test updating cart items", testCartUpdateItems),
             ("Test applying coupon", testCouponApply),
             ("Test invalid coupon applies", testInvalidCoupons),
             ("Test invalid product", testInvalidProduct),
@@ -181,6 +182,50 @@ class TestCartService: XCTestCase {
         } catch let err {
             XCTAssertEqual(err as! ServiceError, ServiceError.invalidItemId)
         }
+    }
+
+    // Service should support replacing all cart items in one go.
+    func testCartUpdateItems() {
+        let store = TestStore()
+        let repository = CartRepository(with: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.inventory = 10
+        productData.price.value = 5.0
+        productData.taxCategory = "unknown category"    // defaults to general
+
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
+        productData.price.value = 2.5
+        productData.taxCategory = "drink"
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
+        productData.price.value = 2
+        let product3 = try! productsService.createProduct(with: productData, from: Address())
+
+        let accountData = AccountData()
+        let account = try! accountsService.createAccount(with: accountData)
+
+        var rate = TaxRate()
+        rate.general = 10.0
+        rate.categories["drink"] = 5.0
+        taxService.rate = rate
+
+        let service = CartService(with: repository,
+                                  productsService: productsService,
+                                  accountsService: accountsService,
+                                  couponService: couponService,
+                                  ordersService: ordersService,
+                                  taxService: taxService)
+
+        var items = [CartUnit(for: product1.id, with: 2), CartUnit(for: product2.id, with: 4)]
+        let cart = try! service.updateCart(for: account.id, with: items, from: Address())
+        XCTAssertEqual(cart.items.count, 2)
+        XCTAssertEqual(cart.netPrice!.value, 20.0)
+        XCTAssertEqual(cart.grossPrice!.value, 21.5)
+
+        items = [CartUnit(for: product1.id, with: 1), CartUnit(for: product2.id, with: 2), CartUnit(for: product3.id, with: 5)]
+        let updatedCart = try! service.updateCart(for: account.id, with: items, from: Address())
+        XCTAssertEqual(updatedCart.items.count, 3)
+        XCTAssertEqual(updatedCart.netPrice!.value, 40)
+        XCTAssertEqual(updatedCart.grossPrice!.value, 21.25)
     }
 
     // Service should support adding coupons only if the cart is non-empty.
