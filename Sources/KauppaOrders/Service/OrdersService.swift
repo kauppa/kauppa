@@ -146,22 +146,25 @@ public class OrdersService: OrdersServiceCallable {
         var atleastOneItemExists = false
         var refundItems = [GenericOrderUnit<Product>]()
         // TODO: Investigate payment processing
-        // TODO: Support restocking inventory
 
         if data.fullRefund ?? false {
             for i in 0..<order.products.count {
                 let product = try productsService.getProduct(id: order.products[i].product)
                 // Only collect fulfilled items (if any) from each unit.
                 if let unitStatus = order.products[i].status {
-                    if unitStatus.fulfilledQuantity > 0 {
+                    if unitStatus.refundableQuantity > 0 {
+                        order.products[i].status!.refundableQuantity = 0
                         let unit = GenericOrderUnit(product: product,
-                                                    quantity: unitStatus.fulfilledQuantity)
+                                                    quantity: unitStatus.refundableQuantity)
                         refundItems.append(unit)
                     }
-                }
 
-                // Null represents that none of the items have been fulfilled.
-                order.products[i].status = nil
+                    // This is the last step in return + refund process. So, if there are
+                    // no fulfilled items, then now we can safely reset this state.
+                    if unitStatus.fulfilledQuantity == 0 {
+                        order.products[i].status = nil
+                    }
+                }
             }
         } else {
             for unit in data.units ?? [] {
@@ -187,22 +190,21 @@ public class OrdersService: OrdersServiceCallable {
                     throw OrdersError.unfulfilledItem(productData.id)
                 }
 
-                let fulfilled = unitStatus.fulfilledQuantity
-                if unit.quantity > fulfilled {
-                    throw OrdersError.invalidOrderQuantity(productData.id, fulfilled)
+                let refundable = unitStatus.refundableQuantity
+                if unit.quantity > refundable {
+                    throw OrdersError.invalidOrderQuantity(productData.id, refundable)
                 }
 
-                let unit = GenericOrderUnit(product: productData,
-                                            quantity: unit.quantity)
+                let unit = GenericOrderUnit(product: productData, quantity: unit.quantity)
                 refundItems.append(unit)
-                if fulfilled == unit.quantity {     // all items have been refunded in this unit
+                if unitStatus.fulfilledQuantity == 0 {  // all items have been refunded in this unit
                     order.products[i].status = nil
                 } else {
-                    order.products[i].status!.fulfilledQuantity -= unit.quantity
                     order.products[i].status!.fulfillment = .partial
+                    order.products[i].status!.refundableQuantity -= unit.quantity
                 }
 
-                atleastOneItemExists = atleastOneItemExists || fulfilled > unit.quantity
+                atleastOneItemExists = atleastOneItemExists || unitStatus.fulfilledQuantity > 0
             }
         }
 
