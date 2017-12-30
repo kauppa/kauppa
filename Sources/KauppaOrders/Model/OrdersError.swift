@@ -42,7 +42,11 @@ extension OrdersError: LocalizedError {
             case .unfulfilledItem(let id):
                 return "Items in product \(id) are been fulfilled and cannot be returned/refunded"
             case .invalidOrderQuantity(let id, let existing):
-                return "Only \(existing) items have been fulfilled for product \(id)"
+                if existing > 0 {
+                    return "Only \(existing) item(s) have been fulfilled for product \(id)"
+                } else {
+                    return "No fulfilled items remaining for product \(id)"
+                }
         }
     }
 }

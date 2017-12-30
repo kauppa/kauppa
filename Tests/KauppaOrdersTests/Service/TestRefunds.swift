@@ -287,7 +287,7 @@ class TestRefunds: XCTestCase {
         }
 
         refundData.units = [OrderUnit(product: product1.id, quantity: 5)]
-        do {    // Test unfulfilled item
+        do {    // Test invalid quantity for fulfilled item
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
         } catch let err {
