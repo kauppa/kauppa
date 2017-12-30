@@ -192,19 +192,21 @@ public class OrdersService: OrdersServiceCallable {
 
                 let refundable = unitStatus.refundableQuantity
                 if unit.quantity > refundable {
-                    throw OrdersError.invalidOrderQuantity(productData.id, refundable)
+                    throw OrdersError.invalidOrderQuantity(productData.id, refundable, true)
                 }
 
                 let unit = GenericOrderUnit(product: productData, quantity: unit.quantity)
                 refundItems.append(unit)
-                if unitStatus.fulfilledQuantity == 0 {  // all items have been refunded in this unit
+                order.products[i].status!.refundableQuantity -= unit.quantity
+
+                // all items have been refunded in this unit
+                if unitStatus.fulfilledQuantity == 0 && refundable == unit.quantity {
                     order.products[i].status = nil
                 } else {
                     order.products[i].status!.fulfillment = .partial
-                    order.products[i].status!.refundableQuantity -= unit.quantity
                 }
 
-                atleastOneItemExists = atleastOneItemExists || unitStatus.fulfilledQuantity > 0
+                atleastOneItemExists = atleastOneItemExists || order.products[i].status != nil
             }
         }
 
@@ -288,7 +290,7 @@ public class OrdersService: OrdersServiceCallable {
                 // Only items that have been fulfilled "and" not scheduled for pickup
                 let fulfilled = unitStatus.untouchedItems()
                 if unit.quantity > fulfilled {
-                    throw OrdersError.invalidOrderQuantity(productData.id, fulfilled)
+                    throw OrdersError.invalidOrderQuantity(productData.id, fulfilled, false)
                 }
 
                 let unit = OrderUnit(product: productData.id, quantity: unit.quantity)
