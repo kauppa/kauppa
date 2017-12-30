@@ -244,17 +244,18 @@ public class OrdersService: OrdersServiceCallable {
 
         var atleastOneItemExists = false
         var returnItems = [OrderUnit]()
-        // TODO: Check if items have already been scheduled for pickup.
 
         if data.pickupAll ?? false {
             for i in 0..<order.products.count {
                 let product = try productsService.getProduct(id: order.products[i].product)
-                // Only collect fulfilled items (if any) from each unit.
+                // Only collect "clean" items (if any) from each unit
+                // (i.e., items that have been fulfilled and not scheduled for pickup)
                 if let unitStatus = order.products[i].status {
-                    if unitStatus.fulfilledQuantity > 0 {
-                        let unit = OrderUnit(product: product.id,
-                                             quantity: unitStatus.fulfilledQuantity)
+                    let fulfilled = unitStatus.untouchedItems()
+                    if fulfilled > 0 {
+                        let unit = OrderUnit(product: product.id, quantity: fulfilled)
                         returnItems.append(unit)
+                        order.products[i].status!.pickupQuantity += unit.quantity
                     }
                 }
             }
@@ -282,13 +283,15 @@ public class OrdersService: OrdersServiceCallable {
                     throw OrdersError.unfulfilledItem(productData.id)
                 }
 
-                let fulfilled = unitStatus.fulfilledQuantity
+                // Only items that have been fulfilled "and" not scheduled for pickup
+                let fulfilled = unitStatus.untouchedItems()
                 if unit.quantity > fulfilled {
                     throw OrdersError.invalidOrderQuantity(productData.id, fulfilled)
                 }
 
                 let unit = OrderUnit(product: productData.id, quantity: unit.quantity)
                 returnItems.append(unit)
+                order.products[i].status!.pickupQuantity += unit.quantity
                 atleastOneItemExists = atleastOneItemExists || fulfilled > unit.quantity
             }
         }

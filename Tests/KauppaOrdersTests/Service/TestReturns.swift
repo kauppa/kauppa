@@ -82,6 +82,8 @@ class TestReturns: XCTestCase {
         var pickupData = PickupData()
         pickupData.pickupAll = true
         let updatedOrder = try! ordersService.returnOrder(id: order.id, data: pickupData)
+        XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 3)
+        XCTAssertEqual(updatedOrder.products[1].status!.pickupQuantity, 2)
         let id = shippingService.shipment!.id
         XCTAssertEqual(updatedOrder.shipments[id]!, .pickup)
 

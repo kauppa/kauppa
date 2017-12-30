@@ -4,6 +4,8 @@ import KauppaCore
 public struct OrderUnitStatus: Mappable {
     /// Quantity sent to the customer.
     public var fulfilledQuantity: UInt8
+    /// Quantity that's been scheduled for pickup.
+    public var pickupQuantity: UInt8 = 0
     /// Quantity returned by the customer. This represents the items
     /// that have been picked up. They're refundable.
     public var refundableQuantity: UInt8 = 0
@@ -12,6 +14,11 @@ public struct OrderUnitStatus: Mappable {
 
     public init(quantity: UInt8) {
         fulfilledQuantity = quantity
+    }
+
+    /// Number of items that have been fulfilled and hasn't been scheduled for pickup.
+    public func untouchedItems() -> UInt8 {
+        return fulfilledQuantity - pickupQuantity
     }
 }
 
