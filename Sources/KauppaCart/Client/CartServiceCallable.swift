@@ -21,6 +21,18 @@ public protocol CartServiceCallable {
     ///   - If the item couldn't be added to the cart.
     func addCartItem(for userId: UUID, with unit: CartUnit, from address: Address?) throws -> Cart
 
+    /// Remove a product item from the cart associated with an account.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the account maintaining this cart.
+    ///   - with: The `UUID` of the product to be removed from the cart.
+    ///   - from: The (optional) `Address` from which this request was originated.
+    /// - Returns: The `Cart` data (with all the items contained inside)
+    /// - Throws: `ServiceError`
+    ///   - If the account doesn't exist.
+    ///   - If the item is not found in the cart.
+    func removeCartItem(for userId: UUID, with itemId: UUID, from address: Address?) throws -> Cart
+
     /// Apply a coupon to this cart.
     ///
     /// - Parameters:

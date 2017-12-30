@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 import KauppaAccountsModel
 import KauppaCartModel
@@ -6,39 +8,37 @@ import KauppaProductsModel
 
 /// Factory class for adding a new item to the cart. This gets the item from the products
 /// service and updates the quantity of the item in the cart.
-class CartItemCreator {
+class CartItemModifier {
     /// Actual cart data which is used by this class. It's set during initialization,
     /// and the service gets it after performing necessary checks and updating it.
     public private(set) var cart: Cart
 
     private let account: Account
-    private var unit: CartUnit
-    private var itemExists = false
 
     /// Initialize this factory with the account, cart and the added cart unit.
     ///
     /// - Parameters:
-    ///   - from: The `Account` which requested to add the cart item.
     ///   - for: The `Cart` belonging to that account.
-    ///   - with: The `CartUnit` that's been added by the account.
-    init(from account: Account, for cart: Cart, with unit: CartUnit) {
+    ///   - from: The `Account` which requested to add the cart item.
+    init(for cart: Cart, from account: Account) {
         self.account = account
         self.cart = cart
-        self.unit = unit
-        self.unit.resetInternalProperties()
     }
 
-    /// Update this cart with the initiailized cart unit.
+    /// Update this cart by adding the initialized cart unit.
     ///
     /// - Parameters:
     ///   - using: Anything that implements `ProductsServiceCallable`
-    ///   - with: (Optional) `Address` of the account.
+    ///   - with: The `CartUnit` added by the account.
+    ///   - from: (Optional) `Address` of the account.
     /// - Throws: `ServiceError`
     ///   - If the product doesn't exist.
     ///   - If there was an error in adding the product.
-    func updateCartData(using productsService: ProductsServiceCallable,
-                        with address: Address?) throws
+    func addCartItem(using productsService: ProductsServiceCallable,
+                     with unit: CartUnit, from address: Address?) throws
     {
+        var unit = unit
+        unit.resetInternalProperties()
         if unit.quantity == 0 {
             throw ServiceError.noItemsToProcess
         }
@@ -54,11 +54,37 @@ class CartItemCreator {
         let netPrice = Double(unit.quantity) * product.data.price.value
         unit.netPrice = UnitMeasurement(value: netPrice, unit: product.data.price.unit)
         try checkPrice(for: product)
-        try updateItemIfExists(for: product)
+        let itemExists = try updateExistingItem(for: product, with: unit)
 
         cart.netPrice!.value += unit.netPrice!.value
         if !itemExists {
             cart.items.append(unit)
+        }
+    }
+
+    /// Removes an item from the cart (if it exists), and updates the net price
+    /// of the cart.
+    ///
+    /// - Parameters:
+    ///   - using: Anything that implements `ProductsServiceCallable`
+    ///   - with: The `UUID` of the item to be removed.
+    ///   - from: (Optional) `Address` of the account.
+    /// - Throws: `ServiceError` if the item doesn't exist in the cart.
+    func removeCartItem(using productsService: ProductsServiceCallable,
+                        with itemId: UUID, from address: Address?) throws
+    {
+        var itemIndex: Int? = nil
+        for (i, item) in cart.items.enumerated() {
+            if itemId == item.product {
+                itemIndex = i
+            }
+        }
+
+        if let idx = itemIndex {
+            let unit = cart.items.remove(at: idx)
+            cart.netPrice!.value -= unit.netPrice!.value
+        } else {
+            throw ServiceError.invalidItemId
         }
     }
 
@@ -74,7 +100,8 @@ class CartItemCreator {
     }
 
     /// Check if the product already exists (if it does, mutate the corresponding unit)
-    private func updateItemIfExists(for product: Product) throws {
+    private func updateExistingItem(for product: Product, with unit: CartUnit) throws -> Bool {
+        var itemExists = false
         for (i, item) in cart.items.enumerated() {
             if item.product == product.id {
                 itemExists = true
@@ -89,5 +116,7 @@ class CartItemCreator {
                 }
             }
         }
+
+        return itemExists
     }
 }

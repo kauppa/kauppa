@@ -35,6 +35,7 @@ public enum ServiceError: UInt16, Error {
     case noItemsToProcess
     case productUnavailable
     case ambiguousCurrencies
+    case invalidItemId
     case invalidAddress
 
     /* Products service errors */

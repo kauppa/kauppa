@@ -54,9 +54,20 @@ extension CartService: CartServiceCallable {
     {
         let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(for: userId)
-        let itemCreator = CartItemCreator(from: account, for: cart, with: unit)
-        try itemCreator.updateCartData(using: productsService, with: address)
-        try repository.updateCart(with: itemCreator.cart)
+        let modifier = CartItemModifier(for: cart, from: account)
+        try modifier.addCartItem(using: productsService, with: unit, from: address)
+        try repository.updateCart(with: modifier.cart)
+        return try getCart(for: userId, from: address)
+    }
+
+    public func removeCartItem(for userId: UUID, with itemId: UUID,
+                               from address: Address?) throws -> Cart
+    {
+        let account = try accountsService.getAccount(for: userId)
+        let cart = try repository.getCart(for: userId)
+        let modifier = CartItemModifier(for: cart, from: account)
+        try modifier.removeCartItem(using: productsService, with: itemId, from: address)
+        try repository.updateCart(with: modifier.cart)
         return try getCart(for: userId, from: address)
     }
 
