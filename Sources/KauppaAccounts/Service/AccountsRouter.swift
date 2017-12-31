@@ -5,7 +5,7 @@ import KauppaAccountsModel
 import KauppaAccountsClient
 
 /// Router specific to the accounts service.
-public class AccountsRouter<R: Routing>: ServiceRouter<R> {
+public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
     let service: AccountsServiceCallable
 
     /// Initializes this router with a `Routing` object and
@@ -17,7 +17,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R> {
 
     /// Overridden routes for accounts service.
     public override func initializeRoutes() {
-        add(route: AccountsRoutes.createAccount) { request, response in
+        add(route: .createAccount) { request, response in
             guard let data: AccountData = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
@@ -26,7 +26,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: account, code: .ok)
         }
 
-        add(route: AccountsRoutes.verifyEmail) { request, response in
+        add(route: .verifyEmail) { request, response in
             guard let data: AccountPropertyAdditionPatch = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
@@ -39,7 +39,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: ServiceStatusMessage(), code: .ok)
         }
 
-        add(route: AccountsRoutes.getAccount) { request, response in
+        add(route: .getAccount) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
             }
@@ -48,7 +48,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: account, code: .ok)
         }
 
-        add(route: AccountsRoutes.deleteAccount) { request, response in
+        add(route: .deleteAccount) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
             }
@@ -57,39 +57,39 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: ServiceStatusMessage(), code: .ok)
         }
 
-        add(route: AccountsRoutes.updateAccount) { request, response in
-            guard let data: AccountPatch = request.getJSON() else {
-                throw ServiceError.clientHTTPData
-            }
-
+        add(route: .updateAccount) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
+            }
+
+            guard let data: AccountPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
             }
 
             let account = try self.service.updateAccount(for: id, with: data)
             response.respondJSON(with: account, code: .ok)
         }
 
-        add(route: AccountsRoutes.addAccountProperty) { request, response in
-            guard let data: AccountPropertyAdditionPatch = request.getJSON() else {
-                throw ServiceError.clientHTTPData
-            }
-
+        add(route: .addAccountProperty) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
+            }
+
+            guard let data: AccountPropertyAdditionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
             }
 
             let account = try self.service.addAccountProperty(to: id, using: data)
             response.respondJSON(with: account, code: .ok)
         }
 
-        add(route: AccountsRoutes.deleteAccountProperty) { request, response in
-            guard let data: AccountPropertyDeletionPatch = request.getJSON() else {
-                throw ServiceError.clientHTTPData
-            }
-
+        add(route: .deleteAccountProperty) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
+            }
+
+            guard let data: AccountPropertyDeletionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
             }
 
             let account = try self.service.deleteAccountProperty(from: id, using: data)

@@ -9,17 +9,17 @@ struct DateResponse: Mappable {
     let date = Date()
 }
 
-class TestServiceRouter<R: Routing>: ServiceRouter<R> {
+class TestServiceRouter<R: Routing>: ServiceRouter<R, TestRoute> {
     override func initializeRoutes() {
-        add(route: TestRoute.foo) { req, resp in
+        add(route: .foo) { req, resp in
             resp.respondJSON(with: DateResponse(), code: .ok)
         }
 
-        add(route: TestRoute.bar) { req, resp in
+        add(route: .bar) { req, resp in
             throw ServiceError.clientHTTPData
         }
 
-        add(route: TestRoute.baz) { req, resp in
+        add(route: .baz) { req, resp in
             throw "boo"     // This should return `unknownError`
         }
     }

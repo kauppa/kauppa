@@ -12,7 +12,7 @@ extension String: Mappable {}
 /// themselves cannot be encoded/decoded directly using the standard JSONEncoder/JSONDecoder.
 /// This serves as a wrapper type for doing the same.
 public struct MappableArray<T>: Mappable {
-    private let inner: [T]
+    public let inner: [T]
 
     /// Initialize an instance for an array of `Mappable` objects.
     public init(for array: [T]) {

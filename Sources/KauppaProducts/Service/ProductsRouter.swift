@@ -6,7 +6,7 @@ import KauppaProductsClient
 import KauppaProductsModel
 
 /// Router specific to the product service.
-public class ProductsRouter<R: Routing>: ServiceRouter<R> {
+public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
     let service: ProductsServiceCallable
 
     /// Initializes this router with a `Routing` object and
@@ -20,7 +20,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
     public override func initializeRoutes() {
         // TODO: Figure out how to use address for tax service.
 
-        add(route: ProductsRoutes.createProduct) { request, response in
+        add(route: .createProduct) { request, response in
             guard let data: ProductData = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
@@ -29,7 +29,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: product, code: .ok)
         }
 
-        add(route: ProductsRoutes.getProduct) { request, response in
+        add(route: .getProduct) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidProductId
             }
@@ -38,7 +38,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: product, code: .ok)
         }
 
-        add(route: ProductsRoutes.deleteProduct) { request, response in
+        add(route: .deleteProduct) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidProductId
             }
@@ -47,7 +47,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: ServiceStatusMessage(), code: .ok)
         }
 
-        add(route: ProductsRoutes.updateProduct) { request, response in
+        add(route: .updateProduct) { request, response in
             guard let data: ProductPatch = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
@@ -60,7 +60,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
             response.respondJSON(with: product, code: .ok)
         }
 
-        add(route: ProductsRoutes.getAllProducts) { request, response in
+        add(route: .getAllProducts) { request, response in
             let products = try self.service.getProducts()
             let data = MappableArray(for: products)
             response.respondJSON(with: data, code: .ok)
