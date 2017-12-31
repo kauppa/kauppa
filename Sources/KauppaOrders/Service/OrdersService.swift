@@ -51,11 +51,11 @@ public class OrdersService: OrdersServiceCallable {
         var inventoryUpdates = [UUID: UInt32]()
 
         for orderUnit in data.products {
-            let product = try productsService.getProduct(id: orderUnit.product)
             if orderUnit.quantity == 0 {
                 continue    // skip zero'ed items
             }
 
+            let product = try productsService.getProduct(id: orderUnit.product)
             // check that all products are in the same currency
             productPrice = product.data.price.value
             if let unit = priceUnit {
@@ -139,27 +139,8 @@ public class OrdersService: OrdersServiceCallable {
             refundItems = try getAllRefundableItems(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
-                var product: Product? = nil
-                var unitIdx: Int? = nil
-                for i in 0..<order.products.count {
-                    let id = order.products[i].product
-                    if unit.product != id {
-                        continue
-                    }
-
-                    product = try productsService.getProduct(id: id)
-                    unitIdx = i
-                }
-
-                // Make sure that all products in the request are valid
-                guard let productData = product, let i = unitIdx else {
-                    throw OrdersError.invalidOrderItem
-                }
-
-                // Only fulfilled items can be refunded.
-                guard let unitStatus = order.products[i].status else {
-                    throw OrdersError.unfulfilledItem(productData.id)
-                }
+                let (i, productData) = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+                let unitStatus = order.products[i].status!      // This is safe
 
                 let refundable = unitStatus.refundableQuantity
                 if unit.quantity > refundable {
@@ -221,27 +202,7 @@ public class OrdersService: OrdersServiceCallable {
             returnItems = try getAllItemsForPickup(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
-                var product: Product? = nil
-                var unitIdx: Int? = nil
-                for i in 0..<order.products.count {
-                    let id = order.products[i].product
-                    if unit.product != id {
-                        continue
-                    }
-
-                    product = try productsService.getProduct(id: id)
-                    unitIdx = i
-                }
-
-                // Make sure that all products are valid
-                guard let productData = product, let i = unitIdx else {
-                    throw OrdersError.invalidOrderItem
-                }
-
-                // Only fulfilled (delivered) items can be returned.
-                guard let _ = order.products[i].status else {
-                    throw OrdersError.unfulfilledItem(productData.id)
-                }
+                let (i, productData) = try findEnumeratedProduct(inOrder: order, forId: unit.product)
 
                 // Only items that have been fulfilled "and" not scheduled for pickup
                 let fulfilled = order.products[i].untouchedItems()
@@ -275,6 +236,29 @@ public class OrdersService: OrdersServiceCallable {
 
     public func deleteOrder(id: UUID) throws -> () {
         return try repository.deleteOrder(id: id)
+    }
+
+    /* Private functions */
+
+    /// Given a product ID and order data, this function finds the index
+    /// of that product item in the order, gets the product data from the products
+    /// service (if any), and ensures that the order item has been fulfilled.
+    func findEnumeratedProduct(inOrder order: Order, forId id: UUID) throws -> (Int, Product) {
+        for (i, orderUnit) in order.products.enumerated() {
+            if id != orderUnit.product {
+                continue
+            }
+
+            let product = try productsService.getProduct(id: id)
+            // Make sure that only fulfilled (delivered) items are returned.
+            if orderUnit.status == nil {
+                throw OrdersError.unfulfilledItem(product.id)
+            }
+
+            return (i, product)
+        }
+
+        throw OrdersError.invalidOrderItem      // no such item exists in order.
     }
 
     /// Returns a list of all items that can be picked up from this order. This actually
