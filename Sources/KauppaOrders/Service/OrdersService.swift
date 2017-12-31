@@ -34,10 +34,8 @@ public class OrdersService: OrdersServiceCallable {
     }
 
     public func createOrder(data: OrderData) throws -> Order {
-        let weightCounter = WeightCounter()
         let account = try accountsService.getAccount(id: data.placedBy)
         var order = Order(placedBy: account.id)
-        var inventoryUpdates = [UUID: UInt32]()
         // order data for mail service
         var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
 
@@ -49,6 +47,8 @@ public class OrdersService: OrdersServiceCallable {
         var productPrice = 0.0
         var priceUnit: Currency? = nil
         var totalPrice = 0.0
+        let weightCounter = WeightCounter()
+        var inventoryUpdates = [UUID: UInt32]()
 
         for orderUnit in data.products {
             let product = try productsService.getProduct(id: orderUnit.product)
@@ -93,8 +93,7 @@ public class OrdersService: OrdersServiceCallable {
         for (id, leftover) in inventoryUpdates {
             var patch = ProductPatch()
             patch.inventory = leftover
-            // FIXME: What if the client fails for some reason?
-            let _ = try? productsService.updateProduct(id: id, data: patch)
+            let _ = try productsService.updateProduct(id: id, data: patch)
         }
 
         order.totalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
@@ -130,42 +129,14 @@ public class OrdersService: OrdersServiceCallable {
         }
 
         var order = try repository.getOrder(id: id)
-        if let _ = order.cancelledAt {
-            throw OrdersError.cancelledOrder
-        }
-
-        switch order.paymentStatus {
-            case .refunded:     // All items have been refunded
-                throw OrdersError.refundedOrder
-            case .failed, .pending:
-                throw OrdersError.paymentNotReceived
-            default:
-                break
-        }
+        try order.validateForRefund()
 
         var atleastOneItemExists = false
         var refundItems = [GenericOrderUnit<Product>]()
         // TODO: Investigate payment processing
 
         if data.fullRefund ?? false {
-            for i in 0..<order.products.count {
-                let product = try productsService.getProduct(id: order.products[i].product)
-                // Only collect fulfilled items (if any) from each unit.
-                if let unitStatus = order.products[i].status {
-                    if unitStatus.refundableQuantity > 0 {
-                        order.products[i].status!.refundableQuantity = 0
-                        let unit = GenericOrderUnit(product: product,
-                                                    quantity: unitStatus.refundableQuantity)
-                        refundItems.append(unit)
-                    }
-
-                    // This is the last step in return + refund process. So, if there are
-                    // no fulfilled items, then now we can safely reset this state.
-                    if unitStatus.fulfilledQuantity == 0 {
-                        order.products[i].status = nil
-                    }
-                }
-            }
+            refundItems = try getAllRefundableItems(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
                 var product: Product? = nil
@@ -242,27 +213,12 @@ public class OrdersService: OrdersServiceCallable {
 
     public func returnOrder(id: UUID, data: PickupData) throws -> Order {
         var order = try repository.getOrder(id: id)
-        if let _ = order.cancelledAt {
-            throw OrdersError.cancelledOrder
-        }
+        try order.validateForReturn()
 
-        var atleastOneItemExists = false
         var returnItems = [OrderUnit]()
 
         if data.pickupAll ?? false {
-            for i in 0..<order.products.count {
-                let product = try productsService.getProduct(id: order.products[i].product)
-                // Only collect "clean" items (if any) from each unit
-                // (i.e., items that have been fulfilled and not scheduled for pickup)
-                if let unitStatus = order.products[i].status {
-                    let fulfilled = unitStatus.untouchedItems()
-                    if fulfilled > 0 {
-                        let unit = OrderUnit(product: product.id, quantity: fulfilled)
-                        returnItems.append(unit)
-                        order.products[i].status!.pickupQuantity += unit.quantity
-                    }
-                }
-            }
+            returnItems = try getAllItemsForPickup(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
                 var product: Product? = nil
@@ -283,12 +239,12 @@ public class OrdersService: OrdersServiceCallable {
                 }
 
                 // Only fulfilled (delivered) items can be returned.
-                guard let unitStatus = order.products[i].status else {
+                guard let _ = order.products[i].status else {
                     throw OrdersError.unfulfilledItem(productData.id)
                 }
 
                 // Only items that have been fulfilled "and" not scheduled for pickup
-                let fulfilled = unitStatus.untouchedItems()
+                let fulfilled = order.products[i].untouchedItems()
                 if unit.quantity > fulfilled {
                     throw OrdersError.invalidOrderQuantity(productData.id, fulfilled, false)
                 }
@@ -296,7 +252,6 @@ public class OrdersService: OrdersServiceCallable {
                 let unit = OrderUnit(product: productData.id, quantity: unit.quantity)
                 returnItems.append(unit)
                 order.products[i].status!.pickupQuantity += unit.quantity
-                atleastOneItemExists = atleastOneItemExists || fulfilled > unit.quantity
             }
         }
 
@@ -320,5 +275,54 @@ public class OrdersService: OrdersServiceCallable {
 
     public func deleteOrder(id: UUID) throws -> () {
         return try repository.deleteOrder(id: id)
+    }
+
+    /// Returns a list of all items that can be picked up from this order. This actually
+    /// changes the `pickupQuantity` in each order unit (to indicate that the items have
+    /// been scheduled for pickup).
+    func getAllItemsForPickup(forOrder data: inout Order) throws -> [OrderUnit] {
+        var returnItems = [OrderUnit]()
+        for (i, unit) in data.products.enumerated() {
+            let product = try productsService.getProduct(id: unit.product)
+            // Only collect "untouched" items (if any) from each unit
+            // (i.e., items that have been fulfilled and not scheduled for pickup)
+            let fulfilled = unit.untouchedItems()
+            if fulfilled > 0 {
+                let returnUnit = OrderUnit(product: product.id, quantity: fulfilled)
+                returnItems.append(returnUnit)
+                data.products[i].status!.pickupQuantity += returnUnit.quantity
+            }
+        }
+
+        return returnItems
+    }
+
+    /// Returns a list of all refundable items in this order. If there's no fulfilled
+    /// quantity after processing the refundable items in an unit, then the unit status
+    /// will be set to `nil`
+    func getAllRefundableItems(forOrder data: inout Order) throws
+                              -> [GenericOrderUnit<Product>]
+    {
+        var refundItems = [GenericOrderUnit<Product>]()
+        for (i, unit) in data.products.enumerated() {
+            let product = try productsService.getProduct(id: unit.product)
+            // Only collect fulfilled items (if any) from each unit.
+            if let unitStatus = unit.status {
+                if unitStatus.refundableQuantity > 0 {
+                    let refundUnit = GenericOrderUnit(product: product,
+                                                      quantity: unitStatus.refundableQuantity)
+                    data.products[i].status!.refundableQuantity = 0    // reset refundable quantity
+                    refundItems.append(refundUnit)
+                }
+
+                // This is the last step in return + refund process. So, if there are
+                // no fulfilled items, then we can safely reset this state.
+                if unitStatus.fulfilledQuantity == 0 {
+                    data.products[i].status = nil
+                }
+            }
+        }
+
+        return refundItems
     }
 }

@@ -27,4 +27,14 @@ public struct GenericOrderUnit<P: Mappable>: Mappable {
     public var hasFulfillment: Bool {
         return self.status != nil
     }
+
+    /// Number of items that have been fulfilled and hasn't been scheduled for pickup.
+    // FIXME: May need a better name?
+    public func untouchedItems() -> UInt8 {
+        if let unitStatus = status {
+            return unitStatus.fulfilledQuantity - unitStatus.pickupQuantity
+        }
+
+        return 0
+    }
 }

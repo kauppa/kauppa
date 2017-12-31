@@ -15,10 +15,4 @@ public struct OrderUnitStatus: Mappable {
     public init(quantity: UInt8) {
         fulfilledQuantity = quantity
     }
-
-    /// Number of items that have been fulfilled and hasn't been scheduled for pickup.
-    // FIXME: May need a better name?
-    public func untouchedItems() -> UInt8 {
-        return fulfilledQuantity - pickupQuantity
-    }
 }
