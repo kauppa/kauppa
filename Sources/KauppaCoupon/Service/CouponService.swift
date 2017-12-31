@@ -33,6 +33,8 @@ extension CouponService: CouponServiceCallable {
     }
 
     public func getCoupon(for code: String) throws -> Coupon {
+        // FIXME: Make code length configurable and validate code before
+        // trusting it for querying.
         var coupon = try repository.getCoupon(for: code)
         coupon.data.hideCode()
         return coupon

@@ -56,7 +56,7 @@ public protocol CartServiceCallable {
     /// - Throws: `ServiceError`
     ///   - If the account doesn't exist (or)
     ///   - If the given coupon code is invalid.
-    func applyCoupon(for userId: UUID, using code: String, from address: Address?) throws -> Cart
+    func applyCoupon(for userId: UUID, using data: CartCoupon, from address: Address?) throws -> Cart
 
     /// Get the cart data for an account.
     ///

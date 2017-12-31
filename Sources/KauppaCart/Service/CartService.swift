@@ -82,7 +82,7 @@ extension CartService: CartServiceCallable {
         return try getCart(for: userId, from: address)
     }
 
-    public func applyCoupon(for userId: UUID, using code: String,
+    public func applyCoupon(for userId: UUID, using data: CartCoupon,
                             from address: Address?) throws -> Cart
     {
         let _ = try accountsService.getAccount(for: userId)
@@ -91,7 +91,7 @@ extension CartService: CartServiceCallable {
             throw ServiceError.noItemsInCart
         }
 
-        var coupon = try couponService.getCoupon(for: code)
+        var coupon = try couponService.getCoupon(for: data.code)
         var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
         // This only validates the coupon - because we're passing zero.
         try coupon.data.deductPrice(from: &zero)

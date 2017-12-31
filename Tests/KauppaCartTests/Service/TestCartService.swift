@@ -246,7 +246,7 @@ class TestCartService: XCTestCase {
                                   ordersService: ordersService,
                                   taxService: taxService)
         do {    // cart is empty
-            let _ = try service.applyCoupon(for: account.id, using: "", from: Address())
+            let _ = try service.applyCoupon(for: account.id, using: CartCoupon(code: ""), from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ServiceError, .noItemsInCart)
@@ -259,10 +259,13 @@ class TestCartService: XCTestCase {
 
         let cartUnit = CartUnit(for: product.id, with: 4)
         let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
-        let updatedCart = try! service.applyCoupon(for: account.id, using: coupon.data.code!,
+        let updatedCart = try! service.applyCoupon(for: account.id,
+                                                   using: CartCoupon(code: coupon.data.code!),
                                                    from: Address())
         // apply another time (to ensure we properly ignore duplicated coupons)
-        let _ = try! service.applyCoupon(for: account.id, using: coupon.data.code!, from: Address())
+        let _ = try! service.applyCoupon(for: account.id,
+                                         using: CartCoupon(code: coupon.data.code!),
+                                         from: Address())
         XCTAssertEqual(updatedCart.coupons.inner, [coupon.id])
     }
 
@@ -314,7 +317,8 @@ class TestCartService: XCTestCase {
                 var oldCoupon = couponService.coupons[coupon.id]!
                 modifyCoupon(&oldCoupon)
                 couponService.coupons[coupon.id] = oldCoupon
-                let _ = try service.applyCoupon(for: account.id, using: coupon.data.code!,
+                let _ = try service.applyCoupon(for: account.id,
+                                                using: CartCoupon(code: coupon.data.code!),
                                                 from: Address())
                 XCTFail()
             } catch let err {
@@ -468,7 +472,8 @@ class TestCartService: XCTestCase {
         cartUnit.product = anotherProduct.id
         cartUnit.quantity = 2
         let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: address)
-        let _ = try! service.applyCoupon(for: account.id, using: coupon.data.code!, from: address)
+        let _ = try! service.applyCoupon(for: account.id,
+                                         using: CartCoupon(code: coupon.data.code!), from: address)
 
         let orderPlaced = expectation(description: "order has been placed")
         ordersService.callback = { data in  // make sure that orders service gets the right data

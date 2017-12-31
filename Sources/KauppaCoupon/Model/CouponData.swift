@@ -26,8 +26,6 @@ public struct CouponData: Mappable {
     /// Date on which this coupon was disabled.
     public var disabledOn: Date? = nil
 
-    init() {}
-
     /// Validate this coupon data and modify as required.
     ///
     /// - Throws: `CouponError` if an error was encountered.
