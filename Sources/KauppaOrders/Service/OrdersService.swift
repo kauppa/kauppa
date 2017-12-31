@@ -206,7 +206,7 @@ public class OrdersService: OrdersServiceCallable {
                     order.products[i].status!.fulfillment = .partial
                 }
 
-                atleastOneItemExists = atleastOneItemExists || order.products[i].status != nil
+                atleastOneItemExists = atleastOneItemExists || order.products[i].hasFulfillment
             }
         }
 
