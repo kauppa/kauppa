@@ -6,6 +6,20 @@ import KauppaProductsModel
 /// General API meant for the products service to be used by both the
 /// service and the client.
 public protocol ProductsServiceCallable {
+    /* Generic */
+
+    /// Get all the defined categories from the service.
+    ///
+    /// - Returns: List of `Category` objects.
+    /// - Throws: `ServiceError` on failure.
+    func getCategories() throws -> [Category]
+
+    /// Get all the defined attributes from the service.
+    ///
+    /// - Returns: List of `Attribute` objects.
+    /// - Throws: `ServiceError` on failure.
+    func getAttributes() throws -> [Attribute]
+
     /* Product */
 
     /// Create product with the given product data.
@@ -26,7 +40,7 @@ public protocol ProductsServiceCallable {
     /// - Throws: `ServiceError` (if it doesn't).
     func getProduct(for id: UUID, from address: Address?) throws -> Product
 
-    // FIXME: Remove this or change this to support pagination.
+    // FIXME: Support pagination.
     func getProducts() throws -> [Product]
 
     /// Delete product corresponding to a given ID.

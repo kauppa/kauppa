@@ -20,6 +20,18 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
     public override func initializeRoutes() {
         // TODO: Figure out how to use address for tax service.
 
+        add(route: .getAttributes) { request, response in
+            let attributes = try self.service.getAttributes()
+            let data = MappableArray(for: attributes)
+            response.respondJSON(with: data, code: .ok)
+        }
+
+        add(route: .getCategories) { request, response in
+            let categories = try self.service.getCategories()
+            let data = MappableArray(for: categories)
+            response.respondJSON(with: data, code: .ok)
+        }
+
         add(route: .createProduct) { request, response in
             guard let data: ProductData = request.getJSON() else {
                 throw ServiceError.clientHTTPData

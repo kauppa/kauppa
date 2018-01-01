@@ -55,7 +55,17 @@ public class ProductsRepository {
         return try store.deleteProduct(for: id)
     }
 
-    // FIXME: Stub for service. Remove/change this.
+    // FIXME: Stub for service. Connect to store.
+    public func getAttributes() throws -> [Attribute] {
+        return Array(attributes.values)
+    }
+
+    // FIXME: Stub for service. Connect to store.
+    public func getCategories() throws -> [Category] {
+        return Array(categories.values)
+    }
+
+    // FIXME: Stub for service. Support pagination.
     public func getProducts() throws -> [Product] {
         return Array(products.values)
     }

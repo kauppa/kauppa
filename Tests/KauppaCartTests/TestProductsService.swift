@@ -23,6 +23,14 @@ public class TestProductsService: ProductsServiceCallable {
         return product
     }
 
+    public func getAttributes() throws -> [Attribute] {
+        return []
+    }
+
+    public func getCategories() throws -> [Category] {
+        return []
+    }
+
     public func getProducts() throws -> [Product] {
         return []
     }

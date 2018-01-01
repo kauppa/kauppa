@@ -24,6 +24,14 @@ public class ProductsService {
 
 // NOTE: See the actual protocol in `KauppaProductsClient` for exact usage.
 extension ProductsService: ProductsServiceCallable {
+    public func getCategories() throws -> [Category] {
+        return try repository.getCategories()
+    }
+
+    public func getAttributes() throws -> [Attribute] {
+        return try repository.getAttributes()
+    }
+
     public func createProduct(with data: ProductData,
                               from address: Address?) throws -> Product
     {
@@ -44,6 +52,7 @@ extension ProductsService: ProductsServiceCallable {
         return product
     }
 
+    // FIXME: Pagination
     public func getProducts() throws -> [Product] {
         return try repository.getProducts()
     }
