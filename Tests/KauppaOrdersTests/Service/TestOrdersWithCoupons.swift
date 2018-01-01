@@ -42,7 +42,7 @@ class TestOrdersWithCoupons: XCTestCase {
     func testOrderCreationWithCoupons() {
         let store = TestStore()
         let repository = OrdersRepository(with: store)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
         let product = try! productsService.createProduct(with: productData, from: Address())
@@ -69,7 +69,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let unit = OrderUnit(for: product.id, with: 3)
+        let unit = OrderUnit(for: product.id!, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
 
@@ -86,7 +86,7 @@ class TestOrdersWithCoupons: XCTestCase {
     func testOrderWithInvalidCoupon() {
         let store = TestStore()
         let repository = OrdersRepository(with: store)
-        var productData = ProductData(title: "", subtitle: "", description: "")
+        var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
         let product = try! productsService.createProduct(with: productData, from: Address())
@@ -99,7 +99,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let unit = OrderUnit(for: product.id, with: 3)
+        let unit = OrderUnit(for: product.id!, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
 

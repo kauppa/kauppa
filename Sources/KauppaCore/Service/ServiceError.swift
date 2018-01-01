@@ -41,6 +41,7 @@ public enum ServiceError: UInt16, Error {
     /* Products service errors */
 
     // Products-related errors
+    case missingProductId
     case invalidProductId
     case invalidProductTitle
     case invalidProductSubtitle

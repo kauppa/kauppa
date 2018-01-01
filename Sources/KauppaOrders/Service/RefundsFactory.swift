@@ -97,7 +97,7 @@ class RefundsFactory {
             let refundable = unitStatus.refundableQuantity
 
             if unit.quantity > refundable {
-                throw OrdersError.invalidRefundQuantity(product.id, refundable)
+                throw OrdersError.invalidRefundQuantity(product.id!, refundable)
             }
 
             refundItems.append(GenericCartUnit(for: product, with: unit.quantity))
@@ -132,12 +132,12 @@ class RefundsFactory {
     {
         // We can assume that all products in a successfully placed
         // order *will* have the same currency, because the cart checks it.
-        let currency = refundItems[0].product.data.price.unit
+        let currency = refundItems[0].product.price.unit
         var totalPrice = UnitMeasurement(value: 0.0, unit: currency)
         var items = [CartUnit]()
         for item in refundItems {
-            totalPrice.value += item.product.data.price.value * Double(item.quantity)
-            let unit = CartUnit(for: item.product.id, with: item.quantity)
+            totalPrice.value += item.product.price.value * Double(item.quantity)
+            let unit = CartUnit(for: item.product.id!, with: item.quantity)
             items.append(unit)
         }
 

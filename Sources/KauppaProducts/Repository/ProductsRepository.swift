@@ -37,10 +37,12 @@ public class ProductsRepository {
     /// - Throws: `ServiceError` on failure.
     public func createProduct(with product: Product) throws -> Product {
         try self.store.createNewProduct(with: product)
-        products[product.id] = product
+        products[product.id!] = product
 
         // Update in-memory tags
-        tags.formUnion(product.data.tags)
+        if let tags = product.tags {
+            self.tags.formUnion(tags)
+        }
 
         return product
     }
@@ -70,34 +72,23 @@ public class ProductsRepository {
         return Array(products.values)
     }
 
-    /// Get the product data corresponding to an ID.
-    ///
-    /// - Parameters:
-    ///   - for: The `UUID` of the product.
-    /// - Returns: `ProductData` for that product (if it exists).
-    /// - Throws: `ServiceError` on failure.
-    public func getProductData(for id: UUID) throws -> ProductData {
-        let product = try getProduct(for: id)
-        return product.data
-    }
-
     /// Update the product data for a given product ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product.
+    ///   - with: The `Product` object from service.
     /// - Returns: Updated `Product` object (if it exists).
     /// - Throws: `ServiceError` on failure.
-    public func updateProduct(for id: UUID, with data: ProductData) throws -> Product {
-        var product = try getProduct(for: id)
-        product.updatedAt = Date()
-        product.data = data
-        products[id] = product
-        try store.updateProduct(with: product)
+    public func updateProduct(with data: Product) throws -> Product {
+        products[data.id!] = data
+        try store.updateProduct(with: data)
 
         // Update in-memory tags
-        tags.formUnion(product.data.tags)
+        if let tags = data.tags {
+            self.tags.formUnion(tags)
+        }
 
-        return product
+        return data
     }
 
     /// Fetch the whole product (from repository, if it's available, or store, if not).

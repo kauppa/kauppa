@@ -44,7 +44,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        let product = Product(title: "foo", subtitle: "bar", description: "foobar")
         let _ = try! service.createProduct(with: product, from: Address())
     }
 
@@ -54,14 +54,14 @@ class TestProductsService: XCTestCase {
         let repository = ProductsRepository(with: store)
         taxService.rate = nil
         let service = ProductsService(with: repository, taxService: taxService)
-        var data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var data = Product(title: "foo", subtitle: "bar", description: "foobar")
         data.taxInclusive = true
         data.price.value = 10.0
 
         let product = try! service.createProduct(with: data, from: nil)
-        XCTAssertTrue(product.data.taxInclusive)
-        XCTAssertEqual(product.data.price.value, 10)
-        XCTAssertNil(product.data.tax)
+        XCTAssertTrue(product.taxInclusive!)
+        XCTAssertEqual(product.price.value, 10)
+        XCTAssertNil(product.tax)
     }
 
     /// Test that service supports product deletion
@@ -69,9 +69,9 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        let product = Product(title: "foo", subtitle: "bar", description: "foobar")
         let data = try! service.createProduct(with: product, from: Address())
-        try! service.deleteProduct(for: data.id)    // deletion succeeded
+        try! service.deleteProduct(for: data.id!)       // deletion succeeded
     }
 
     /// Test that service supports updating various product properties (PUT call)
@@ -79,15 +79,15 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        let product = ProductData(title: "Foo",
+        let product = Product(title: "Foo",
                                   subtitle: "Bar",
                                   description: "Foobar")
         let data = try! service.createProduct(with: product, from: Address())
-        let productId = data.id
+        let productId = data.id!
 
-        let anotherProduct = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        let anotherProduct = Product(title: "foo", subtitle: "bar", description: "foobar")
         let anotherData = try! service.createProduct(with: anotherProduct, from: Address())
-        let anotherId = anotherData.id
+        let anotherId = anotherData.id!
         let randomId = UUID()
 
         // Prefering JSON data over manually writing all the test cases
@@ -137,28 +137,28 @@ class TestProductsService: XCTestCase {
 
         // All successful updates
         let updatedProduct = try! service.getProduct(for: productId, from: Address())
-        XCTAssertEqual(updatedProduct.data.title, "Foobar")
-        XCTAssertEqual(updatedProduct.data.subtitle, "Baz")
-        XCTAssertEqual(updatedProduct.data.description, "Foo Bar Baz")
-        XCTAssertEqual(updatedProduct.data.overview!, "Boooooya")
-        XCTAssertEqual(updatedProduct.data.tags.inner, ["foo", "bar"])
-        XCTAssert(updatedProduct.data.dimensions!.length!.value == 10.0)
-        XCTAssert(updatedProduct.data.dimensions!.length!.unit == .centimeter)
-        XCTAssert(updatedProduct.data.dimensions!.width!.value == 0.5)
-        XCTAssert(updatedProduct.data.dimensions!.width!.unit == .millimeter)
-        XCTAssert(updatedProduct.data.dimensions!.height!.value == 1.0)
-        XCTAssert(updatedProduct.data.dimensions!.height!.unit == .meter)
-        XCTAssert(updatedProduct.data.weight!.value == 500.0)
-        XCTAssert(updatedProduct.data.weight!.unit == .gram)
-        XCTAssertEqual(updatedProduct.data.color, "blue")
-        XCTAssertEqual(updatedProduct.data.inventory, 20)
-        XCTAssertEqual(updatedProduct.data.images.inner,
+        XCTAssertEqual(updatedProduct.title, "Foobar")
+        XCTAssertEqual(updatedProduct.subtitle, "Baz")
+        XCTAssertEqual(updatedProduct.description, "Foo Bar Baz")
+        XCTAssertEqual(updatedProduct.overview!, "Boooooya")
+        XCTAssertEqual(updatedProduct.tags!.inner, ["foo", "bar"])
+        XCTAssert(updatedProduct.dimensions!.length!.value == 10.0)
+        XCTAssert(updatedProduct.dimensions!.length!.unit == .centimeter)
+        XCTAssert(updatedProduct.dimensions!.width!.value == 0.5)
+        XCTAssert(updatedProduct.dimensions!.width!.unit == .millimeter)
+        XCTAssert(updatedProduct.dimensions!.height!.value == 1.0)
+        XCTAssert(updatedProduct.dimensions!.height!.unit == .meter)
+        XCTAssert(updatedProduct.weight!.value == 500.0)
+        XCTAssert(updatedProduct.weight!.unit == .gram)
+        XCTAssertEqual(updatedProduct.color!, "blue")
+        XCTAssertEqual(updatedProduct.inventory, 20)
+        XCTAssertEqual(updatedProduct.images!.inner,
                        ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
-        XCTAssertEqual(updatedProduct.data.price.value, 30.0)
-        XCTAssertEqual(updatedProduct.data.price.unit, .usd)
-        XCTAssertEqual(updatedProduct.data.taxCategory, "electronics")
-        XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
-        XCTAssertEqual(updatedProduct.data.variantId, anotherId)
+        XCTAssertEqual(updatedProduct.price.value, 30.0)
+        XCTAssertEqual(updatedProduct.price.unit, .usd)
+        XCTAssertEqual(updatedProduct.taxCategory!, "electronics")
+        XCTAssert(updatedProduct.createdOn! < updatedProduct.updatedAt!)
+        XCTAssertEqual(updatedProduct.variantId!, anotherId)
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
@@ -174,29 +174,29 @@ class TestProductsService: XCTestCase {
         rate.categories["food"] = 12.0
         taxService.rate = rate
         let service = ProductsService(with: repository, taxService: taxService)
-        var data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var data = Product(title: "foo", subtitle: "bar", description: "foobar")
         data.price = UnitMeasurement(value: 10.0, unit: .usd)
 
         var product = try! service.createProduct(with: data, from: Address())
-        XCTAssertNotNil(product.data.tax)
-        XCTAssertEqual(product.data.tax!.rate, 18.0)
-        let tax = product.data.tax!.total.value
+        XCTAssertNotNil(product.tax)
+        XCTAssertEqual(product.tax!.rate, 18.0)
+        let tax = product.tax!.total.value
         XCTAssertTrue(tax > 1.79999999999 && tax < 1.80000000001)
-        XCTAssertNil(product.data.tax!.category)
-        XCTAssertFalse(product.data.taxInclusive)
+        XCTAssertNil(product.tax!.category)
+        XCTAssertFalse(product.taxInclusive!)
 
         var patch = ProductPatch()
         patch.taxCategory = "food"
-        product = try! service.updateProduct(for: product.id, with: patch, from: Address())
-        XCTAssertNotNil(product.data.tax)
-        XCTAssertEqual(product.data.tax!.category!, "food")
-        XCTAssertEqual(product.data.tax!.rate, 12.0)
-        XCTAssertEqual(product.data.tax!.total.value, 1.2)
+        product = try! service.updateProduct(for: product.id!, with: patch, from: Address())
+        XCTAssertNotNil(product.tax)
+        XCTAssertEqual(product.tax!.category!, "food")
+        XCTAssertEqual(product.tax!.rate, 12.0)
+        XCTAssertEqual(product.tax!.total.value, 1.2)
 
         patch.taxInclusive = true
-        product = try! service.updateProduct(for: product.id, with: patch, from: Address())
-        XCTAssertTrue(product.data.taxInclusive)
-        XCTAssertNil(product.data.tax)
+        product = try! service.updateProduct(for: product.id!, with: patch, from: Address())
+        XCTAssertTrue(product.taxInclusive!)
+        XCTAssertNil(product.tax)
     }
 
     /// Test that service supports adding items to collection properties.
@@ -204,16 +204,16 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        let product = Product(title: "foo", subtitle: "bar", description: "foobar")
         let data = try! service.createProduct(with: product, from: Address())
-        XCTAssertEqual(data.data.images.inner, [])      // no images
+        XCTAssertEqual(data.images!.inner, [])  // no images
 
         var patch = ProductPropertyAdditionPatch()
         patch.image = "data:image/png;base64,foobar"
-        let updatedProduct = try! service.addProductProperty(for: data.id, with: patch,
+        let updatedProduct = try! service.addProductProperty(for: data.id!, with: patch,
                                                              from: Address())
         // image should've been added
-        XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,foobar"])
+        XCTAssertEqual(updatedProduct.images!.inner, ["data:image/png;base64,foobar"])
     }
 
     /// Test that service supports resetting individual product properties.
@@ -221,9 +221,9 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var product = Product(title: "foo", subtitle: "bar", description: "foobar")
         // set all additional attributes required for testing
-        product.images.inner = ["data:image/png;base64,bar", "data:image/png;base64,baz"]
+        product.images = ArraySet(["data:image/png;base64,bar", "data:image/png;base64,baz"])
         product.color = "#000"
         product.weight = UnitMeasurement(value: 50.0, unit: .gram)
         var dimensions = Dimensions()
@@ -239,13 +239,13 @@ class TestProductsService: XCTestCase {
         patch.removeDimensions = true
         patch.removeWeight = true
         patch.removeImageAt = 0     // remove image at zero'th index
-        let updatedProduct = try! service.deleteProductProperty(for: data.id, with: patch,
+        let updatedProduct = try! service.deleteProductProperty(for: data.id!, with: patch,
                                                                 from: Address())
-        XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,baz"])
-        XCTAssertNil(updatedProduct.data.dimensions)
-        XCTAssertNil(updatedProduct.data.taxCategory)
-        XCTAssertNil(updatedProduct.data.color)
-        XCTAssertNil(updatedProduct.data.weight)
+        XCTAssertEqual(updatedProduct.images!.inner, ["data:image/png;base64,baz"])
+        XCTAssertNil(updatedProduct.dimensions)
+        XCTAssertNil(updatedProduct.taxCategory)
+        XCTAssertNil(updatedProduct.color)
+        XCTAssertNil(updatedProduct.weight)
     }
 
     /// Same as product creation - for collections. This checks whether the supplied products exist.
@@ -253,13 +253,13 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var productData = Product(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(with: productData, from: Address())
         productData.color = "#000"
         let product2 = try! service.createProduct(with: productData, from: Address())
 
         let collection = ProductCollectionData(name: "foo", description: "bar",
-                                               products: [product1.id, product2.id])
+                                               products: [product1.id!, product2.id!])
         let data = try? service.createCollection(with: collection)
         XCTAssertNotNil(data)
     }
@@ -293,7 +293,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        let productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        let productData = Product(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(with: productData, from: Address())
         let collection = ProductCollectionData(name: "foo", description: "bar", products: [])
         let data = try! service.createCollection(with: collection)
@@ -302,12 +302,12 @@ class TestProductsService: XCTestCase {
         var patch = ProductCollectionPatch()
         patch.name = "foo"
         patch.description = "foobar"
-        patch.products = [product1.id]
+        patch.products = [product1.id!]
         let updatedCollection = try! service.updateCollection(for: data.id, with: patch)
         XCTAssertTrue(updatedCollection.createdOn != updatedCollection.updatedAt)
         XCTAssertEqual(updatedCollection.data.name, "foo")
         XCTAssertEqual(updatedCollection.data.description, "foobar")
-        XCTAssertEqual(updatedCollection.data.products, [product1.id])
+        XCTAssertEqual(updatedCollection.data.products, [product1.id!])
 
         // also check invalid product update
         patch.products = [UUID()]
@@ -324,7 +324,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var productData = Product(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(with: productData, from: Address())
         productData.color = "#FFF"
         let product2 = try! service.createProduct(with: productData, from: Address())
@@ -333,9 +333,9 @@ class TestProductsService: XCTestCase {
 
         var patch = ProductCollectionItemPatch()
         patch.product = product1.id
-        patch.products = [product2.id, product2.id, product2.id]    // duplicate
+        patch.products = [product2.id!, product2.id!, product2.id!]     // duplicate
         let updatedCollection = try! service.addProduct(to: data.id, using: patch)
-        XCTAssertEqual(updatedCollection.data.products, [product1.id, product2.id])     // only two exist
+        XCTAssertEqual(updatedCollection.data.products, [product1.id!, product2.id!])   // only two exist
         patch.product = UUID()  // random ID - no product
         do {
             let _ = try service.addProduct(to: data.id, using: patch)
@@ -350,19 +350,19 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var productData = Product(title: "foo", subtitle: "bar", description: "foobar")
         let product1 = try! service.createProduct(with: productData, from: Address())
         productData.color = "#fff"
         let product2 = try! service.createProduct(with: productData, from: Address())
         let collection = ProductCollectionData(name: "foo", description: "bar",
-                                               products: [product1.id, product2.id])
+                                               products: [product1.id!, product2.id!])
         let data = try! service.createCollection(with: collection)
 
         var patch = ProductCollectionItemPatch()
         patch.product = product1.id
         // We've already validated products before inserting into a collection.
         // So, deletion only checks if the ID exists in the collection, and ignores otherwise.
-        patch.products = [product2.id, UUID()]
+        patch.products = [product2.id!, UUID()]
         let updatedCollection = try! service.removeProduct(from: data.id, using: patch)
         XCTAssertEqual(updatedCollection.data.products, [])
     }
@@ -372,7 +372,7 @@ class TestProductsService: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var productData = Product(title: "foo", subtitle: "bar", description: "foobar")
         productData.categories = [
             Category(name: "Foo"),
             Category(name: "foo"),      // category already exists - will be skipped
@@ -382,25 +382,25 @@ class TestProductsService: XCTestCase {
 
         // This will create new categories.
         let product1 = try! service.createProduct(with: productData, from: nil)
-        XCTAssertEqual(product1.data.categories.count, 2)
-        XCTAssertNotNil(product1.data.categories[0].id)
-        XCTAssertEqual(product1.data.categories[0].name!, "foo")
-        XCTAssertNotNil(product1.data.categories[1].id)
-        XCTAssertEqual(product1.data.categories[1].name!, "bar")
+        XCTAssertEqual(product1.categories!.count, 2)
+        XCTAssertNotNil(product1.categories![0].id)
+        XCTAssertEqual(product1.categories![0].name!, "foo")
+        XCTAssertNotNil(product1.categories![1].id)
+        XCTAssertEqual(product1.categories![1].name!, "bar")
 
         // This will re-use those categories.
         let product2 = try! service.createProduct(with: productData, from: nil)
-        productData.categories[0].id = product1.data.categories[0].id
-        XCTAssertEqual(product2.data.categories.count, 2)
-        XCTAssertEqual(product2.data.categories[0].id!, product1.data.categories[0].id!)
-        XCTAssertEqual(product2.data.categories[1].id!, product1.data.categories[1].id!)
+        productData.categories![0].id = product1.categories![0].id
+        XCTAssertEqual(product2.categories!.count, 2)
+        XCTAssertEqual(product2.categories![0].id!, product1.categories![0].id!)
+        XCTAssertEqual(product2.categories![1].id!, product1.categories![1].id!)
 
         // This will update product data with the same categories. Re-using happens again.
         var patch = ProductPatch()
         patch.categories = productData.categories
-        let updatedProduct1 = try! service.updateProduct(for: product1.id, with: patch, from: nil)
-        XCTAssertEqual(updatedProduct1.data.categories.count, 2)
-        XCTAssertEqual(updatedProduct1.data.categories[0].id!, product1.data.categories[0].id!)
-        XCTAssertEqual(updatedProduct1.data.categories[1].id!, product1.data.categories[1].id!)
+        let updatedProduct1 = try! service.updateProduct(for: product1.id!, with: patch, from: nil)
+        XCTAssertEqual(updatedProduct1.categories!.count, 2)
+        XCTAssertEqual(updatedProduct1.categories![0].id!, product1.categories![0].id!)
+        XCTAssertEqual(updatedProduct1.categories![1].id!, product1.categories![1].id!)
     }
 }

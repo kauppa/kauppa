@@ -33,7 +33,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
         }
 
         add(route: .createProduct) { request, response in
-            guard let data: ProductData = request.getJSON() else {
+            guard let data: Product = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 

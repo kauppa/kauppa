@@ -25,11 +25,11 @@ public protocol ProductsServiceCallable {
     /// Create product with the given product data.
     ///
     /// - Parameters:
-    ///   - with: The `ProductData` required for creating a product.
+    ///   - with: The `Product` required for creating a product.
     ///   - from: (Optional) `Address` from which this request was originated.
     /// - Returns: `Product`
     /// - Throws: `ServiceError` if there were errors validating the data.
-    func createProduct(with data: ProductData, from address: Address?) throws -> Product
+    func createProduct(with data: Product, from address: Address?) throws -> Product
 
     /// Get product for a given ID.
     ///

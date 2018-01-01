@@ -52,7 +52,7 @@ class ReturnsFactory {
 
         var pickupData = PickupItems()
         for unit in returnItems {
-            pickupData.items.append(CartUnit(for: unit.product.id, with: unit.quantity))
+            pickupData.items.append(CartUnit(for: unit.product.id!, with: unit.quantity))
         }
 
         let shipment = try shippingService.schedulePickup(for: order.id, with: pickupData)
@@ -87,7 +87,7 @@ class ReturnsFactory {
             // Only items that have been fulfilled "and" not scheduled for pickup
             let fulfilled = order.products[i].untouchedItems()
             if unit.quantity > fulfilled {
-                throw OrdersError.invalidReturnQuantity(product.id, fulfilled)
+                throw OrdersError.invalidReturnQuantity(product.id!, fulfilled)
             }
 
             returnItems.append(GenericCartUnit(for: product, with: unit.quantity))

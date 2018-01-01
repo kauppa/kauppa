@@ -45,14 +45,14 @@ class CartItemModifier {
 
         let product = try productsService.getProduct(for: unit.product, from: address)
         // set product category (for calculating tax later)
-        unit.setTax(using: product.data.taxCategory)
+        unit.setTax(using: product.taxCategory)
 
-        if unit.quantity > product.data.inventory {
+        if unit.quantity > product.inventory {
             throw ServiceError.productUnavailable      // precheck inventory
         }
 
-        let netPrice = Double(unit.quantity) * product.data.price.value
-        unit.netPrice = UnitMeasurement(value: netPrice, unit: product.data.price.unit)
+        let netPrice = Double(unit.quantity) * product.price.value
+        unit.netPrice = UnitMeasurement(value: netPrice, unit: product.price.unit)
         try checkPrice(for: product)
         let itemExists = try updateExistingItem(for: product, with: unit)
 
@@ -119,11 +119,11 @@ class CartItemModifier {
     /// Function to make sure that the cart maintains its currency unit.
     private func checkPrice(for product: Product) throws {
         if let price = cart.netPrice {
-            if price.unit != product.data.price.unit {
+            if price.unit != product.price.unit {
                 throw ServiceError.ambiguousCurrencies
             }
         } else {    // initialize price if it's not been done already
-            cart.netPrice = UnitMeasurement(value: 0.0, unit: product.data.price.unit)
+            cart.netPrice = UnitMeasurement(value: 0.0, unit: product.price.unit)
         }
     }
 
@@ -137,12 +137,12 @@ class CartItemModifier {
 
             itemExists = true
             cart.items[i].quantity += unit.quantity
-            let netPrice = Double(cart.items[i].quantity) * product.data.price.value
+            let netPrice = Double(cart.items[i].quantity) * product.price.value
             cart.items[i].netPrice!.value = netPrice
 
             // This is just for notifying the customer. Orders service
             // will verify this before placing the order anyway.
-            if cart.items[i].quantity > product.data.inventory {
+            if cart.items[i].quantity > product.inventory {
                 throw ServiceError.productUnavailable
             }
 

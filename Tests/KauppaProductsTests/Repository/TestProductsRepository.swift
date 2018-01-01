@@ -35,23 +35,20 @@ class TestProductsRepository: XCTestCase {
     func testProductCreation() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
-        var product = ProductData(title: "", subtitle: "", description: "")
-        product.tags = ArraySet(["foo", "bar"])
-
-        let data = try! repository.createProduct(with: Product(with: product))
+        let product = Product(title: "", subtitle: "", description: "")
+        let data = try! repository.createProduct(with: product)
         // These two timestamps should be the same in creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
-        XCTAssertEqual(repository.tags, ["foo", "bar"])
-        XCTAssertNotNil(repository.products[data.id])   // repository now has product data
+        XCTAssertNotNil(repository.products[data.id!])      // repository now has product data
     }
 
     /// Repository should call the store for product deletion and delete cached data.
     func testProductDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
-        let data = try! repository.createProduct(with: Product())
-        let _ = try! repository.deleteProduct(for: data.id)
+        let data = try! repository.createProduct(with: Product(title: "", subtitle: "", description: ""))
+        let _ = try! repository.deleteProduct(for: data.id!)
         XCTAssertTrue(repository.products.isEmpty)      // repository shouldn't have the product
         XCTAssertTrue(store.deleteCalled)       // delete should've been called in store (by repository)
     }
@@ -60,14 +57,13 @@ class TestProductsRepository: XCTestCase {
     func testProductUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
-        var product = ProductData(title: "", subtitle: "", description: "")
-        let data = try! repository.createProduct(with: Product(with: product))
+        var product = Product(title: "", subtitle: "", description: "")
+        let data = try! repository.createProduct(with: product)
         XCTAssertEqual(data.createdOn, data.updatedAt)
         product.title = "Foo"
-        let updatedProduct = try! repository.updateProduct(for: data.id, with: product)
+        let updatedProduct = try! repository.updateProduct(with: product)
         // We're just testing the function calls (extensive testing is done in service)
-        XCTAssertEqual(updatedProduct.data.title, "Foo")
-        XCTAssertTrue(updatedProduct.createdOn != updatedProduct.updatedAt)
+        XCTAssertEqual(updatedProduct.title, "Foo")
         XCTAssertTrue(store.updateCalled)   // update called on store
     }
 
@@ -75,13 +71,13 @@ class TestProductsRepository: XCTestCase {
     func testCollectionCreation() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
-        var productData = ProductData(title: "", subtitle: "", description: "")
-        let product1 = try! repository.createProduct(with: Product(with: productData))
+        var productData = Product(title: "", subtitle: "", description: "")
+        let product1 = try! repository.createProduct(with: productData)
         productData.color = "black"
-        let product2 = try! repository.createProduct(with: Product(with: productData))
+        let product2 = try! repository.createProduct(with: productData)
 
         let collection = ProductCollectionData(name: "", description: "",
-                                               products: [product1.id, product2.id])
+                                               products: [product1.id!, product2.id!])
         let data = try! repository.createCollection(with: collection)
         // These two timestamps should be the same in creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
@@ -118,16 +114,16 @@ class TestProductsRepository: XCTestCase {
     func testProductStoreCalls() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
-        let product = try! repository.createProduct(with: Product())
+        let product = try! repository.createProduct(with: Product(title: "", subtitle: "", description: ""))
         repository.products = [:]       // clear the repository
-        let _ = try! repository.getProduct(for: product.id)
+        let _ = try! repository.getProduct(for: product.id!)
         XCTAssertTrue(store.getCalled)  // this should've called the store
         store.getCalled = false         // now, pretend that we never called the store
-        let _ = try! repository.getProduct(for: product.id)
+        let _ = try! repository.getProduct(for: product.id!)
         // store shouldn't be called, because it was recently fetched by the repository
         XCTAssertFalse(store.getCalled)
 
-        let collection = ProductCollectionData(name: "", description: "", products: [product.id])
+        let collection = ProductCollectionData(name: "", description: "", products: [product.id!])
         let data = try! repository.createCollection(with: collection)
         repository.collections = [:]    // clear the repository
         let _ = try! repository.getCollection(for: data.id)

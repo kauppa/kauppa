@@ -99,13 +99,13 @@ class OrdersFactory {
     /// Step 1: Check that the product currency matches with other items' currencies.
     /// (This sets the current unit's price and the currency unit used throughout the order)
     private func checkCurrency(for product: Product) throws {
-        productPrice = product.data.price.value
+        productPrice = product.price.value
         if let unit = priceUnit {
-            if unit != product.data.price.unit {
+            if unit != product.price.unit {
                 throw OrdersError.ambiguousCurrencies
             }
         } else {
-            priceUnit = product.data.price.unit
+            priceUnit = product.price.unit
         }
     }
 
@@ -115,13 +115,13 @@ class OrdersFactory {
                                          with unit: OrderUnit) throws
     {
         // Let's also check for duplicated product (if it exists in our dict)
-        let available = inventoryUpdates[product.id] ?? product.data.inventory
+        let available = inventoryUpdates[product.id!] ?? product.inventory
         if available < unit.item.quantity {
             throw OrdersError.productUnavailable
         }
 
         let leftover = available - UInt32(unit.item.quantity)
-        inventoryUpdates[product.id] = leftover
+        inventoryUpdates[product.id!] = leftover
     }
 
     /// Step 3: Calculate tax and prices for a given order unit. This sets the tax rate,
@@ -136,7 +136,7 @@ class OrdersFactory {
     private func updateCounters(for unit: OrderUnit, with product: Product) {
         totalPrice += unit.item.netPrice!.value
         totalTax += unit.item.tax!.total.value
-        var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
+        var weight = product.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
         weight.value *= Double(unit.item.quantity)
         weightCounter.add(weight)
         order.totalItems += UInt16(unit.item.quantity)
@@ -156,7 +156,7 @@ class OrdersFactory {
                                                      from: data.shippingAddress)
         try checkCurrency(for: product)
         try updateConsumedInventory(for: product, with: unit)
-        unit.item.setTax(using: product.data.taxCategory)       // set the category for taxes
+        unit.item.setTax(using: product.taxCategory)    // set the category for taxes
         calculateUnitPrices(for: &unit)
 
         order.products.append(unit)
