@@ -55,8 +55,8 @@ extension CartService: CartServiceCallable {
         }
 
         // Check if the product already exists
-        for i in 0..<cart.items.count {
-            if cart.items[i].productId == product.id {
+        for (i, item) in cart.items.enumerated() {
+            if item.productId == product.id {
                 itemExists = true
                 cart.items[i].quantity += unit.quantity
 

@@ -15,7 +15,7 @@ public class CartRepository {
         self.store = store
     }
 
-    /// Get the cat associated with a customer account.
+    /// Get the cart associated with a customer account.
     ///
     /// Since carts are always associated with a customer account,
     /// we make sure that a cart always exists for an account.

@@ -140,9 +140,10 @@ public class OrdersService: OrdersServiceCallable {
         } else {
             for unit in data.units ?? [] {
                 let (i, productData) = try findEnumeratedProduct(inOrder: order, forId: unit.product)
-                let unitStatus = order.products[i].status!      // This is safe
-
+                // It's safe to unwrap here because the function checks this.
+                let unitStatus = order.products[i].status!
                 let refundable = unitStatus.refundableQuantity
+
                 if unit.quantity > refundable {
                     throw OrdersError.invalidOrderQuantity(productData.id, refundable, true)
                 }
@@ -151,7 +152,7 @@ public class OrdersService: OrdersServiceCallable {
                 refundItems.append(unit)
                 order.products[i].status!.refundableQuantity -= unit.quantity
 
-                // all items have been refunded in this unit
+                // Check whether all items have been refunded in this unit
                 if unitStatus.fulfilledQuantity == 0 && refundable == unit.quantity {
                     order.products[i].status = nil
                 } else {
@@ -176,7 +177,7 @@ public class OrdersService: OrdersServiceCallable {
         }
 
         // We can assume that all products in a successfully placed
-        // order *will* have the same currency.
+        // order *will* have the same currency, because the cart checks it.
         let currency = refundItems[0].product.data.price.unit
         var totalPrice = UnitMeasurement(value: 0.0, unit: currency)
         var items = [OrderUnit]()
