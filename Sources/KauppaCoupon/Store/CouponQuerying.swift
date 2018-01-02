@@ -10,7 +10,7 @@ public protocol CouponQuerying: Querying {
     /// - Parameters:
     ///   - for: The `UUID` of the coupon.
     /// - Returns: `Coupon` object (if it exists)
-    /// - Throws: `CouponError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getCoupon(for id: UUID) throws -> Coupon
 
     /// Get a coupon associated with the given alphanumeric code.
@@ -18,6 +18,6 @@ public protocol CouponQuerying: Querying {
     /// - Parameters:
     ///   - for: The unique 16-char alphanumeric code of the coupon.
     /// - Returns: `Coupon` object (if it exists)
-    /// - Throws: `CouponError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getCoupon(for code: String) throws -> Coupon
 }

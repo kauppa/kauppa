@@ -9,13 +9,13 @@ public protocol AccountsQuerying: Querying {
     ///
     /// - Parameters:
     ///   - for: The email associated with the account (as a string).
-    /// - Throws: `AccountsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getAccount(for email: String) throws -> Account
 
     /// Get the account data for the given ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account.
-    /// - Throws: `AccountsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getAccount(for id: UUID) throws -> Account
 }

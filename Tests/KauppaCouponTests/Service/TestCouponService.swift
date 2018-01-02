@@ -54,7 +54,7 @@ class TestCouponService: XCTestCase {
             let _ = try service.createCoupon(with: data)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CouponError, CouponError.invalidCode)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidCouponCode)
         }
 
         data.code = "ABCDEFGHIJKLMNOP"
@@ -77,7 +77,7 @@ class TestCouponService: XCTestCase {
             let _ = try service.createCoupon(with: data)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CouponError, CouponError.invalidExpiryDate)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidCouponExpiryDate)
         }
 
         data.expiresOn = Date(timeIntervalSinceNow: 87000)
@@ -117,7 +117,7 @@ class TestCouponService: XCTestCase {
             let _ = try service.updateCoupon(for: coupon.id, with: patch)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! CouponError, CouponError.invalidExpiryDate)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidCouponExpiryDate)
         }
     }
 }

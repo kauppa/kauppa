@@ -103,7 +103,7 @@ class TestOrdersWithCoupons: XCTestCase {
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
 
-        var cases = [(UUID, CouponError)]()          // random ID
+        var cases = [(UUID, ServiceError)]()          // random ID
         cases.append((UUID(), .invalidCouponId))
 
         var couponData = CouponData()       // by default, coupon has no balance
@@ -113,7 +113,7 @@ class TestOrdersWithCoupons: XCTestCase {
         couponData.balance.value = 10.0
         couponData.balance.unit = .euro       // product price is in USD
         coupon = try! couponService.createCoupon(with: couponData)
-        cases.append((coupon.id, .mismatchingCurrencies))
+        cases.append((coupon.id, .ambiguousCurrencies))
 
         couponData.disabledOn = Date()        // coupon disabled now
         coupon = try! couponService.createCoupon(with: couponData)
@@ -129,7 +129,7 @@ class TestOrdersWithCoupons: XCTestCase {
                 let _ = try ordersService.createOrder(with: orderData)
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! CouponError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }

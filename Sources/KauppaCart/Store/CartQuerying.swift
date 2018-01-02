@@ -10,6 +10,6 @@ public protocol CartQuerying: Querying {
     /// - Parameters:
     ///   - for: The `UUID` of the cart.
     /// - Returns: The `Cart` if it exists.
-    /// - Throws: `CartError` if it doesn't.
+    /// - Throws: `ServiceError` if it doesn't.
     func getCart(for id: UUID) throws -> Cart
 }

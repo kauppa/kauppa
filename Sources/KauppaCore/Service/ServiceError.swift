@@ -38,6 +38,15 @@ public enum ServiceError: UInt16, Error {
     case invalidItemId
     case invalidAddress
 
+    /* Coupon service errors */
+
+    case invalidCouponId
+    case invalidCouponCode
+    case invalidCouponExpiryDate
+    case noBalance
+    case couponDisabled
+    case couponExpired
+
     /* Products service errors */
 
     // Products-related errors

@@ -308,14 +308,14 @@ class TestCartService: XCTestCase {
 
         // Test cases that should fail a coupon - This ensures that validation
         // happens every time a coupon is applied to a cart.
-        let tests: [((inout Coupon) -> (), CouponError)] = [
+        let tests: [((inout Coupon) -> (), ServiceError)] = [
             ({ coupon in
                 //
             }, .noBalance),
             ({ coupon in
                 coupon.data.balance.value = 10.0
                 coupon.data.balance.unit = .euro
-            }, .mismatchingCurrencies),
+            }, .ambiguousCurrencies),
             ({ coupon in
                 coupon.data.disabledOn = Date()
             }, .couponDisabled),
@@ -334,7 +334,7 @@ class TestCartService: XCTestCase {
                                                 from: Address())
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! CouponError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
