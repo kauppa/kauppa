@@ -57,9 +57,10 @@ class TestAccountTypes: XCTestCase {
         data.name = ""
         tests.append((data, AccountsError.invalidName))
         data.name = "foo"
-        data.email = "bleh"
+        tests.append((data, AccountsError.emailRequired))   // empty email list
+        data.emails = ArraySet(["bleh"])
         tests.append((data, AccountsError.invalidEmail))
-        data.email = "abc@xyz.com"
+        data.emails = ArraySet(["abc@xyz.com"])
         data.phone = ""
         tests.append((data, AccountsError.invalidPhone))
 

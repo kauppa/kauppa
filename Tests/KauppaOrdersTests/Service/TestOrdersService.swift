@@ -55,7 +55,7 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData)
 
         var accountData = AccountData()
-        accountData.email = "foo@bar.com"
+        accountData.emails = ArraySet(["foo@bar.com", "baz@bar.com"])
         let account = try! accountsService.createAccount(withData: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
@@ -66,7 +66,7 @@ class TestOrdersService: XCTestCase {
         let mailSent = expectation(description: "mail has been sent")
         let mailService = TestMailer(callback: { request in
             XCTAssertEqual(request.from, "orders@kauppa.com")
-            XCTAssertEqual(request.to, ["foo@bar.com"])
+            XCTAssertEqual(request.to, ["foo@bar.com", "baz@bar.com"])
             XCTAssertEqual(request.subject, "Your order has been placed")
             mailSent.fulfill()
         })
