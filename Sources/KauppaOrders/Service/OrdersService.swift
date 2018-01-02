@@ -49,7 +49,7 @@ extension OrdersService: OrdersServiceCallable {
         try repository.createOrder(withData: factory.order)
         let mailOrder = MailOrder(from: detailedOrder)
         if let mailer = mailService {
-            mailer.sendMail(to: account.data.email, with: mailOrder)
+            mailer.sendMail(to: Array(account.data.emails), with: mailOrder)
         }
 
         return factory.order

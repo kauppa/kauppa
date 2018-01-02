@@ -28,6 +28,7 @@ public enum AddressError: UInt8 {
 public enum AccountsError: Error {
     case accountExists
     case invalidEmail
+    case emailRequired
     case invalidAccount
     case invalidName
     case invalidPhone
@@ -43,6 +44,8 @@ extension AccountsError: LocalizedError {
                 return "Account already exists"
             case .invalidEmail:
                 return "Error validating email"
+            case .emailRequired:
+                return "Account requires at least one email"
             case .invalidAccount:
                 return "No account found for the given UUID"
             case .invalidName:
@@ -61,6 +64,7 @@ extension AccountsError: Equatable {
         switch (lhs, rhs) {
             case (.accountExists, .accountExists),
                  (.invalidEmail, .invalidEmail),
+                 (.emailRequired, .emailRequired),
                  (.invalidAccount, .invalidAccount),
                  (.invalidName, .invalidName),
                  (.invalidPhone, .invalidPhone):

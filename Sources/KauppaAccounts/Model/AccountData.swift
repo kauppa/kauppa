@@ -6,8 +6,8 @@ import KauppaCore
 public struct AccountData: Mappable {
     /// Name of the user
     public var name: String = ""
-    /// User's email
-    public var email: String = ""
+    /// User's emails
+    public var emails = ArraySet<String>()
     /// User's phone number
     public var phone: String? = nil
     /// A list of user's addresses
@@ -19,9 +19,15 @@ public struct AccountData: Mappable {
             throw AccountsError.invalidName
         }
 
-        /// A popular regex pattern that matches a wide range of cases.
-        if !email.isMatching(regex: "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)") {
-            throw AccountsError.invalidEmail
+        if emails.isEmpty {
+            throw AccountsError.emailRequired
+        }
+
+        for email in emails {
+            /// A popular regex pattern that matches a wide range of cases.
+            if !email.isMatching(regex: "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)") {
+                throw AccountsError.invalidEmail
+            }
         }
 
         if let number = phone {

@@ -20,8 +20,10 @@ public class AccountsService {
 extension AccountsService: AccountsServiceCallable {
     public func createAccount(withData data: AccountData) throws -> Account {
         try data.validate()
-        if let _ = try? repository.getAccount(forEmail: data.email) {
-            throw AccountsError.accountExists
+        for email in data.emails {
+            if let _ = try? repository.getAccount(forEmail: email) {
+                throw AccountsError.accountExists
+            }
         }
 
         return try repository.createAccount(data: data)
@@ -46,6 +48,10 @@ extension AccountsService: AccountsServiceCallable {
             accountData.phone = phone
         }
 
+        if let emails = data.emails {
+            accountData.emails = emails
+        }
+
         if let addressList = data.address {
             accountData.address = addressList
         }
@@ -61,6 +67,10 @@ extension AccountsService: AccountsServiceCallable {
             accountData.address.insert(address)
         }
 
+        if let email = data.email {
+            accountData.emails.insert(email)
+        }
+
         try accountData.validate()
         return try repository.updateAccountData(forId: id, data: accountData)
     }
@@ -70,6 +80,13 @@ extension AccountsService: AccountsServiceCallable {
 
         if (data.removePhone ?? false) {
             accountData.phone = nil
+        }
+
+        if let index = data.removeEmailAt {
+            accountData.emails.remove(at: index)
+            if accountData.emails.isEmpty {         // if there are no more emails, disallow this
+                throw AccountsError.emailRequired
+            }
         }
 
         if let index = data.removeAddressAt {
