@@ -35,8 +35,9 @@ build:linux:
     expire_in: 1 week
   tags:
     - docker
-  when: manual
   only:
+    - schedules
+    - master
     - release   
 
 review:
