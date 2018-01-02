@@ -20,6 +20,8 @@ public struct Address: Mappable, Hashable {
     /// Label for this address.
     public let kind: AddressKind?
 
+    /// Initialize an empty address for tests. This will fail in the actual
+    /// service when it gets validated.
     public init() {
         line1 = ""
         line2 = ""
@@ -29,6 +31,7 @@ public struct Address: Mappable, Hashable {
         kind = nil
     }
 
+    /// Initialize an address with all of its fields.
     public init(line1: String, line2: String, city: String, country: String,
                 code: String, kind: AddressKind? = nil)
     {

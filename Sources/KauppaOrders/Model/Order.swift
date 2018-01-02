@@ -39,6 +39,8 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     /// Shipping Address for this order.
     public var shippingAddress: Address
 
+    /// Creates an order with the given account (generic type). By default,
+    /// the shipping an billing addresses are invalid.
     public init(placedBy account: U) {
         id = UUID()
         let date = Date()
@@ -64,5 +66,28 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
         data.shipments = shipments
         data.billingAddress = billingAddress
         data.shippingAddress = shippingAddress
+    }
+
+    /// Validate this order to check whether it's suitable for refunding.
+    public func validateForRefund() throws {
+        if let _ = cancelledAt {
+            throw OrdersError.cancelledOrder
+        }
+
+        switch paymentStatus {
+            case .refunded:     // All items have been refunded
+                throw OrdersError.refundedOrder
+            case .failed, .pending:
+                throw OrdersError.paymentNotReceived
+            default:
+                break
+        }
+    }
+
+    /// Validate this order to check whether it's suitable for returning.
+    public func validateForReturn() throws {
+        if let _ = cancelledAt {
+            throw OrdersError.cancelledOrder
+        }
     }
 }

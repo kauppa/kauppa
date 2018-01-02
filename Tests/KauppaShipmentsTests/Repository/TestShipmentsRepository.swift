@@ -10,7 +10,9 @@ class TestShipmentsRepository: XCTestCase {
 
     static var allTests: [(String, (TestShipmentsRepository) -> () throws -> Void)] {
         return [
-            ("Test shipment creation", testShipmentCreation)
+            ("Test shipment creation", testShipmentCreation),
+            ("Test shipment update", testShipmentUpdate),
+            ("Test store calls", testStoreCalls),
         ]
     }
 
@@ -31,5 +33,29 @@ class TestShipmentsRepository: XCTestCase {
         XCTAssertNotNil(repository.shipments[data.id])  // valid shipment ID
         XCTAssertEqual(data.status, .shipping)
         XCTAssertTrue(store.createCalled)
+    }
+
+    func testShipmentUpdate() {
+        let store = TestStore()
+        let repository = ShipmentsRepository(withStore: store)
+        var data = try! repository.createShipment(forOrder: UUID(), address: address, items: [])
+        XCTAssertEqual(data.createdOn, data.updatedAt)
+        data.status = .pickup
+        let updatedData = try! repository.updateShipment(data: data)
+        XCTAssertTrue(updatedData.createdOn != updatedData.updatedAt)   // date has been changed
+        XCTAssertTrue(store.updateCalled)   // update called on store
+    }
+
+    func testStoreCalls() {
+        let store = TestStore()
+        let repository = ShipmentsRepository(withStore: store)
+        let data = try! repository.createShipment(forOrder: UUID(), address: address, items: [])
+        repository.shipments = [:]      // clear the repository
+        let _ = try! repository.getShipment(id: data.id)
+        XCTAssertTrue(store.getCalled)  // this should've called the store
+        store.getCalled = false         // now, pretend that we never called the store
+        let _ = try! repository.getShipment(id: data.id)
+        // store shouldn't be called because it was recently fetched by the repository
+        XCTAssertFalse(store.getCalled)
     }
 }
