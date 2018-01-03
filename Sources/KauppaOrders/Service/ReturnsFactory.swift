@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 import KauppaCartModel
 import KauppaOrdersModel
 import KauppaProductsClient
@@ -31,10 +32,10 @@ class ReturnsFactory {
     /// - Parameters:
     ///   - for: The actual `Order` associated with this pickup.
     ///   - using: Anything that implements `ShipmentsServiceCallable`
-    /// - Throws:
-    ///   - `ServiceError` if the product doesn't exist.
-    ///   - `OrdersError` if the specified item(s) cannot be returned.
-    ///   - `ShipmentsError` if there was an error in scheduling the pickup.
+    /// - Throws: `ServiceError`
+    ///   - If the product doesn't exist.
+    ///   - If the specified item(s) cannot be returned.
+    ///   - If there was an error in scheduling the pickup.
     func initiatePickup(for order: inout Order,
                         with shippingService: ShipmentsServiceCallable) throws
     {
@@ -47,7 +48,7 @@ class ReturnsFactory {
         }
 
         if returnItems.isEmpty {
-            throw OrdersError.noItemsToProcess
+            throw ServiceError.noItemsToProcess
         }
 
         var pickupData = PickupItems()
@@ -87,7 +88,7 @@ class ReturnsFactory {
             // Only items that have been fulfilled "and" not scheduled for pickup
             let fulfilled = order.products[i].untouchedItems()
             if unit.quantity > fulfilled {
-                throw OrdersError.invalidReturnQuantity(product.id!, fulfilled)
+                throw ServiceError.invalidReturnQuantity
             }
 
             returnItems.append(GenericCartUnit(for: product, with: unit.quantity))

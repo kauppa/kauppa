@@ -85,17 +85,17 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
 
     /// Validate this order to check whether it's suitable for refunding.
     ///
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func validateForRefund() throws {
         if let _ = cancelledAt {
-            throw OrdersError.cancelledOrder
+            throw ServiceError.cancelledOrder
         }
 
         switch paymentStatus {
             case .refunded:     // All items have been refunded
-                throw OrdersError.refundedOrder
+                throw ServiceError.refundedOrder
             case .failed, .pending:
-                throw OrdersError.paymentNotReceived
+                throw ServiceError.paymentNotReceived
             default:
                 break
         }
@@ -103,10 +103,10 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
 
     /// Validate this order to check whether it's suitable for returning.
     ///
-    /// - Throws: `OrdersError` if this order cannot be returned.
+    /// - Throws: `ServiceError` if this order cannot be returned.
     public func validateForReturn() throws {
         if let _ = cancelledAt {
-            throw OrdersError.cancelledOrder
+            throw ServiceError.cancelledOrder
         }
     }
 }

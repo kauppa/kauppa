@@ -175,7 +175,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidReturnQuantity(product3.id!, 0))
+            XCTAssertEqual(err as! ServiceError, .invalidReturnQuantity)
         }
 
         let pickup2Scheduled = expectation(description: "pickup scheduled for second partial return")
@@ -230,7 +230,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .cancelledOrder)
+            XCTAssertEqual(err as! ServiceError, .cancelledOrder)
         }
     }
 
@@ -272,7 +272,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
+            XCTAssertEqual(err as! ServiceError, .invalidItemId)
         }
 
         pickupData.units = [CartUnit(for: product2.id!, with: 2)]
@@ -280,7 +280,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id!))
+            XCTAssertEqual(err as! ServiceError, .unfulfilledItem)
         }
 
         pickupData.units = [CartUnit(for: product1.id!, with: 5)]
@@ -288,7 +288,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidReturnQuantity(product1.id!, 3))
+            XCTAssertEqual(err as! ServiceError, .invalidReturnQuantity)
         }
 
         pickupData.units = []
@@ -296,7 +296,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .noItemsToProcess)
+            XCTAssertEqual(err as! ServiceError, .noItemsToProcess)
         }
     }
 }

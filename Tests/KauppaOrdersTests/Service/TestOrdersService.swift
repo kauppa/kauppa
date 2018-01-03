@@ -157,7 +157,7 @@ class TestOrdersService: XCTestCase {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, OrdersError.unverifiedAccount)
+            XCTAssertEqual(err as! ServiceError, ServiceError.unverifiedAccount)
         }
     }
 
@@ -181,7 +181,7 @@ class TestOrdersService: XCTestCase {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {   // no products - failure
-            XCTAssertEqual(err as! OrdersError, OrdersError.noItemsToProcess)
+            XCTAssertEqual(err as! ServiceError, ServiceError.noItemsToProcess)
         }
     }
 
@@ -254,7 +254,7 @@ class TestOrdersService: XCTestCase {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {   // no products - failure
-            XCTAssertEqual(err as! OrdersError, OrdersError.productUnavailable)
+            XCTAssertEqual(err as! ServiceError, ServiceError.productUnavailable)
         }
     }
 
@@ -285,7 +285,7 @@ class TestOrdersService: XCTestCase {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, OrdersError.noItemsToProcess)
+            XCTAssertEqual(err as! ServiceError, ServiceError.noItemsToProcess)
         }
     }
 
@@ -386,7 +386,7 @@ class TestOrdersService: XCTestCase {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, OrdersError.ambiguousCurrencies)
+            XCTAssertEqual(err as! ServiceError, ServiceError.ambiguousCurrencies)
         }
     }
 

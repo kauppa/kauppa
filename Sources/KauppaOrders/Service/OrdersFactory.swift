@@ -54,10 +54,10 @@ class OrdersFactory {
     ///   - with: Anything that implements `ShipmentsServiceCallable`
     ///   - using: Anything that implements `CouponServiceCallable`
     ///   - calculatingWith: Anything that implements `TaxServiceCallable`
-    /// - Throws:
-    ///   - `OrdersError` if there were no items
-    ///   - `CouponError` if there was an error validating the coupons.
-    ///   - `ShipmentsError` if there was an error in queueing shipment.
+    /// - Throws: `ServiceError`
+    ///   - If there were no items
+    ///   - If there was an error validating the coupons.
+    ///   - If there was an error in queueing shipment.
     func createOrder(with shippingService: ShipmentsServiceCallable,
                      using couponService: CouponServiceCallable,
                      calculatingWith taxService: TaxServiceCallable) throws
@@ -102,7 +102,7 @@ class OrdersFactory {
         productPrice = product.price.value
         if let unit = priceUnit {
             if unit != product.price.unit {
-                throw OrdersError.ambiguousCurrencies
+                throw ServiceError.ambiguousCurrencies
             }
         } else {
             priceUnit = product.price.unit
@@ -117,7 +117,7 @@ class OrdersFactory {
         // Let's also check for duplicated product (if it exists in our dict)
         let available = inventoryUpdates[product.id!] ?? product.inventory
         if available < unit.item.quantity {
-            throw OrdersError.productUnavailable
+            throw ServiceError.productUnavailable
         }
 
         let leftover = available - UInt32(unit.item.quantity)
@@ -167,7 +167,7 @@ class OrdersFactory {
     /// Update all the products with their new inventory.
     private func updateProductInventory() throws {
         if inventoryUpdates.isEmpty {
-            throw OrdersError.noItemsToProcess
+            throw ServiceError.noItemsToProcess
         }
 
         for (id, leftover) in inventoryUpdates {

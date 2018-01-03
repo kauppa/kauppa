@@ -74,7 +74,7 @@ class TestShipmentUpdates: XCTestCase {
             let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product1.id!))
+            XCTAssertEqual(err as! ServiceError, .unfulfilledItem)
         }
 
         // imitate that the items have been delivered and scheduled for pickup
@@ -103,7 +103,7 @@ class TestShipmentUpdates: XCTestCase {
             let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
+            XCTAssertEqual(err as! ServiceError, .invalidItemId)
         }
 
         shipmentData.items = [CartUnit(for: product1.id!, with: 3)]
@@ -111,7 +111,7 @@ class TestShipmentUpdates: XCTestCase {
             let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidPickupQuantity(product1.id!, 0))
+            XCTAssertEqual(err as! ServiceError, .invalidPickupQuantity)
         }
 
         repository.orders[order.id]!.products[0].status!.pickupQuantity = 3
@@ -120,7 +120,7 @@ class TestShipmentUpdates: XCTestCase {
             let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product1.id!))
+            XCTAssertEqual(err as! ServiceError, .unfulfilledItem)
         }
     }
 
@@ -160,7 +160,7 @@ class TestShipmentUpdates: XCTestCase {
             let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidDeliveryQuantity(product2.id!, 2))
+            XCTAssertEqual(err as! ServiceError, .invalidDeliveryQuantity)
         }
 
         shipmentData.items[1] = CartUnit(for: product2.id!, with: 2)

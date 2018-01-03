@@ -33,8 +33,11 @@ public enum ServiceError: UInt16, Error {
     case cartUnavailable
     case noItemsInCart
     case noItemsToProcess
+    /// One or more products are unavailable in the inventory.
     case productUnavailable
+    /// One or more items in the data have prices with mismatching currencies.
     case ambiguousCurrencies
+    /// Given item is not found in data.
     case invalidItemId
     case invalidAddress
 
@@ -47,10 +50,35 @@ public enum ServiceError: UInt16, Error {
     case couponDisabled
     case couponExpired
 
+    /* Orders service errors */
+
+    /// No order found for the given UUID
+    case invalidOrderId
+    /// This action requires the account to be verified, but it's not been verified yet.
+    case unverifiedAccount
+    /// Some actions can happen only after payment, and the payment hasn't been received
+    /// for this order yet.
+    case paymentNotReceived
+    /// Action cannot be carried out because this order has been cancelled.
+    case cancelledOrder
+    /// This order has already been refunded. Occurs when we try to refund again.
+    case refundedOrder
+    /// Reason invalid (or not given) for refunding
+    case invalidRefundReason
+    /// This action requires the item to be fulfilled, but it's not been fulfilled yet.
+    case unfulfilledItem
+    /// Shipped quantity seems to be higher than actual quantity that was supposed to be delivered.
+    case invalidDeliveryQuantity
+    /// Requested refund quantity is higher than the refundable quantity for this item.
+    case invalidRefundQuantity
+    /// Requested return quantity is higher than the fulfilled items in this unit.
+    case invalidReturnQuantity
+    /// Items picked seems to be higher than the items scheduled for pickup.
+    case invalidPickupQuantity
+
     /* Products service errors */
 
     // Products-related errors
-    case missingProductId
     case invalidProductId
     case invalidProductTitle
     case invalidProductSubtitle

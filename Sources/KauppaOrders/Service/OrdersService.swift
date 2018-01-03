@@ -55,7 +55,7 @@ extension OrdersService: OrdersServiceCallable {
     public func createOrder(with data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(for: data.placedBy)
         if !account.isVerified {
-            throw OrdersError.unverifiedAccount
+            throw ServiceError.unverifiedAccount
         }
 
         let factory = OrdersFactory(with: data, from: account, using: productsService)
@@ -100,7 +100,7 @@ extension OrdersService: OrdersServiceCallable {
 
     public func updateShipment(for id: UUID, with data: Shipment) throws -> () {
         if data.items.isEmpty {
-            throw OrdersError.noItemsToProcess
+            throw ServiceError.noItemsToProcess
         }
 
         var order = try repository.getOrder(for: id)

@@ -81,7 +81,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidReason)
+            XCTAssertEqual(err as! ServiceError, .invalidRefundReason)
         }
 
         refundData = RefundData(reason: "I hate you!")
@@ -190,7 +190,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .refundedOrder)
+            XCTAssertEqual(err as! ServiceError, .refundedOrder)
         }
     }
 
@@ -219,7 +219,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .cancelledOrder)
+            XCTAssertEqual(err as! ServiceError, .cancelledOrder)
         }
     }
 
@@ -247,7 +247,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .paymentNotReceived)
+            XCTAssertEqual(err as! ServiceError, .paymentNotReceived)
         }
 
         order.paymentStatus = .failed   // check for failed payment
@@ -256,7 +256,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .paymentNotReceived)
+            XCTAssertEqual(err as! ServiceError, .paymentNotReceived)
         }
     }
 
@@ -300,7 +300,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
+            XCTAssertEqual(err as! ServiceError, .invalidItemId)
         }
 
         refundData.units = [CartUnit(for: product2.id!, with: 2)]
@@ -308,7 +308,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id!))
+            XCTAssertEqual(err as! ServiceError, .unfulfilledItem)
         }
 
         refundData.units = [CartUnit(for: product1.id!, with: 5)]
@@ -316,7 +316,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidRefundQuantity(product1.id!, 3))
+            XCTAssertEqual(err as! ServiceError, .invalidRefundQuantity)
         }
 
         refundData.units = []
@@ -324,7 +324,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(for: order.id, with: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .noItemsToProcess)
+            XCTAssertEqual(err as! ServiceError, .noItemsToProcess)
         }
     }
 }

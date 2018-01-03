@@ -523,7 +523,7 @@ class TestCartService: XCTestCase {
         productData.inventory = 10
         let product = try! productsService.createProduct(with: productData, from: Address())
 
-        ordersService.error = OrdersError.productUnavailable
+        ordersService.error = ServiceError.productUnavailable
 
         var accountData = AccountData()
         let address = Address(name: "foobar", line1: "foo", line2: "bar", city: "baz",
@@ -543,7 +543,7 @@ class TestCartService: XCTestCase {
             let _ = try service.placeOrder(for: account.id, with: CheckoutData())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, OrdersError.productUnavailable)
+            XCTAssertEqual(err as! ServiceError, ServiceError.productUnavailable)
         }
 
         let cart = try! service.getCart(for: account.id, from: Address())

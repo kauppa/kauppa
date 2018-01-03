@@ -15,15 +15,6 @@ public enum ShipmentStatus: String, Mappable {
 
     /// Check the equality of this type.
     public static func ==(lhs: ShipmentStatus, rhs: ShipmentStatus) -> Bool {
-        switch (lhs, rhs) {
-            case (.shipped, .shipped),
-                 (.shipping, .shipping),
-                 (.delivered, .delivered),
-                 (.pickup, .pickup),
-                 (.returned, .returned):
-                return true
-            default:
-                return false
-        }
+        return lhs.rawValue == rhs.rawValue
     }
 }

@@ -15,15 +15,6 @@ public enum PaymentStatus: String, Mappable {
 
     /// Check the equality of this type.
     public static func ==(lhs: PaymentStatus, rhs: PaymentStatus) -> Bool {
-        switch (lhs, rhs) {
-            case (.pending, .pending),
-                 (.refunded, .refunded),
-                 (.partialRefund, .partialRefund),
-                 (.paid, .paid),
-                 (.failed, .failed):
-                return true
-            default:
-                return false
-        }
+        return lhs.rawValue == rhs.rawValue
     }
 }
