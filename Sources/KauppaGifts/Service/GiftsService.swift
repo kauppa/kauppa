@@ -15,6 +15,7 @@ public class GiftsService {
     }
 }
 
+// NOTE: See the actual protocol in `KauppaGiftsClient` for exact usage.
 extension GiftsService: GiftsServiceCallable {
     public func createCard(withData data: GiftCardData) throws -> GiftCard {
         var cardData = data
