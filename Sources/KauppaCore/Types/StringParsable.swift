@@ -13,3 +13,9 @@ extension UUID: StringParsable {
         return UUID(uuidString: string)
     }
 }
+
+extension String: StringParsable {
+    public static func from(string: String) -> String? {
+        return string
+    }
+}

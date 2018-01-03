@@ -27,7 +27,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.addCartItem(for: id, with: unit, from: nil)
-            response.respondJSON(with: cart, code: .ok)
+            response.respondJSON(with: cart)
         }
 
         add(route: .removeItemFromCart) { request, response in
@@ -40,7 +40,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.removeCartItem(for: userId, with: itemId, from: nil)
-            response.respondJSON(with: cart, code: .ok)
+            response.respondJSON(with: cart)
         }
 
         add(route: .getCart) { request, response in
@@ -49,7 +49,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.getCart(for: id, from: nil)
-            response.respondJSON(with: cart, code: .ok)
+            response.respondJSON(with: cart)
         }
 
         add(route: .replaceCartItems) { request, response in
@@ -62,7 +62,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.updateCart(for: id, with: data.inner, from: nil)
-            response.respondJSON(with: cart, code: .ok)
+            response.respondJSON(with: cart)
         }
 
         add(route: .applyCoupon) { request, response in
@@ -75,7 +75,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.applyCoupon(for: id, using: data, from: nil)
-            response.respondJSON(with: cart, code: .ok)
+            response.respondJSON(with: cart)
         }
 
         add(route: .placeOrder) { request, response in
@@ -88,7 +88,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.placeOrder(for: id, with: data)
-            response.respondJSON(with: cart, code: .ok)
+            response.respondJSON(with: cart)
         }
     }
 }
