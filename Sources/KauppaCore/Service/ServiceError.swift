@@ -118,13 +118,21 @@ public enum ServiceError: UInt16, Error {
 
     /* Tax service errors */
 
+    /// Occurs when the given tax rate is invalid.
     case invalidTaxRate
+    /// No country found for the specified UUID.
     case invalidCountryId
+    /// No region found for the specified UUID.
     case invalidRegionId
+    /// Occurs when the tax rate for a given category is invalid.
     case invalidCategoryTaxRate
+    /// Invalid name for country.
     case invalidCountryName
+    /// Invalid name for region.
     case invalidRegionName
+    /// Given country doesn't exist in store.
     case noMatchingCountry
+    /// Given region not found in store.
     case noMatchingRegion
 }
 

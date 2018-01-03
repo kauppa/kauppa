@@ -11,7 +11,7 @@ public protocol ShipmentsServiceCallable {
     /// - Parameters:
     ///   - for: The `UUID` of the order which is to be shipped.
     /// - Returns: `Shipment`
-    /// - Throws: `OrdersError` if the order doesn't exist.
+    /// - Throws: `ServiceError` if the order doesn't exist.
     func createShipment(for orderId: UUID) throws -> Shipment
 
     /// Change the shipping status to 'shipped' - this also notifies
@@ -38,7 +38,7 @@ public protocol ShipmentsServiceCallable {
     ///   - for: The `UUID` of the order.
     ///   - with: The `PickupItems` data which contains the list of items to be picked up
     /// - Returns: `Shipment`
-    /// - Throws: `OrdersError` if the order doesn't exist
+    /// - Throws: `ServiceError` if the order doesn't exist
     func schedulePickup(for orderId: UUID, with data: PickupItems) throws -> Shipment
 
     /// Complete picking up items - This means that the items have been

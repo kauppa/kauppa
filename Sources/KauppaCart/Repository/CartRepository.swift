@@ -24,7 +24,7 @@ public class CartRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the cart.
     /// - Returns: The `Cart` for the given ID.
-    /// - Throws: `CartError` if there was an error.
+    /// - Throws: `ServiceError` if there was an error.
     ///
     /// Since carts are always associated with a customer account,
     /// we make sure that a cart always exists for an account.
@@ -58,7 +58,7 @@ public class CartRepository {
     ///
     /// - Parameters:
     ///   - with: The updated `Cart` object.
-    /// - Throws: `CartError` if there was an error updating the cart.
+    /// - Throws: `ServiceError` if there was an error updating the cart.
     public func updateCart(with data: Cart) throws -> () {
         var cart = data
         cart.updatedAt = Date()

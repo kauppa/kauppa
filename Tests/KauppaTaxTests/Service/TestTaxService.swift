@@ -1,5 +1,6 @@
 import XCTest
 
+import KauppaCore
 @testable import KauppaAccountsModel
 @testable import KauppaTaxModel
 import KauppaTaxService
@@ -62,7 +63,7 @@ class TestTaxService: XCTestCase {
             let _ = try service.getTaxRate(for: address)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! TaxError, .noMatchingCountry)
+            XCTAssertEqual(err as! ServiceError, .noMatchingCountry)
         }
 
         address.country = "India"
@@ -76,21 +77,21 @@ class TestTaxService: XCTestCase {
         let repository = TaxRepository(with: store)
         let service = TaxService(with: repository)
 
-        var cases = [(CountryData, TaxError)]()
+        var cases = [(CountryData, ServiceError)]()
         var rate = TaxRate()
         cases.append((CountryData(name: "", taxRate: rate), .invalidCountryName))
         rate.general = -1.0
         cases.append((CountryData(name: "India", taxRate: rate), .invalidTaxRate))
         rate.general = 5.0
         rate.categories["food"] = 1001.0
-        cases.append((CountryData(name: "India", taxRate: rate), .invalidCategoryTaxRate("food")))
+        cases.append((CountryData(name: "India", taxRate: rate), .invalidCategoryTaxRate))
 
         for (testCase, error) in cases {
             do {
                 let _ = try service.createCountry(with: testCase)
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! TaxError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
@@ -123,7 +124,7 @@ class TestTaxService: XCTestCase {
         let data = CountryData(name: "foo", taxRate: TaxRate())
         let country = try! service.createCountry(with: data)
 
-        var cases = [(CountryPatch, TaxError)]()
+        var cases = [(CountryPatch, ServiceError)]()
         var patch = CountryPatch()
         patch.name = ""
         patch.taxRate = TaxRate()
@@ -133,14 +134,14 @@ class TestTaxService: XCTestCase {
         cases.append((patch, .invalidTaxRate))
         patch.taxRate!.general = 5.0
         patch.taxRate!.categories["food"] = 25000.0
-        cases.append((patch, .invalidCategoryTaxRate("food")))
+        cases.append((patch, .invalidCategoryTaxRate))
 
         for (testCase, error) in cases {
             do {
                 let _ = try service.updateCountry(for: country.id, with: testCase)
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! TaxError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
@@ -166,7 +167,7 @@ class TestTaxService: XCTestCase {
         let country = try! service.createCountry(with: countryData)
         rate.general = 28.0
         let regionData = RegionData(name: "Maharashtra", taxRate: rate, kind: .province)
-        let region = try! service.addRegion(to: country.id, data: regionData)
+        let region = try! service.addRegion(to: country.id, using: regionData)
         XCTAssertEqual(region.createdOn, region.updatedAt)
         XCTAssertEqual(region.name, "Maharashtra")
         XCTAssertEqual(region.taxRate.general, 28.0)
@@ -193,12 +194,12 @@ class TestTaxService: XCTestCase {
         rate.categories["food"] = 19.0      // this province has some tax rate for food
         rate.categories["drink"] = 15.0     // ... and drink
         var regionData = RegionData(name: "Maharashtra", taxRate: rate, kind: .province)
-        let _ = try! service.addRegion(to: country.id, data: regionData)
+        let _ = try! service.addRegion(to: country.id, using: regionData)
         rate = TaxRate()
         rate.general = 28.0
         rate.categories["drink"] = 20.0     // this city has a special tax rate for drinks
         regionData = RegionData(name: "Mumbai", taxRate: rate, kind: .city)
-        let _ = try! service.addRegion(to: country.id, data: regionData)
+        let _ = try! service.addRegion(to: country.id, using: regionData)
 
         var address = Address()
         address.city = "Mumbai"
@@ -227,7 +228,7 @@ class TestTaxService: XCTestCase {
         let countryData = CountryData(name: "India", taxRate: TaxRate())
         let country = try! service.createCountry(with: countryData)
 
-        var cases = [(RegionData, TaxError)]()
+        var cases = [(RegionData, ServiceError)]()
         var rate = TaxRate()
         cases.append((RegionData(name: "", taxRate: rate, kind: .city), .invalidRegionName))
         rate.general = -1.0
@@ -235,21 +236,21 @@ class TestTaxService: XCTestCase {
         rate.general = 5.0
         rate.categories["food"] = 1500.0
         cases.append((RegionData(name: "Mumbai", taxRate: rate, kind: .city),
-                      .invalidCategoryTaxRate("food")))
+                      .invalidCategoryTaxRate))
 
         do {    // random UUID for country - invalid
-            let _ = try service.addRegion(to: UUID(), data: cases[0].0)
+            let _ = try service.addRegion(to: UUID(), using: cases[0].0)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! TaxError, .invalidCountryId)
+            XCTAssertEqual(err as! ServiceError, .invalidCountryId)
         }
 
         for (testCase, error) in cases {
             do {
-                let _ = try service.addRegion(to: country.id, data: testCase)
+                let _ = try service.addRegion(to: country.id, using: testCase)
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! TaxError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
@@ -262,7 +263,7 @@ class TestTaxService: XCTestCase {
         let countryData = CountryData(name: "foo", taxRate: TaxRate())
         let country = try! service.createCountry(with: countryData)
         let regionData = RegionData(name: "baz", taxRate: TaxRate(), kind: .province)
-        let region = try! service.addRegion(to: country.id, data: regionData)
+        let region = try! service.addRegion(to: country.id, using: regionData)
 
         var patch = RegionPatch()
         patch.name = "foobar"
@@ -285,9 +286,9 @@ class TestTaxService: XCTestCase {
         let countryData = CountryData(name: "foo", taxRate: TaxRate())
         let country = try! service.createCountry(with: countryData)
         let regionData = RegionData(name: "baz", taxRate: TaxRate(), kind: .province)
-        let region = try! service.addRegion(to: country.id, data: regionData)
+        let region = try! service.addRegion(to: country.id, using: regionData)
 
-        var cases = [(RegionPatch, TaxError)]()
+        var cases = [(RegionPatch, ServiceError)]()
         var patch = RegionPatch()
         patch.name = ""
         patch.taxRate = TaxRate()
@@ -297,7 +298,7 @@ class TestTaxService: XCTestCase {
         cases.append((patch, .invalidTaxRate))
         patch.taxRate!.general = 10.0
         patch.taxRate!.categories["drink"] = 1001.0
-        cases.append((patch, .invalidCategoryTaxRate("drink")))
+        cases.append((patch, .invalidCategoryTaxRate))
         patch.taxRate!.categories = [:]
         patch.countryId = UUID()
         cases.append((patch, .invalidCountryId))
@@ -307,7 +308,7 @@ class TestTaxService: XCTestCase {
                 let _ = try service.updateRegion(for: region.id, with: testCase)
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! TaxError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
@@ -320,7 +321,7 @@ class TestTaxService: XCTestCase {
         let data = CountryData(name: "foo", taxRate: TaxRate())
         let country = try! service.createCountry(with: data)
         let regionData = RegionData(name: "baz", taxRate: TaxRate(), kind: .province)
-        let region = try! service.addRegion(to: country.id, data: regionData)
+        let region = try! service.addRegion(to: country.id, using: regionData)
         try! service.deleteRegion(for: region.id)
     }
 }
