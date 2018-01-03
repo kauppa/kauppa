@@ -105,6 +105,17 @@ public enum ServiceError: UInt16, Error {
     case invalidCategoryId
     case invalidCategoryName
 
+    /* Shipments service errors */
+
+    /// No shipment found for the given UUID
+    case invalidShipmentId
+        /// This action requires the shipment to be in 'pickup' state, but it's not.
+    case notScheduledForPickup
+    /// This action requires the shipment to be in 'shipping' state, but it's not.
+    case notQueuedForShipping
+    /// This action requires the shipment to be in 'shipped' state, but it's not.
+    case notBeingShipped
+
     /* Tax service errors */
 
     case invalidTaxRate

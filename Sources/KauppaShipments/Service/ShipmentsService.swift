@@ -39,7 +39,7 @@ extension ShipmentsService: ShipmentsServiceCallable {
     public func notifyShipping(for id: UUID) throws -> Shipment {
         var data = try repository.getShipment(for: id)
         if data.status != .shipping {
-            throw ShipmentsError.notQueuedForShipping
+            throw ServiceError.notQueuedForShipping
         }
 
         data.status = .shipped
@@ -50,7 +50,7 @@ extension ShipmentsService: ShipmentsServiceCallable {
     public func notifyDelivery(for id: UUID) throws -> Shipment {
         var data = try repository.getShipment(for: id)
         if data.status != .shipped {
-            throw ShipmentsError.notBeingShipped
+            throw ServiceError.notBeingShipped
         }
 
         data.status = .delivered
@@ -68,7 +68,7 @@ extension ShipmentsService: ShipmentsServiceCallable {
     public func completePickup(for id: UUID) throws -> Shipment {
         var data = try repository.getShipment(for: id)
         if data.status != .pickup {
-            throw ShipmentsError.notScheduledForPickup
+            throw ServiceError.notScheduledForPickup
         }
 
         data.status = .returned

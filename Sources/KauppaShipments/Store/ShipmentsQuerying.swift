@@ -10,6 +10,6 @@ public protocol ShipmentsQuerying: Querying {
     /// - Parameters:
     ///   - for: The `UUID` of the shipment.
     /// - Returns: `Shipment` object (if it exists).
-    /// - Throws: `ShipmentsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getShipment(for id: UUID) throws -> Shipment
 }

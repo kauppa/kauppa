@@ -71,7 +71,7 @@ class TestShipmentsService: XCTestCase {
             let _ = try service.completePickup(for: data.id)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ShipmentsError, .notScheduledForPickup)
+            XCTAssertEqual(err as! ServiceError, .notScheduledForPickup)
         }
 
         var pickupData = PickupItems()
@@ -110,7 +110,7 @@ class TestShipmentsService: XCTestCase {
             let _ = try service.notifyDelivery(for: data.id)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ShipmentsError, .notBeingShipped)
+            XCTAssertEqual(err as! ServiceError, .notBeingShipped)
         }
 
         let _ = try! service.notifyShipping(for: data.id)
@@ -163,7 +163,7 @@ class TestShipmentsService: XCTestCase {
             let _ = try service.notifyShipping(for: data.id)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ShipmentsError, .notQueuedForShipping)
+            XCTAssertEqual(err as! ServiceError, .notQueuedForShipping)
         }
 
         waitForExpectations(timeout: 5) { error in

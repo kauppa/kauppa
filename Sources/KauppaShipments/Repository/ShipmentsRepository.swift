@@ -30,7 +30,7 @@ public class ShipmentsRepository {
     ///   - to: The address associated with this shipment.
     ///   - status: (Optional) status for this shipment.
     /// - Returns: `Shipment` object.
-    /// - Throws: `ShipmentsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createShipment(for orderId: UUID, with items: [CartUnit], to address: Address,
                                status: ShipmentStatus? = nil) throws -> Shipment
     {
@@ -50,7 +50,7 @@ public class ShipmentsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the shipment.
     /// - Returns: `Shipment` object (if it exists).
-    /// - Throws: `ShipmentsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getShipment(for id: UUID) throws -> Shipment {
         guard let shipment = shipments[id] else {
             let data = try store.getShipment(for: id)
@@ -66,7 +66,7 @@ public class ShipmentsRepository {
     /// - Parameters:
     ///   - with: The updated `Shipment` data.
     /// - Returns: `Shipment` object (if it exists).
-    /// - Throws: `ShipmentsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func updateShipment(with data: Shipment) throws -> Shipment {
         var shipment = data
         shipment.updatedAt = Date()
