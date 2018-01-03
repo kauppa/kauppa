@@ -3,6 +3,7 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 import KauppaOrdersClient
+import KauppaOrdersModel
 import KauppaShipmentsClient
 import KauppaShipmentsModel
 import KauppaShipmentsRepository
@@ -27,5 +28,19 @@ extension ShipmentsService: ShipmentsServiceCallable {
         let order = try ordersService.getOrder(forId: id)
         let address = order.shippingAddress
         return try repository.createShipment(forOrder: id, address: address, items: order.products)
+    }
+
+    public func schedulePickup(forOrder id: UUID, data: PickupItems) throws -> Shipment {
+        let order = try ordersService.getOrder(forId: id)
+        let address = order.shippingAddress
+        return try repository.createShipment(forOrder: id, address: address,
+                                             items: data.items, status: .pickup)
+    }
+
+    public func completePickup(id: UUID) throws -> Shipment {
+        var data = try repository.getShipment(id: id)
+        data.status = .returned
+        try ordersService.updateShipment(forId: data.orderId, data: data)
+        return try repository.updateShipment(data: data)
     }
 }

@@ -26,7 +26,7 @@ public class TestOrdersService: OrdersServiceCallable {
 
     public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
         if let callback = callback {
-            callback(data as Any)
+            callback((id, data) as Any)
         }
 
         if let err = error {
@@ -34,6 +34,11 @@ public class TestOrdersService: OrdersServiceCallable {
         }
 
         return ()
+    }
+
+    // NOTE: Not meant to be called by shipments
+    public func returnOrder(id: UUID, data: PickupData) throws -> Order {
+        throw OrdersError.invalidOrder
     }
 
     // NOTE: Not meant to be called by shipments

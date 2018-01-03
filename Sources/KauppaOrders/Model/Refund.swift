@@ -10,8 +10,6 @@ public struct RefundData: Mappable {
     public var units: [OrderUnit]? = nil
     /// Reason for requesting this refund.
     public let reason: String
-    /// Whether the inventory should be restocked for this refund.
-    public let restock: Bool? = nil
 
     public init(reason: String) {
         self.reason = reason

@@ -7,4 +7,7 @@ import KauppaShipmentsModel
 public protocol ShipmentsPersisting: Persisting {
     /// Create a shipment with data from the repository.
     func createShipment(data: Shipment) throws -> ()
+
+    /// Update a shipment with data from the repository.
+    func updateShipment(data: Shipment) throws -> ()
 }

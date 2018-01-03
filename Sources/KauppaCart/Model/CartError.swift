@@ -32,6 +32,7 @@ extension CartError {
         switch (lhs, rhs) {
             case (.productUnavailable, .productUnavailable),
                  (.noItemsToProcess, .noItemsToProcess),
+                 (.cartUnavailable, .cartUnavailable),
                  (.ambiguousCurrencies, .ambiguousCurrencies),
                  (.invalidAddress, .invalidAddress):
                 return true

@@ -10,10 +10,10 @@ public enum OrdersError: Error {
     case cancelledOrder
     case refundedOrder
     case refundedItem
-    case invalidRefundReason
+    case invalidReason
     case invalidOrderItem
-    case unrefundableItem(UUID)
-    case invalidOrderQuantity(UUID, UInt8)
+    case unfulfilledItem(UUID)
+    case invalidOrderQuantity(UUID, UInt8, Bool)
 }
 
 extension OrdersError: LocalizedError {
@@ -35,14 +35,26 @@ extension OrdersError: LocalizedError {
                 return "Order has been refunded"
             case .refundedItem:
                 return "Product item has been refunded"
-            case .invalidRefundReason:
-                return "Invalid reason for initiating refund"
+            case .invalidReason:
+                return "Invalid reason for returning/refunding order"
             case .invalidOrderItem:
                 return "Item not found in order"
-            case .unrefundableItem(let id):
-                return "Items in product \(id) cannot be refunded"
-            case .invalidOrderQuantity(let id, let existing):
-                return "Only \(existing) items have been fulfilled for product \(id)"
+            case .unfulfilledItem(let id):
+                return "Items in product \(id) are been fulfilled and cannot be returned/refunded"
+            case .invalidOrderQuantity(let id, let existing, let isRefund):
+                if isRefund {
+                    if existing > 0 {
+                        return "Only \(existing) item(s) can be refunded for product \(id)"
+                    } else {
+                        return "None of the remaining items can be refunded for product \(id)"
+                    }
+                } else {
+                    if existing > 0 {
+                        return "Only \(existing) item(s) have been fulfilled for product \(id)"
+                    } else {
+                        return "No fulfilled items remaining for product \(id)"
+                    }
+                }
         }
     }
 }
@@ -59,12 +71,12 @@ extension OrdersError: Equatable {
                  (.cancelledOrder, .cancelledOrder),
                  (.refundedOrder, .refundedOrder),
                  (.refundedItem, .refundedItem),
-                 (.invalidRefundReason, .invalidRefundReason),
+                 (.invalidReason, .invalidReason),
                  (.invalidOrderItem, .invalidOrderItem):
                 return true
-            case let (.invalidOrderQuantity(p1, e1), .invalidOrderQuantity(p2, e2)):
-                return e1 == e2 && p1 == p2
-            case let (.unrefundableItem(p1), .unrefundableItem(p2)):
+            case let (.invalidOrderQuantity(p1, e1, b1), .invalidOrderQuantity(p2, e2, b2)):
+                return e1 == e2 && p1 == p2 && b1 == b2
+            case let (.unfulfilledItem(p1), .unfulfilledItem(p2)):
                 return p1 == p2
             default:
                 return false

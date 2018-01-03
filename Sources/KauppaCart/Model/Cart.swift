@@ -17,6 +17,7 @@ public struct Cart: Mappable {
         self.id = id
     }
 
+    /// Reset this cart (called to clear the items once the cart has been checked out)
     public mutating func reset() {
         items = []
         currency = nil

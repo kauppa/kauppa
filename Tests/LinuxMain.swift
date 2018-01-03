@@ -23,6 +23,7 @@ XCTMain([
     testCase(TestOrdersRepository.allTests),
     testCase(TestOrdersService.allTests),
     testCase(TestRefunds.allTests),
+    testCase(TestReturns.allTests),
     testCase(TestProductsRepository.allTests),
     testCase(TestProductsService.allTests),
     testCase(TestProductTypes.allTests),

@@ -57,10 +57,10 @@ class TestRefunds: XCTestCase {
         var initial = try! ordersService.createOrder(data: orderData)
         // Set the data which is usually set by payments and shipping services.
         initial.paymentStatus = .paid
-        initial.products[0].status = OrderUnitStatus(quantity: 3)
-        initial.products[0].status!.fulfillment = .fulfilled
-        initial.products[1].status = OrderUnitStatus(quantity: 2)
-        initial.products[1].status!.fulfillment = .fulfilled
+        initial.products[0].status = OrderUnitStatus(quantity: 0)
+        initial.products[0].status!.refundableQuantity = 3
+        initial.products[1].status = OrderUnitStatus(quantity: 0)
+        initial.products[1].status!.refundableQuantity = 2
         let order = try! repository.updateOrder(withData: initial)
 
         var refundData = RefundData(reason: "I hate you!")
@@ -68,8 +68,7 @@ class TestRefunds: XCTestCase {
         let updatedOrder = try! ordersService.initiateRefund(forId: order.id, data: refundData)
         // Check the order data
         XCTAssertEqual(updatedOrder.paymentStatus, .refunded)
-        // We've revoked everything back from the customer. So, there's
-        // no fulfillment.
+        // We've revoked everything back from the customer, so there's no fulfillment.
         XCTAssertNil(updatedOrder.fulfillment)
         XCTAssertNil(updatedOrder.products[0].status)
         XCTAssertNil(updatedOrder.products[1].status)
@@ -113,12 +112,12 @@ class TestRefunds: XCTestCase {
         var initial = try! ordersService.createOrder(data: orderData)
         // Set the data which is usually set by payments and shipping services.
         initial.paymentStatus = .paid
-        initial.products[0].status = OrderUnitStatus(quantity: 3)
-        initial.products[0].status!.fulfillment = .fulfilled
-        initial.products[1].status = OrderUnitStatus(quantity: 2)
-        initial.products[1].status!.fulfillment = .fulfilled
-        initial.products[2].status = OrderUnitStatus(quantity: 1)
-        initial.products[2].status!.fulfillment = .fulfilled
+        initial.products[0].status = OrderUnitStatus(quantity: 0)
+        initial.products[0].status!.refundableQuantity = 3
+        initial.products[1].status = OrderUnitStatus(quantity: 0)
+        initial.products[1].status!.refundableQuantity = 2
+        initial.products[2].status = OrderUnitStatus(quantity: 0)
+        initial.products[2].status!.refundableQuantity = 1
         let order = try! repository.updateOrder(withData: initial)
 
         var refundData = RefundData(reason: "Boo!")
@@ -136,7 +135,7 @@ class TestRefunds: XCTestCase {
         // Some of the data will be set to partial fulfillment
         XCTAssertEqual(updatedOrder.paymentStatus, .partialRefund)
         XCTAssertEqual(updatedOrder.fulfillment, .partial)
-        XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 2)
+        XCTAssertEqual(updatedOrder.products[0].status!.refundableQuantity, 2)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfillment, .partial)
         // `product3` has been refunded entirely, so it's `nil`
         XCTAssertNil(updatedOrder.products[2].status)
@@ -177,7 +176,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(forId: UUID(), data: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidRefundReason)
+            XCTAssertEqual(err as! OrdersError, .invalidReason)
         }
     }
 
@@ -264,8 +263,8 @@ class TestRefunds: XCTestCase {
         var initial = try! ordersService.createOrder(data: orderData)
         // Set the data which is usually set by payments and shipping services.
         initial.paymentStatus = .paid
-        initial.products[0].status = OrderUnitStatus(quantity: 3)
-        initial.products[0].status!.fulfillment = .fulfilled
+        initial.products[0].status = OrderUnitStatus(quantity: 0)
+        initial.products[0].status!.refundableQuantity = 3
         let order = try! repository.updateOrder(withData: initial)
 
         var refundData = RefundData(reason: "Boo!")
@@ -283,15 +282,15 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .unrefundableItem(product2.id))
+            XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id))
         }
 
         refundData.units = [OrderUnit(product: product1.id, quantity: 5)]
-        do {    // Test unfulfilled item
+        do {    // Test invalid quantity for refundable item
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderQuantity(product1.id, 3))
+            XCTAssertEqual(err as! OrdersError, .invalidOrderQuantity(product1.id, 3, true))
         }
 
         refundData.units = []
