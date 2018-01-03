@@ -260,8 +260,8 @@ class TestProductsService: XCTestCase {
 
         let collection = ProductCollectionData(name: "foo", description: "bar",
                                                products: [product1.id!, product2.id!])
-        let data = try? service.createCollection(with: collection)
-        XCTAssertNotNil(data)
+        let data = try! service.createCollection(with: collection)
+        let _ = try! service.getCollection(for: data.id)
     }
 
     /// Test that service should ignore collection creation with invalid products.

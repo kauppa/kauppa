@@ -155,6 +155,10 @@ extension ProductsService: ProductsServiceCallable {
         return try repository.createCollection(with: data)
     }
 
+    public func getCollection(for id: UUID) throws -> ProductCollection {
+        return try repository.getCollection(for: id)
+    }
+
     public func updateCollection(for id: UUID, with data: ProductCollectionPatch) throws
                                 -> ProductCollection
     {

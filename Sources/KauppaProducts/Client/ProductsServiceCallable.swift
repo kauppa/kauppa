@@ -20,7 +20,7 @@ public protocol ProductsServiceCallable {
     /// - Throws: `ServiceError` on failure.
     func getAttributes() throws -> [Attribute]
 
-    /* Product */
+    /* Products */
 
     /// Create product with the given product data.
     ///
@@ -94,6 +94,14 @@ public protocol ProductsServiceCallable {
     /// - Returns: `ProductCollection`
     /// - Throws: `ServiceError` if the product(s) are non-existent or if there were errors.
     func createCollection(with data: ProductCollectionData) throws -> ProductCollection
+
+    /// Get the collection for the given ID.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the `ProductCollection`
+    /// - Returns: `ProductCollection` (if it exists).
+    /// - Throws: `ServiceError` (on failure).
+    func getCollection(for id: UUID) throws -> ProductCollection
 
     /// Update an existing collection with the given patch data.
     ///
