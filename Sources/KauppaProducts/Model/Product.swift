@@ -33,9 +33,11 @@ public struct Product: Mappable {
     public var inventory: UInt32 = 0
     /// Base64-encoded images (or) Image URLs.
     public var images: ArraySet<String>? = ArraySet()
-    /// Price of the product in some chosen currency
+    /// Retail price of the product in some chosen currency
     // FIXME: Avoid `Double` to avoid floating point disasters.
     public var price = UnitMeasurement(value: 0, unit: Currency.usd)
+    /// Wholesale price of the product (currency is same as the one in retail price)..
+    public var actualPrice: Double? = nil
     /// Specify whether this price is inclusive of taxes.
     ///
     /// If this is `true` while creating the product, then the tax is deducted

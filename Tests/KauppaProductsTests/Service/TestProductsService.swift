@@ -103,9 +103,11 @@ class TestProductsService: XCTestCase {
             ("weight", "{\"value\": 500.0, \"unit\": \"g\"}"),
             ("color", "\"blue\""),
             ("inventory", 20),
+            ("taxInclusive", "true"),
             ("taxCategory", "\"electronics\""),
             ("images", ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"]),
             ("price", "{\"value\": 30.0, \"unit\": \"USD\"}"),
+            ("actualPrice", 25),
             ("variantId", "\"\(anotherId)\""),
             ("variantId", "\"\(productId)\""),      // Self ID (shouldn't update)
         ]
@@ -152,6 +154,8 @@ class TestProductsService: XCTestCase {
         XCTAssert(updatedProduct.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.color!, "blue")
         XCTAssertEqual(updatedProduct.inventory, 20)
+        XCTAssertTrue(updatedProduct.taxInclusive!)
+        XCTAssertEqual(updatedProduct.actualPrice!, 25)
         XCTAssertEqual(updatedProduct.images!.inner,
                        ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
         XCTAssertEqual(updatedProduct.price.value, 30.0)

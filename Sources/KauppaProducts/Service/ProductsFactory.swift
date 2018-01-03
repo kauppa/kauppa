@@ -150,6 +150,10 @@ class ProductsFactory {
             data.images = images
         }
 
+        if let price = patch.actualPrice {
+            data.actualPrice = price
+        }
+
         if let price = patch.price {
             data.price = price
         }
