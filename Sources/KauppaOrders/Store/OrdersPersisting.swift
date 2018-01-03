@@ -10,7 +10,7 @@ public protocol OrdersPersisting: Persisting {
     /// - Parameters:
     ///   - with: The `Order` data object.
     /// - Throws: `ServiceError` on failure.
-    func createNewOrder(with data: Order) throws -> ()
+    func createOrder(with data: Order) throws -> ()
 
     /// Update an existing order with data from repository.
     ///

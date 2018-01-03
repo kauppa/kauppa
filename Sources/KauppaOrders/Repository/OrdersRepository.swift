@@ -28,7 +28,7 @@ public class OrdersRepository {
     /// - Throws: `ServiceError` on failure.
     public func createOrder(with data: Order) throws {
         orders[data.id] = data
-        try store.createNewOrder(with: data)
+        try store.createOrder(with: data)
     }
 
     /// Get an order corresponding to an ID.

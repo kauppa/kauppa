@@ -15,7 +15,7 @@ public class TestStore: OrdersStorable {
     public var updateCalled = false
     public var refundCreated = false
 
-    public func createNewOrder(with data: Order) throws -> () {
+    public func createOrder(with data: Order) throws -> () {
         createCalled = true
         orders[data.id] = data
     }
