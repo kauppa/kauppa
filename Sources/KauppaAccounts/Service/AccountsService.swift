@@ -16,6 +16,7 @@ public class AccountsService {
     }
 }
 
+// NOTE: See the actual protocol in `KauppaAccountsClient` for exact usage.
 extension AccountsService: AccountsServiceCallable {
     public func createAccount(withData data: AccountData) throws -> Account {
         try data.validate()
