@@ -5,13 +5,16 @@ import KauppaProductsModel
 import KauppaProductsRepository
 
 /// Products service
-public class ProductsService: ProductsServiceCallable {
+public class ProductsService {
     let repository: ProductsRepository
 
     public init(withRepository repository: ProductsRepository) {
         self.repository = repository
     }
+}
 
+// NOTE: See the actual protocol in `KauppaProductsClient` for exact usage.
+extension ProductsService: ProductsServiceCallable {
     public func createProduct(data: ProductData) throws -> Product {
         var data = data
         data.variants = []  // ensure that variants can't be "set" manually
