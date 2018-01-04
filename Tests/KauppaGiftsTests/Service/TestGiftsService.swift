@@ -56,6 +56,7 @@ class TestGiftsService: XCTestCase {
         data.code = "ABCDEFGHIJKLMNOP"
         let card = try! service.createCard(withData: data)
         XCTAssertEqual(card.data.code!, "ABCDEFGHIJKLMNOP")
+        let _ = try! service.getCard(forCode: data.code!)
     }
 
     func testCardCreationWithExpiry() {

@@ -25,16 +25,19 @@ class TestGiftsRepository: XCTestCase {
     func testCardCreation() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
-        let data = GiftCardData()
+        var data = GiftCardData()
+        data.code = "foobar"    // invalid code (but, this is checked by service)
         let card = try! repository.createCard(data: data)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
         XCTAssertNotNil(repository.cards[card.id])  // repository has the card.
+        XCTAssertNotNil(repository.codes[card.data.code!])  // repository also caches code
     }
 
     func testCardUpdate() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
         var data = GiftCardData()
+        data.code = "foobar"
         let card = try! repository.createCard(data: data)
         XCTAssertEqual(card.createdOn, card.updatedAt)
 
@@ -49,11 +52,15 @@ class TestGiftsRepository: XCTestCase {
     func testStoreCalls() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
-        let data = GiftCardData()
+        var data = GiftCardData()
+        data.code = "foobar"
         let card = try! repository.createCard(data: data)
-        repository.cards = [:]      // clear the repository
+        repository.cards = [:]      // clear the cards
         let _ = try? repository.getCard(forId: card.id)
         XCTAssertTrue(store.getCalled)  // this should've called the store
+        repository.codes = [:]      // clear the codes
+        let _ = try? repository.getCard(forCode: card.data.code!)
+        XCTAssertTrue(store.codeGetCalled)  // this should've called again for code
         store.getCalled = false         // now, pretend that we never called the store
         let _ = try? repository.getCard(forId: card.id)
         // store shouldn't be called, because it was recently fetched by the repository

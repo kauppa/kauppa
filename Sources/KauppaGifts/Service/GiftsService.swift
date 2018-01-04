@@ -15,11 +15,16 @@ public class GiftsService {
     }
 }
 
+// NOTE: See the actual protocol in `KauppaGiftsClient` for exact usage.
 extension GiftsService: GiftsServiceCallable {
     public func createCard(withData data: GiftCardData) throws -> GiftCard {
         var cardData = data
         try cardData.validate()
         return try repository.createCard(data: cardData)
+    }
+
+    public func getCard(forCode code: String) throws -> GiftCard {
+        return try repository.getCard(forCode: code)
     }
 
     public func updateCard(id: UUID, data: GiftCardPatch) throws -> GiftCard {
