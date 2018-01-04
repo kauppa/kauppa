@@ -31,7 +31,7 @@ public class CartService {
     }
 }
 
-// NOTE: See the actual protocol in `KauppaAccountsClient` for exact usage.
+// NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
     public func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart {
         if unit.quantity == 0 {

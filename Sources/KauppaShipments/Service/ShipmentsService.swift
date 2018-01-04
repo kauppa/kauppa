@@ -23,6 +23,7 @@ public class ShipmentsService {
     }
 }
 
+// NOTE: See the actual protocol in `KauppaShipmentsClient` for exact usage.
 extension ShipmentsService: ShipmentsServiceCallable {
     public func createShipment(forOrder id: UUID) throws -> Shipment {
         let order = try ordersService.getOrder(forId: id)

@@ -12,7 +12,7 @@ import KauppaShipmentsClient
 import KauppaShipmentsModel
 
 /// Service that manages orders placed by customers.
-public class OrdersService: OrdersServiceCallable {
+public class OrdersService {
     let repository: OrdersRepository
     let accountsService: AccountsServiceCallable
     let productsService: ProductsServiceCallable
@@ -32,7 +32,10 @@ public class OrdersService: OrdersServiceCallable {
         self.productsService = productsService
         self.shippingService = shippingService
     }
+}
 
+// NOTE: See the actual protocol in `KauppaOrdersClient` for exact usage.
+extension OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(id: data.placedBy)
         var order = Order(placedBy: account.id)
