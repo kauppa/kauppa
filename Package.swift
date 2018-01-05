@@ -10,7 +10,7 @@ let modelTargets: [Target] = [
     ),
     .target(
         name: "KauppaCartModel",
-        dependencies: ["KauppaCore", "KauppaTaxModel"],
+        dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaTaxModel"],
         path: "Sources/KauppaCart/Model"
     ),
     .target(

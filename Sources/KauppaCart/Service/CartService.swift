@@ -121,22 +121,12 @@ extension CartService: CartServiceCallable {
 
     public func placeOrder(for userId: UUID, with data: CheckoutData) throws -> Order {
         let account = try accountsService.getAccount(for: userId)
+        var cartData = data
+        try cartData.validate(using: account.data)
+
         var cart = try repository.getCart(for: userId)
         if cart.items.isEmpty {
             throw ServiceError.noItemsToProcess
-        }
-
-        guard let shippingAddress = account.data.address.get(from: data.shippingAddressAt) else {
-            throw ServiceError.invalidAddress
-        }
-
-        var billingAddress: Address? = nil
-        if let idx = data.billingAddressAt {
-            guard let address = account.data.address.get(from: idx) else {
-                throw ServiceError.invalidAddress
-            }
-
-            billingAddress = address
         }
 
         var units = [OrderUnit]()
@@ -144,7 +134,8 @@ extension CartService: CartServiceCallable {
             units.append(OrderUnit(for: unit.product, with: unit.quantity))
         }
 
-        var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
+        var orderData = OrderData(shippingAddress: cartData.shippingAddress!,
+                                  billingAddress: cartData.billingAddress ?? cartData.shippingAddress!,
                                   placedBy: userId, products: units)
         orderData.appliedCoupons = cart.coupons
         let order = try ordersService.createOrder(with: orderData)
