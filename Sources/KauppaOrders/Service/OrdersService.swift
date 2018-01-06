@@ -142,13 +142,14 @@ extension OrdersService: OrdersServiceCallable {
             refundItems = try getAllRefundableItems(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
-                let (i, productData) = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+                let i = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+                let productData = try productsService.getProduct(id: unit.product)
                 // It's safe to unwrap here because the function checks this.
                 let unitStatus = order.products[i].status!
                 let refundable = unitStatus.refundableQuantity
 
                 if unit.quantity > refundable {
-                    throw OrdersError.invalidOrderQuantity(productData.id, refundable, true)
+                    throw OrdersError.invalidRefundQuantity(productData.id, refundable)
                 }
 
                 let unit = GenericOrderUnit(product: productData, quantity: unit.quantity)
@@ -206,12 +207,13 @@ extension OrdersService: OrdersServiceCallable {
             returnItems = try getAllItemsForPickup(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
-                let (i, productData) = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+                let i = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+                let productData = try productsService.getProduct(id: unit.product)
 
                 // Only items that have been fulfilled "and" not scheduled for pickup
                 let fulfilled = order.products[i].untouchedItems()
                 if unit.quantity > fulfilled {
-                    throw OrdersError.invalidOrderQuantity(productData.id, fulfilled, false)
+                    throw OrdersError.invalidReturnQuantity(productData.id, fulfilled)
                 }
 
                 let unit = OrderUnit(product: productData.id, quantity: unit.quantity)
@@ -233,8 +235,19 @@ extension OrdersService: OrdersServiceCallable {
     }
 
     public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
-        let _ = try repository.getOrder(id: id)
-        // TODO: Detect changes from shipment data (refund, return, etc.)
+        var order = try repository.getOrder(id: id)
+        // NOTE: The `items` in `Shipment` data should never be empty, because
+        // it's called only by orders and it's responsible for supplying the items.
+
+        switch data.status {
+            case .returned:
+                try handlePickupEvent(forOrder: &order, data: data)
+
+            default:        // TODO: Handle shipped and delivered events
+                return ()
+        }
+
+        let _ = try repository.updateOrder(withData: order)
         return ()
     }
 
@@ -244,22 +257,43 @@ extension OrdersService: OrdersServiceCallable {
 
     /* Private functions */
 
+    /// Handle the pickup event from shipments service, such that the items successfully picked up
+    /// have been reflected in the corresponding `Order` data.
+    func handlePickupEvent(forOrder order: inout Order, data: Shipment) throws -> () {
+        if data.items.isEmpty {
+            throw OrdersError.noItemsToProcess
+        }
+
+        for unit in data.items {
+            let i = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+            let scheduled = order.products[i].status!.pickupQuantity    // safe to unwrap here
+            if unit.quantity > scheduled {      // picked up more than what was scheduled
+                throw OrdersError.invalidPickupQuantity(order.products[i].product, scheduled)
+            }
+
+            order.products[i].status!.pickupQuantity -= unit.quantity
+            order.products[i].status!.fulfilledQuantity -= unit.quantity
+            order.products[i].status!.refundableQuantity += unit.quantity
+        }
+
+        return ()
+    }
+
     /// Given a product ID and order data, this function finds the index
     /// of that product item in the order, gets the product data from the products
     /// service (if any), and ensures that the order item has been fulfilled.
-    func findEnumeratedProduct(inOrder order: Order, forId id: UUID) throws -> (Int, Product) {
-        for (i, orderUnit) in order.products.enumerated() {
+    func findEnumeratedProduct(inOrder order: Order, forId id: UUID) throws -> Int {
+        for (idx, orderUnit) in order.products.enumerated() {
             if id != orderUnit.product {
                 continue
             }
 
-            let product = try productsService.getProduct(id: id)
-            // Make sure that only fulfilled (delivered) items are returned.
+            // Make sure that only fulfilled (delivered) items are returned/refunded/picked up.
             if orderUnit.status == nil {
-                throw OrdersError.unfulfilledItem(product.id)
+                throw OrdersError.unfulfilledItem(id)
             }
 
-            return (i, product)
+            return idx
         }
 
         throw OrdersError.invalidOrderItem      // no such item exists in order.

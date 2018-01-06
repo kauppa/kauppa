@@ -156,7 +156,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderQuantity(product3.id, 0, false))
+            XCTAssertEqual(err as! OrdersError, .invalidReturnQuantity(product3.id, 0))
         }
 
         let pickup2Scheduled = expectation(description: "pickup scheduled for second partial return")
@@ -261,7 +261,7 @@ class TestReturns: XCTestCase {
             let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderQuantity(product1.id, 3, false))
+            XCTAssertEqual(err as! OrdersError, .invalidReturnQuantity(product1.id, 3))
         }
 
         pickupData.units = []

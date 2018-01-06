@@ -290,7 +290,7 @@ class TestRefunds: XCTestCase {
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderQuantity(product1.id, 3, true))
+            XCTAssertEqual(err as! OrdersError, .invalidRefundQuantity(product1.id, 3))
         }
 
         refundData.units = []

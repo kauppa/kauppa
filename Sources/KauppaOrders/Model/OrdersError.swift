@@ -13,7 +13,9 @@ public enum OrdersError: Error {
     case invalidReason
     case invalidOrderItem
     case unfulfilledItem(UUID)
-    case invalidOrderQuantity(UUID, UInt8, Bool)
+    case invalidRefundQuantity(UUID, UInt8)
+    case invalidReturnQuantity(UUID, UInt8)
+    case invalidPickupQuantity(UUID, UInt8)
 }
 
 extension OrdersError: LocalizedError {
@@ -41,19 +43,23 @@ extension OrdersError: LocalizedError {
                 return "Item not found in order"
             case .unfulfilledItem(let id):
                 return "Items in product \(id) are been fulfilled and cannot be returned/refunded"
-            case .invalidOrderQuantity(let id, let existing, let isRefund):
-                if isRefund {
-                    if existing > 0 {
-                        return "Only \(existing) item(s) can be refunded for product \(id)"
-                    } else {
-                        return "None of the remaining items can be refunded for product \(id)"
-                    }
+            case .invalidRefundQuantity(let id, let existing):
+                if existing > 0 {
+                    return "Only \(existing) item(s) can be refunded for product \(id)"
                 } else {
-                    if existing > 0 {
-                        return "Only \(existing) item(s) have been fulfilled for product \(id)"
-                    } else {
-                        return "No fulfilled items remaining for product \(id)"
-                    }
+                    return "None of the remaining items can be refunded for product \(id)"
+                }
+            case .invalidReturnQuantity(let id, let existing):
+                if existing > 0 {
+                    return "Only \(existing) item(s) have been fulfilled for product \(id)"
+                } else {
+                    return "No fulfilled items remaining for product \(id)"
+                }
+            case .invalidPickupQuantity(let id, let existing):
+                if existing > 0 {
+                    return "Only \(existing) item(s) of product \(id) have been scheduled for pickup"
+                } else {
+                    return "No items in product \(id) have been scheduled for pickup"
                 }
         }
     }
@@ -74,8 +80,10 @@ extension OrdersError: Equatable {
                  (.invalidReason, .invalidReason),
                  (.invalidOrderItem, .invalidOrderItem):
                 return true
-            case let (.invalidOrderQuantity(p1, e1, b1), .invalidOrderQuantity(p2, e2, b2)):
-                return e1 == e2 && p1 == p2 && b1 == b2
+            case let (.invalidRefundQuantity(p1, e1), .invalidRefundQuantity(p2, e2)),
+                 let (.invalidPickupQuantity(p1, e1), .invalidPickupQuantity(p2, e2)),
+                 let (.invalidReturnQuantity(p1, e1), .invalidReturnQuantity(p2, e2)):
+                return e1 == e2 && p1 == p2
             case let (.unfulfilledItem(p1), .unfulfilledItem(p2)):
                 return p1 == p2
             default:
