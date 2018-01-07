@@ -54,6 +54,8 @@ extension OrdersService: OrdersServiceCallable {
         var inventoryUpdates = [UUID: UInt32]()
 
         for orderUnit in data.products {
+            var orderUnit = orderUnit
+            orderUnit.status = nil          // reset unit status
             if orderUnit.quantity == 0 {
                 continue    // skip zero'ed items
             }
@@ -235,6 +237,10 @@ extension OrdersService: OrdersServiceCallable {
     }
 
     public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
+        if data.items.isEmpty {
+            throw OrdersError.noItemsToProcess
+        }
+
         var order = try repository.getOrder(id: id)
         order.shipments[data.id] = data.status
         // NOTE: The `items` in `Shipment` data should never be empty, because
@@ -243,9 +249,10 @@ extension OrdersService: OrdersServiceCallable {
         switch data.status {
             case .returned:
                 try handlePickupEvent(forOrder: &order, data: data)
+            case .delivered:
+                try handleDeliveryEvent(forOrder: &order, data: data)
 
-            default:        // TODO: Handle shipped and delivered events
-                ()
+            default: ()
         }
 
         let _ = try repository.updateOrder(withData: order)
@@ -258,13 +265,26 @@ extension OrdersService: OrdersServiceCallable {
 
     /* Private functions */
 
+    /// Shipment has reached the customer. Set the fulfillment quantity for
+    /// each order unit, which indicates the number of items delivered.
+    func handleDeliveryEvent(forOrder order: inout Order, data: Shipment) throws -> () {
+        for unit in data.items {
+            let i = try findEnumeratedProduct(inOrder: order, forId: unit.product,
+                                              expectFulfillment: false)
+            let expectedQuantity = order.products[i].quantity
+            if unit.quantity > expectedQuantity {
+                throw OrdersError.invalidDeliveryQuantity(unit.product, expectedQuantity)
+            }
+
+            order.products[i].status = OrderUnitStatus(quantity: unit.quantity)
+        }
+
+        return ()
+    }
+
     /// Handle the pickup event from shipments service, such that the items successfully picked up
     /// have been reflected in the corresponding `Order` data.
     func handlePickupEvent(forOrder order: inout Order, data: Shipment) throws -> () {
-        if data.items.isEmpty {
-            throw OrdersError.noItemsToProcess
-        }
-
         for unit in data.items {
             let i = try findEnumeratedProduct(inOrder: order, forId: unit.product)
             let scheduled = order.products[i].status!.pickupQuantity    // safe to unwrap here
@@ -275,7 +295,6 @@ extension OrdersService: OrdersServiceCallable {
             order.products[i].status!.pickupQuantity -= unit.quantity
 
             let delivered = order.products[i].status!.fulfilledQuantity
-            print("\(unit.quantity) \(delivered)")
             if unit.quantity > delivered {
                 throw OrdersError.unfulfilledItem(unit.product)
             }
@@ -290,14 +309,15 @@ extension OrdersService: OrdersServiceCallable {
     /// Given a product ID and order data, this function finds the index
     /// of that product item in the order, gets the product data from the products
     /// service (if any), and ensures that the order item has been fulfilled.
-    func findEnumeratedProduct(inOrder order: Order, forId id: UUID) throws -> Int {
+    func findEnumeratedProduct(inOrder order: Order, forId id: UUID,
+                               expectFulfillment: Bool = true) throws -> Int {
         for (idx, orderUnit) in order.products.enumerated() {
             if id != orderUnit.product {
                 continue
             }
 
             // Make sure that only fulfilled (delivered) items are returned/refunded/picked up.
-            if orderUnit.status == nil {
+            if expectFulfillment && orderUnit.status == nil {
                 throw OrdersError.unfulfilledItem(id)
             }
 

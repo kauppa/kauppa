@@ -79,8 +79,10 @@ class TestOrdersService: XCTestCase {
             shipmentInitiated.fulfill()
         }
 
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
-                                  products: [OrderUnit(product: product.id, quantity: 3)])
+        var unit = OrderUnit(product: product.id, quantity: 3)
+        unit.status = OrderUnitStatus(quantity: 5)      // try to set fulfilled quantity
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
+                                  placedBy: account.id, products: [unit])
         let order = try! ordersService.createOrder(data: orderData)
         // Make sure that the quantity is tracked while summing up values
         XCTAssertEqual(order.totalItems, 3)
@@ -88,6 +90,8 @@ class TestOrdersService: XCTestCase {
         XCTAssertEqual(order.totalPrice.value, 9.0)
         XCTAssertNotNil(order.billingAddress)
         XCTAssertNotNil(order.shippingAddress)
+        XCTAssertEqual(order.products.count, 1)
+        XCTAssertNil(order.products[0].status)      // status has been reset to nil
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)

@@ -13,6 +13,7 @@ public enum OrdersError: Error {
     case invalidReason
     case invalidOrderItem
     case unfulfilledItem(UUID)
+    case invalidDeliveryQuantity(UUID, UInt8)
     case invalidRefundQuantity(UUID, UInt8)
     case invalidReturnQuantity(UUID, UInt8)
     case invalidPickupQuantity(UUID, UInt8)
@@ -43,6 +44,8 @@ extension OrdersError: LocalizedError {
                 return "Item not found in order"
             case .unfulfilledItem(let id):
                 return "Items in product \(id) are been fulfilled and cannot be returned/refunded"
+            case .invalidDeliveryQuantity(let id, let existing):
+                return "Only \(existing) item(s) can be delivered for product \(id)"
             case .invalidRefundQuantity(let id, let existing):
                 if existing > 0 {
                     return "Only \(existing) item(s) can be refunded for product \(id)"
@@ -82,7 +85,8 @@ extension OrdersError: Equatable {
                 return true
             case let (.invalidRefundQuantity(p1, e1), .invalidRefundQuantity(p2, e2)),
                  let (.invalidPickupQuantity(p1, e1), .invalidPickupQuantity(p2, e2)),
-                 let (.invalidReturnQuantity(p1, e1), .invalidReturnQuantity(p2, e2)):
+                 let (.invalidReturnQuantity(p1, e1), .invalidReturnQuantity(p2, e2)),
+                 let (.invalidDeliveryQuantity(p1, e1), .invalidDeliveryQuantity(p2, e2)):
                 return e1 == e2 && p1 == p2
             case let (.unfulfilledItem(p1), .unfulfilledItem(p2)):
                 return p1 == p2
