@@ -236,6 +236,7 @@ extension OrdersService: OrdersServiceCallable {
 
     public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
         var order = try repository.getOrder(id: id)
+        order.shipments[data.id] = data.status
         // NOTE: The `items` in `Shipment` data should never be empty, because
         // it's called only by orders and it's responsible for supplying the items.
 
@@ -244,7 +245,7 @@ extension OrdersService: OrdersServiceCallable {
                 try handlePickupEvent(forOrder: &order, data: data)
 
             default:        // TODO: Handle shipped and delivered events
-                return ()
+                ()
         }
 
         let _ = try repository.updateOrder(withData: order)
@@ -272,6 +273,13 @@ extension OrdersService: OrdersServiceCallable {
             }
 
             order.products[i].status!.pickupQuantity -= unit.quantity
+
+            let delivered = order.products[i].status!.fulfilledQuantity
+            print("\(unit.quantity) \(delivered)")
+            if unit.quantity > delivered {
+                throw OrdersError.unfulfilledItem(unit.product)
+            }
+
             order.products[i].status!.fulfilledQuantity -= unit.quantity
             order.products[i].status!.refundableQuantity += unit.quantity
         }

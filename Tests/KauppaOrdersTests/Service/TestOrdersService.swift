@@ -228,7 +228,6 @@ class TestOrdersService: XCTestCase {
                                   products: [OrderUnit(product: firstProduct.id, quantity: 3),
                                              OrderUnit(product: secondProduct.id, quantity: 0)])
         let order = try! ordersService.createOrder(data: orderData)
-        XCTAssertNotNil(order.id)
         // Second product (zero quantity) will be skipped while placing the order
         XCTAssertEqual(order.totalItems, 3)
     }
@@ -260,7 +259,6 @@ class TestOrdersService: XCTestCase {
                                   products: [OrderUnit(product: product.id, quantity: 3),
                                              OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
-        XCTAssertNotNil(order.id)
         // All quantities are accumulated in the end
         XCTAssertEqual(order.totalItems, 6)
         XCTAssertEqual(order.totalWeight.value, 30.0)
@@ -316,7 +314,6 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
-        XCTAssertNotNil(order.id)
         XCTAssertNil(order.cancelledAt)
 
         let updatedOrder = try! ordersService.cancelOrder(id: order.id)
@@ -340,7 +337,6 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
-        XCTAssertNotNil(order.id)
         let _ = try! ordersService.deleteOrder(id: order.id)
     }
 }

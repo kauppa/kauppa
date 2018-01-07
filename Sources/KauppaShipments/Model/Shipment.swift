@@ -21,6 +21,16 @@ public struct Shipment: Mappable {
     /// Status of this shipment.
     public var status = ShipmentStatus.shipping
 
+    /// Empty init (for testing)
+    public init() {
+        let date = Date()
+        id = UUID()
+        createdOn = date
+        updatedAt = date
+        orderId = UUID()
+        address = Address()
+    }
+
     public init(id: UUID, createdOn: Date, updatedAt: Date, orderId: UUID, address: Address) {
         self.id = id
         self.createdOn = createdOn
