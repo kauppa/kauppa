@@ -5,6 +5,7 @@ public enum ShipmentsError: Error {
     case noItemsToProcess
     case invalidShipment
     case notScheduledForPickup
+    case notQueuedForShipping
 }
 
 extension ShipmentsError: LocalizedError {
@@ -16,6 +17,8 @@ extension ShipmentsError: LocalizedError {
                 return "Invalid shipment for the given ID"
             case .notScheduledForPickup:
                 return "Shipment hasn't been scheduled for pickup"
+            case .notQueuedForShipping:
+                return "This shipment is not queued for shipping"
         }
     }
 }
@@ -26,7 +29,8 @@ extension ShipmentsError: Equatable {
         switch (lhs, rhs) {
             case (.noItemsToProcess, .noItemsToProcess),
                  (.invalidShipment, .invalidShipment),
-                 (.notScheduledForPickup, .notScheduledForPickup):
+                 (.notScheduledForPickup, .notScheduledForPickup),
+                 (.notQueuedForShipping, .notQueuedForShipping):
                 return true
             default:
                 return false
