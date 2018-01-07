@@ -4,6 +4,7 @@ import Foundation
 public enum ShipmentsError: Error {
     case noItemsToProcess
     case invalidShipment
+    case notScheduledForPickup
 }
 
 extension ShipmentsError: LocalizedError {
@@ -13,6 +14,8 @@ extension ShipmentsError: LocalizedError {
                 return "No items to process"
             case .invalidShipment:
                 return "Invalid shipment for the given ID"
+            case .notScheduledForPickup:
+                return "Shipment hasn't been scheduled for pickup"
         }
     }
 }
@@ -22,7 +25,8 @@ extension ShipmentsError: Equatable {
     public static func ==(lhs: ShipmentsError, rhs: ShipmentsError) -> Bool {
         switch (lhs, rhs) {
             case (.noItemsToProcess, .noItemsToProcess),
-                 (.invalidShipment, .invalidShipment):
+                 (.invalidShipment, .invalidShipment),
+                 (.notScheduledForPickup, .notScheduledForPickup):
                 return true
             default:
                 return false

@@ -40,6 +40,10 @@ extension ShipmentsService: ShipmentsServiceCallable {
 
     public func completePickup(id: UUID) throws -> Shipment {
         var data = try repository.getShipment(id: id)
+        if data.status != .pickup {
+            throw ShipmentsError.notScheduledForPickup
+        }
+
         data.status = .returned
         try ordersService.updateShipment(forId: data.orderId, data: data)
         return try repository.updateShipment(data: data)

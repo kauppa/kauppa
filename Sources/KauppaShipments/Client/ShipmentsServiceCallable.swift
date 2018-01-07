@@ -29,6 +29,6 @@ public protocol ShipmentsServiceCallable {
     /// - Parameters:
     ///   - id: The `UUID` of a shipment.
     /// - Returns: Updated `Shipment`
-    /// - Throws: `ShipmentsError` if the shipment doesn't exist.
+    /// - Throws: `ShipmentsError`
     func completePickup(id: UUID) throws -> Shipment
 }
