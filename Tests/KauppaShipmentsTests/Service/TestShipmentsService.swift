@@ -16,6 +16,8 @@ class TestShipmentsService: XCTestCase {
             ("Test successful shipment creation", testShipmentCreation),
             ("Test pickup schedule", testPickupSchedule),
             ("Test pickup completion", testPickupCompletion),
+            ("Test delivery notification", testNotifyDelivery),
+            ("Test shipped notification", testNotifyShipping),
         ]
     }
 
@@ -84,6 +86,78 @@ class TestShipmentsService: XCTestCase {
 
         let updatedData = try! service.completePickup(id: data.id)
         XCTAssertEqual(updatedData.status, .returned)
+
+        waitForExpectations(timeout: 5) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testNotifyDelivery() {
+        let store = TestStore()
+        let repository = ShipmentsRepository(withStore: store)
+        let service = ShipmentsService(withRepository: repository, ordersService: ordersService)
+        ordersService.order.id = UUID()
+        ordersService.order.shippingAddress = Address()
+        let productId = UUID()
+        ordersService.order.products = [OrderUnit(product: productId, quantity: 5)]
+        let data = try! service.createShipment(forOrder: ordersService.order.id)
+        do {    // by default, status is "shipping" (it hasn't "shipped", so it cannot be delivered)
+            let _ = try service.notifyDelivery(id: data.id)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ShipmentsError, .notBeingShipped)
+        }
+
+        let _ = try! service.notifyShipping(id: data.id)
+        let orderNotified = expectation(description: "orders service notified of delivery")
+        ordersService.callback = { any in
+            let (id, notifyData) = any as! (UUID, Shipment)
+            XCTAssertEqual(id, self.ordersService.order.id)
+            XCTAssertEqual(notifyData.status, .delivered)
+            XCTAssertEqual(notifyData.items.count, 1)
+            XCTAssertEqual(notifyData.items[0].product, productId)
+            XCTAssertEqual(notifyData.items[0].quantity, 5)
+            orderNotified.fulfill()
+        }
+
+        let updatedData = try! service.notifyDelivery(id: data.id)
+        XCTAssertEqual(updatedData.status, .delivered)
+
+        waitForExpectations(timeout: 5) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testNotifyShipping() {
+        let store = TestStore()
+        let repository = ShipmentsRepository(withStore: store)
+        let service = ShipmentsService(withRepository: repository, ordersService: ordersService)
+        ordersService.order.id = UUID()
+        ordersService.order.shippingAddress = Address()
+        let productId = UUID()
+        ordersService.order.products = [OrderUnit(product: productId, quantity: 2)]
+        var data = try! service.createShipment(forOrder: ordersService.order.id)
+
+        let orderNotified = expectation(description: "orders service notified of shipment")
+        ordersService.callback = { any in
+            let (id, notifyData) = any as! (UUID, Shipment)
+            XCTAssertEqual(id, self.ordersService.order.id)
+            XCTAssertEqual(notifyData.status, .shipped)
+            XCTAssertEqual(notifyData.items.count, 1)
+            XCTAssertEqual(notifyData.items[0].product, productId)
+            XCTAssertEqual(notifyData.items[0].quantity, 2)
+            orderNotified.fulfill()
+        }
+
+        data = try! service.notifyShipping(id: data.id)
+        XCTAssertEqual(data.status, .shipped)
+
+        do {    // It's been shipped, it cannot be shipped again
+            let _ = try service.notifyShipping(id: data.id)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ShipmentsError, .notQueuedForShipping)
+        }
 
         waitForExpectations(timeout: 5) { error in
             XCTAssertNil(error)

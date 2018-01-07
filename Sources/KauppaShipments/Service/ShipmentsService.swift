@@ -45,10 +45,10 @@ extension ShipmentsService: ShipmentsServiceCallable {
     public func notifyDelivery(id: UUID) throws -> Shipment {
         var data = try repository.getShipment(id: id)
         if data.status != .shipped {
-            throw ShipmentsError.notQueuedForShipping
+            throw ShipmentsError.notBeingShipped
         }
 
-        data.status = .shipped
+        data.status = .delivered
         try ordersService.updateShipment(forId: data.orderId, data: data)
         return try repository.updateShipment(data: data)
     }
