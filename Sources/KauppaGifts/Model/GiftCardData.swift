@@ -49,6 +49,39 @@ public struct GiftCardData: Mappable {
         }
     }
 
+    /// Deduct price from this card and the price supplied. It ensures card's
+    /// validity before making any changes. If the card is valid, then it deducts
+    /// the amount from the card and the given price.
+    public mutating func deductPrice(from price: inout UnitMeasurement<Currency>) throws {
+        if let date = expiresOn {
+            if date < Date() {
+                throw GiftsError.cardExpired
+            }
+        }
+
+        if let date = disabledOn {
+            if date < Date() {
+                throw GiftsError.cardDisabled
+            }
+        }
+
+        if balance.value == 0 {
+            throw GiftsError.noBalance
+        }
+
+        if price.unit != balance.unit {
+            throw GiftsError.mismatchingCurrencies
+        }
+
+        if price.value > balance.value {
+            price.value -= balance.value
+            balance.value = 0.0
+        } else {
+            balance.value -= price.value
+            price.value = 0.0
+        }
+    }
+
     /// Since gift cards are an alternative mode of payment,
     /// the full code is shown only once, and only the last
     /// four characters are shown in the future.

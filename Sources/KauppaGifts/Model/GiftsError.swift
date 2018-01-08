@@ -10,6 +10,10 @@ public enum GiftsError: Error {
     /// If the (optional) code supplied for the card doesn't contain alphanumeric characters
     /// or has length not equal to 16, then we throw this error.
     case invalidCode
+    case noBalance
+    case cardDisabled
+    case cardExpired
+    case mismatchingCurrencies
 }
 
 extension GiftsError: LocalizedError {
@@ -21,6 +25,14 @@ extension GiftsError: LocalizedError {
                 return "Expiry date should be at least 1 day in the future"
             case .invalidCode:
                 return "Code should be an alphanumeric string of 16 characters"
+            case .mismatchingCurrencies:
+                return "Card currency doesn't match with price currency"
+            case .noBalance:
+                return "Card doesn't have any balance"
+            case .cardDisabled:
+                return "Card has been disabled"
+            case .cardExpired:
+                return "Card has expired"
         }
     }
 }
@@ -31,7 +43,11 @@ extension GiftsError {
         switch (lhs, rhs) {
             case (.invalidGiftCardId, .invalidGiftCardId),
                  (.invalidExpiryDate, .invalidExpiryDate),
-                 (.invalidCode, .invalidCode):
+                 (.invalidCode, .invalidCode),
+                 (.mismatchingCurrencies, .mismatchingCurrencies),
+                 (.noBalance, .noBalance),
+                 (.cardDisabled, .cardDisabled),
+                 (.cardExpired, .cardExpired):
                 return true
             default:
                 return false
