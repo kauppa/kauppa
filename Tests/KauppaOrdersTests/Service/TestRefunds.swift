@@ -17,7 +17,6 @@ class TestRefunds: XCTestCase {
         return [
             ("Test full refund", testFullRefund),
             ("Test partial refunds", testPartialRefunds),
-            ("Test refund with no reason", testRefundNoReason),
             ("Test cancelled order", testCancelledOrder),
             ("Test unpaid refund", testUnpaidRefund),
             ("Test invalid refund data", testInvalidRefunds),
@@ -63,7 +62,15 @@ class TestRefunds: XCTestCase {
         initial.products[1].status!.refundableQuantity = 2
         let order = try! repository.updateOrder(withData: initial)
 
-        var refundData = RefundData(reason: "I hate you!")
+        var refundData = RefundData(reason: "")
+        do {
+            let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! OrdersError, .invalidReason)
+        }
+
+        refundData = RefundData(reason: "I hate you!")
         refundData.fullRefund = true
         let updatedOrder = try! ordersService.initiateRefund(forId: order.id, data: refundData)
         // Check the order data
@@ -161,22 +168,6 @@ class TestRefunds: XCTestCase {
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .refundedOrder)
-        }
-    }
-
-    func testRefundNoReason() {
-        let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
-        let ordersService = OrdersService(withRepository: repository,
-                                          accountsService: accountsService,
-                                          productsService: productsService,
-                                          shippingService: shippingService)
-        let refundData = RefundData(reason: "")
-        do {
-            let _ = try ordersService.initiateRefund(forId: UUID(), data: refundData)
-            XCTFail()
-        } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidReason)
         }
     }
 

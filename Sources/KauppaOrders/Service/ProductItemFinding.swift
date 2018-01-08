@@ -25,24 +25,4 @@ extension OrdersService {
 
         throw OrdersError.invalidOrderItem      // no such item exists in order.
     }
-
-    /// Returns a list of all items that can be picked up from this order. This actually
-    /// changes the `pickupQuantity` in each order unit (to indicate that the items have
-    /// been scheduled for pickup).
-    func getAllItemsForPickup(forOrder data: inout Order) throws -> [OrderUnit] {
-        var returnItems = [OrderUnit]()
-        for (i, unit) in data.products.enumerated() {
-            let product = try productsService.getProduct(id: unit.product)
-            // Only collect "untouched" items (if any) from each unit
-            // (i.e., items that have been fulfilled and not scheduled for pickup)
-            let fulfilled = unit.untouchedItems()
-            if fulfilled > 0 {
-                let returnUnit = OrderUnit(product: product.id, quantity: fulfilled)
-                returnItems.append(returnUnit)
-                data.products[i].status!.pickupQuantity += returnUnit.quantity
-            }
-        }
-
-        return returnItems
-    }
 }

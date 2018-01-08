@@ -9,17 +9,13 @@ import KauppaProductsModel
 /// Factory class for creating order refunds.
 class RefundsFactory {
     let data: RefundData
-    let repository: OrdersRepository
     let productsService: ProductsServiceCallable
 
     private var atleastOneItemExists = false
     private var refundItems = [GenericOrderUnit<Product>]()
 
-    init(with data: RefundData, using repository: OrdersRepository,
-         service: ProductsServiceCallable)
-    {
+    init(with data: RefundData, using service: ProductsServiceCallable) {
         self.data = data
-        self.repository = repository
         productsService = service
     }
 
@@ -89,7 +85,9 @@ class RefundsFactory {
     }
 
     /// Create a `Refund` object with the collected items.
-    private func createRefund(forOrder id: UUID) throws -> Refund {
+    private func createRefund(forOrder id: UUID,
+                              using repository: OrdersRepository) throws -> Refund
+    {
         // We can assume that all products in a successfully placed
         // order *will* have the same currency, because the cart checks it.
         let currency = refundItems[0].product.data.price.unit
@@ -105,12 +103,13 @@ class RefundsFactory {
                                            items: items, amount: totalPrice)
     }
 
-    func initiateRefund(forId id: UUID) throws -> Order {
+    func initiateRefund(forOrder order: inout Order,
+                        using repository: OrdersRepository) throws
+    {
         if data.reason.isEmpty {
             throw OrdersError.invalidReason
         }
 
-        var order = try repository.getOrder(id: id)
         try order.validateForRefund()
 
         if data.fullRefund ?? false {
@@ -124,8 +123,7 @@ class RefundsFactory {
         }
 
         try setStatus(forOrder: &order)
-        let refund = try createRefund(forOrder: order.id)
+        let refund = try createRefund(forOrder: order.id, using: repository)
         order.refunds.append(refund.id)
-        return order
     }
 }

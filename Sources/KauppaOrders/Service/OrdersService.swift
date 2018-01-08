@@ -64,45 +64,16 @@ extension OrdersService: OrdersServiceCallable {
     }
 
     public func initiateRefund(forId id: UUID, data: RefundData) throws -> Order {
-        let factory = RefundsFactory(with: data, using: repository, service: productsService)
-        let order = try factory.initiateRefund(forId: id)
+        var order = try repository.getOrder(id: id)
+        let factory = RefundsFactory(with: data, using: productsService)
+        try factory.initiateRefund(forOrder: &order, using: repository)
         return try repository.updateOrder(withData: order)
     }
 
     public func returnOrder(id: UUID, data: PickupData) throws -> Order {
         var order = try repository.getOrder(id: id)
-        try order.validateForReturn()
-
-        var returnItems = [OrderUnit]()
-
-        if data.pickupAll ?? false {
-            returnItems = try getAllItemsForPickup(forOrder: &order)
-        } else {
-            for unit in data.units ?? [] {
-                let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
-                let productData = try productsService.getProduct(id: unit.product)
-
-                // Only items that have been fulfilled "and" not scheduled for pickup
-                let fulfilled = order.products[i].untouchedItems()
-                if unit.quantity > fulfilled {
-                    throw OrdersError.invalidReturnQuantity(productData.id, fulfilled)
-                }
-
-                let unit = OrderUnit(product: productData.id, quantity: unit.quantity)
-                returnItems.append(unit)
-                order.products[i].status!.pickupQuantity += unit.quantity
-            }
-        }
-
-        if returnItems.isEmpty {
-            throw OrdersError.noItemsToProcess
-        }
-
-        var pickupData = PickupItems()
-        pickupData.items = returnItems
-        let shipment = try shippingService.schedulePickup(forOrder: order.id, data: pickupData)
-        order.shipments[shipment.id] = shipment.status
-
+        let factory = ReturnsFactory(with: data, using: productsService)
+        try factory.initiatePickup(forOrder: &order, withShipping: shippingService)
         return try repository.updateOrder(withData: order)
     }
 

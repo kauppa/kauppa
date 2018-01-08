@@ -18,7 +18,7 @@ class ReturnsFactory {
         productsService = service
     }
 
-    /// Returns a list of all items that can be picked up from this order. This actually
+    /// Collects the items that can be picked up from this order. This actually
     /// changes the `pickupQuantity` in each order unit (to indicate that the items have
     /// been scheduled for pickup).
     func getAllItemsForPickup(forOrder order: inout Order) throws {
@@ -35,6 +35,7 @@ class ReturnsFactory {
         }
     }
 
+    /// Same as `getAllItemsForPickup`, only difference is that it gets the items from the data.
     func getSpecifiedItemsForPickup(forOrder order: inout Order) throws {
         for unit in data.units ?? [] {
             let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
@@ -54,6 +55,8 @@ class ReturnsFactory {
     func initiatePickup(forOrder order: inout Order,
                         withShipping shippingService: ShipmentsServiceCallable) throws
     {
+        try order.validateForReturn()
+
         if data.pickupAll ?? false {
             try getAllItemsForPickup(forOrder: &order)
         } else {
