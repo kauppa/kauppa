@@ -2,20 +2,34 @@ import Foundation
 
 /// Order service errors
 public enum OrdersError: Error {
+    /// One or more products are unavailable in the inventory.
     case productUnavailable
+    /// No order found for the given UUID
     case invalidOrder
+    /// Indicates that input data has empty items (so, we don't have anything to process)
     case noItemsToProcess
+    /// One or more items in the order data have prices with mismatching currencies.
     case ambiguousCurrencies
+    /// Some actions can happen only after payment, and the payment hasn't been received
+    /// for this order yet.
     case paymentNotReceived
+    /// Action cannot be carried out because this order has been cancelled.
     case cancelledOrder
+    /// This order has already been refunded. Occurs when we try to refund again.
     case refundedOrder
-    case refundedItem
+    /// Reason invalid (or not given) for refunding
     case invalidReason
+    /// Given item is not found in order.
     case invalidOrderItem
+    /// This action requires the item to be fulfilled, but it's not been fulfilled yet.
     case unfulfilledItem(UUID)
+    /// Shipped quantity seems to be higher than actual quantity that was supposed to be delivered.
     case invalidDeliveryQuantity(UUID, UInt8)
+    /// Requested refund quantity is higher than the refundable quantity for this item.
     case invalidRefundQuantity(UUID, UInt8)
+    /// Requested return quantity is higher than the fulfilled items in this unit.
     case invalidReturnQuantity(UUID, UInt8)
+    /// Items picked seems to be higher than the items scheduled for pickup.
     case invalidPickupQuantity(UUID, UInt8)
 }
 
@@ -36,8 +50,6 @@ extension OrdersError: LocalizedError {
                 return "Order has been cancelled"
             case .refundedOrder:
                 return "Order has been refunded"
-            case .refundedItem:
-                return "Product item has been refunded"
             case .invalidReason:
                 return "Invalid reason for returning/refunding order"
             case .invalidOrderItem:
@@ -79,7 +91,6 @@ extension OrdersError: Equatable {
                  (.paymentNotReceived, .paymentNotReceived),
                  (.cancelledOrder, .cancelledOrder),
                  (.refundedOrder, .refundedOrder),
-                 (.refundedItem, .refundedItem),
                  (.invalidReason, .invalidReason),
                  (.invalidOrderItem, .invalidOrderItem):
                 return true

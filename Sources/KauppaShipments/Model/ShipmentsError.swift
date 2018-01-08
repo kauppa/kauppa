@@ -2,10 +2,15 @@ import Foundation
 
 /// Shipment service errors
 public enum ShipmentsError: Error {
+    /// No items to process from the given data (i.e., empty list of items).
     case noItemsToProcess
+    /// No shipment found for the given UUID
     case invalidShipment
+        /// This action requires the shipment to be in 'pickup' state, but it's not.
     case notScheduledForPickup
+    /// This action requires the shipment to be in 'shipping' state, but it's not.
     case notQueuedForShipping
+    /// This action requires the shipment to be in 'shipped' state, but it's not.
     case notBeingShipped
 }
 
