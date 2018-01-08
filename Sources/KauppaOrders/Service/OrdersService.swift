@@ -64,73 +64,8 @@ extension OrdersService: OrdersServiceCallable {
     }
 
     public func initiateRefund(forId id: UUID, data: RefundData) throws -> Order {
-        if data.reason.isEmpty {
-            throw OrdersError.invalidReason
-        }
-
-        var order = try repository.getOrder(id: id)
-        try order.validateForRefund()
-
-        var atleastOneItemExists = false
-        var refundItems = [GenericOrderUnit<Product>]()
-        // TODO: Investigate payment processing
-
-        if data.fullRefund ?? false {
-            refundItems = try getAllRefundableItems(forOrder: &order)
-        } else {
-            for unit in data.units ?? [] {
-                let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
-                let productData = try productsService.getProduct(id: unit.product)
-                // It's safe to unwrap here because the function checks this.
-                let unitStatus = order.products[i].status!
-                let refundable = unitStatus.refundableQuantity
-
-                if unit.quantity > refundable {
-                    throw OrdersError.invalidRefundQuantity(productData.id, refundable)
-                }
-
-                let unit = GenericOrderUnit(product: productData, quantity: unit.quantity)
-                refundItems.append(unit)
-                order.products[i].status!.refundableQuantity -= unit.quantity
-
-                // Check whether all items have been refunded in this unit
-                if unitStatus.fulfilledQuantity == 0 && refundable == unit.quantity {
-                    order.products[i].status = nil
-                } else {
-                    order.products[i].status!.fulfillment = .partial
-                }
-
-                atleastOneItemExists = atleastOneItemExists || order.products[i].hasFulfillment
-            }
-        }
-
-        if refundItems.isEmpty {
-            throw OrdersError.noItemsToProcess
-        }
-
-        // If we've come this far, then it's either a partial refund or full refund.
-        if atleastOneItemExists {
-            order.paymentStatus = .partialRefund
-            order.fulfillment = .partial
-        } else {
-            order.paymentStatus = .refunded
-            order.fulfillment = nil
-        }
-
-        // We can assume that all products in a successfully placed
-        // order *will* have the same currency, because the cart checks it.
-        let currency = refundItems[0].product.data.price.unit
-        var totalPrice = UnitMeasurement(value: 0.0, unit: currency)
-        var items = [OrderUnit]()
-        for item in refundItems {
-            totalPrice.value += item.product.data.price.value * Double(item.quantity)
-            let unit = OrderUnit(product: item.product.id, quantity: item.quantity)
-            items.append(unit)
-        }
-
-        let refund = try repository.createRefund(forOrder: order.id, reason: data.reason,
-                                                 items: items, amount: totalPrice)
-        order.refunds.append(refund.id)
+        let factory = RefundsFactory(with: data, using: repository, service: productsService)
+        let order = try factory.initiateRefund(forId: id)
         return try repository.updateOrder(withData: order)
     }
 

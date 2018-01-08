@@ -45,33 +45,4 @@ extension OrdersService {
 
         return returnItems
     }
-
-    /// Returns a list of all refundable items in this order. If there's no fulfilled
-    /// quantity after processing the refundable items in an unit, then the unit status
-    /// will be set to `nil`
-    func getAllRefundableItems(forOrder data: inout Order) throws
-                              -> [GenericOrderUnit<Product>]
-    {
-        var refundItems = [GenericOrderUnit<Product>]()
-        for (i, unit) in data.products.enumerated() {
-            let product = try productsService.getProduct(id: unit.product)
-            // Only collect fulfilled items (if any) from each unit.
-            if let unitStatus = unit.status {
-                if unitStatus.refundableQuantity > 0 {
-                    let refundUnit = GenericOrderUnit(product: product,
-                                                      quantity: unitStatus.refundableQuantity)
-                    data.products[i].status!.refundableQuantity = 0    // reset refundable quantity
-                    refundItems.append(refundUnit)
-                }
-
-                // This is the last step in return + refund process. So, if there are
-                // no fulfilled items, then we can safely reset this state.
-                if unitStatus.fulfilledQuantity == 0 {
-                    data.products[i].status = nil
-                }
-            }
-        }
-
-        return refundItems
-    }
 }
