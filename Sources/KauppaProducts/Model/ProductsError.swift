@@ -8,7 +8,9 @@ public enum ProductsError: Error {
     case invalidColor
     case invalidCollectionName
     case invalidCollectionDescription
+    /// No product found for the given UUID.
     case invalidProduct
+    /// No product collection found for the given UUID.
     case invalidCollection
 }
 

@@ -25,8 +25,8 @@ class TestOrdersRepository: XCTestCase {
     func testOrderCreation() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
-        let orderData = Order(placedBy: UUID())
-        let data = try! repository.createOrder(withData: orderData)
+        let data = Order(placedBy: UUID())
+        try! repository.createOrder(withData: data)
         // creation and updated timestamps should be the same during creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertNotNil(repository.orders[data.id])     // valid order ID
@@ -36,8 +36,8 @@ class TestOrdersRepository: XCTestCase {
     func testOrderDeletion() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
-        let orderData = Order(placedBy: UUID())
-        let data = try! repository.createOrder(withData: orderData)
+        let data = Order(placedBy: UUID())
+        try! repository.createOrder(withData: data)
         let _ = try! repository.deleteOrder(id: data.id)
         XCTAssertTrue(store.deleteCalled)   // store's delete method called by repository
         XCTAssertNil(repository.orders[data.id])    // order has been removed from repository
@@ -46,8 +46,8 @@ class TestOrdersRepository: XCTestCase {
     func testOrderUpdate() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
-        let orderData = Order(placedBy: UUID())
-        let order = try! repository.createOrder(withData: orderData)
+        let order = Order(placedBy: UUID())
+        try! repository.createOrder(withData: order)
         XCTAssertEqual(order.createdOn, order.updatedAt)
         let update1 = try! repository.updateOrder(withData: order, skipDate: true)
         XCTAssertEqual(update1.createdOn, update1.updatedAt)    // date is still the same
@@ -60,8 +60,8 @@ class TestOrdersRepository: XCTestCase {
     func testStoreCalls() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
-        let orderData = Order(placedBy: UUID())
-        let data = try! repository.createOrder(withData: orderData)
+        let data = Order(placedBy: UUID())
+        try! repository.createOrder(withData: data)
         repository.orders = [:]     // clear the repository
         let _ = try! repository.getOrder(id: data.id)
         XCTAssertTrue(store.getCalled)  // this should've called the store

@@ -31,6 +31,8 @@ public enum AccountsError: Error {
     case invalidAccount
     case invalidName
     case invalidPhone
+    /// Indicates an error in the address. This holds information about
+    /// which part of the address went wrong.
     case invalidAddress(AddressError)
 }
 

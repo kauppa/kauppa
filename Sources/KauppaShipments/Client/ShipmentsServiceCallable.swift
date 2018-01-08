@@ -14,6 +14,24 @@ public protocol ShipmentsServiceCallable {
     /// - Throws: `OrdersError` if the order doesn't exist.
     func createShipment(forOrder id: UUID) throws -> Shipment
 
+    /// Change the shipping status to 'shipped' - this also notifies
+    /// orders service that the items have been shipped.
+    ///
+    /// - Parameters:
+    ///   - id: The `UUID` of this `Shipment`
+    /// - Returns: `Shipment`
+    /// - Throws `ShipmentsError` if this shipment cannot be shipped.
+    func notifyShipping(id: UUID) throws -> Shipment
+
+    /// Change the shipping status 'delivered' - this also notifies
+    /// orders service that the items have been delivered.
+    ///
+    /// - Parameters:
+    ///   - id: The `UUID` of this `Shipment`
+    /// - Returns: `Shipment`
+    /// - Throws: `ShipmentsError` if the shipment status cannot be changed.
+    func notifyDelivery(id: UUID) throws -> Shipment
+
     /// Schedule a pickup for an order with the item data.
     ///
     /// - Parameters:
@@ -29,6 +47,6 @@ public protocol ShipmentsServiceCallable {
     /// - Parameters:
     ///   - id: The `UUID` of a shipment.
     /// - Returns: Updated `Shipment`
-    /// - Throws: `ShipmentsError` if the shipment doesn't exist.
+    /// - Throws: `ShipmentsError`
     func completePickup(id: UUID) throws -> Shipment
 }

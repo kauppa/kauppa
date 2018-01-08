@@ -17,10 +17,9 @@ public class OrdersRepository {
     }
 
     /// Create an order with service-supplied order data.
-    public func createOrder(withData data: Order) throws -> Order {
+    public func createOrder(withData data: Order) throws {
         orders[data.id] = data
         try store.createNewOrder(orderData: data)
-        return data
     }
 
     /// Get an order corresponding to an ID.

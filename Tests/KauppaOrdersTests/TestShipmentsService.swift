@@ -39,4 +39,14 @@ public class TestShipmentsService: ShipmentsServiceCallable {
     public func completePickup(id: UUID) throws -> Shipment {
         throw ShipmentsError.invalidShipment
     }
+
+    // NOTE: Not meant to be called by orders
+    public func notifyShipping(id: UUID) throws -> Shipment {
+        throw ShipmentsError.invalidShipment
+    }
+
+    // NOTE: Not meant to be called by orders
+    public func notifyDelivery(id: UUID) throws -> Shipment {
+        throw ShipmentsError.invalidShipment
+    }
 }
