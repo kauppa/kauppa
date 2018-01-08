@@ -5,6 +5,7 @@ import KauppaAccountsModel
 import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaProductsModel
+import KauppaShipmentsClient
 
 /// Factory class for creating orders.
 class OrdersFactory {
@@ -116,9 +117,11 @@ class OrdersFactory {
     }
 
     /// Method to create detailed order for mail service.
+    ///
+    /// NOTE: This should be called only after `createOrder(withShipping:)`
     func createOrder() -> DetailedOrder {
         var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
-        detailedOrder = units
+        detailedOrder.products = units
         order.copyValues(into: &detailedOrder)
         return detailedOrder
     }

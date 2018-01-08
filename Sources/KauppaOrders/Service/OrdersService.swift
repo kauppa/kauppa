@@ -38,82 +38,17 @@ public class OrdersService {
 extension OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(id: data.placedBy)
-        var order = Order(placedBy: account.id)
-        // order data for mail service
-        var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
+        let factory = OrdersFactory(with: data, by: account, service: productsService)
+        let order = try factory.createOrder(withShipping: shippingService)
+        let detailedOrder = factory.createOrder()
 
-        order.placedBy = data.placedBy
-        order.shippingAddress = data.shippingAddress
-        order.billingAddress = data.billingAddress
-        detailedOrder.placedBy = account
-
-        var productPrice = 0.0
-        var priceUnit: Currency? = nil
-        var totalPrice = 0.0
-        let weightCounter = WeightCounter()
-        var inventoryUpdates = [UUID: UInt32]()
-
-        for orderUnit in data.products {
-            var orderUnit = orderUnit
-            orderUnit.status = nil          // reset unit status
-            if orderUnit.quantity == 0 {
-                continue    // skip zero'ed items
-            }
-
-            let product = try productsService.getProduct(id: orderUnit.product)
-            // check that all products are in the same currency
-            productPrice = product.data.price.value
-            if let unit = priceUnit {
-                if unit != product.data.price.unit {
-                    throw OrdersError.ambiguousCurrencies
-                }
-            } else {
-                priceUnit = product.data.price.unit
-            }
-
-            // Also check for duplicate product
-            let available = inventoryUpdates[product.id] ?? product.data.inventory
-            if available < orderUnit.quantity {
-                throw OrdersError.productUnavailable
-            }
-
-            let leftover = available - UInt32(orderUnit.quantity)
-            inventoryUpdates[product.id] = leftover
-            order.products.append(orderUnit)
-            let unit = GenericOrderUnit(product: product,
-                                        quantity: orderUnit.quantity)
-            detailedOrder.products.append(unit)
-
-            totalPrice += Double(orderUnit.quantity) * productPrice
-            var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
-            weight.value *= Double(orderUnit.quantity)
-            weightCounter.add(weight)
-            order.totalItems += UInt16(orderUnit.quantity)
-        }
-
-        if inventoryUpdates.isEmpty {
-            throw OrdersError.noItemsToProcess
-        }
-
-        for (id, leftover) in inventoryUpdates {
-            var patch = ProductPatch()
-            patch.inventory = leftover
-            let _ = try productsService.updateProduct(id: id, data: patch)
-        }
-
-        order.totalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
-        order.totalWeight = weightCounter.sum()
-        let shipment = try shippingService.createShipment(forOrder: order.id)
-        order.shipments[shipment.id] = shipment.status
-
-        let orderData = try repository.createOrder(withData: order)
-        orderData.copyValues(into: &detailedOrder)
+        try repository.createOrder(withData: order)
         let mailOrder = MailOrder(from: detailedOrder)
         if let mailer = mailService {
             mailer.sendMail(to: account.data.email, with: mailOrder)
         }
 
-        return orderData
+        return order
     }
 
     public func getOrder(forId id: UUID) throws -> Order {
