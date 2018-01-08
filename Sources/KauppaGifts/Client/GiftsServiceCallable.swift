@@ -11,6 +11,14 @@ public protocol GiftsServiceCallable {
     /// - Throws: `GiftsError`
     func createCard(withData data: GiftCardData) throws -> GiftCard
 
+    /// Get the card corresponding to an ID.
+    ///
+    /// - Parameters:
+    ///   - id: `UUID` of this gift card.
+    /// - Returns: The `GiftCard` (if it exists)
+    /// - Throws: `GiftsError` (if it's non-existent)
+    func getCard(id: UUID) throws -> GiftCard
+
     /// Get the card for the given alphanumeric code (if any).
     ///
     /// - Parameters:

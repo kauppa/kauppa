@@ -57,6 +57,7 @@ class TestGiftsService: XCTestCase {
         let card = try! service.createCard(withData: data)
         XCTAssertEqual(card.data.code!, "ABCDEFGHIJKLMNOP")
         let _ = try! service.getCard(forCode: data.code!)
+        let _ = try! service.getCard(id: card.id)
     }
 
     func testCardCreationWithExpiry() {
@@ -89,14 +90,15 @@ class TestGiftsService: XCTestCase {
         var patch = GiftCardPatch()     // test valid patch
         patch.note = "foobar"
         patch.balance = UnitMeasurement(value: 100.0, unit: .usd)
-        patch.disabledOn = Date()
+        let currentDate = Date()
+        patch.disable = true
         patch.expiresOn = Date(timeIntervalSinceNow: 87000)
 
         let updatedCard = try! service.updateCard(id: card.id, data: patch)
         XCTAssertTrue(updatedCard.createdOn != updatedCard.updatedAt)
         XCTAssertEqual(updatedCard.data.note!, "foobar")
         XCTAssertEqual(updatedCard.data.balance.value, 100.0)
-        XCTAssertEqual(updatedCard.data.disabledOn!, patch.disabledOn!)
+        XCTAssertTrue(updatedCard.data.disabledOn! > currentDate)
         XCTAssertEqual(updatedCard.data.expiresOn!, patch.expiresOn!)
         // Check that only the last 4 digits are shown in update.
         XCTAssertTrue(updatedCard.data.code!.starts(with: "XXXXXXXXXXXX"))

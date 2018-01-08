@@ -23,6 +23,10 @@ extension GiftsService: GiftsServiceCallable {
         return try repository.createCard(data: cardData)
     }
 
+    public func getCard(id: UUID) throws -> GiftCard {
+        return try repository.getCard(forId: id)
+    }
+
     public func getCard(forCode code: String) throws -> GiftCard {
         return try repository.getCard(forCode: code)
     }
@@ -30,8 +34,8 @@ extension GiftsService: GiftsServiceCallable {
     public func updateCard(id: UUID, data: GiftCardPatch) throws -> GiftCard {
         var cardData = try repository.getCardData(forId: id)
 
-        if let date = data.disabledOn {
-            cardData.disabledOn = date
+        if data.disable ?? false {
+            cardData.disabledOn = Date()
         }
 
         if let value = data.balance {
