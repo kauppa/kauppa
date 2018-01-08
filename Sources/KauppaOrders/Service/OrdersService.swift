@@ -39,16 +39,16 @@ extension OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(id: data.placedBy)
         let factory = OrdersFactory(with: data, by: account, service: productsService)
-        let order = try factory.createOrder(withShipping: shippingService)
+        try factory.createOrder(withShipping: shippingService)
         let detailedOrder = factory.createOrder()
 
-        try repository.createOrder(withData: order)
+        try repository.createOrder(withData: factory.order)
         let mailOrder = MailOrder(from: detailedOrder)
         if let mailer = mailService {
             mailer.sendMail(to: account.data.email, with: mailOrder)
         }
 
-        return order
+        return factory.order
     }
 
     public func getOrder(forId id: UUID) throws -> Order {
@@ -79,7 +79,7 @@ extension OrdersService: OrdersServiceCallable {
             refundItems = try getAllRefundableItems(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
-                let i = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+                let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
                 let productData = try productsService.getProduct(id: unit.product)
                 // It's safe to unwrap here because the function checks this.
                 let unitStatus = order.products[i].status!
@@ -144,7 +144,7 @@ extension OrdersService: OrdersServiceCallable {
             returnItems = try getAllItemsForPickup(forOrder: &order)
         } else {
             for unit in data.units ?? [] {
-                let i = try findEnumeratedProduct(inOrder: order, forId: unit.product)
+                let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
                 let productData = try productsService.getProduct(id: unit.product)
 
                 // Only items that have been fulfilled "and" not scheduled for pickup

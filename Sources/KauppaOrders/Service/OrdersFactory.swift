@@ -99,7 +99,7 @@ class OrdersFactory {
     }
 
     /// Method to create an order using the data provided to this factory.
-    func createOrder(withShipping shippingService: ShipmentsServiceCallable) throws -> Order {
+    func createOrder(withShipping shippingService: ShipmentsServiceCallable) throws {
         for orderUnit in data.products {
             try feed(orderUnit)
         }
@@ -113,7 +113,6 @@ class OrdersFactory {
 
         let shipment = try shippingService.createShipment(forOrder: order.id)
         order.shipments[shipment.id] = shipment.status
-        return order
     }
 
     /// Method to create detailed order for mail service.

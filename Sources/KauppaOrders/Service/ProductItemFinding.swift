@@ -7,8 +7,8 @@ extension OrdersService {
     /// Given a product ID and order data, this function finds the index
     /// of that product item in the order, gets the product data from the products
     /// service (if any), and ensures that the order item has been fulfilled.
-    func findEnumeratedProduct(inOrder order: Order, forId id: UUID,
-                               expectFulfillment: Bool = true) throws -> Int
+    static func findEnumeratedProduct(inOrder order: Order, forId id: UUID,
+                                      expectFulfillment: Bool = true) throws -> Int
     {
         for (idx, orderUnit) in order.products.enumerated() {
             if id != orderUnit.product {
