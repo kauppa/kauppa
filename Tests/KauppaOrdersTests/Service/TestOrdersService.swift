@@ -91,6 +91,7 @@ class TestOrdersService: XCTestCase {
         XCTAssertEqual(order.totalItems, 3)
         XCTAssertEqual(order.totalWeight.value, 15.0)
         XCTAssertEqual(order.totalPrice.value, 9.0)
+        XCTAssertEqual(order.finalPrice.value, 9.0)
         XCTAssertNotNil(order.billingAddress)
         XCTAssertNotNil(order.shippingAddress)
         XCTAssertEqual(order.products.count, 1)

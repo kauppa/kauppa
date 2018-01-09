@@ -14,7 +14,7 @@ public struct OrderData: Mappable {
     /// List of product IDs and their quantity (as an order unit).
     public let products: [OrderUnit]
     /// List of UUIDs of the gift cards applied by the user.
-    public let appliedGiftCards = [UUID]()
+    public var appliedGiftCards = [UUID]()
 
     public init(shippingAddress: Address, billingAddress: Address? = nil,
                 placedBy id: UUID, products: [OrderUnit])
