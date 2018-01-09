@@ -4,6 +4,8 @@ import Foundation
 public enum GiftsError: Error {
     /// Thrown when the given UUID doesn't point to any card.
     case invalidGiftCardId
+    /// Thrown when the given code doens't match any gift card.
+    case invalidGiftCardCode
     /// By default, expiry dates for gift cards should be at least 1 day in the future.
     /// This occurs when they're not.
     case invalidExpiryDate
@@ -21,6 +23,8 @@ extension GiftsError: LocalizedError {
         switch self {
             case .invalidGiftCardId:
                 return "No card associated with this UUID"
+            case .invalidGiftCardCode:
+                return "No card found for the given code"
             case .invalidExpiryDate:
                 return "Expiry date should be at least 1 day in the future"
             case .invalidCode:
@@ -42,6 +46,7 @@ extension GiftsError {
     public static func ==(lhs: GiftsError, rhs: GiftsError) -> Bool {
         switch (lhs, rhs) {
             case (.invalidGiftCardId, .invalidGiftCardId),
+                 (.invalidGiftCardCode, .invalidGiftCardCode),
                  (.invalidExpiryDate, .invalidExpiryDate),
                  (.invalidCode, .invalidCode),
                  (.mismatchingCurrencies, .mismatchingCurrencies),

@@ -12,7 +12,8 @@ import KauppaShipmentsModel
 class TestShipmentUpdates: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
-    let shippingService = TestShipmentsService()
+    var shippingService = TestShipmentsService()
+    var giftsService = TestGiftsService()
 
     static var allTests: [(String, (TestShipmentUpdates) -> () throws -> Void)] {
         return [
@@ -24,6 +25,8 @@ class TestShipmentUpdates: XCTestCase {
     override func setUp() {
         productsService.products = [:]
         accountsService.accounts = [:]
+        shippingService = TestShipmentsService()
+        giftsService = TestGiftsService()
         super.setUp()
     }
 
@@ -47,7 +50,8 @@ class TestShipmentUpdates: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -127,7 +131,8 @@ class TestShipmentUpdates: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
