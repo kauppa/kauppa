@@ -20,7 +20,7 @@ let modelTargets: [Target] = [
     ),
     .target(
         name: "KauppaOrdersModel",
-        dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaProductsModel"],
+        dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaGiftsModel", "KauppaProductsModel"],
         path: "Sources/KauppaOrders/Model"
     ),
     .target(
@@ -141,6 +141,8 @@ let serviceTargets: [Target] = [
         name: "KauppaOrdersService",
         dependencies: [
             "KauppaCore",
+            "KauppaGiftsModel",
+            "KauppaGiftsClient",
             "KauppaOrdersClient",
             "KauppaOrdersRepository",
             "KauppaOrdersModel",

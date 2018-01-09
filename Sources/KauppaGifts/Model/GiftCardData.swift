@@ -51,7 +51,8 @@ public struct GiftCardData: Mappable {
 
     /// Deduct price from this card and the price supplied. It ensures card's
     /// validity before making any changes. If the card is valid, then it deducts
-    /// the amount from the card and the given price.
+    /// the amount from the card and the given price. This only mutates the `balance`
+    /// property of a `GiftCard`
     public mutating func deductPrice(from price: inout UnitMeasurement<Currency>) throws {
         if let date = expiresOn {
             if date < Date() {

@@ -3,6 +3,7 @@ import Foundation
 import KauppaCore
 import KauppaAccountsClient
 import KauppaAccountsModel
+import KauppaGiftsClient
 import KauppaOrdersClient
 import KauppaOrdersModel
 import KauppaOrdersRepository
@@ -17,6 +18,7 @@ public class OrdersService {
     let accountsService: AccountsServiceCallable
     let productsService: ProductsServiceCallable
     let shippingService: ShipmentsServiceCallable
+    let giftsService: GiftsServiceCallable
 
     var mailService: MailClient? = nil
 
@@ -25,12 +27,14 @@ public class OrdersService {
     public init(withRepository repository: OrdersRepository,
                 accountsService: AccountsServiceCallable,
                 productsService: ProductsServiceCallable,
-                shippingService: ShipmentsServiceCallable)
+                shippingService: ShipmentsServiceCallable,
+                giftsService: GiftsServiceCallable)
     {
         self.repository = repository
         self.accountsService = accountsService
         self.productsService = productsService
         self.shippingService = shippingService
+        self.giftsService = giftsService
     }
 }
 
@@ -39,7 +43,7 @@ extension OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(id: data.placedBy)
         let factory = OrdersFactory(with: data, by: account, service: productsService)
-        try factory.createOrder(withShipping: shippingService)
+        try factory.createOrder(with: shippingService, using: giftsService)
         let detailedOrder = factory.createOrder()
 
         try repository.createOrder(withData: factory.order)
