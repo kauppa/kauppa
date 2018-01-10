@@ -28,6 +28,8 @@ class TestAccountsRepository: XCTestCase {
         super.tearDown()
     }
 
+    // Test the repository for account creation. It takes care of the timestamps and is responsible
+    // for caching the account, and calling the store.
     func testAccountCreation() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -40,6 +42,8 @@ class TestAccountsRepository: XCTestCase {
         XCTAssertNotNil(repository.accounts[data!.id])  // repository now has account data
     }
 
+    // Test the repository for account deletion. Deletion should remove the item from the cache
+    // and it should call the store.
     func testAccountDeletion() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -52,6 +56,7 @@ class TestAccountsRepository: XCTestCase {
         XCTAssertTrue(store.deleteCalled)       // delete should've been called in store (by repository)
     }
 
+    // Test the repository for account update. It should update the item in the cache and the store.
     func testAccountUpdate() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -65,6 +70,8 @@ class TestAccountsRepository: XCTestCase {
         XCTAssertTrue(store.updateCalled)
     }
 
+    // Test the repository for proper store calls. If the item doesn't exist in the cache, then
+    // it should get from the store and cache it. Re-getting the item shouldn't call the store.
     func testStoreCalls() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)

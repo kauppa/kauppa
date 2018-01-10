@@ -24,6 +24,7 @@ class TestShipmentsRepository: XCTestCase {
         super.tearDown()
     }
 
+    // Test shipment creation through repository. This should cache the data and call the store.
     func testShipmentCreation() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)
@@ -35,6 +36,7 @@ class TestShipmentsRepository: XCTestCase {
         XCTAssertTrue(store.createCalled)
     }
 
+    // Updating shipment should change the timestamp and call the store.
     func testShipmentUpdate() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)
@@ -46,6 +48,8 @@ class TestShipmentsRepository: XCTestCase {
         XCTAssertTrue(store.updateCalled)   // update called on store
     }
 
+    // Test the repository for proper store calls. If the item doesn't exist in the cache, then
+    // it should get from the store and cache it. Re-getting the item shouldn't call the store.
     func testStoreCalls() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)

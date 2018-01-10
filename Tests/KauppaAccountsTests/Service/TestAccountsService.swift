@@ -33,6 +33,7 @@ class TestAccountsService: XCTestCase {
         super.tearDown()
     }
 
+    // Service can create an account. E-mail and name is required for validation
     func testAccountCreation() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -40,10 +41,10 @@ class TestAccountsService: XCTestCase {
         var accountData = AccountData()
         accountData.name = "bobby"
         accountData.email = "abc@xyz.com"
-        let data = try? service.createAccount(withData: accountData)
-        XCTAssertNotNil(data)       // account data should exist
+        let _ = try! service.createAccount(withData: accountData)   // account data should exist
     }
 
+    // Service should reject accounts if the email already exists.
     func testExistingAccount() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -53,14 +54,15 @@ class TestAccountsService: XCTestCase {
         accountData.email = "abc@xyz.com"
         let _ = try! service.createAccount(withData: accountData)    // success
 
-        do {
+        do {    // should fail because it has the same email
             let _ = try service.createAccount(withData: accountData)
             XCTFail()
-        } catch let err {   // should fail because it has the same email
-            XCTAssertTrue(err as! AccountsError == AccountsError.accountExists)
+        } catch let err {
+            XCTAssertEqual(err as! AccountsError, .accountExists)
         }
     }
 
+    // Service should validate emails while creating an account.
     func testInvalidEmail() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -71,11 +73,12 @@ class TestAccountsService: XCTestCase {
         do {
             let _ = try service.createAccount(withData: accountData)
             XCTFail()
-        } catch let err {   // should fail because it has the same email
-            XCTAssertTrue(err as! AccountsError == AccountsError.invalidEmail)
+        } catch let err {
+            XCTAssertEqual(err as! AccountsError, AccountsError.invalidEmail)
         }
     }
 
+    // Service should check for names with empty strings.
     func testInvalidName() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -84,11 +87,12 @@ class TestAccountsService: XCTestCase {
         do {
             let _ = try service.createAccount(withData: accountData)
             XCTFail()
-        } catch let err {   // should fail because it has the same email
-            XCTAssertTrue(err as! AccountsError == AccountsError.invalidName)
+        } catch let err {
+            XCTAssertEqual(err as! AccountsError, AccountsError.invalidName)
         }
     }
 
+    // Service should successfully delete account (if it exists)
     func testAccountDeletion() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -97,10 +101,11 @@ class TestAccountsService: XCTestCase {
         accountData.email = "abc@xyz.com"
         accountData.name = "bobby"
         let data = try! service.createAccount(withData: accountData)
-        let result: ()? = try? service.deleteAccount(id: data.id)
-        XCTAssertNotNil(result)     // deletion succeeded
+        try! service.deleteAccount(id: data.id)
     }
 
+    // Service should support removing individual account properties.
+    // (removing address at a particular index, removing phone, etc.)
     func testPropertyRemoval() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -124,6 +129,7 @@ class TestAccountsService: XCTestCase {
         XCTAssertEqual(newData.data.address.inner, [])
     }
 
+    // Service should support adding individual properties (like address).
     func testPropertyAddition() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)
@@ -141,6 +147,8 @@ class TestAccountsService: XCTestCase {
         XCTAssertEqual(newData.data.address.inner, [address])   // address has been added to account
     }
 
+    // Service should support patching specific account properties.
+    // (like renaming, changing phone numbers, clearing address list entirely, etc.)
     func testAccountUpdate() {
         let store = TestStore()
         let repository = AccountsRepository(withStore: store)

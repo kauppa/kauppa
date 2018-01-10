@@ -34,6 +34,9 @@ class TestGiftedOrders: XCTestCase {
         super.tearDown()
     }
 
+    // Create an order with gift cards applied. This should make orders service query
+    // the gifts service for getting the cards, apply them on the totalPrice and finally patch
+    // the gift cards.
     func testOrderCreationWithGiftCards() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -76,6 +79,8 @@ class TestGiftedOrders: XCTestCase {
         XCTAssertEqual(order.finalPrice.value, 0.0)     // final price (after applying cards)
     }
 
+    // Test that the orders service carries proper validations on the gift card.\
+    // Basically, all errors from `GiftCardData.deductPrice`
     func testOrderWithInvalidCard() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)

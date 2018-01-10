@@ -34,6 +34,8 @@ class TestShipmentUpdates: XCTestCase {
         super.tearDown()
     }
 
+    // Test pickup of items - items can be picked only when they've been fulfilled by the customer.
+    // All other cases should fail.
     func testItemPickup() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -115,6 +117,7 @@ class TestShipmentUpdates: XCTestCase {
         }
     }
 
+    // Once shipment service notifies about a delivery event, order should be updated accordingly.
     func testItemDelivery() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)

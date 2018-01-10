@@ -43,6 +43,7 @@ class TestCartService: XCTestCase {
         super.tearDown()
     }
 
+    // Service should support adding new items to a cart. All accounts have carts.
     func testCartItemAddition() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -68,6 +69,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(updatedCart.items[0].quantity, 7)    // quantity has been increased
     }
 
+    // Service should support adding gift cards only if the cart is non-empty.
     func testCardApply() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -103,6 +105,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(updatedCart.giftCards.inner, [card.id])
     }
 
+    // Validation for gift cards should also happen in the service.
     func testInvalidCards() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -157,6 +160,7 @@ class TestCartService: XCTestCase {
         }
     }
 
+    // If the account does not exist, then adding item and getting cart shouldn't work.
     func testInvalidAccount() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -181,6 +185,7 @@ class TestCartService: XCTestCase {
         }
     }
 
+    // Cart service should add items only if they exist (i.e., when the products service says so).
     func testInvalidProduct() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -201,6 +206,7 @@ class TestCartService: XCTestCase {
         }
     }
 
+    // Cart service should check the inventory for required quantity when adding items.
     func testUnavailableItem() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -235,6 +241,7 @@ class TestCartService: XCTestCase {
         }
     }
 
+    // Service should ensure that all product items in the cart use the same currency for price.
     func testCurrency() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -262,6 +269,8 @@ class TestCartService: XCTestCase {
         }
     }
 
+    // Cart service should place the order during a checkout and it should pass the items,
+    // applied gift cards and the required addresses through order data.
     func testPlacingOrder() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -313,6 +322,7 @@ class TestCartService: XCTestCase {
         }
     }
 
+    // Empty cart shouldn't be allowed to place order.
     func testEmptyCart() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -331,6 +341,8 @@ class TestCartService: XCTestCase {
         }
     }
 
+    // Test for possible errors while placing an order (like shipping address validation,
+    // propagating errros from orders service, etc.)
     func testOrdersFail() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)

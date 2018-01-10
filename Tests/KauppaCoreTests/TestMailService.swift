@@ -27,6 +27,7 @@ class TestMailService: XCTestCase {
         ]
     }
 
+    // Test sending using a mail service. This just checks the service calls.
     func testSuccessfulSend() {
         let req = MailRequest(from: "a@foo.com",
                               subject: "Hey folks!",
@@ -46,6 +47,7 @@ class TestMailService: XCTestCase {
         }
     }
 
+    // Test for possible errors while sending an email.
     func testInvalidRequest() {
         let tests = [
             (MailRequest(from: "", subject: "Hi!", text: "Hi!", to: ["b@foo.com"]),
@@ -72,6 +74,7 @@ class TestMailService: XCTestCase {
         }
     }
 
+    // If the cc/bcc list is empty, it should be changed to `nil`
     func testOverriddenCC() {
         let req = MailRequest(from: "a@foo.com",
                               subject: "Hi!", text: "Hi!",

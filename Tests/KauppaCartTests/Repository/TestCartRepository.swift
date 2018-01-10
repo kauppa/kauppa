@@ -21,6 +21,9 @@ class TestCartRepository: XCTestCase {
         super.tearDown()
     }
 
+    // Test the repository for getting cart. A cart is always associated with an account.
+    // So, the repository will create it if it doesn't exist. We avoid creating carts for random
+    // UUIDs by checking with the accounts service while adding items to a cart.
     func testCartGet() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
@@ -33,6 +36,7 @@ class TestCartRepository: XCTestCase {
         XCTAssertNotNil(repository.carts[data.id])      // repository has the cart
     }
 
+    // Test for updating repository which should also update the store.
     func testCartUpdate() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)

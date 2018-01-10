@@ -30,6 +30,7 @@ class TestShipmentsService: XCTestCase {
         super.tearDown()
     }
 
+    // Service supports creating shipments - this should check that the order ID is valid.
     func testShipmentCreation() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)
@@ -45,6 +46,7 @@ class TestShipmentsService: XCTestCase {
         XCTAssertEqual(data.items[0].product, ordersService.order.products[0].product)
     }
 
+    // Service supports scheduling pickups.
     func testPickupSchedule() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)
@@ -54,6 +56,7 @@ class TestShipmentsService: XCTestCase {
         XCTAssertEqual(data.status, .pickup)
     }
 
+    // Once a pickup completes, the service should notify orders about the event.
     func testPickupCompletion() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)
@@ -92,6 +95,7 @@ class TestShipmentsService: XCTestCase {
         }
     }
 
+    // Delivery should also be notified to orders.
     func testNotifyDelivery() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)
@@ -128,6 +132,8 @@ class TestShipmentsService: XCTestCase {
         }
     }
 
+    // Once a shipment is created, its status will be `shipping`, and when it gets shipped,
+    // it should notify orders about it.
     func testNotifyShipping() {
         let store = TestStore()
         let repository = ShipmentsRepository(withStore: store)

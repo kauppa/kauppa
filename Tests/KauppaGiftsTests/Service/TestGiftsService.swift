@@ -24,6 +24,8 @@ class TestGiftsService: XCTestCase {
         super.tearDown()
     }
 
+    // Test service card creation. If the code is not specified, then a random 16-char
+    // alphanumeric code is assigned to the card.
     func testCardCreation() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
@@ -40,6 +42,8 @@ class TestGiftsService: XCTestCase {
         XCTAssertTrue(card.data.code!.isAlphaNumeric())     // random alphanumeric code
     }
 
+    // Test card creation with code. If the card code is not 16-char, or if it's not
+    // alphanumeric, then it'll be rejected.
     func testCardCreationWithCode() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
@@ -60,6 +64,8 @@ class TestGiftsService: XCTestCase {
         let _ = try! service.getCard(id: card.id)
     }
 
+    // Test for service checking expiry dates for gift cards, which should be at least
+    // 1 day from the day of creation.
     func testCardCreationWithExpiry() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
@@ -79,6 +85,8 @@ class TestGiftsService: XCTestCase {
         XCTAssertNotNil(card.data.expiresOn)
     }
 
+    // Test updating gift card. We can updating everything other than the card's code.
+    // Future card objects will have hidden the code. Only creation should show the code.
     func testCardUpdate() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
