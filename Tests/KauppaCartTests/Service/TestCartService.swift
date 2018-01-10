@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaCore
+import KauppaGiftsModel
 import KauppaOrdersModel
 import KauppaProductsModel
 @testable import KauppaAccountsModel
@@ -13,10 +14,12 @@ class TestCartService: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
     var ordersService = TestOrdersService()
+    let giftsService = TestGiftsService()
 
     static var allTests: [(String, (TestCartService) -> () throws -> Void)] {
         return [
             ("Test item addition to cart", testCartItemAddition),
+            ("Test applying gift card", testCardApply),
             ("Test invalid product", testInvalidProduct),
             ("Test invalid acccount", testInvalidAccount),
             ("Test unavailable item", testUnavailableItem),
@@ -30,6 +33,7 @@ class TestCartService: XCTestCase {
     override func setUp() {
         productsService.products = [:]
         accountsService.accounts = [:]
+        giftsService.cards = [:]
         ordersService = TestOrdersService()
         super.setUp()
     }
@@ -51,6 +55,7 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         var cartUnit = CartUnit(id: product.id, quantity: 4)
         let cart = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
@@ -62,12 +67,36 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(updatedCart.items[0].quantity, 7)    // quantity has been increased
     }
 
+    func testCardApply() {
+        let store = TestStore()
+        let repository = CartRepository(withStore: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.inventory = 10
+        let product = try! productsService.createProduct(data: productData)
+
+        let accountData = AccountData()
+        let account = try! accountsService.createAccount(withData: accountData)
+
+        var cardData = GiftCardData()
+        cardData.balance.value = 10.0
+        try! cardData.validate()
+        let card = try! giftsService.createCard(withData: cardData)
+
+        let service = CartService(withRepository: repository,
+                                  productsService: productsService,
+                                  accountsService: accountsService,
+                                  giftsService: giftsService,
+                                  ordersService: ordersService)
+        let _ = try! service.applyGiftCard(forAccount: account.id, code: card.data.code!)
+    }
+
     func testInvalidAccount() {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         let cartUnit = CartUnit(id: UUID(), quantity: 4)
         do {    // random UUID - cannot add item - account doesn't exist
@@ -94,6 +123,7 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         let cartUnit = CartUnit(id: UUID(), quantity: 4)
         do {    // random UUID - product doesn't exist
@@ -116,6 +146,7 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         var cartUnit = CartUnit(id: product.id, quantity: 15)
         do {
@@ -151,6 +182,7 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         var cartUnit = CartUnit(id: productUsd.id, quantity: 5)
         let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
@@ -179,6 +211,7 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         var cartUnit = CartUnit(id: product.id, quantity: 5)
         let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
@@ -213,6 +246,7 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         do {    // empty cart should fail
             let _ = try service.placeOrder(forAccount: account.id, data: CheckoutData())
@@ -238,6 +272,7 @@ class TestCartService: XCTestCase {
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
+                                  giftsService: giftsService,
                                   ordersService: ordersService)
         let cartUnit = CartUnit(id: product.id, quantity: 5)
         let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)

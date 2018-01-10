@@ -3,6 +3,7 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 import KauppaAccountsClient
+import KauppaGiftsClient
 import KauppaOrdersClient
 import KauppaOrdersModel
 import KauppaProductsClient
@@ -16,18 +17,21 @@ public class CartService {
     let productsService: ProductsServiceCallable
     let accountsService: AccountsServiceCallable
     let ordersService: OrdersServiceCallable
+    let giftsService: GiftsServiceCallable
 
     /// Initializes a new `CartService` instance with a
     /// repository, accounts and products service.
     public init(withRepository repository: CartRepository,
                 productsService: ProductsServiceCallable,
                 accountsService: AccountsServiceCallable,
+                giftsService: GiftsServiceCallable,
                 ordersService: OrdersServiceCallable)
     {
         self.repository = repository
         self.productsService = productsService
         self.accountsService = accountsService
         self.ordersService = ordersService
+        self.giftsService = giftsService
     }
 }
 
@@ -74,6 +78,13 @@ extension CartService: CartServiceCallable {
         }
 
         return try repository.updateCart(data: cart)
+    }
+
+    public func applyGiftCard(forAccount userId: UUID, code: String) throws -> Cart {
+        let _ = try accountsService.getAccount(id: userId)
+        // TODO
+
+        return try repository.getCart(forId: userId)
     }
 
     public func getCart(forAccount userId: UUID) throws -> Cart {

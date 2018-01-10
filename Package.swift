@@ -123,6 +123,7 @@ let serviceTargets: [Target] = [
             "KauppaAccountsModel",
             "KauppaAccountsClient",
             "KauppaOrdersClient",
+            "KauppaGiftsClient",
             "KauppaProductsClient",
         ],
         path: "Sources/KauppaCart/Service"

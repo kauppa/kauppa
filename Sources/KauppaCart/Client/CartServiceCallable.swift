@@ -18,6 +18,17 @@ public protocol CartServiceCallable {
     ///   - `CartError` if the item couldn't be added to the cart.
     func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart
 
+    /// Apply a gift card to this cart.
+    ///
+    /// - Parameters:
+    ///   - forAccount: The `UUID` of the account maintaining this cart.
+    ///   - code: The unique alphanumeric code of the gift card.
+    /// - Returns: The `Cart` with the gift card applied.
+    /// - Throws:
+    ///   - `AccountsError` if the account doesn't exist.
+    ///   - `GiftsError` if the given card is invalid.
+    func applyGiftCard(forAccount userId: UUID, code: String) throws -> Cart
+
     /// Get the cart data for an account.
     ///
     /// - Parameters:
