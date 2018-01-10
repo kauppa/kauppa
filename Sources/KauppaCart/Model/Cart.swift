@@ -14,7 +14,7 @@ public struct Cart: Mappable {
     /// Unit of currency used in this cart.
     public var currency: Currency? = nil
     /// Gift cards applied in this cart.
-    public var giftCards = [UUID]()
+    public var giftCards = ArraySet<UUID>()
 
     public init(withId id: UUID) {
         self.id = id
@@ -24,6 +24,6 @@ public struct Cart: Mappable {
     public mutating func reset() {
         items = []
         currency = nil
-        giftCards = []
+        giftCards = ArraySet()
     }
 }

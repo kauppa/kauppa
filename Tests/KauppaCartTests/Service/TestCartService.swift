@@ -1,10 +1,10 @@
 import Foundation
 import XCTest
 
-import KauppaCore
 import KauppaGiftsModel
 import KauppaOrdersModel
 import KauppaProductsModel
+@testable import KauppaCore
 @testable import KauppaAccountsModel
 @testable import KauppaCartModel
 @testable import KauppaCartRepository
@@ -98,7 +98,9 @@ class TestCartService: XCTestCase {
         let cartUnit = CartUnit(id: product.id, quantity: 4)
         let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
         let updatedCart = try! service.applyGiftCard(forAccount: account.id, code: card.data.code!)
-        XCTAssertEqual(updatedCart.giftCards, [card.id])
+        // apply another time (to ensure we properly ignore duplicated cards)
+        let _ = try! service.applyGiftCard(forAccount: account.id, code: card.data.code!)
+        XCTAssertEqual(updatedCart.giftCards.inner, [card.id])
     }
 
     func testInvalidCards() {
@@ -273,6 +275,11 @@ class TestCartService: XCTestCase {
         accountData.address.insert(address)
         let account = try! accountsService.createAccount(withData: accountData)
 
+        var cardData = GiftCardData()       // create gift card
+        cardData.balance.value = 10.0
+        try! cardData.validate()
+        let card = try! giftsService.createCard(withData: cardData)
+
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
@@ -283,6 +290,7 @@ class TestCartService: XCTestCase {
         cartUnit.productId = anotherProduct.id
         cartUnit.quantity = 2
         let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
+        let _ = try! service.applyGiftCard(forAccount: account.id, code: card.data.code!)
 
         let orderPlaced = expectation(description: "order has been placed")
         ordersService.callback = { data in  // make sure that orders service gets the right data
@@ -291,6 +299,8 @@ class TestCartService: XCTestCase {
             XCTAssertEqual(data.products[0].quantity, 5)
             XCTAssertEqual(data.products[1].product, anotherProduct.id)
             XCTAssertEqual(data.products[1].quantity, 2)
+            XCTAssertEqual(data.appliedGiftCards.count, 1)
+            XCTAssertEqual(data.appliedGiftCards.inner, [card.id])
             orderPlaced.fulfill()
         }
 

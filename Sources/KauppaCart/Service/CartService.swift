@@ -91,7 +91,7 @@ extension CartService: CartServiceCallable {
         var zero = UnitMeasurement(value: 0.0, unit: cart.currency!)
         // This only validates the card - because we're passing zero.
         try card.data.deductPrice(from: &zero)
-        cart.giftCards.append(card.id)
+        cart.giftCards.insert(card.id)
 
         return try repository.updateCart(data: cart)
     }
@@ -129,8 +129,9 @@ extension CartService: CartServiceCallable {
                                    quantity: unit.quantity))
         }
 
-        let orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
+        var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
                                   placedBy: userId, products: units)
+        orderData.appliedGiftCards = cart.giftCards
         let order = try ordersService.createOrder(data: orderData)
 
         cart.reset()

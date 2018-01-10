@@ -1,9 +1,9 @@
 import Foundation
 import XCTest
 
-import KauppaCore
 import KauppaProductsModel
 import KauppaGiftsModel
+@testable import KauppaCore
 @testable import KauppaAccountsModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
@@ -69,7 +69,7 @@ class TestGiftedOrders: XCTestCase {
                                   placedBy: account.id, products: [unit])
 
         // Add two cards to this order.
-        orderData.appliedGiftCards = [card1.id, card2.id]
+        orderData.appliedGiftCards.inner = [card1.id, card2.id]
 
         let order = try! ordersService.createOrder(data: orderData)
         XCTAssertEqual(order.totalPrice.value, 15.0)
@@ -118,7 +118,7 @@ class TestGiftedOrders: XCTestCase {
 
         for (id, error) in cases {
             do {
-                orderData.appliedGiftCards = [id]
+                orderData.appliedGiftCards.inner = [id]
                 let _ = try ordersService.createOrder(data: orderData)
                 XCTFail()
             } catch let err {
