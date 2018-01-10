@@ -20,6 +20,7 @@ class TestCartService: XCTestCase {
         return [
             ("Test item addition to cart", testCartItemAddition),
             ("Test applying gift card", testCardApply),
+            ("Test invalid gift card applies", testInvalidCards),
             ("Test invalid product", testInvalidProduct),
             ("Test invalid acccount", testInvalidAccount),
             ("Test unavailable item", testUnavailableItem),
@@ -77,17 +78,81 @@ class TestCartService: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(withData: accountData)
 
-        var cardData = GiftCardData()
+        let service = CartService(withRepository: repository,
+                                  productsService: productsService,
+                                  accountsService: accountsService,
+                                  giftsService: giftsService,
+                                  ordersService: ordersService)
+        do {    // cart is empty
+            let _ = try service.applyGiftCard(forAccount: account.id, code: "")
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! CartError, .noItemsInCart)
+        }
+
+        var cardData = GiftCardData()       // create gift card
         cardData.balance.value = 10.0
         try! cardData.validate()
         let card = try! giftsService.createCard(withData: cardData)
+
+        let cartUnit = CartUnit(id: product.id, quantity: 4)
+        let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
+        let updatedCart = try! service.applyGiftCard(forAccount: account.id, code: card.data.code!)
+        XCTAssertEqual(updatedCart.giftCards, [card.id])
+    }
+
+    func testInvalidCards() {
+        let store = TestStore()
+        let repository = CartRepository(withStore: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.inventory = 10
+        let product = try! productsService.createProduct(data: productData)
+
+        let accountData = AccountData()
+        let account = try! accountsService.createAccount(withData: accountData)
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   giftsService: giftsService,
                                   ordersService: ordersService)
-        let _ = try! service.applyGiftCard(forAccount: account.id, code: card.data.code!)
+
+        var cardData = GiftCardData()       // create gift card
+        try! cardData.validate()
+        let card = try! giftsService.createCard(withData: cardData)
+
+        let cartUnit = CartUnit(id: product.id, quantity: 4)    // add sample unit
+        let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
+
+        // Test cases that should fail a gift card - This ensures that validation
+        // happens every time a card is applied to a cart.
+        let tests: [((inout GiftCard) -> (), GiftsError)] = [
+            ({ card in
+                //
+            }, .noBalance),
+            ({ card in
+                card.data.balance.value = 10.0
+                card.data.balance.unit = .euro
+            }, .mismatchingCurrencies),
+            ({ card in
+                card.data.disabledOn = Date()
+            }, .cardDisabled),
+            ({ card in
+                card.data.expiresOn = Date()
+            }, .cardExpired),
+        ]
+
+        for (modifyCard, error) in tests {
+            do {
+                var oldCard = giftsService.cards[card.id]!
+                modifyCard(&oldCard)
+                giftsService.cards[card.id] = oldCard
+                let _ = try service.applyGiftCard(forAccount: account.id, code: card.data.code!)
+                XCTFail()
+            } catch let err {
+                XCTAssertEqual(err as! GiftsError, error)
+            }
+        }
     }
 
     func testInvalidAccount() {

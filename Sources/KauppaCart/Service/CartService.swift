@@ -82,9 +82,18 @@ extension CartService: CartServiceCallable {
 
     public func applyGiftCard(forAccount userId: UUID, code: String) throws -> Cart {
         let _ = try accountsService.getAccount(id: userId)
-        // TODO
+        var cart = try repository.getCart(forId: userId)
+        if cart.items.isEmpty {     // cannot apply card when there aren't any items.
+            throw CartError.noItemsInCart
+        }
 
-        return try repository.getCart(forId: userId)
+        var card = try giftsService.getCard(forCode: code)
+        var zero = UnitMeasurement(value: 0.0, unit: cart.currency!)
+        // This only validates the card - because we're passing zero.
+        try card.data.deductPrice(from: &zero)
+        cart.giftCards.append(card.id)
+
+        return try repository.updateCart(data: cart)
     }
 
     public func getCart(forAccount userId: UUID) throws -> Cart {
