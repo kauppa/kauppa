@@ -4,6 +4,8 @@ import KauppaCore
 
 /// An address representation.
 public struct Address: Mappable, Hashable {
+    /// Name of the person (associated with this address)
+    public let name: String
     /// Address line 1
     public let line1: String
     /// Address line 2
@@ -23,6 +25,7 @@ public struct Address: Mappable, Hashable {
     /// Initialize an empty address for tests. This will fail in the actual
     /// service when it gets validated.
     public init() {
+        name = ""
         line1 = ""
         line2 = ""
         city = ""
@@ -32,9 +35,10 @@ public struct Address: Mappable, Hashable {
     }
 
     /// Initialize an address with all of its fields.
-    public init(line1: String, line2: String, city: String, country: String,
-                code: String, kind: AddressKind? = nil)
+    public init(name: String, line1: String, line2: String, city: String,
+                country: String, code: String, kind: AddressKind? = nil)
     {
+        self.name = name
         self.line1 = line1
         self.line2 = line2
         self.city = city
@@ -45,6 +49,10 @@ public struct Address: Mappable, Hashable {
 
     /// Try some basic validations on the address.
     public func validate() throws {
+        if name.isEmpty {
+            throw AccountsError.invalidAddress(.invalidName)
+        }
+
         if line1.isEmpty {
             throw AccountsError.invalidAddress(.invalidLineData)
         }
@@ -76,12 +84,13 @@ public struct Address: Mappable, Hashable {
     }
 
     public var hashValue: Int {
-        return line1.hashValue ^ line2.hashValue ^ city.hashValue ^
-               country.hashValue ^ code.hashValue
+        return name.hashValue ^ line1.hashValue ^ line2.hashValue
+               ^ city.hashValue ^ country.hashValue ^ code.hashValue
     }
 
     public static func ==(lhs: Address, rhs: Address) -> Bool {
-        return lhs.line1 == rhs.line1 &&
+        return lhs.name == rhs.name &&
+               lhs.line1 == rhs.line1 &&
                lhs.line2 == rhs.line2 &&
                lhs.city == rhs.city &&
                lhs.country == rhs.country &&

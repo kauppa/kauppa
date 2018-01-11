@@ -6,7 +6,7 @@ import XCTest
 @testable import KauppaShipmentsRepository
 
 class TestShipmentsRepository: XCTestCase {
-    let address = Address(line1: "", line2: "", city: "", country: "", code: "", kind: nil)
+    let address = Address()
 
     static var allTests: [(String, (TestShipmentsRepository) -> () throws -> Void)] {
         return [

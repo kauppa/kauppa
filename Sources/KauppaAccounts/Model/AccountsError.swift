@@ -7,6 +7,7 @@ public enum AddressError: UInt8 {
     case invalidCountry  = 2
     case invalidCode     = 3
     case invalidTag      = 4
+    case invalidName     = 5
 
     func source() -> String {
         switch self {
@@ -20,6 +21,8 @@ public enum AddressError: UInt8 {
                 return "code"
             case .invalidTag:
                 return "tag"
+            case .invalidName:
+                return "name"
         }
     }
 }
