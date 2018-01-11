@@ -5,6 +5,9 @@ public enum CartError: Error {
     /// This is probably returned by the store, when there was an internal error
     /// while trying to get the cart.
     case cartUnavailable
+    /// Happens when an action requires item(s) to be present in the cart, but
+    /// there aren't any.
+    case noItemsInCart
     /// Indicates that we don't have anything process from the given input data.
     case noItemsToProcess
     /// The product doesn't exist in the inventory.
@@ -21,6 +24,8 @@ extension CartError: LocalizedError {
         switch self {
             case .cartUnavailable:
                 return "Cart unavailable at the moment"
+            case .noItemsInCart:
+                return "No items in cart"
             case .noItemsToProcess:
                 return "No items to process"
             case .productUnavailable:
@@ -39,6 +44,7 @@ extension CartError {
         switch (lhs, rhs) {
             case (.productUnavailable, .productUnavailable),
                  (.noItemsToProcess, .noItemsToProcess),
+                 (.noItemsInCart, .noItemsInCart),
                  (.cartUnavailable, .cartUnavailable),
                  (.ambiguousCurrencies, .ambiguousCurrencies),
                  (.invalidAddress, .invalidAddress):

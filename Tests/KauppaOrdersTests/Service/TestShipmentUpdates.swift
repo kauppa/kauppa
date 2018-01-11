@@ -12,7 +12,8 @@ import KauppaShipmentsModel
 class TestShipmentUpdates: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
-    let shippingService = TestShipmentsService()
+    var shippingService = TestShipmentsService()
+    var giftsService = TestGiftsService()
 
     static var allTests: [(String, (TestShipmentUpdates) -> () throws -> Void)] {
         return [
@@ -24,6 +25,8 @@ class TestShipmentUpdates: XCTestCase {
     override func setUp() {
         productsService.products = [:]
         accountsService.accounts = [:]
+        shippingService = TestShipmentsService()
+        giftsService = TestGiftsService()
         super.setUp()
     }
 
@@ -31,6 +34,8 @@ class TestShipmentUpdates: XCTestCase {
         super.tearDown()
     }
 
+    // Test pickup of items - items can be picked only when they've been fulfilled by the customer.
+    // All other cases should fail.
     func testItemPickup() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -47,7 +52,8 @@ class TestShipmentUpdates: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -111,6 +117,7 @@ class TestShipmentUpdates: XCTestCase {
         }
     }
 
+    // Once shipment service notifies about a delivery event, order should be updated accordingly.
     func testItemDelivery() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -127,7 +134,8 @@ class TestShipmentUpdates: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])

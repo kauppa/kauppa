@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaGiftsModel
 
 /// Cart that exists in repository and store.
 public struct Cart: Mappable {
@@ -12,6 +13,8 @@ public struct Cart: Mappable {
     public var items: [CartUnit] = []
     /// Unit of currency used in this cart.
     public var currency: Currency? = nil
+    /// Gift cards applied in this cart.
+    public var giftCards = ArraySet<UUID>()
 
     public init(withId id: UUID) {
         self.id = id
@@ -21,5 +24,6 @@ public struct Cart: Mappable {
     public mutating func reset() {
         items = []
         currency = nil
+        giftCards = ArraySet()
     }
 }

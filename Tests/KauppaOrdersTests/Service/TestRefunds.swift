@@ -11,7 +11,8 @@ import KauppaProductsModel
 class TestRefunds: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
-    let shippingService = TestShipmentsService()
+    var shippingService = TestShipmentsService()
+    var giftsService = TestGiftsService()
 
     static var allTests: [(String, (TestRefunds) -> () throws -> Void)] {
         return [
@@ -26,6 +27,8 @@ class TestRefunds: XCTestCase {
     override func setUp() {
         productsService.products = [:]
         accountsService.accounts = [:]
+        shippingService = TestShipmentsService()
+        giftsService = TestGiftsService()
         super.setUp()
     }
 
@@ -33,6 +36,9 @@ class TestRefunds: XCTestCase {
         super.tearDown()
     }
 
+    // A refund can be issued once items have been taken back (i.e, when there are refundable items)
+    // A full refund happens for all refundable items in an order. This will update the corresponding
+    // quantity fields and the item status fields.
     func testFullRefund() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -49,7 +55,8 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -93,6 +100,7 @@ class TestRefunds: XCTestCase {
         XCTAssertEqual(refund.reason, refundData.reason)
     }
 
+    // Partial refunds happen when specific items can be refunded to the customer.
     func testPartialRefunds() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -111,7 +119,8 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2),
@@ -171,6 +180,7 @@ class TestRefunds: XCTestCase {
         }
     }
 
+    // Cancelled orders cannot be refunded.
     func testCancelledOrder() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -183,7 +193,8 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
@@ -197,6 +208,7 @@ class TestRefunds: XCTestCase {
         }
     }
 
+    // If the payment hasn't been received for an order, then it cannot be refunded.
     func testUnpaidRefund() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -209,7 +221,8 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         var order = try! ordersService.createOrder(data: orderData)
@@ -231,6 +244,8 @@ class TestRefunds: XCTestCase {
         }
     }
 
+    // A number of cases when refund can fail - item doesn't exist in order, item hasn't been fulfilled,
+    // item hasn't been returned, etc.
     func testInvalidRefunds() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -247,7 +262,8 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])

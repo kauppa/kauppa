@@ -13,6 +13,7 @@ class TestReturns: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
     var shippingService = TestShipmentsService()
+    var giftsService = TestGiftsService()
 
     static var allTests: [(String, (TestReturns) -> () throws -> Void)] {
         return [
@@ -27,6 +28,7 @@ class TestReturns: XCTestCase {
         productsService.products = [:]
         accountsService.accounts = [:]
         shippingService = TestShipmentsService()
+        giftsService = TestGiftsService()
         super.setUp()
     }
 
@@ -34,6 +36,8 @@ class TestReturns: XCTestCase {
         super.tearDown()
     }
 
+    // Service can be called for a return - when it schedules the shipments service with
+    // the list of items to be picked up. Full return has a list of all fulfilled items.
     func testFullReturn() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -50,7 +54,8 @@ class TestReturns: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -90,6 +95,7 @@ class TestReturns: XCTestCase {
         }
     }
 
+    // Returns can be partial, i.e., specific items can be scheduled for pickup.
     func testPartialReturns() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -108,7 +114,8 @@ class TestReturns: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2),
@@ -185,6 +192,7 @@ class TestReturns: XCTestCase {
         }
     }
 
+    // Cancelled order cannot be returned.
     func testCancelledOrder() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -196,7 +204,8 @@ class TestReturns: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
@@ -210,6 +219,7 @@ class TestReturns: XCTestCase {
         }
     }
 
+    // Possible cases for invalid returns - unfulfilled items, mismatching quantity values, etc.
     func testInvalidReturns() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -226,7 +236,8 @@ class TestReturns: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])

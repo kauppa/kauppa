@@ -22,6 +22,8 @@ class TestGiftsRepository: XCTestCase {
         super.tearDown()
     }
 
+    // Test creating a gift card in the repository. Validation happens only in the service end.
+    // Here, we only check for proper calls to store and caching in repository itself.
     func testCardCreation() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
@@ -33,6 +35,7 @@ class TestGiftsRepository: XCTestCase {
         XCTAssertNotNil(repository.codes[card.data.code!])  // repository also caches code
     }
 
+    // Updating the card in repository should update the cache and the store
     func testCardUpdate() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)
@@ -49,6 +52,8 @@ class TestGiftsRepository: XCTestCase {
         XCTAssertTrue(store.updateCalled)   // update called on store
     }
 
+    // Test the repository for proper store calls. If the item doesn't exist in the cache, then
+    // it should get from the store and cache it. Re-getting the item shouldn't call the store.
     func testStoreCalls() {
         let store = TestStore()
         let repository = GiftsRepository(withStore: store)

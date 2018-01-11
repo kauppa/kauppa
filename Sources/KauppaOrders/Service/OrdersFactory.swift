@@ -2,6 +2,8 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
+import KauppaGiftsClient
+import KauppaGiftsModel
 import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaProductsModel
@@ -23,6 +25,7 @@ class OrdersFactory {
     private let weightCounter = WeightCounter()
     private var units = [GenericOrderUnit<Product>]()
     private var inventoryUpdates = [UUID: UInt32]()
+    private var appliedCards = [GiftCard]()
 
     init(with data: OrderData, by account: Account,
          service: ProductsServiceCallable)
@@ -98,18 +101,50 @@ class OrdersFactory {
         }
     }
 
+    /// Apply the user-provided gift cards to this order. This affects the `finalPrice`
+    ///
+    /// NOTE: This should be called only after calculating the `totalPrice`
+    /// and landing on a valid `priceUnit`
+    func applyGiftCardsOnPrice(using giftsService: GiftsServiceCallable) throws
+                              -> UnitMeasurement<Currency>
+    {
+        var finalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
+        for id in data.appliedGiftCards {
+            var card = try giftsService.getCard(id: id)
+            try card.data.deductPrice(from: &finalPrice)
+            appliedCards.append(card)
+        }
+
+        return finalPrice
+    }
+
+    /// Update the gift cards after applying them in the order.
+    func updateGiftCards(using giftsService: GiftsServiceCallable) throws {
+        for (i, card) in appliedCards.enumerated() {
+            var patch = GiftCardPatch()
+            patch.balance = card.data.balance
+            appliedCards[i] = try giftsService.updateCard(id: card.id, data: patch)
+        }
+    }
+
     /// Method to create an order using the data provided to this factory.
-    func createOrder(withShipping shippingService: ShipmentsServiceCallable) throws {
+    func createOrder(with shippingService: ShipmentsServiceCallable,
+                     using giftsService: GiftsServiceCallable) throws
+    {
         for orderUnit in data.products {
             try feed(orderUnit)
         }
 
         try updateProductInventory()
+
         order.placedBy = account.id
         order.shippingAddress = data.shippingAddress
         order.billingAddress = data.billingAddress
         order.totalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
         order.totalWeight = weightCounter.sum()
+        order.finalPrice = try applyGiftCardsOnPrice(using: giftsService)
+
+        try updateGiftCards(using: giftsService)
 
         let shipment = try shippingService.createShipment(forOrder: order.id)
         order.shipments[shipment.id] = shipment.status
@@ -121,6 +156,7 @@ class OrdersFactory {
     func createOrder() -> DetailedOrder {
         var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
         detailedOrder.products = units
+        detailedOrder.appliedGiftCards = appliedCards
         order.copyValues(into: &detailedOrder)
         return detailedOrder
     }

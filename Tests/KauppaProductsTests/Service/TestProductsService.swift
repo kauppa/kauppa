@@ -32,25 +32,26 @@ class TestProductsService: XCTestCase {
         super.tearDown()
     }
 
+    // Service supports product creation
     func testProductCreation() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
         let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let data = try? service.createProduct(data: product)
-        XCTAssertNotNil(data)       // product data should exist
+        let _ = try! service.createProduct(data: product)
     }
 
+    // Service supports product deletion
     func testProductDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
         let service = ProductsService(withRepository: repository)
         let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         let data = try! service.createProduct(data: product)
-        let result: ()? = try? service.deleteProduct(id: data.id)
-        XCTAssertNotNil(result)     // deletion succeeded
+        try! service.deleteProduct(id: data.id)     // deletion succeeded
     }
 
+    // Service supports updating various product properties (PUT call)
     func testProductUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -137,6 +138,7 @@ class TestProductsService: XCTestCase {
         }
     }
 
+    // Service supports adding items to collection properties.
     func testPropertyAddition() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -152,6 +154,7 @@ class TestProductsService: XCTestCase {
         XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,foobar"])
     }
 
+    // Service supports resetting individual product properties.
     func testPropertyDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -182,6 +185,7 @@ class TestProductsService: XCTestCase {
         XCTAssertNil(updatedProduct.data.weight)
     }
 
+    // Same as product creation - for collections. This checks whether the supplied products exist.
     func testCollectionCreation() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -197,6 +201,7 @@ class TestProductsService: XCTestCase {
         XCTAssertNotNil(data)
     }
 
+    // Service should ignore collection creation with invalid products.
     func testCollectionInvalidProduct() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -210,6 +215,7 @@ class TestProductsService: XCTestCase {
         }
     }
 
+    // Service supports deleting collections.
     func testCollectionDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -219,6 +225,7 @@ class TestProductsService: XCTestCase {
         let _ = try! service.deleteCollection(id: data.id)
     }
 
+    // Service supports updating collections (PUT call). Invalid products should throw errors.
     func testCollectionUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -249,6 +256,7 @@ class TestProductsService: XCTestCase {
         }
     }
 
+    // Service supports adding valid products to collections.
     func testCollectionAdd() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -274,6 +282,7 @@ class TestProductsService: XCTestCase {
         }
     }
 
+    // Service supports product removal from collections.
     func testCollectionRemove() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)

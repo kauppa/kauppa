@@ -8,6 +8,7 @@ class TestGiftsTypes: XCTestCase {
     static var allTests: [(String, (TestGiftsTypes) -> () throws -> Void)] {
         return [
             ("Test gift card data", testGiftCardData),
+            ("Test gift card deductions", testGiftCardDeductions),
         ]
     }
 
@@ -33,5 +34,41 @@ class TestGiftsTypes: XCTestCase {
                 XCTAssertEqual(err as! GiftsError, error)
             }
         }
+    }
+
+    func testGiftCardDeductions() {
+        var tests = [(GiftCardData, GiftsError)]()
+        var data = GiftCardData()
+        try! data.validate()
+        tests.append((data, .noBalance))
+        data.balance.value = 100.0
+        data.balance.unit = .euro
+        tests.append((data, .mismatchingCurrencies))
+        data.disabledOn = Date()
+        tests.append((data, .cardDisabled))
+        data.expiresOn = Date()
+        tests.append((data, .cardExpired))
+
+        for (testCase, error) in tests {
+            do {
+                var card = testCase
+                var price = UnitMeasurement(value: 120.0, unit: Currency.usd)
+                try card.deductPrice(from: &price)
+                XCTFail()
+            } catch let err {
+                XCTAssertEqual(err as! GiftsError, error)
+            }
+        }
+
+        var price = UnitMeasurement(value: 120.0, unit: Currency.usd)
+        data = GiftCardData()
+        data.balance.value = 100.0
+        try! data.deductPrice(from: &price)
+        XCTAssertEqual(data.balance.value, 0)
+        XCTAssertEqual(price.value, 20.0)
+        data.balance.value = 50.0
+        try! data.deductPrice(from: &price)
+        XCTAssertEqual(data.balance.value, 30.0)
+        XCTAssertEqual(price.value, 0)
     }
 }
