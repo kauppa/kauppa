@@ -7,8 +7,8 @@ import KauppaCore
 /// could be updated for an account.
 public struct AccountPatch: Mappable {
     public var name: String? = nil
-    public var emails: ArraySet<String>? = nil
-    public var phone: String? = nil
+    public var emails: ArraySet<Email>? = nil
+    public var phone: Phone? = nil
     public var address: ArraySet<Address>? = nil
 
     public init() {}
@@ -16,7 +16,7 @@ public struct AccountPatch: Mappable {
 
 /// This adds individual items to the collections residing in `AccountData`
 public struct AccountPropertyAdditionPatch: Mappable {
-    public var email: String? = nil
+    public var email: Email? = nil
     public var address: Address? = nil
 
     public init() {}

@@ -52,7 +52,7 @@ public class AccountsRepository {
         let account = Account(id: id, createdOn: date,
                               updatedAt: date, data: data)
         for email in data.emails {
-            emails[email] = id
+            emails[email.value] = id
         }
 
         accounts[id] = account

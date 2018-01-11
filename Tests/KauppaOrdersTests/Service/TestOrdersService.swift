@@ -55,7 +55,7 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData)
 
         var accountData = AccountData()
-        accountData.emails = ArraySet(["foo@bar.com", "baz@bar.com"])
+        accountData.emails = ArraySet([Email("foo@bar.com"), Email("baz@bar.com")])
         let account = try! accountsService.createAccount(withData: accountData)
 
         let ordersService = OrdersService(withRepository: repository,

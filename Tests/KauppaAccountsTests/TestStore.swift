@@ -16,7 +16,7 @@ public class TestStore: AccountsStorable {
     public func createAccount(data: Account) throws -> () {
         createCalled = true
         for email in data.data.emails {
-            emails[email] = data.id
+            emails[email.value] = data.id
         }
 
         accounts[data.id] = data

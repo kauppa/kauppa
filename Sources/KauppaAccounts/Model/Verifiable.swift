@@ -13,6 +13,7 @@ public typealias Phone = VerifiableType<String>
 ///
 /// By default, the value is unverified. This type also doesn't affect the JSON
 /// encoding/decoding - it just serializes/deserializes like the actual value.
+/// On the other hand, it "should" affect the store, so that the flag persists.
 ///
 /// NOTE: It's better to alias this wrapper around your type and use it elsewhere.
 ///
