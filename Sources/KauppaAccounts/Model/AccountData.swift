@@ -9,7 +9,7 @@ public struct AccountData: Mappable {
     /// User's emails
     public var emails = ArraySet<Email>()
     /// User's phone number
-    public var phone: Phone? = nil
+    public var phoneNumbers = ArraySet<Phone>()
     /// A list of user's addresses
     public var address = ArraySet<Address>()
 
@@ -30,7 +30,7 @@ public struct AccountData: Mappable {
             }
         }
 
-        if let number = phone {
+        for number in phoneNumbers {
             if number.value.isEmpty {
                 throw AccountsError.invalidPhone
             }

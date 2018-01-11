@@ -121,20 +121,20 @@ class TestAccountsService: XCTestCase {
         var accountData = AccountData()
         accountData.name = "bobby"
         accountData.emails = ArraySet([Email("abc@xyz.com"), Email("def@xyz.com")])
-        accountData.phone = Phone("<something>")
+        accountData.phoneNumbers.insert(Phone("<something>"))
         let address = Address(name: "burn", line1: "foo", line2: "bar", city: "baz",
                               country: "bleh", code: "666", kind: .home)
         accountData.address.insert(address)
         let account = try! service.createAccount(withData: accountData)
         // check that phone and address exists in returned data
-        XCTAssertNotNil(account.data.phone)
+        XCTAssertFalse(account.data.phoneNumbers.isEmpty)
         XCTAssertEqual(account.data.address.inner, [address])
 
         var patch = AccountPropertyDeletionPatch()
-        patch.removePhone = true    // remove phone value
+        patch.removePhoneAt = 0     // remove phone value
         patch.removeAddressAt = 0   // remove address at zero'th index
         var newData = try! service.deleteAccountProperty(id: account.id, data: patch)
-        XCTAssertNil(newData.data.phone)
+        XCTAssertTrue(newData.data.phoneNumbers.isEmpty)
         XCTAssertEqual(newData.data.address.inner, [])
 
         patch.removeEmailAt = 0     // try to remove the email
@@ -196,7 +196,7 @@ class TestAccountsService: XCTestCase {
         let account = try! service.createAccount(withData: accountData)
         XCTAssertEqual(account.data.name, "bobby")
         XCTAssertEqual(account.data.emails.inner, [Email("abc@xyz.com")])
-        XCTAssertNil(account.data.phone)
+        XCTAssertTrue(account.data.phoneNumbers.isEmpty)
         XCTAssertEqual(account.createdOn, account.updatedAt)
         XCTAssertEqual(account.data.address.count, 1)
 
@@ -206,9 +206,9 @@ class TestAccountsService: XCTestCase {
         XCTAssertEqual(update1.data.name, "shelby")     // name change
         XCTAssertTrue(update1.createdOn != update1.updatedAt)   // times have changed
 
-        patch.phone = Phone("12345")    // FIXME: Check phone number in some mysterious way
+        patch.phoneNumbers = ArraySet([Phone("12345")])
         let update2 = try! service.updateAccount(id: account.id, data: patch)
-        XCTAssertEqual(update2.data.phone, Phone("12345"))
+        XCTAssertEqual(update2.data.phoneNumbers.inner, [Phone("12345")])
 
         patch.address = ArraySet()      // Clear the address list
         let update3 = try! service.updateAccount(id: account.id, data: patch)

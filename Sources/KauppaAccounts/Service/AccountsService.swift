@@ -44,8 +44,8 @@ extension AccountsService: AccountsServiceCallable {
             accountData.name = name
         }
 
-        if let phone = data.phone {
-            accountData.phone = phone
+        if let numbers = data.phoneNumbers {
+            accountData.phoneNumbers = numbers
         }
 
         if let emails = data.emails {
@@ -67,6 +67,10 @@ extension AccountsService: AccountsServiceCallable {
             accountData.address.insert(address)
         }
 
+        if let number = data.phone {
+            accountData.phoneNumbers.insert(number)
+        }
+
         if let email = data.email {
             accountData.emails.insert(email)
         }
@@ -78,15 +82,15 @@ extension AccountsService: AccountsServiceCallable {
     public func deleteAccountProperty(id: UUID, data: AccountPropertyDeletionPatch) throws -> Account {
         var accountData = try repository.getAccountData(forId: id)
 
-        if (data.removePhone ?? false) {
-            accountData.phone = nil
-        }
-
         if let index = data.removeEmailAt {
             accountData.emails.remove(at: index)
             if accountData.emails.isEmpty {         // if there are no more emails, disallow this
                 throw AccountsError.emailRequired
             }
+        }
+
+        if let index = data.removePhoneAt {
+            accountData.phoneNumbers.remove(at: index)
         }
 
         if let index = data.removeAddressAt {

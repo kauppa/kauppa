@@ -80,7 +80,7 @@ class TestAccountTypes: XCTestCase {
         data.emails = ArraySet([Email("bleh")])
         tests.append((data, AccountsError.invalidEmail))
         data.emails = ArraySet([Email("abc@xyz.com")])
-        data.phone = Phone("")
+        data.phoneNumbers = ArraySet([Phone("")])
         tests.append((data, AccountsError.invalidPhone))
 
         for (testCase, error) in tests {
