@@ -15,8 +15,6 @@ extension OrdersService {
 
             order.products[i].status = OrderUnitStatus(quantity: unit.quantity)
         }
-
-        return ()
     }
 
     /// Handle the pickup event from shipments service, such that the items successfully picked up
@@ -39,7 +37,5 @@ extension OrdersService {
             order.products[i].status!.fulfilledQuantity -= unit.quantity
             order.products[i].status!.refundableQuantity += unit.quantity
         }
-
-        return ()
     }
 }

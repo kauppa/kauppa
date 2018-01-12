@@ -23,6 +23,11 @@ public class TestAccountsService: AccountsServiceCallable {
     }
 
     // NOTE: Not meant to be called by orders
+    public func verifyEmail(_ email: String) throws -> () {
+        throw AccountsError.invalidAccount
+    }
+
+    // NOTE: Not meant to be called by orders
     public func deleteAccount(id: UUID) throws -> () {
         throw AccountsError.invalidAccount
     }

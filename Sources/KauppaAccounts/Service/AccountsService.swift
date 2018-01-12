@@ -37,6 +37,17 @@ extension AccountsService: AccountsServiceCallable {
         return try repository.deleteAccount(forId: id)
     }
 
+    public func verifyEmail(_ email: String) throws {
+        let account = try repository.getAccount(forEmail: email)
+        var accountData = account.data
+
+        accountData.emails.mutateOnce(matching: { $0.value == email }, with: { email in
+            email.isVerified = true
+        })
+
+        let _ = try repository.updateAccountData(forId: account.id, data: accountData)
+    }
+
     public func updateAccount(id: UUID, data: AccountPatch) throws -> Account {
         var accountData = try repository.getAccountData(forId: id)
 

@@ -16,7 +16,6 @@ public class TestStore: GiftsStorable {
     public func createCard(data: GiftCard) throws -> () {
         createCalled = true
         cards[data.id] = data
-        return ()
     }
 
     public func getCard(code: String) throws -> GiftCard {
@@ -40,6 +39,5 @@ public class TestStore: GiftsStorable {
     public func updateCard(data: GiftCard) throws -> () {
         updateCalled = true
         cards[data.id] = data
-        return ()
     }
 }

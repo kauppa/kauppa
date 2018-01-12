@@ -101,7 +101,6 @@ extension OrdersService: OrdersServiceCallable {
         }
 
         let _ = try repository.updateOrder(withData: order)
-        return ()
     }
 
     public func deleteOrder(id: UUID) throws -> () {
