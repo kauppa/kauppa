@@ -41,7 +41,9 @@ class TestAccountsService: XCTestCase {
         var accountData = AccountData()
         accountData.name = "bobby"
         accountData.emails.insert(Email("abc@xyz.com"))
-        let _ = try! service.createAccount(withData: accountData)   // account data should exist
+        let account = try! service.createAccount(withData: accountData)
+        XCTAssertFalse(account.data.emails[0]!.isVerified)
+        XCTAssertFalse(account.isVerified)
     }
 
     // Service should reject accounts if the email already exists.

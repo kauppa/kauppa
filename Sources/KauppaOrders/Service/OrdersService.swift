@@ -42,6 +42,10 @@ public class OrdersService {
 extension OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(id: data.placedBy)
+        if !account.isVerified {
+            throw OrdersError.unverifiedAccount
+        }
+
         let factory = OrdersFactory(with: data, by: account, service: productsService)
         try factory.createOrder(with: shippingService, using: giftsService)
         let detailedOrder = factory.createOrder()
