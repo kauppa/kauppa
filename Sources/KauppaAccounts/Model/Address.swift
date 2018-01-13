@@ -20,7 +20,7 @@ public struct Address: Mappable, Hashable {
     /// See the complications here - https://stackoverflow.com/a/7185241/
     public let code: String
     /// Label for this address.
-    public let kind: AddressKind?
+    public let label: String?
 
     /// Initialize an empty address for tests. This will fail in the actual
     /// service when it gets validated.
@@ -31,12 +31,12 @@ public struct Address: Mappable, Hashable {
         city = ""
         country = ""
         code = ""
-        kind = nil
+        label = nil
     }
 
     /// Initialize an address with all of its fields.
     public init(name: String, line1: String, line2: String, city: String,
-                country: String, code: String, kind: AddressKind? = nil)
+                country: String, code: String, label: String? = nil)
     {
         self.name = name
         self.line1 = line1
@@ -44,7 +44,7 @@ public struct Address: Mappable, Hashable {
         self.city = city
         self.country = country
         self.code = code
-        self.kind = kind
+        self.label = label
     }
 
     /// Try some basic validations on the address.
@@ -69,17 +69,10 @@ public struct Address: Mappable, Hashable {
             throw AccountsError.invalidAddress(.invalidCode)
         }
 
-        guard let kind = kind else {
-            return
-        }
-
-        switch kind {
-            case let .custom(s):
-                if s.isEmpty {
-                    throw AccountsError.invalidAddress(.invalidTag)
-                }
-            default:
-                break
+        if let label = label {
+            if label.isEmpty {
+                throw AccountsError.invalidAddress(.invalidLabel)
+            }
         }
     }
 

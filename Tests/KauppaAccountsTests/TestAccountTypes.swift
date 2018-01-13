@@ -11,7 +11,6 @@ struct TestStruct<T: Mappable>: Mappable {
 class TestAccountTypes: XCTestCase {
     static var allTests: [(String, (TestAccountTypes) -> () throws -> Void)] {
         return [
-            ("Test address kind", testAddressKind),
             ("Test address", testAddress),
             ("Test verifiable types", testVerifiables),
             ("Test account data", testAccountData),
@@ -28,19 +27,6 @@ class TestAccountTypes: XCTestCase {
         XCTAssertEqual(item.value, value)
     }
 
-    /// Test that address kind properly decodes.
-    func testAddressKind() {
-        let tests = [
-            ("{\"value\": \"home\"}", AddressKind.home),
-            ("{\"value\": \"work\"}", AddressKind.work),
-            ("{\"value\": \"foobar\"}", AddressKind.custom("foobar"))
-        ]
-
-        for (string, kind) in tests {
-            decodeAssertEqual(string, kind)
-        }
-    }
-
     /// Test that the verifiable types properly decode.
     func testVerifiables() {
         decodeAssertEqual("{\"value\": \"abc@xyz.com\"}", Email("abc@xyz.com"))
@@ -50,12 +36,12 @@ class TestAccountTypes: XCTestCase {
     /// Test for proper errors from `Address` object when during validation.
     func testAddress() {
         let tests = [
-            (Address(name: "", line1: "foo", line2: "", city: "baz", country: "bleh", code: "666", kind: nil), "name"),
-            (Address(name: "foobar", line1: "", line2: "", city: "baz", country: "bleh", code: "666", kind: nil), "line data"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "", country: "bleh", code: "666", kind: nil), "city"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "", code: "666", kind: nil), "country"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "bleh", code: "", kind: nil), "code"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "bleh", code: "666", kind: .custom("")), "tag")
+            (Address(name: "", line1: "foo", line2: "", city: "baz", country: "bleh", code: "666", label: nil), "name"),
+            (Address(name: "foobar", line1: "", line2: "", city: "baz", country: "bleh", code: "666", label: nil), "line data"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "", country: "bleh", code: "666", label: nil), "city"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "", code: "666", label: nil), "country"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "bleh", code: "", label: nil), "code"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "bleh", code: "666", label: ""), "tag")
         ]
 
         for (testCase, source) in tests {

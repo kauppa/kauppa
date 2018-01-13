@@ -125,7 +125,7 @@ class TestAccountsService: XCTestCase {
         accountData.emails = ArraySet([Email("abc@xyz.com"), Email("def@xyz.com")])
         accountData.phoneNumbers.insert(Phone("<something>"))
         let address = Address(name: "burn", line1: "foo", line2: "bar", city: "baz",
-                              country: "bleh", code: "666", kind: .home)
+                              country: "bleh", code: "666", label: "home")
         accountData.address.insert(address)
         let account = try! service.createAccount(withData: accountData)
         // check that phone and address exists in returned data
@@ -164,7 +164,7 @@ class TestAccountsService: XCTestCase {
 
         var patch = AccountPropertyAdditionPatch()
         let address = Address(name: "apple", line1: "foo", line2: "bar", city: "baz",
-                              country: "bleh", code: "666", kind: .home)
+                              country: "bleh", code: "666", label: "home")
         patch.address = address
         var newData = try! service.addAccountProperty(id: account.id, data: patch)
         XCTAssertEqual(newData.data.address.inner, [address])   // address has been added to account
@@ -193,7 +193,7 @@ class TestAccountsService: XCTestCase {
         accountData.name = "bobby"
         accountData.emails.insert(Email("abc@xyz.com"))
         let address = Address(name: "squishy", line1: "foo", line2: "bar", city: "baz",
-                              country: "bleh", code: "666", kind: .home)
+                              country: "bleh", code: "666", label: "home")
         accountData.address.insert(address)
         let account = try! service.createAccount(withData: accountData)
         XCTAssertEqual(account.data.name, "bobby")
