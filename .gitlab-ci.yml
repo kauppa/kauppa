@@ -5,8 +5,8 @@ variables:
   CONTAINER_RELEASE_IMAGE: $CONTAINER_IMAGE:latest #$CI_REGISTRY_IMAGE:latest
 
 stages:
-  - build
   - test
+  - build
   - deploy
 
 build:linux:
@@ -31,7 +31,7 @@ build:linux:
     - swift build -c release -Xcc -fblocks -Xlinker -L/usr/local/lib
   artifacts:
     paths:
-    - .build/release
+    - .build/release/*
     expire_in: 1 week
   tags:
     - docker
@@ -64,7 +64,7 @@ test:
     - master
   artifacts:
     paths:
-    - .build/debug
+    - .build/debug/*
 
 build:container:
   image: docker:latest
