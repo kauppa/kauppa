@@ -13,6 +13,15 @@ public protocol AccountsServiceCallable {
     /// - Throws: `AccountsError`
     func createAccount(withData data: AccountData) throws -> Account
 
+    /// This notifies the service that an email has been verified.
+    /// It gets the associated account, sets the `isVerified` flag
+    /// and returns the account.
+    ///
+    /// - Parameters:
+    ///   - email: Email to be verified.
+    /// - Throws: `AccountsError` if the email doesn't exist.
+    func verifyEmail(_ email: String) throws -> ()
+
     /// Get an account associated with an ID.
     ///
     /// - Parameters:

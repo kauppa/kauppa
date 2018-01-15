@@ -4,6 +4,8 @@ import KauppaCore
 
 /// An address representation.
 public struct Address: Mappable, Hashable {
+    /// Name of the person (associated with this address)
+    public let name: String
     /// Address line 1
     public let line1: String
     /// Address line 2
@@ -18,33 +20,39 @@ public struct Address: Mappable, Hashable {
     /// See the complications here - https://stackoverflow.com/a/7185241/
     public let code: String
     /// Label for this address.
-    public let kind: AddressKind?
+    public let label: String?
 
     /// Initialize an empty address for tests. This will fail in the actual
     /// service when it gets validated.
     public init() {
+        name = ""
         line1 = ""
         line2 = ""
         city = ""
         country = ""
         code = ""
-        kind = nil
+        label = nil
     }
 
     /// Initialize an address with all of its fields.
-    public init(line1: String, line2: String, city: String, country: String,
-                code: String, kind: AddressKind? = nil)
+    public init(name: String, line1: String, line2: String, city: String,
+                country: String, code: String, label: String? = nil)
     {
+        self.name = name
         self.line1 = line1
         self.line2 = line2
         self.city = city
         self.country = country
         self.code = code
-        self.kind = kind
+        self.label = label
     }
 
     /// Try some basic validations on the address.
     public func validate() throws {
+        if name.isEmpty {
+            throw AccountsError.invalidAddress(.invalidName)
+        }
+
         if line1.isEmpty {
             throw AccountsError.invalidAddress(.invalidLineData)
         }
@@ -61,27 +69,21 @@ public struct Address: Mappable, Hashable {
             throw AccountsError.invalidAddress(.invalidCode)
         }
 
-        guard let kind = kind else {
-            return
-        }
-
-        switch kind {
-            case let .custom(s):
-                if s.isEmpty {
-                    throw AccountsError.invalidAddress(.invalidTag)
-                }
-            default:
-                break
+        if let label = label {
+            if label.isEmpty {
+                throw AccountsError.invalidAddress(.invalidLabel)
+            }
         }
     }
 
     public var hashValue: Int {
-        return line1.hashValue ^ line2.hashValue ^ city.hashValue ^
-               country.hashValue ^ code.hashValue
+        return name.hashValue ^ line1.hashValue ^ line2.hashValue
+               ^ city.hashValue ^ country.hashValue ^ code.hashValue
     }
 
     public static func ==(lhs: Address, rhs: Address) -> Bool {
-        return lhs.line1 == rhs.line1 &&
+        return lhs.name == rhs.name &&
+               lhs.line1 == rhs.line1 &&
                lhs.line2 == rhs.line2 &&
                lhs.city == rhs.city &&
                lhs.country == rhs.country &&

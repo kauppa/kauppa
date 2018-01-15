@@ -280,7 +280,8 @@ class TestCartService: XCTestCase {
         let anotherProduct = try! productsService.createProduct(data: productData)
 
         var accountData = AccountData()
-        let address = Address(line1: "foo", line2: "bar", city: "baz", country: "bleh", code: "666", kind: nil)
+        let address = Address(name: "foobar", line1: "foo", line2: "bar", city: "baz",
+                              country: "bleh", code: "666", label: nil)
         accountData.address.insert(address)
         let account = try! accountsService.createAccount(withData: accountData)
 
@@ -353,7 +354,8 @@ class TestCartService: XCTestCase {
         ordersService.error = OrdersError.productUnavailable
 
         var accountData = AccountData()
-        let address = Address(line1: "foo", line2: "bar", city: "baz", country: "bleh", code: "666", kind: nil)
+        let address = Address(name: "foobar", line1: "foo", line2: "bar", city: "baz",
+                              country: "bleh", code: "666", label: nil)
         accountData.address.insert(address)
         var account = try! accountsService.createAccount(withData: accountData)
         let service = CartService(withRepository: repository,

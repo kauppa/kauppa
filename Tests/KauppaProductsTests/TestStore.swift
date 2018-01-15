@@ -20,7 +20,6 @@ public class TestStore: ProductsStorable {
     public func createNewProduct(productData: Product) throws -> () {
         createCalled = true
         products[productData.id] = productData
-        return ()
     }
 
     public func getProduct(id: UUID) throws -> Product {
@@ -35,7 +34,7 @@ public class TestStore: ProductsStorable {
     public func deleteProduct(id: UUID) throws -> () {
         deleteCalled = true
         if products.removeValue(forKey: id) != nil {
-            return ()
+            return
         } else {
             throw ProductsError.invalidProduct
         }
@@ -44,13 +43,11 @@ public class TestStore: ProductsStorable {
     public func updateProduct(productData: Product) throws -> () {
         updateCalled = true
         products[productData.id] = productData
-        return ()
     }
 
     public func createNewCollection(data: ProductCollection) throws -> () {
         collectionCreateCalled = true
         collections[data.id] = data
-        return ()
     }
 
     public func getCollection(id: UUID) throws -> ProductCollection {
@@ -65,13 +62,12 @@ public class TestStore: ProductsStorable {
     public func updateCollection(data: ProductCollection) throws -> () {
         collectionUpdateCalled = true
         collections[data.id] = data
-        return ()
     }
 
     public func deleteCollection(id: UUID) throws -> () {
         collectionDeleteCalled = true
         if collections.removeValue(forKey: id) != nil {
-            return ()
+            return
         } else {
             throw ProductsError.invalidCollection
         }

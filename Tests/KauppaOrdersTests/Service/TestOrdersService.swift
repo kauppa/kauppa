@@ -10,7 +10,7 @@ import KauppaProductsModel
 
 class TestOrdersService: XCTestCase {
     let productsService = TestProductsService()
-    let accountsService = TestAccountsService()
+    var accountsService = TestAccountsService()
     var shippingService = TestShipmentsService()
     var giftsService = TestGiftsService()
 
@@ -19,6 +19,7 @@ class TestOrdersService: XCTestCase {
             ("Test successful order creation", testOrderCreation),
             ("Test order with invalid account", testOrderWithInvalidAccount),
             ("Test order with invalid product", testOrderWithInvalidProduct),
+            ("Test order with unverified email", testOrderWithUnverifiedMail),
             ("Test order with ambiguous currencies", testOrderWithAmbiguousCurrencies),
             ("Test order with no products", testOrderWithNoProducts),
             ("Test order with product unavailable in inventory", testOrderWithUnavailableProduct),
@@ -32,7 +33,7 @@ class TestOrdersService: XCTestCase {
 
     override func setUp() {
         productsService.products = [:]
-        accountsService.accounts = [:]
+        accountsService = TestAccountsService()
         shippingService = TestShipmentsService()
         giftsService = TestGiftsService()
         super.setUp()
@@ -55,7 +56,10 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData)
 
         var accountData = AccountData()
-        accountData.email = "foo@bar.com"
+        // Two emails in customer account data.
+        var emails = [Email("foo@bar.com"), Email("baz@bar.com")]
+        emails[0].isVerified = true     // the first one is verified
+        accountData.emails = ArraySet(emails)
         let account = try! accountsService.createAccount(withData: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
@@ -66,6 +70,7 @@ class TestOrdersService: XCTestCase {
         let mailSent = expectation(description: "mail has been sent")
         let mailService = TestMailer(callback: { request in
             XCTAssertEqual(request.from, "orders@kauppa.com")
+            // mail service receives only one recipient (which is the verified mail)
             XCTAssertEqual(request.to, ["foo@bar.com"])
             XCTAssertEqual(request.subject, "Your order has been placed")
             mailSent.fulfill()
@@ -102,6 +107,37 @@ class TestOrdersService: XCTestCase {
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
+        }
+    }
+
+    // An order placed from an account which doesn't have any verified mails.
+    func testOrderWithUnverifiedMail() {
+        let store = TestStore()
+        let repository = OrdersRepository(withStore: store)
+        var productData = ProductData(title: "", subtitle: "", description: "")
+        productData.inventory = 5
+        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
+        let product = try! productsService.createProduct(data: productData)
+
+        var accountData = AccountData()
+        accountsService.markAsVerified = false      // disable auto-enabling verification
+        accountData.emails = ArraySet([Email("foo@bar.com")])
+        let account = try! accountsService.createAccount(withData: accountData)
+
+        let ordersService = OrdersService(withRepository: repository,
+                                          accountsService: accountsService,
+                                          productsService: productsService,
+                                          shippingService: shippingService,
+                                          giftsService: giftsService)
+
+        let unit = OrderUnit(product: product.id, quantity: 3)
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
+                                  placedBy: account.id, products: [unit])
+        do {
+            let _ = try ordersService.createOrder(data: orderData)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! OrdersError, OrdersError.unverifiedAccount)
         }
     }
 

@@ -51,7 +51,10 @@ public class AccountsRepository {
         let date = Date()
         let account = Account(id: id, createdOn: date,
                               updatedAt: date, data: data)
-        emails[data.email] = id
+        for email in data.emails {
+            emails[email.value] = id
+        }
+
         accounts[id] = account
         try store.createAccount(data: account)
         return account

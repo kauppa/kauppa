@@ -65,8 +65,8 @@ class TestArraySet: XCTestCase {
 
     func testArrayGet() {
         let array = ArraySet([1])
-        XCTAssertEqual(array.get(from: 0), 1)
-        XCTAssertNil(array.get(from: 1))    // try out-of-bounds indexing
+        XCTAssertEqual(array[0], 1)
+        XCTAssertNil(array[1])      // try out-of-bounds indexing
     }
 
     // Test for getting an element matching a predicate.

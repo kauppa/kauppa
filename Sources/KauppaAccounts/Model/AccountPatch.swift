@@ -7,10 +7,8 @@ import KauppaCore
 /// could be updated for an account.
 public struct AccountPatch: Mappable {
     public var name: String? = nil
-    // FIXME: Multiple things to worry when we're changing email
-    // (verification mail and check that account doesn't exist already)
-    // public var email: String? = nil
-    public var phone: String? = nil
+    public var emails: ArraySet<Email>? = nil
+    public var phoneNumbers: ArraySet<Phone>? = nil
     public var address: ArraySet<Address>? = nil
 
     public init() {}
@@ -18,6 +16,8 @@ public struct AccountPatch: Mappable {
 
 /// This adds individual items to the collections residing in `AccountData`
 public struct AccountPropertyAdditionPatch: Mappable {
+    public var email: Email? = nil
+    public var phone: Phone? = nil
     public var address: Address? = nil
 
     public init() {}
@@ -27,8 +27,12 @@ public struct AccountPropertyAdditionPatch: Mappable {
 /// request having one or more of these fields set to `true`
 /// will reset that field in `AccountData`
 public struct AccountPropertyDeletionPatch: Mappable {
-    public var removePhone: Bool? = nil
+    /// Remove phone at the given index
+    public var removePhoneAt: Int? = nil
+    /// Remove address from the given index
     public var removeAddressAt: Int? = nil
+    /// Remove email at the given index
+    public var removeEmailAt: Int? = nil
 
     public init() {}
 }

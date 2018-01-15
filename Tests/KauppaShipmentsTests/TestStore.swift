@@ -14,14 +14,12 @@ public class TestStore: ShipmentsStorable {
     public func createShipment(data: Shipment) throws -> () {
         createCalled = true
         shipments[data.id] = data
-        return ()
     }
 
     public func updateShipment(data: Shipment) throws -> () {
         updateCalled = true
         let _ = try getShipment(id: data.id)
         shipments[data.id] = data
-        return ()
     }
 
     public func getShipment(id: UUID) throws -> Shipment {

@@ -42,6 +42,10 @@ public class OrdersService {
 extension OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(id: data.placedBy)
+        if !account.isVerified {
+            throw OrdersError.unverifiedAccount
+        }
+
         let factory = OrdersFactory(with: data, by: account, service: productsService)
         try factory.createOrder(with: shippingService, using: giftsService)
         let detailedOrder = factory.createOrder()
@@ -49,7 +53,7 @@ extension OrdersService: OrdersServiceCallable {
         try repository.createOrder(withData: factory.order)
         let mailOrder = MailOrder(from: detailedOrder)
         if let mailer = mailService {
-            mailer.sendMail(to: account.data.email, with: mailOrder)
+            mailer.sendMail(to: account.data.getVerifiedEmails(), with: mailOrder)
         }
 
         return factory.order
@@ -101,7 +105,6 @@ extension OrdersService: OrdersServiceCallable {
         }
 
         let _ = try repository.updateOrder(withData: order)
-        return ()
     }
 
     public func deleteOrder(id: UUID) throws -> () {

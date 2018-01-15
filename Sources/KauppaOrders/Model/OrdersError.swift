@@ -6,6 +6,8 @@ public enum OrdersError: Error {
     case productUnavailable
     /// No order found for the given UUID
     case invalidOrder
+    /// Account doesn't have any verified emails.
+    case unverifiedAccount
     /// Indicates that input data has empty items (so, we don't have anything to process)
     case noItemsToProcess
     /// One or more items in the order data have prices with mismatching currencies.
@@ -38,6 +40,8 @@ extension OrdersError: LocalizedError {
         switch self {
             case .productUnavailable:
                 return "Not enough products in inventory"
+            case .unverifiedAccount:
+                return "Account hasn't been verified yet"
             case .noItemsToProcess:
                 return "No items to be processed"
             case .invalidOrder:
@@ -85,6 +89,7 @@ extension OrdersError: Equatable {
     public static func ==(lhs: OrdersError, rhs: OrdersError) -> Bool {
         switch (lhs, rhs) {
             case (.invalidOrder, .invalidOrder),
+                 (.unverifiedAccount, .unverifiedAccount),
                  (.productUnavailable, .productUnavailable),
                  (.noItemsToProcess, .noItemsToProcess),
                  (.ambiguousCurrencies, .ambiguousCurrencies),

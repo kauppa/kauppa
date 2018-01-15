@@ -6,7 +6,8 @@ public enum AddressError: UInt8 {
     case invalidCity     = 1
     case invalidCountry  = 2
     case invalidCode     = 3
-    case invalidTag      = 4
+    case invalidLabel      = 4
+    case invalidName     = 5
 
     func source() -> String {
         switch self {
@@ -18,8 +19,10 @@ public enum AddressError: UInt8 {
                 return "country"
             case .invalidCode:
                 return "code"
-            case .invalidTag:
+            case .invalidLabel:
                 return "tag"
+            case .invalidName:
+                return "name"
         }
     }
 }
@@ -28,6 +31,7 @@ public enum AddressError: UInt8 {
 public enum AccountsError: Error {
     case accountExists
     case invalidEmail
+    case emailRequired
     case invalidAccount
     case invalidName
     case invalidPhone
@@ -43,6 +47,8 @@ extension AccountsError: LocalizedError {
                 return "Account already exists"
             case .invalidEmail:
                 return "Error validating email"
+            case .emailRequired:
+                return "Account requires at least one email"
             case .invalidAccount:
                 return "No account found for the given UUID"
             case .invalidName:
@@ -61,6 +67,7 @@ extension AccountsError: Equatable {
         switch (lhs, rhs) {
             case (.accountExists, .accountExists),
                  (.invalidEmail, .invalidEmail),
+                 (.emailRequired, .emailRequired),
                  (.invalidAccount, .invalidAccount),
                  (.invalidName, .invalidName),
                  (.invalidPhone, .invalidPhone):

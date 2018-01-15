@@ -23,13 +23,13 @@ public class MailClient {
     }
 
     /// Send mail with a `MailFormattable` object.
-    public func sendMail(to recipient: String, with object: MailFormattable,
+    public func sendMail(to recipients: [String], with object: MailFormattable,
                          callback: PostSendCallback? = nil)
     {
         let subject = object.createMailSubject()
         let body = object.createMailDescription()
         var request = MailRequest(from: sender, subject: subject, text: body)
-        request.to.append(recipient)
+        request.to = recipients
         service.send(with: request, callback: { result in
             if let callback = callback {
                 callback(result)
