@@ -15,7 +15,10 @@ public class TaxService {
 
 // NOTE: See the actual protocol in `KauppaTaxClient` for exact usage.
 extension TaxService: TaxServiceCallable {
-    public func calculateVAT(forAddress address: Address) throws -> ValueAddedTax {
-        return ValueAddedTax()
+    public func createCountry(with data: CountryData) throws -> Country {
+        let country = Country(name: data.name, taxRate: data.taxRate)
+        try country.validate()
+        try repository.createCountry(with: country)
+        return country
     }
 }

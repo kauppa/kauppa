@@ -36,12 +36,20 @@ class TestAccountTypes: XCTestCase {
     /// Test for proper errors from `Address` object when during validation.
     func testAddress() {
         let tests = [
-            (Address(name: "", line1: "foo", line2: "", city: "baz", country: "bleh", code: "666", label: nil), "name"),
-            (Address(name: "foobar", line1: "", line2: "", city: "baz", country: "bleh", code: "666", label: nil), "line data"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "", country: "bleh", code: "666", label: nil), "city"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "", code: "666", label: nil), "country"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "bleh", code: "", label: nil), "code"),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", country: "bleh", code: "666", label: ""), "tag")
+            (Address(name: "", line1: "foo", line2: "", city: "baz", province: "blah",
+                     country: "bleh", code: "666", label: nil), "name"),
+            (Address(name: "foobar", line1: "", line2: "", city: "baz", province: "blah",
+                     country: "bleh", code: "666", label: nil), "line data"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "", province: "blah",
+                     country: "bleh", code: "666", label: nil), "city"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "",
+                     country: "bleh", code: "666", label: nil), "state/province"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
+                     country: "", code: "666", label: nil), "country"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
+                     country: "bleh", code: "", label: nil), "code"),
+            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
+                     country: "bleh", code: "666", label: ""), "tag")
         ]
 
         for (testCase, source) in tests {
