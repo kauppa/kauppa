@@ -13,4 +13,13 @@ public protocol TaxServiceCallable {
     /// - Returns: `Country`
     /// - Throws: `TaxError` if there were errors (country not unique, invalid tax rate, etc.)
     func createCountry(with data: CountryData) throws -> Country
+
+    /// Update a country with the given patch data.
+    ///
+    /// - Parameters:
+    ///   - id: The `UUID` of the country to be updated.
+    ///   - data: The `CountryPatch` data required for updating a country.
+    /// - Returns: `Country`
+    /// - Throws: `TaxError`
+    func updateCountry(id: UUID, with data: CountryPatch) throws -> Country
 }

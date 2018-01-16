@@ -23,11 +23,11 @@ public struct Country: Mappable {
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp
-    public let updatedAt: Date
+    public var updatedAt: Date
     /// Name of this country (unique)
-    public let name: String
+    public var name: String
     /// Tax rates used in this country.
-    public let taxRate: TaxRate
+    public var taxRate: TaxRate
 
     /// Initailize this object with a name and tax rate. Creation and last updated
     /// timestamps will be equal.

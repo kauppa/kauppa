@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaAccountsModel
 import KauppaTaxClient
 import KauppaTaxModel
@@ -20,5 +22,20 @@ extension TaxService: TaxServiceCallable {
         try country.validate()
         try repository.createCountry(with: country)
         return country
+    }
+
+    public func updateCountry(id: UUID, with data: CountryPatch) throws -> Country {
+        var country = try repository.getCountry(id: id)
+
+        if let name = data.name {
+            country.name = name
+        }
+
+        if let rate = data.taxRate {
+            country.taxRate = rate
+        }
+
+        try country.validate()
+        return try repository.updateCountry(with: country)
     }
 }

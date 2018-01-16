@@ -2,6 +2,7 @@ import Foundation
 
 /// Tax service errors
 public enum TaxError: Error {
+    case invalidCountryId
     case invalidTaxRate
     case invalidCategoryTaxRate(String)
     case invalidCountryName
@@ -10,6 +11,8 @@ public enum TaxError: Error {
 extension TaxError: LocalizedError {
     var localizedDescription: String {
         switch self {
+            case .invalidCountryId:
+                return "No country found for the specified UUID"
             case .invalidTaxRate:
                 return "Invalid tax rate in input data"
             case .invalidCategoryTaxRate(let category):
@@ -20,12 +23,13 @@ extension TaxError: LocalizedError {
     }
 }
 
-extension TaxError {
+extension TaxError: Equatable {
     /// Check the equality of this result.
     public static func ==(lhs: TaxError, rhs: TaxError) -> Bool {
         switch (lhs, rhs) {
             case (.invalidTaxRate, .invalidTaxRate),
-                 (.invalidCountryName, .invalidCountryName):
+                 (.invalidCountryName, .invalidCountryName),
+                 (.invalidCountryId, .invalidCountryId):
                 return true
             case (.invalidCategoryTaxRate(let s1), .invalidCategoryTaxRate(let s2)):
                 return s1 == s2
