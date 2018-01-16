@@ -38,4 +38,8 @@ extension TaxService: TaxServiceCallable {
         try country.validate()
         return try repository.updateCountry(with: country)
     }
+
+    public func deleteCountry(id: UUID) throws -> () {
+        try repository.deleteCountry(id: id)
+    }
 }

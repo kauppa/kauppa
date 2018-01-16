@@ -9,6 +9,7 @@ class TestTaxRepository: XCTestCase {
         return [
             ("Test country creation", testCountryCreation),
             ("Test country update", testCountryUpdate),
+            ("Test country deletion", testCountryDeletion),
             ("Test store calls", testStoreCalls),
         ]
     }
@@ -27,11 +28,10 @@ class TestTaxRepository: XCTestCase {
         let data = Country(name: "", taxRate: TaxRate())
         let repository = TaxRepository(withStore: store)
         try! repository.createCountry(with: data)   // validation happens in service
-        XCTAssertFalse(repository.countries.isEmpty)
         XCTAssertTrue(store.createCalled)   // store has been called for creation
     }
 
-    // Updating a country should change the timestamp, update cache, and should call the store.
+    /// Updating a country should change the timestamp, update cache, and should call the store.
     func testCountryUpdate() {
         let store = TestStore()
         var data = Country(name: "", taxRate: TaxRate())
@@ -43,6 +43,18 @@ class TestTaxRepository: XCTestCase {
         // We're just testing the function calls (extensive testing is done in service)
         XCTAssertEqual(newData.name, "foo")
         XCTAssertTrue(store.updateCalled)       // update called on store
+    }
+
+    /// Check that deleting a country deletes it from the cache and store.
+    func testCountryDeletion() {
+        let store = TestStore()
+        let data = Country(name: "", taxRate: TaxRate())
+        let repository = TaxRepository(withStore: store)
+        try! repository.createCountry(with: data)
+        XCTAssertFalse(repository.countries.isEmpty)
+        try! repository.deleteCountry(id: data.id)
+        XCTAssertTrue(repository.countries.isEmpty)
+        XCTAssertTrue(store.deleteCalled)
     }
 
     // Ensures that repository calls the store appropriately.

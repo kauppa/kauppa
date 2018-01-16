@@ -10,6 +10,7 @@ public class TestStore: TaxStorable {
     var createCalled = false
     var getCalled = false
     var updateCalled = false
+    var deleteCalled = false
 
     public func createCountry(with data: Country) throws -> () {
         createCalled = true
@@ -28,5 +29,10 @@ public class TestStore: TaxStorable {
     public func updateCountry(with data: Country) throws -> () {
         updateCalled = true
         countries[data.id] = data
+    }
+
+    public func deleteCountry(id: UUID) throws -> () {
+        deleteCalled = true
+        countries.removeValue(forKey: id)
     }
 }

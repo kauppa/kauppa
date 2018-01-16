@@ -3,7 +3,9 @@ import Foundation
 /// Tax service errors
 public enum TaxError: Error {
     case invalidCountryId
+    /// Occurs when the given tax rate is invalid.
     case invalidTaxRate
+    /// Occurs when the tax rate for a given category is invalid.
     case invalidCategoryTaxRate(String)
     case invalidCountryName
 }

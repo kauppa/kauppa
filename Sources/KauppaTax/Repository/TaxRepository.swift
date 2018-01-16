@@ -39,4 +39,10 @@ public class TaxRepository {
         try store.updateCountry(with: data)
         return data
     }
+
+    /// Delete the country matching the given ID from cache and store.
+    public func deleteCountry(id: UUID) throws -> () {
+        countries.removeValue(forKey: id)
+        return try store.deleteCountry(id: id)
+    }
 }

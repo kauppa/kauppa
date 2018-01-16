@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 import KauppaTaxModel
 
@@ -8,4 +10,7 @@ public protocol TaxPersisting: Persisting {
 
     /// Update a country with data from repository.
     func updateCountry(with data: Country) throws -> ()
+
+    /// Delete a country corresponding to the given ID.
+    func deleteCountry(id: UUID) throws -> ()
 }

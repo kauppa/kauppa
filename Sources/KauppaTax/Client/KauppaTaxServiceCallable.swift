@@ -22,4 +22,11 @@ public protocol TaxServiceCallable {
     /// - Returns: `Country`
     /// - Throws: `TaxError`
     func updateCountry(id: UUID, with data: CountryPatch) throws -> Country
+
+    /// Delete a country corresponding to an ID.
+    ///
+    /// - Parameters:
+    ///   - id: The `UUID` of the country to be deleted.
+    /// - Throws: `TaxError` if the country doesn't exist.
+    func deleteCountry(id: UUID) throws -> ()
 }
