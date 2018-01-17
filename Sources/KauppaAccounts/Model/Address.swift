@@ -10,6 +10,8 @@ public struct Address: Mappable, Hashable {
     public let line1: String
     /// Address line 2
     public let line2: String
+    /// Province
+    public let province: String
     /// City
     public let city: String
     /// Country
@@ -29,6 +31,7 @@ public struct Address: Mappable, Hashable {
         line1 = ""
         line2 = ""
         city = ""
+        province = ""
         country = ""
         code = ""
         label = nil
@@ -36,12 +39,13 @@ public struct Address: Mappable, Hashable {
 
     /// Initialize an address with all of its fields.
     public init(name: String, line1: String, line2: String, city: String,
-                country: String, code: String, label: String? = nil)
+                province: String, country: String, code: String, label: String? = nil)
     {
         self.name = name
         self.line1 = line1
         self.line2 = line2
         self.city = city
+        self.province = province
         self.country = country
         self.code = code
         self.label = label
@@ -59,6 +63,10 @@ public struct Address: Mappable, Hashable {
 
         if city.isEmpty {
             throw AccountsError.invalidAddress(.invalidCity)
+        }
+
+        if province.isEmpty {
+            throw AccountsError.invalidAddress(.invalidProvince)
         }
 
         if country.isEmpty {

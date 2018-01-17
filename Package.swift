@@ -32,6 +32,11 @@ let modelTargets: [Target] = [
         name: "KauppaShipmentsModel",
         dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaOrdersModel"],
         path: "Sources/KauppaShipments/Model"
+    ),
+    .target(
+        name: "KauppaTaxModel",
+        dependencies: ["KauppaCore"],
+        path: "Sources/KauppaTax/Model"
     )
 ]
 
@@ -65,6 +70,11 @@ let storeTargets: [Target] = [
         name: "KauppaShipmentsStore",
         dependencies: ["KauppaCore", "KauppaShipmentsModel"],
         path: "Sources/KauppaShipments/Store"
+    ),
+    .target(
+        name: "KauppaTaxStore",
+        dependencies: ["KauppaCore", "KauppaTaxModel"],
+        path: "Sources/KauppaTax/Store"
     )
 ]
 
@@ -104,6 +114,11 @@ let repositoryTargets: [Target] = [
             "KauppaOrdersModel",
         ],
         path: "Sources/KauppaShipments/Repository"
+    ),
+    .target(
+        name: "KauppaTaxRepository",
+        dependencies: ["KauppaTaxModel", "KauppaTaxStore", "KauppaCore"],
+        path: "Sources/KauppaTax/Repository"
     )
 ]
 
@@ -177,7 +192,13 @@ let serviceTargets: [Target] = [
     ),
     .target(
         name: "KauppaTaxService",
-        dependencies: ["KauppaCore"],
+        dependencies: [
+            "KauppaCore",
+            "KauppaTaxClient",
+            "KauppaAccountsModel",
+            "KauppaTaxModel",
+            "KauppaTaxRepository"
+        ],
         path: "Sources/KauppaTax/Service"
     )
 ]
@@ -212,6 +233,11 @@ let clientTargets: [Target] = [
         name: "KauppaShipmentsClient",
         dependencies: ["KauppaShipmentsModel"],
         path: "Sources/KauppaShipments/Client"
+    ),
+    .target(
+        name: "KauppaTaxClient",
+        dependencies: ["KauppaTaxModel", "KauppaAccountsModel"],
+        path: "Sources/KauppaTax/Client"
     )
 ]
 
@@ -284,8 +310,14 @@ let daemonTargets: [Target] = [
     ),
     .target(
         name: "KauppaTax",
-        dependencies: ["KauppaCore"],
-        exclude: ["Service", "Repository", "Model"]
+        dependencies: [
+            "KauppaTaxClient",
+            "KauppaTaxService",
+            "KauppaTaxRepository",
+            "KauppaTaxModel",
+            "KauppaCore"
+        ],
+        exclude: ["Client", "Service", "Repository", "Model", "Store"]
     )
 ]
 
@@ -363,7 +395,14 @@ let testTargets: [Target] = [
     ),
     .testTarget(
         name: "KauppaTaxTests",
-        dependencies: ["KauppaTaxService", "KauppaCore"])
+        dependencies: [
+            "KauppaCore",
+            "KauppaTaxClient",
+            "KauppaTaxModel",
+            "KauppaTaxRepository",
+            "KauppaTaxService"
+        ]
+    )
 ]
 
 var targets: [Target] = [
