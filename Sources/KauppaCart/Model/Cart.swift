@@ -1,7 +1,6 @@
 import Foundation
 
 import KauppaCore
-import KauppaCouponModel
 
 /// Cart that exists in repository and store.
 public struct Cart: Mappable {

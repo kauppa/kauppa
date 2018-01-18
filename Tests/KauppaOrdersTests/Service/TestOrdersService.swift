@@ -12,7 +12,7 @@ class TestOrdersService: XCTestCase {
     let productsService = TestProductsService()
     var accountsService = TestAccountsService()
     var shippingService = TestShipmentsService()
-    var giftsService = TestGiftsService()
+    var couponService = TestCouponService()
 
     static var allTests: [(String, (TestOrdersService) -> () throws -> Void)] {
         return [
@@ -35,7 +35,7 @@ class TestOrdersService: XCTestCase {
         productsService.products = [:]
         accountsService = TestAccountsService()
         shippingService = TestShipmentsService()
-        giftsService = TestGiftsService()
+        couponService = TestCouponService()
         super.setUp()
     }
 
@@ -45,7 +45,7 @@ class TestOrdersService: XCTestCase {
 
     // Test order creation - this should properly query the accounts service (for user account),
     // products service (for getting product details and updating inventory), shipping service
-    // (for queuing the item for shipment), and gifts service (for checking gift cards, if any)
+    // (for queuing the item for shipment), and coupon service (for checking gift cards, if any)
     func testOrderCreation() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -66,7 +66,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let mailSent = expectation(description: "mail has been sent")
         let mailService = TestMailer(callback: { request in
             XCTAssertEqual(request.from, "orders@kauppa.com")
@@ -128,7 +128,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
 
         let unit = OrderUnit(product: product.id, quantity: 3)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
@@ -153,7 +153,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [])
         do {
@@ -173,7 +173,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: UUID(), products: [])
         do {
@@ -196,7 +196,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
 
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: UUID(), quantity: 3)])
@@ -222,7 +222,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
 
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
@@ -251,7 +251,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         // Products with zero quantity will be skipped - in this case, that's the
         // only product, and hence it fails
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
@@ -282,7 +282,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: firstProduct.id, quantity: 3),
                                              OrderUnit(product: secondProduct.id, quantity: 0)])
@@ -308,7 +308,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
 
         let inventoryUpdated = expectation(description: "product inventory updated")
         productsService.callbacks[product.id] = { patch in
@@ -348,7 +348,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: firstProduct.id, quantity: 3),
                                              OrderUnit(product: secondProduct.id, quantity: 3)])
@@ -375,7 +375,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
@@ -400,7 +400,7 @@ class TestOrdersService: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)

@@ -1,10 +1,10 @@
 import Foundation
 
-@testable import KauppaGiftsModel
-@testable import KauppaGiftsStore
+@testable import KauppaCouponModel
+@testable import KauppaCouponStore
 
-public class TestStore: GiftsStorable {
-    public var cards = [UUID: GiftCard]()
+public class TestStore: CouponStorable {
+    public var coupons = [UUID: Coupon]()
     public var codes = [String: UUID]()
 
     // Variables to indicate the count of function calls.
@@ -13,31 +13,31 @@ public class TestStore: GiftsStorable {
     public var updateCalled = false
     public var codeGetCalled = false
 
-    public func createCard(data: GiftCard) throws -> () {
+    public func createCoupon(data: Coupon) throws -> () {
         createCalled = true
-        cards[data.id] = data
+        coupons[data.id] = data
     }
 
-    public func getCard(code: String) throws -> GiftCard {
+    public func getCoupon(code: String) throws -> Coupon {
         codeGetCalled = true
         guard let id = codes[code] else {
-            throw GiftsError.invalidCode
+            throw CouponError.invalidCode
         }
 
-        return try getCard(id: id)
+        return try getCoupon(id: id)
     }
 
-    public func getCard(id: UUID) throws -> GiftCard {
+    public func getCoupon(id: UUID) throws -> Coupon {
         getCalled = true
-        guard let card = cards[id] else {
-            throw GiftsError.invalidGiftCardId
+        guard let coupon = coupons[id] else {
+            throw CouponError.invalidCouponId
         }
 
-        return card
+        return coupon
     }
 
-    public func updateCard(data: GiftCard) throws -> () {
+    public func updateCoupon(data: Coupon) throws -> () {
         updateCalled = true
-        cards[data.id] = data
+        coupons[data.id] = data
     }
 }
