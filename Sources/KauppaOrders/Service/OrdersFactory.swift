@@ -2,8 +2,8 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
-import KauppaGiftsClient
-import KauppaGiftsModel
+import KauppaCouponClient
+import KauppaCouponModel
 import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaProductsModel
@@ -25,7 +25,7 @@ class OrdersFactory {
     private let weightCounter = WeightCounter()
     private var units = [GenericOrderUnit<Product>]()
     private var inventoryUpdates = [UUID: UInt32]()
-    private var appliedCards = [GiftCard]()
+    private var appliedCoupons = [Coupon]()
 
     init(with data: OrderData, by account: Account,
          service: ProductsServiceCallable)
@@ -101,35 +101,35 @@ class OrdersFactory {
         }
     }
 
-    /// Apply the user-provided gift cards to this order. This affects the `finalPrice`
+    /// Apply the user-provided coupons to this order. This affects the `finalPrice`
     ///
     /// NOTE: This should be called only after calculating the `totalPrice`
     /// and landing on a valid `priceUnit`
-    func applyGiftCardsOnPrice(using giftsService: GiftsServiceCallable) throws
+    func applyCouponsOnPrice(using couponService: CouponServiceCallable) throws
                               -> UnitMeasurement<Currency>
     {
         var finalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
-        for id in data.appliedGiftCards {
-            var card = try giftsService.getCard(id: id)
-            try card.data.deductPrice(from: &finalPrice)
-            appliedCards.append(card)
+        for id in data.appliedCoupons {
+            var coupon = try couponService.getCoupon(id: id)
+            try coupon.data.deductPrice(from: &finalPrice)
+            appliedCoupons.append(coupon)
         }
 
         return finalPrice
     }
 
-    /// Update the gift cards after applying them in the order.
-    func updateGiftCards(using giftsService: GiftsServiceCallable) throws {
-        for (i, card) in appliedCards.enumerated() {
-            var patch = GiftCardPatch()
-            patch.balance = card.data.balance
-            appliedCards[i] = try giftsService.updateCard(id: card.id, data: patch)
+    /// Update the coupons after applying them in the order.
+    func updateCoupons(using couponService: CouponServiceCallable) throws {
+        for (i, coupon) in appliedCoupons.enumerated() {
+            var patch = CouponPatch()
+            patch.balance = coupon.data.balance
+            appliedCoupons[i] = try couponService.updateCoupon(id: coupon.id, data: patch)
         }
     }
 
     /// Method to create an order using the data provided to this factory.
     func createOrder(with shippingService: ShipmentsServiceCallable,
-                     using giftsService: GiftsServiceCallable) throws
+                     using couponService: CouponServiceCallable) throws
     {
         for orderUnit in data.products {
             try feed(orderUnit)
@@ -142,9 +142,9 @@ class OrdersFactory {
         order.billingAddress = data.billingAddress
         order.totalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
         order.totalWeight = weightCounter.sum()
-        order.finalPrice = try applyGiftCardsOnPrice(using: giftsService)
+        order.finalPrice = try applyCouponsOnPrice(using: couponService)
 
-        try updateGiftCards(using: giftsService)
+        try updateCoupons(using: couponService)
 
         let shipment = try shippingService.createShipment(forOrder: order.id)
         order.shipments[shipment.id] = shipment.status
@@ -156,7 +156,7 @@ class OrdersFactory {
     func createOrder() -> DetailedOrder {
         var detailedOrder: DetailedOrder = GenericOrder(placedBy: account)
         detailedOrder.products = units
-        detailedOrder.appliedGiftCards = appliedCards
+        detailedOrder.appliedCoupons = appliedCoupons
         order.copyValues(into: &detailedOrder)
         return detailedOrder
     }

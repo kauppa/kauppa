@@ -3,7 +3,7 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 import KauppaAccountsClient
-import KauppaGiftsClient
+import KauppaCouponClient
 import KauppaOrdersClient
 import KauppaOrdersModel
 import KauppaProductsClient
@@ -17,21 +17,21 @@ public class CartService {
     let productsService: ProductsServiceCallable
     let accountsService: AccountsServiceCallable
     let ordersService: OrdersServiceCallable
-    let giftsService: GiftsServiceCallable
+    let couponService: CouponServiceCallable
 
     /// Initializes a new `CartService` instance with a
-    /// repository, accounts and products service.
+    /// repository, accounts, products and coupon service.
     public init(withRepository repository: CartRepository,
                 productsService: ProductsServiceCallable,
                 accountsService: AccountsServiceCallable,
-                giftsService: GiftsServiceCallable,
+                couponService: CouponServiceCallable,
                 ordersService: OrdersServiceCallable)
     {
         self.repository = repository
         self.productsService = productsService
         self.accountsService = accountsService
         self.ordersService = ordersService
-        self.giftsService = giftsService
+        self.couponService = couponService
     }
 }
 
@@ -80,18 +80,18 @@ extension CartService: CartServiceCallable {
         return try repository.updateCart(data: cart)
     }
 
-    public func applyGiftCard(forAccount userId: UUID, code: String) throws -> Cart {
+    public func applyCoupon(forAccount userId: UUID, code: String) throws -> Cart {
         let _ = try accountsService.getAccount(id: userId)
         var cart = try repository.getCart(forId: userId)
-        if cart.items.isEmpty {     // cannot apply card when there aren't any items.
+        if cart.items.isEmpty {     // cannot apply coupon when there aren't any items.
             throw CartError.noItemsInCart
         }
 
-        var card = try giftsService.getCard(forCode: code)
+        var coupon = try couponService.getCoupon(forCode: code)
         var zero = UnitMeasurement(value: 0.0, unit: cart.currency!)
-        // This only validates the card - because we're passing zero.
-        try card.data.deductPrice(from: &zero)
-        cart.giftCards.insert(card.id)
+        // This only validates the coupon - because we're passing zero.
+        try coupon.data.deductPrice(from: &zero)
+        cart.coupons.insert(coupon.id)
 
         return try repository.updateCart(data: cart)
     }
@@ -131,7 +131,7 @@ extension CartService: CartServiceCallable {
 
         var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
                                   placedBy: userId, products: units)
-        orderData.appliedGiftCards = cart.giftCards
+        orderData.appliedCoupons = cart.coupons
         let order = try ordersService.createOrder(data: orderData)
 
         cart.reset()

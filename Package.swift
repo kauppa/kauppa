@@ -14,13 +14,13 @@ let modelTargets: [Target] = [
         path: "Sources/KauppaCart/Model"
     ),
     .target(
-        name: "KauppaGiftsModel",
+        name: "KauppaCouponModel",
         dependencies: ["KauppaCore"],
-        path: "Sources/KauppaGifts/Model"
+        path: "Sources/KauppaCoupon/Model"
     ),
     .target(
         name: "KauppaOrdersModel",
-        dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaGiftsModel", "KauppaProductsModel"],
+        dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaCouponModel", "KauppaProductsModel"],
         path: "Sources/KauppaOrders/Model"
     ),
     .target(
@@ -52,9 +52,9 @@ let storeTargets: [Target] = [
         path: "Sources/KauppaCart/Store"
     ),
     .target(
-        name: "KauppaGiftsStore",
-        dependencies: ["KauppaCore", "KauppaGiftsModel"],
-        path: "Sources/KauppaGifts/Store"
+        name: "KauppaCouponStore",
+        dependencies: ["KauppaCore", "KauppaCouponModel"],
+        path: "Sources/KauppaCoupon/Store"
     ),
     .target(
         name: "KauppaOrdersStore",
@@ -90,9 +90,9 @@ let repositoryTargets: [Target] = [
         path: "Sources/KauppaCart/Repository"
     ),
     .target(
-        name: "KauppaGiftsRepository",
-        dependencies: ["KauppaGiftsModel", "KauppaGiftsStore", "KauppaCore"],
-        path: "Sources/KauppaGifts/Repository"
+        name: "KauppaCouponRepository",
+        dependencies: ["KauppaCouponModel", "KauppaCouponStore", "KauppaCore"],
+        path: "Sources/KauppaCoupon/Repository"
     ),
     .target(
         name: "KauppaOrdersRepository",
@@ -138,27 +138,27 @@ let serviceTargets: [Target] = [
             "KauppaAccountsModel",
             "KauppaAccountsClient",
             "KauppaOrdersClient",
-            "KauppaGiftsClient",
+            "KauppaCouponClient",
             "KauppaProductsClient",
         ],
         path: "Sources/KauppaCart/Service"
     ),
     .target(
-        name: "KauppaGiftsService",
+        name: "KauppaCouponService",
         dependencies: [
             "KauppaCore",
-            "KauppaGiftsClient",
-            "KauppaGiftsRepository",
-            "KauppaGiftsModel",
+            "KauppaCouponClient",
+            "KauppaCouponRepository",
+            "KauppaCouponModel",
         ],
-        path: "Sources/KauppaGifts/Service"
+        path: "Sources/KauppaCoupon/Service"
     ),
     .target(
         name: "KauppaOrdersService",
         dependencies: [
             "KauppaCore",
-            "KauppaGiftsModel",
-            "KauppaGiftsClient",
+            "KauppaCouponModel",
+            "KauppaCouponClient",
             "KauppaOrdersClient",
             "KauppaOrdersRepository",
             "KauppaOrdersModel",
@@ -215,9 +215,9 @@ let clientTargets: [Target] = [
         path: "Sources/KauppaCart/Client"
     ),
     .target(
-        name: "KauppaGiftsClient",
-        dependencies: ["KauppaGiftsModel"],
-        path: "Sources/KauppaGifts/Client"
+        name: "KauppaCouponClient",
+        dependencies: ["KauppaCouponModel"],
+        path: "Sources/KauppaCoupon/Client"
     ),
     .target(
         name: "KauppaOrdersClient",
@@ -265,12 +265,12 @@ let daemonTargets: [Target] = [
         exclude: ["Client", "Service", "Repository", "Model", "Store"]
     ),
     .target(
-        name: "KauppaGifts",
+        name: "KauppaCoupon",
         dependencies: [
-            "KauppaGiftsClient",
-            "KauppaGiftsService",
-            "KauppaGiftsRepository",
-            "KauppaGiftsModel",
+            "KauppaCouponClient",
+            "KauppaCouponService",
+            "KauppaCouponRepository",
+            "KauppaCouponModel",
             "KauppaCore"
         ],
         exclude: ["Client", "Service", "Repository", "Model", "Store"]
@@ -347,13 +347,13 @@ let testTargets: [Target] = [
         ]
     ),
     .testTarget(
-        name: "KauppaGiftsTests",
+        name: "KauppaCouponTests",
         dependencies: [
             "KauppaCore",
-            "KauppaGiftsClient",
-            "KauppaGiftsModel",
-            "KauppaGiftsRepository",
-            "KauppaGiftsService"
+            "KauppaCouponClient",
+            "KauppaCouponModel",
+            "KauppaCouponRepository",
+            "KauppaCouponService"
         ]
     ),
     .testTarget(
@@ -432,8 +432,8 @@ let package = Package(
             targets: ["KauppaCart"]
         ),
         .executable(
-            name: "KauppaGifts",
-            targets: ["KauppaGifts"]
+            name: "KauppaCoupon",
+            targets: ["KauppaCoupon"]
         ),
         .executable(
             name: "KauppaOrders",

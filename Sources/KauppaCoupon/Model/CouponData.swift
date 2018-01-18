@@ -2,38 +2,37 @@ import Foundation
 
 import KauppaCore
 
-/// Additional data for a gift card.
-public struct GiftCardData: Mappable {
-    /// Order in which this card was created (optional).
+/// Additional data for a coupon.
+public struct CouponData: Mappable {
+    /// Order in which this coupon was created (optional).
     public var orderId: UUID? = nil
 
-    /// Once the card has been issued to a customer, this
+    /// Once the coupon has been issued to a customer, this
     /// will have the account's ID.
     public var accountId: UUID? = nil
 
-    /// Code for this gift card - should be an uppercase alphanumeric
-    /// string of 16 chars.
+    /// Code for this coupon - uppercase alphanumeric string of 16 chars.
     public var code: String? = nil
 
-    /// Expiry date for this gift card (if any).
+    /// Expiry date for this coupon (if any).
     public var expiresOn: Date? = nil
 
-    /// Custom note for this card.
+    /// Custom note for this coupon.
     public var note: String? = nil
 
-    /// Available balance on this card.
+    /// Available balance on this coupon.
     public var balance: UnitMeasurement<Currency> = UnitMeasurement(value: 0.0, unit: .usd)
 
-    /// Date on which this card was disabled.
+    /// Date on which this coupon was disabled.
     public var disabledOn: Date? = nil
 
     public init() {}
 
-    /// Validate this gift card data and modify as required.
+    /// Validate this coupon data and modify as required.
     public mutating func validate() throws {
         if let code = code {
             if code.count != 16 || !code.isAlphaNumeric() {
-                throw GiftsError.invalidCode
+                throw CouponError.invalidCode
             }
 
             self.code = code.uppercased()
@@ -44,34 +43,34 @@ public struct GiftCardData: Mappable {
         if let date = expiresOn {
             let interval = date.timeIntervalSinceNow / (60 * 60 * 24)
             if interval < 1 {   // should be at least one day
-                throw GiftsError.invalidExpiryDate
+                throw CouponError.invalidExpiryDate
             }
         }
     }
 
-    /// Deduct price from this card and the price supplied. It ensures card's
-    /// validity before making any changes. If the card is valid, then it deducts
-    /// the amount from the card and the given price. This only mutates the `balance`
-    /// property of a `GiftCard`
+    /// Deduct price from this coupon and the price supplied. It ensures coupon's
+    /// validity before making any changes. If the coupon is valid, then it deducts
+    /// the amount from the coupon and the given price. This only mutates the `balance`
+    /// property of a `Coupon`
     public mutating func deductPrice(from price: inout UnitMeasurement<Currency>) throws {
         if let date = expiresOn {
             if date < Date() {
-                throw GiftsError.cardExpired
+                throw CouponError.couponExpired
             }
         }
 
         if let date = disabledOn {
             if date < Date() {
-                throw GiftsError.cardDisabled
+                throw CouponError.couponDisabled
             }
         }
 
         if balance.value == 0 {
-            throw GiftsError.noBalance
+            throw CouponError.noBalance
         }
 
         if price.unit != balance.unit {
-            throw GiftsError.mismatchingCurrencies
+            throw CouponError.mismatchingCurrencies
         }
 
         if price.value > balance.value {
@@ -83,7 +82,7 @@ public struct GiftCardData: Mappable {
         }
     }
 
-    /// Since gift cards are an alternative mode of payment,
+    /// Since coupons are an alternative mode of payment,
     /// the full code is shown only once, and only the last
     /// four characters are shown in the future.
     ///

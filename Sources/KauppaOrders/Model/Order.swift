@@ -7,7 +7,7 @@ import KauppaAccountsModel
 public typealias Order = GenericOrder<UUID, UUID, OrderUnit>
 
 /// Generic order structure for holding product data.
-public struct GenericOrder<User: Mappable, Card: Mappable, Item: Mappable>: Mappable {
+public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Mappable {
     /// Unique identifier for this order.
     public var id: UUID
     /// User ID associated with this order.
@@ -22,9 +22,9 @@ public struct GenericOrder<User: Mappable, Card: Mappable, Item: Mappable>: Mapp
     public var totalItems: UInt16 = 0
     /// Total price of all items (includes the quantity) without tax/shipping.
     public var totalPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
-    /// List of gift cards applied in this order.
-    public var appliedGiftCards = [Card]()
-    /// Final price after adding taxes, shipment fee and applying gift cards (if any)
+    /// List of coupons applied in this order.
+    public var appliedCoupons = [Coupon]()
+    /// Final price after adding taxes, shipment fee and applying coupons (if any)
     public var finalPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
     /// Total weight of this purchase (includes the quantity)
     public var totalWeight = UnitMeasurement(value: 0.0, unit: Weight.gram)
