@@ -13,7 +13,7 @@ class TestReturns: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
     var shippingService = TestShipmentsService()
-    var giftsService = TestGiftsService()
+    var couponService = TestCouponService()
 
     static var allTests: [(String, (TestReturns) -> () throws -> Void)] {
         return [
@@ -28,7 +28,7 @@ class TestReturns: XCTestCase {
         productsService.products = [:]
         accountsService.accounts = [:]
         shippingService = TestShipmentsService()
-        giftsService = TestGiftsService()
+        couponService = TestCouponService()
         super.setUp()
     }
 
@@ -55,7 +55,7 @@ class TestReturns: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -115,7 +115,7 @@ class TestReturns: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2),
@@ -205,7 +205,7 @@ class TestReturns: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
@@ -237,7 +237,7 @@ class TestReturns: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])

@@ -2,8 +2,8 @@ import Foundation
 
 import KauppaCore
 
-/// Gift card data that exists in repository and store.
-public struct GiftCard: Mappable {
+/// Coupon data that exists in repository and store.
+public struct Coupon: Mappable {
     /// Unique identifier for this card.
     public let id: UUID
     /// Creation timestamp
@@ -11,9 +11,9 @@ public struct GiftCard: Mappable {
     /// Last updated timestamp
     public var updatedAt: Date
     /// Data associated with the gift card.
-    public var data: GiftCardData
+    public var data: CouponData
 
-    public init(withData data: GiftCardData) {
+    public init(with data: CouponData) {
         let id = UUID()
         let date = Date()
         self.id = id

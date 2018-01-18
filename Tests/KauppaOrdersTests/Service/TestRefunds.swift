@@ -12,7 +12,7 @@ class TestRefunds: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
     var shippingService = TestShipmentsService()
-    var giftsService = TestGiftsService()
+    var couponService = TestCouponService()
 
     static var allTests: [(String, (TestRefunds) -> () throws -> Void)] {
         return [
@@ -28,7 +28,7 @@ class TestRefunds: XCTestCase {
         productsService.products = [:]
         accountsService.accounts = [:]
         shippingService = TestShipmentsService()
-        giftsService = TestGiftsService()
+        couponService = TestCouponService()
         super.setUp()
     }
 
@@ -56,7 +56,7 @@ class TestRefunds: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -120,7 +120,7 @@ class TestRefunds: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2),
@@ -194,7 +194,7 @@ class TestRefunds: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
@@ -222,7 +222,7 @@ class TestRefunds: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         var order = try! ordersService.createOrder(data: orderData)
@@ -263,7 +263,7 @@ class TestRefunds: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])

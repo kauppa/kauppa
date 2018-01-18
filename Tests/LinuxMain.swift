@@ -3,7 +3,7 @@ import XCTest
 @testable import KauppaAccountsTests
 @testable import KauppaCartTests
 @testable import KauppaCoreTests
-@testable import KauppaGiftsTests
+@testable import KauppaCouponTests
 @testable import KauppaOrdersTests
 @testable import KauppaProductsTests
 @testable import KauppaShipmentsTests
@@ -17,10 +17,10 @@ XCTMain([
     testCase(TestMailService.allTests),
     testCase(TestCartRepository.allTests),
     testCase(TestCartService.allTests),
-    testCase(TestGiftedOrders.allTests),
-    testCase(TestGiftsRepository.allTests),
-    testCase(TestGiftsService.allTests),
-    testCase(TestGiftsTypes.allTests),
+    testCase(TestOrdersWithCoupons.allTests),
+    testCase(TestCouponRepository.allTests),
+    testCase(TestCouponService.allTests),
+    testCase(TestCouponTypes.allTests),
     testCase(TestOrdersRepository.allTests),
     testCase(TestOrdersService.allTests),
     testCase(TestRefunds.allTests),

@@ -2,23 +2,23 @@ import Foundation
 import XCTest
 
 import KauppaProductsModel
-import KauppaGiftsModel
+import KauppaCouponModel
 @testable import KauppaCore
 @testable import KauppaAccountsModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
 @testable import KauppaOrdersService
 
-class TestGiftedOrders: XCTestCase {
+class TestOrdersWithCoupons: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
     var shippingService = TestShipmentsService()
-    var giftsService = TestGiftsService()
+    var couponService = TestCouponService()
 
-    static var allTests: [(String, (TestGiftedOrders) -> () throws -> Void)] {
+    static var allTests: [(String, (TestOrdersWithCoupons) -> () throws -> Void)] {
         return [
-            ("Test order creation with gift cards", testOrderCreationWithGiftCards),
-            ("Test order with invalid card", testOrderWithInvalidCard),
+            ("Test order creation with coupons", testOrderCreationWithCoupons),
+            ("Test order with invalid coupon", testOrderWithInvalidCoupon),
         ]
     }
 
@@ -26,7 +26,7 @@ class TestGiftedOrders: XCTestCase {
         productsService.products = [:]
         accountsService.accounts = [:]
         shippingService = TestShipmentsService()
-        giftsService = TestGiftsService()
+        couponService = TestCouponService()
         super.setUp()
     }
 
@@ -34,10 +34,10 @@ class TestGiftedOrders: XCTestCase {
         super.tearDown()
     }
 
-    // Create an order with gift cards applied. This should make orders service query
-    // the gifts service for getting the cards, apply them on the totalPrice and finally patch
-    // the gift cards.
-    func testOrderCreationWithGiftCards() {
+    // Create an order with coupons applied. This should make orders service query
+    // the coupon service for getting the coupons, apply them on the totalPrice and finally patch
+    // the coupons.
+    func testOrderCreationWithCoupons() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
@@ -45,18 +45,18 @@ class TestGiftedOrders: XCTestCase {
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
         let product = try! productsService.createProduct(data: productData)
 
-        var cardData = GiftCardData()
-        cardData.balance.value = 10.0
-        let card1 = try! giftsService.createCard(withData: cardData)
-        cardData.balance.value = 20.0
-        let card2 = try! giftsService.createCard(withData: cardData)
+        var couponData = CouponData()
+        couponData.balance.value = 10.0
+        let coupon1 = try! couponService.createCoupon(with: couponData)
+        couponData.balance.value = 20.0
+        let coupon2 = try! couponService.createCoupon(with: couponData)
 
-        giftsService.callbacks[card1.id] = { patch in
-            XCTAssertEqual(patch.balance!.value, 0.0)   // new balance for the first card
+        couponService.callbacks[coupon1.id] = { patch in
+            XCTAssertEqual(patch.balance!.value, 0.0)   // new balance for the first coupon
         }
 
-        giftsService.callbacks[card2.id] = { patch in
-            XCTAssertEqual(patch.balance!.value, 15.0)  // and the second card
+        couponService.callbacks[coupon2.id] = { patch in
+            XCTAssertEqual(patch.balance!.value, 15.0)  // and the second coupon
         }
 
         let accountData = AccountData()
@@ -66,22 +66,22 @@ class TestGiftedOrders: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let unit = OrderUnit(product: product.id, quantity: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
 
-        // Add two cards to this order.
-        orderData.appliedGiftCards.inner = [card1.id, card2.id]
+        // Add two coupons to this order.
+        orderData.appliedCoupons.inner = [coupon1.id, coupon2.id]
 
         let order = try! ordersService.createOrder(data: orderData)
         XCTAssertEqual(order.totalPrice.value, 15.0)
-        XCTAssertEqual(order.finalPrice.value, 0.0)     // final price (after applying cards)
+        XCTAssertEqual(order.finalPrice.value, 0.0)     // final price (after applying coupons)
     }
 
-    // Test that the orders service carries proper validations on the gift card.\
-    // Basically, all errors from `GiftCardData.deductPrice`
-    func testOrderWithInvalidCard() {
+    // Test that the orders service carries proper validations on the coupon.\
+    // Basically, all errors from `CouponData.deductPrice`
+    func testOrderWithInvalidCoupon() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
@@ -96,38 +96,38 @@ class TestGiftedOrders: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          giftsService: giftsService)
+                                          couponService: couponService)
         let unit = OrderUnit(product: product.id, quantity: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
 
-        var cases = [(UUID, GiftsError)]()          // random ID
-        cases.append((UUID(), .invalidGiftCardId))
+        var cases = [(UUID, CouponError)]()          // random ID
+        cases.append((UUID(), .invalidCouponId))
 
-        var cardData = GiftCardData()       // by default, card has no balance
-        var card = try! giftsService.createCard(withData: cardData)
-        cases.append((card.id, .noBalance))
+        var couponData = CouponData()       // by default, coupon has no balance
+        var coupon = try! couponService.createCoupon(with: couponData)
+        cases.append((coupon.id, .noBalance))
 
-        cardData.balance.value = 10.0
-        cardData.balance.unit = .euro       // product price is in USD
-        card = try! giftsService.createCard(withData: cardData)
-        cases.append((card.id, .mismatchingCurrencies))
+        couponData.balance.value = 10.0
+        couponData.balance.unit = .euro       // product price is in USD
+        coupon = try! couponService.createCoupon(with: couponData)
+        cases.append((coupon.id, .mismatchingCurrencies))
 
-        cardData.disabledOn = Date()        // card disabled now
-        card = try! giftsService.createCard(withData: cardData)
-        cases.append((card.id, .cardDisabled))
+        couponData.disabledOn = Date()        // coupon disabled now
+        coupon = try! couponService.createCoupon(with: couponData)
+        cases.append((coupon.id, .couponDisabled))
 
-        cardData.expiresOn = Date()         // card has expired now
-        card = try! giftsService.createCard(withData: cardData)
-        cases.append((card.id, .cardExpired))
+        couponData.expiresOn = Date()         // coupon has expired now
+        coupon = try! couponService.createCoupon(with: couponData)
+        cases.append((coupon.id, .couponExpired))
 
         for (id, error) in cases {
             do {
-                orderData.appliedGiftCards.inner = [id]
+                orderData.appliedCoupons.inner = [id]
                 let _ = try ordersService.createOrder(data: orderData)
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! GiftsError, error)
+                XCTAssertEqual(err as! CouponError, error)
             }
         }
     }
