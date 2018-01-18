@@ -12,8 +12,12 @@ class TestTaxService: XCTestCase {
             ("Test invalid country creation data", testCountryCreationInvalidData),
             ("Test country update", testCountryUpdate),
             ("Test invalid country update data", testCountryUpdateInvalidData),
+            ("Test country deletion", testCountryDeletion),
             ("Test region creation", testRegionCreation),
             ("Test invalid region creation data", testRegionCreationInvalidData),
+            ("Test region update", testRegionUpdate),
+            ("Test invalid region update data", testRegionUpdateInvalidData),
+            ("Test region deletion", testRegionDeletion),
         ]
     }
 
@@ -79,7 +83,6 @@ class TestTaxService: XCTestCase {
         var patch = CountryPatch()
         patch.name = "Finland"
         rate.general = 14.0
-        rate.categories = [:]
         patch.taxRate = rate
         let newData = try! service.updateCountry(id: country.id, with: patch)
         XCTAssertEqual(newData.name, "Finland")
@@ -127,6 +130,7 @@ class TestTaxService: XCTestCase {
         try! service.deleteCountry(id: country.id)
     }
 
+    /// Testing service support for region creation
     func testRegionCreation() {
         let store = TestStore()
         let repository = TaxRepository(withStore: store)
@@ -145,6 +149,7 @@ class TestTaxService: XCTestCase {
         XCTAssertEqual(region.kind.rawValue, "province")
     }
 
+    /// Test region creation with possible error cases.
     func testRegionCreationInvalidData() {
         let store = TestStore()
         let repository = TaxRepository(withStore: store)
@@ -177,5 +182,75 @@ class TestTaxService: XCTestCase {
                 XCTAssertEqual(err as! TaxError, error)
             }
         }
+    }
+
+    /// Test that service supports updating regions.
+    func testRegionUpdate() {
+        let store = TestStore()
+        let repository = TaxRepository(withStore: store)
+        let service = TaxService(withRepository: repository)
+        let countryData = CountryData(name: "foo", taxRate: TaxRate())
+        let country = try! service.createCountry(with: countryData)
+        let regionData = RegionData(name: "baz", taxRate: TaxRate(), kind: .province)
+        let region = try! service.addRegion(toCountry: country.id, data: regionData)
+
+        var patch = RegionPatch()
+        patch.name = "foobar"
+        patch.kind = .city
+        patch.taxRate = TaxRate()
+        patch.taxRate!.general = 20.0
+        patch.taxRate!.categories["electronics"] = 25.0
+        let newData = try! service.updateRegion(id: region.id, with: patch)
+        XCTAssertEqual(newData.name, "foobar")
+        XCTAssertEqual(newData.taxRate.general, 20.0)
+        XCTAssertEqual(newData.taxRate.categories["electronics"]!, 25.0)
+        XCTAssertEqual(newData.kind.rawValue, "city")
+    }
+
+    /// Test region update call for possible error cases.
+    func testRegionUpdateInvalidData() {
+        let store = TestStore()
+        let repository = TaxRepository(withStore: store)
+        let service = TaxService(withRepository: repository)
+        let countryData = CountryData(name: "foo", taxRate: TaxRate())
+        let country = try! service.createCountry(with: countryData)
+        let regionData = RegionData(name: "baz", taxRate: TaxRate(), kind: .province)
+        let region = try! service.addRegion(toCountry: country.id, data: regionData)
+
+        var cases = [(RegionPatch, TaxError)]()
+        var patch = RegionPatch()
+        patch.name = ""
+        patch.taxRate = TaxRate()
+        cases.append((patch, .invalidRegionName))
+        patch.name = "foobar"
+        patch.taxRate!.general = -1.0
+        cases.append((patch, .invalidTaxRate))
+        patch.taxRate!.general = 10.0
+        patch.taxRate!.categories["drink"] = 1001.0
+        cases.append((patch, .invalidCategoryTaxRate("drink")))
+        patch.taxRate!.categories = [:]
+        patch.countryId = UUID()
+        cases.append((patch, .invalidCountryId))
+
+        for (testCase, error) in cases {
+            do {
+                let _ = try service.updateRegion(id: region.id, with: testCase)
+                XCTFail()
+            } catch let err {
+                XCTAssertEqual(err as! TaxError, error)
+            }
+        }
+    }
+
+    /// Test that service supports deleting regions.
+    func testRegionDeletion() {
+        let store = TestStore()
+        let repository = TaxRepository(withStore: store)
+        let service = TaxService(withRepository: repository)
+        let data = CountryData(name: "foo", taxRate: TaxRate())
+        let country = try! service.createCountry(with: data)
+        let regionData = RegionData(name: "baz", taxRate: TaxRate(), kind: .province)
+        let region = try! service.addRegion(toCountry: country.id, data: regionData)
+        try! service.deleteRegion(id: region.id)
     }
 }

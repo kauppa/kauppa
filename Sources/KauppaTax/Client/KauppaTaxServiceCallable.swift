@@ -18,7 +18,7 @@ public protocol TaxServiceCallable {
     ///
     /// - Parameters:
     ///   - id: The `UUID` of the country to be updated.
-    ///   - data: The `CountryPatch` data required for updating a country.
+    ///   - with: The `CountryPatch` data required for updating the country.
     /// - Returns: `Country`
     /// - Throws: `TaxError`
     func updateCountry(id: UUID, with data: CountryPatch) throws -> Country
@@ -38,4 +38,20 @@ public protocol TaxServiceCallable {
     /// - Returns: `Region`
     /// - Throws: `TaxError`
     func addRegion(toCountry id: UUID, data: RegionData) throws -> Region
+
+    /// Update a region with the given patch data.
+    ///
+    /// - Parameters:
+    ///   - id: The `UUID` of the region to be updated.
+    ///   - with: The `RegionPatch` data required for updating the region.
+    /// Returns: `Region`
+    /// Throws: `TaxError`
+    func updateRegion(id: UUID, with data: RegionPatch) throws -> Region
+
+    /// Delete a region corresponding to an ID.
+    ///
+    /// - Parameters:
+    ///   - id: The `UUID` of the region to be deleted.
+    /// - Throws: `TaxError` if the region doesn't exist.
+    func deleteRegion(id: UUID) throws -> ()
 }

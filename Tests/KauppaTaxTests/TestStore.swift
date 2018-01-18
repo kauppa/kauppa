@@ -13,6 +13,9 @@ public class TestStore: TaxStorable {
     var updateCountryCalled = false
     var deleteCountryCalled = false
     var createRegionCalled = false
+    var getRegionCalled = false
+    var updateRegionCalled = false
+    var deleteRegionCalled = false
 
     public func createCountry(with data: Country) throws -> () {
         createCountryCalled = true
@@ -41,5 +44,24 @@ public class TestStore: TaxStorable {
     public func createRegion(with data: Region) throws -> () {
         createRegionCalled = true
         regions[data.id] = data
+    }
+
+    public func getRegion(id: UUID) throws -> Region {
+        getRegionCalled = true
+        guard let data = regions[id] else {
+            throw TaxError.invalidRegionId
+        }
+
+        return data
+    }
+
+    public func updateRegion(with data: Region) throws -> () {
+        updateRegionCalled = true
+        regions[data.id] = data
+    }
+
+    public func deleteRegion(id: UUID) throws -> () {
+        deleteRegionCalled = true
+        regions.removeValue(forKey: id)
     }
 }

@@ -3,6 +3,7 @@ import Foundation
 /// Tax service errors
 public enum TaxError: Error {
     case invalidCountryId
+    case invalidRegionId
     /// Occurs when the given tax rate is invalid.
     case invalidTaxRate
     /// Occurs when the tax rate for a given category is invalid.
@@ -16,6 +17,8 @@ extension TaxError: LocalizedError {
         switch self {
             case .invalidCountryId:
                 return "No country found for the specified UUID"
+            case .invalidRegionId:
+                return "No region found for the specified UUID"
             case .invalidTaxRate:
                 return "Invalid tax rate in input data"
             case .invalidCategoryTaxRate(let category):
@@ -35,7 +38,8 @@ extension TaxError: Equatable {
             case (.invalidTaxRate, .invalidTaxRate),
                  (.invalidCountryName, .invalidCountryName),
                  (.invalidCountryId, .invalidCountryId),
-                 (.invalidRegionName, .invalidRegionName):
+                 (.invalidRegionName, .invalidRegionName),
+                 (.invalidRegionId, .invalidRegionId):
                 return true
             case (.invalidCategoryTaxRate(let s1), .invalidCategoryTaxRate(let s2)):
                 return s1 == s2
