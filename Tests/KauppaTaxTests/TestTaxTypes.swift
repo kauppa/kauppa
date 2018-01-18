@@ -15,12 +15,12 @@ class TestTaxTypes: XCTestCase {
         cases.append((Country(name: "", taxRate: rate), .invalidCountryName))
         rate.general = -0.1
         cases.append((Country(name: "foo", taxRate: rate), .invalidTaxRate))
-        rate.general = 50.1
+        rate.general = 1000.1
         cases.append((Country(name: "foo", taxRate: rate), .invalidTaxRate))
         rate.general = 5.0
         rate.categories["food"] = -0.1
         cases.append((Country(name: "foo", taxRate: rate), .invalidCategoryTaxRate("food")))
-        rate.categories["food"] = 50.1
+        rate.categories["food"] = 1000.1
         cases.append((Country(name: "foo", taxRate: rate), .invalidCategoryTaxRate("food")))
 
         for (testCase, error) in cases {

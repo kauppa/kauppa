@@ -8,6 +8,7 @@ public enum TaxError: Error {
     /// Occurs when the tax rate for a given category is invalid.
     case invalidCategoryTaxRate(String)
     case invalidCountryName
+    case invalidRegionName
 }
 
 extension TaxError: LocalizedError {
@@ -21,6 +22,8 @@ extension TaxError: LocalizedError {
                 return "Invalid tax rate for category '\(category)' in input"
             case .invalidCountryName:
                 return "Invalid name for country"
+            case .invalidRegionName:
+                return "Invalid name for region"
         }
     }
 }
@@ -31,7 +34,8 @@ extension TaxError: Equatable {
         switch (lhs, rhs) {
             case (.invalidTaxRate, .invalidTaxRate),
                  (.invalidCountryName, .invalidCountryName),
-                 (.invalidCountryId, .invalidCountryId):
+                 (.invalidCountryId, .invalidCountryId),
+                 (.invalidRegionName, .invalidRegionName):
                 return true
             case (.invalidCategoryTaxRate(let s1), .invalidCategoryTaxRate(let s2)):
                 return s1 == s2

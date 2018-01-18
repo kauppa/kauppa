@@ -13,4 +13,7 @@ public protocol TaxPersisting: Persisting {
 
     /// Delete a country corresponding to the given ID.
     func deleteCountry(id: UUID) throws -> ()
+
+    /// Create a region with data from the repository.
+    func createRegion(with data: Region) throws -> ()
 }

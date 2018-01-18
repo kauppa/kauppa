@@ -45,4 +45,9 @@ public class TaxRepository {
         countries.removeValue(forKey: id)
         return try store.deleteCountry(id: id)
     }
+
+    /// Create a region with the validated data from the service.
+    public func createRegion(with data: Region) throws -> () {
+        try store.createRegion(with: data)
+    }
 }
