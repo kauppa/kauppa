@@ -8,6 +8,8 @@ public struct CartUnit: Mappable {
     public var productId: UUID
     /// Required quantity of this product
     public var quantity: UInt8
+    /// The price of this unit without tax. This is set by the service.
+    public var netPrice: UnitMeasurement<Currency>? = nil
 
     public init(id: UUID, quantity: UInt8) {
         self.productId = id

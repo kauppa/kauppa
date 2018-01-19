@@ -49,7 +49,10 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
+        productData.price.value = 7.0       // default is USD
         let product = try! productsService.createProduct(data: productData)
+        productData.price.value = 13.0
+        let anotherProduct = try! productsService.createProduct(data: productData)
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(withData: accountData)
@@ -63,10 +66,18 @@ class TestCartService: XCTestCase {
         let cart = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
         XCTAssertEqual(cart.items[0].productId, product.id)     // item exists in cart
         XCTAssertEqual(cart.items[0].quantity, 4)
+        XCTAssertEqual(cart.items[0].netPrice!.value, 28.0)
         cartUnit.quantity = 3
+
+        // second item should be merged (same product)
+        let _ = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
+        cartUnit = CartUnit(id: anotherProduct.id, quantity: 5)
         let updatedCart = try! service.addCartItem(forAccount: account.id, withUnit: cartUnit)
-        XCTAssertEqual(updatedCart.items.count, 1)          // second item has been merged (same product)
+        XCTAssertEqual(updatedCart.items.count, 2)
         XCTAssertEqual(updatedCart.items[0].quantity, 7)    // quantity has been increased
+        XCTAssertEqual(updatedCart.items[0].netPrice!.value, 49.0)
+        XCTAssertEqual(updatedCart.items[1].quantity, 5)
+        XCTAssertEqual(updatedCart.items[1].netPrice!.value, 65.0)
     }
 
     // Service should support adding coupons only if the cart is non-empty.

@@ -38,6 +38,7 @@ public class CartService {
 // NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
     public func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart {
+        var unit = unit
         if unit.quantity == 0 {
             throw CartError.noItemsToProcess
         }
@@ -59,11 +60,13 @@ extension CartService: CartServiceCallable {
             cart.currency = product.data.price.unit
         }
 
-        // Check if the product already exists
+        // Check if the product already exists (if it does, mutate the corresponding unit)
         for (i, item) in cart.items.enumerated() {
             if item.productId == product.id {
                 itemExists = true
                 cart.items[i].quantity += unit.quantity
+                let netPrice = Double(cart.items[i].quantity) * product.data.price.value
+                cart.items[i].netPrice!.value = netPrice
 
                 // This is just for notifying the customer. Orders service
                 // will verify this before placing the order.
@@ -74,6 +77,8 @@ extension CartService: CartServiceCallable {
         }
 
         if !itemExists {
+            let netPrice = Double(unit.quantity) * product.data.price.value
+            unit.netPrice = UnitMeasurement(value: netPrice, unit: product.data.price.unit)
             cart.items.append(unit)
         }
 
