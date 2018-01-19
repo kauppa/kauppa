@@ -49,15 +49,18 @@ extension CartService: CartServiceCallable {
             throw CartError.productUnavailable      // precheck inventory
         }
 
+        let netPrice = Double(unit.quantity) * product.data.price.value
+        unit.netPrice = UnitMeasurement(value: netPrice, unit: product.data.price.unit)
+
         var itemExists = false
         var cart = try repository.getCart(forId: userId)
         // Make sure that the cart maintains its currency unit
-        if let currency = cart.currency {
-            if currency != product.data.price.unit {
+        if let price = cart.netPrice {
+            if price.unit != product.data.price.unit {
                 throw CartError.ambiguousCurrencies
             }
-        } else {
-            cart.currency = product.data.price.unit
+        } else {    // initialize price if it's not been done already
+            cart.netPrice = UnitMeasurement(value: 0.0, unit: product.data.price.unit)
         }
 
         // Check if the product already exists (if it does, mutate the corresponding unit)
@@ -76,9 +79,8 @@ extension CartService: CartServiceCallable {
             }
         }
 
+        cart.netPrice!.value += unit.netPrice!.value
         if !itemExists {
-            let netPrice = Double(unit.quantity) * product.data.price.value
-            unit.netPrice = UnitMeasurement(value: netPrice, unit: product.data.price.unit)
             cart.items.append(unit)
         }
 
@@ -93,7 +95,7 @@ extension CartService: CartServiceCallable {
         }
 
         var coupon = try couponService.getCoupon(forCode: code)
-        var zero = UnitMeasurement(value: 0.0, unit: cart.currency!)
+        var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
         // This only validates the coupon - because we're passing zero.
         try coupon.data.deductPrice(from: &zero)
         cart.coupons.insert(coupon.id)

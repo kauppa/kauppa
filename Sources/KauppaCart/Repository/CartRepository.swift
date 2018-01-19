@@ -49,8 +49,6 @@ public class CartRepository {
     public func updateCart(data: Cart) throws -> Cart {
         var cart = data
         cart.updatedAt = Date()
-        cart.items = data.items
-        cart.currency = data.currency
         carts[cart.id] = cart
         try store.updateCart(data: cart)
         return cart

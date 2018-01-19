@@ -41,10 +41,10 @@ class TestCartRepository: XCTestCase {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
         let randomId = UUID()   // assume some user with this ID
-        var data = try! repository.getCart(forId: randomId)
-        data.currency = Currency.usd
+        let now = Date()
+        let data = try! repository.getCart(forId: randomId)
         let _ = try! repository.updateCart(data: data)
-        XCTAssertEqual(repository.carts[data.id]!.currency!, .usd)   // repository has been updated
+        XCTAssertTrue(repository.carts[data.id]!.updatedAt > now)   // repository has been updated
         XCTAssertTrue(store.updateCalled)   // make sure the store is called
     }
 }

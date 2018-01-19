@@ -11,7 +11,7 @@ public struct Cart: Mappable {
     /// Stuff in the cart
     public var items: [CartUnit] = []
     /// Unit of currency used in this cart.
-    public var currency: Currency? = nil
+    public var netPrice: UnitMeasurement<Currency>? = nil
     /// Coupons applied in this cart.
     public var coupons = ArraySet<UUID>()
 
@@ -22,7 +22,7 @@ public struct Cart: Mappable {
     /// Reset this cart (called to clear the items once the cart has been checked out)
     public mutating func reset() {
         items = []
-        currency = nil
+        netPrice = nil
         coupons = ArraySet()
     }
 }

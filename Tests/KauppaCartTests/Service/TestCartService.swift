@@ -67,6 +67,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(cart.items[0].productId, product.id)     // item exists in cart
         XCTAssertEqual(cart.items[0].quantity, 4)
         XCTAssertEqual(cart.items[0].netPrice!.value, 28.0)
+        XCTAssertEqual(cart.netPrice!.value, 28.0)
         cartUnit.quantity = 3
 
         // second item should be merged (same product)
@@ -78,6 +79,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(updatedCart.items[0].netPrice!.value, 49.0)
         XCTAssertEqual(updatedCart.items[1].quantity, 5)
         XCTAssertEqual(updatedCart.items[1].netPrice!.value, 65.0)
+        XCTAssertEqual(updatedCart.netPrice!.value, 114.0)
     }
 
     // Service should support adding coupons only if the cart is non-empty.
