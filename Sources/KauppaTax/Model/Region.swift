@@ -54,13 +54,4 @@ public struct Region: Mappable {
         self.taxRate = taxRate
         self.kind = kind
     }
-
-    /// Validate the data in this object.
-    public func validate() throws {
-        if name.isEmpty {
-            throw TaxError.invalidRegionName
-        }
-
-        try taxRate.validate()
-    }
 }

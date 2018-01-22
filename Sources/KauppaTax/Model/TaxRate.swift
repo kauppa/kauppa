@@ -10,17 +10,4 @@ public struct TaxRate: Mappable {
     public var categories = [String: Float]()
 
     public init() {}
-
-    /// Validate the data in this object.
-    public func validate() throws {
-        if general < 0.0 || general > 1000.0 {  // disallow rates > 1000%
-            throw TaxError.invalidTaxRate
-        }
-
-        for (category, rate) in categories {
-            if rate < 0.0 || rate > 1000.0 {
-                throw TaxError.invalidCategoryTaxRate(category)
-            }
-        }
-    }
 }
