@@ -55,8 +55,10 @@ class TestTaxRepository: XCTestCase {
         let repository = TaxRepository(withStore: store)
         try! repository.createCountry(with: data)
         XCTAssertFalse(repository.countries.isEmpty)
+        XCTAssertFalse(repository.countryNames.isEmpty)
         try! repository.deleteCountry(id: data.id)
         XCTAssertTrue(repository.countries.isEmpty)
+        XCTAssertTrue(repository.countryNames.isEmpty)
         XCTAssertTrue(store.deleteCountryCalled)
     }
 

@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaAccountsModel
 import KauppaTaxModel
 import KauppaTaxStore
 
@@ -20,6 +21,16 @@ public class TestStore: TaxStorable {
     public func createCountry(with data: Country) throws -> () {
         createCountryCalled = true
         countries[data.id] = data
+    }
+
+    public func getCountry(name: String) throws -> Country {
+        for (_, country) in countries {
+            if country.name == name {
+                return country
+            }
+        }
+
+        throw TaxError.noMatchingTaxRate
     }
 
     public func getCountry(id: UUID) throws -> Country {

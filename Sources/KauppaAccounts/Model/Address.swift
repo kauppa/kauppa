@@ -15,7 +15,7 @@ public struct Address: Mappable, Hashable {
     /// City
     public let city: String
     /// Country
-    public let country: String
+    public var country: String
     /// Postal/ZIP code
     ///
     /// There's no general regex (unlike email).

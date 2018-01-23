@@ -17,6 +17,12 @@ public class TaxService {
 
 // NOTE: See the actual protocol in `KauppaTaxClient` for exact usage.
 extension TaxService: TaxServiceCallable {
+    public func getTaxRate(forAddress address: Address) throws -> TaxRate {
+        // TODO: Get taxes for regions (blocked on !54)
+        let country = try repository.getCountry(name: address.country)
+        return country.taxRate
+    }
+
     public func createCountry(with data: CountryData) throws -> Country {
         let country = Country(name: data.name, taxRate: data.taxRate)
         try country.validate()

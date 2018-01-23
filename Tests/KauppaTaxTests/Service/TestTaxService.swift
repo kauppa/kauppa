@@ -1,5 +1,6 @@
 import XCTest
 
+import KauppaAccountsModel
 import KauppaTaxModel
 import KauppaTaxService
 import KauppaTaxRepository
@@ -9,6 +10,7 @@ class TestTaxService: XCTestCase {
     static var allTests: [(String, (TestTaxService) -> () throws -> Void)] {
         return [
             ("Test country creation", testCountryCreation),
+            ("Test tax calculation", testTaxCalculation),
             ("Test invalid country creation data", testCountryCreationInvalidData),
             ("Test country update", testCountryUpdate),
             ("Test invalid country update data", testCountryUpdateInvalidData),
@@ -43,6 +45,28 @@ class TestTaxService: XCTestCase {
         XCTAssertEqual(country.name, "India")
         XCTAssertEqual(country.taxRate.general, 18.0)
         XCTAssertEqual(country.taxRate.categories["drink"]!, 5.0)
+    }
+
+    /// Check that the service returns the right tax rate for a given address.
+    func testTaxCalculation() {
+        let store = TestStore()
+        let repository = TaxRepository(withStore: store)
+        let service = TaxService(withRepository: repository)
+        var rate = TaxRate()
+        rate.general = 18.0
+        let data = CountryData(name: "India", taxRate: rate)
+        let _ = try! service.createCountry(with: data)
+        var address = Address()
+        do {    // no country - error
+            let _ = try service.getTaxRate(forAddress: address)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! TaxError, .noMatchingTaxRate)
+        }
+
+        address.country = "India"
+        let taxRate = try! service.getTaxRate(forAddress: address)
+        XCTAssertEqual(taxRate.general, 18.0)
     }
 
     /// Ensure that invalid country data is rejected by the service.

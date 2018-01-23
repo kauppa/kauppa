@@ -7,6 +7,7 @@ import KauppaTaxStore
 public class TaxRepository {
     var countries = [UUID: Country]()
     var regions = [UUID: Region]()
+    var countryNames = [String: UUID]()
 
     let store: TaxStorable
 
@@ -18,7 +19,19 @@ public class TaxRepository {
     /// Create a country with validated data from the service.
     public func createCountry(with data: Country) throws -> () {
         countries[data.id] = data
+        countryNames[data.name] = data.id
         try store.createCountry(with: data)
+    }
+
+    /// Get the country for a given name (fetch it from store if it's not available)
+    public func getCountry(name: String) throws -> Country {
+        guard let id = countryNames[name] else {
+            let data = try store.getCountry(name: name)
+            countryNames[data.name] = data.id
+            return data
+        }
+
+        return try getCountry(id: id)
     }
 
     /// Get the country for a given ID (fetch it from store if it's not available in repository)
@@ -43,7 +56,9 @@ public class TaxRepository {
 
     /// Delete the country matching the given ID from cache and store.
     public func deleteCountry(id: UUID) throws -> () {
-        countries.removeValue(forKey: id)
+        let country = try getCountry(id: id)
+        countries.removeValue(forKey: country.id)
+        countryNames.removeValue(forKey: country.name)
         return try store.deleteCountry(id: id)
     }
 
