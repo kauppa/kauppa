@@ -10,13 +10,13 @@ extension OrdersService {
     static func findEnumeratedProduct(inOrder order: Order, forId id: UUID,
                                       expectFulfillment: Bool = true) throws -> Int
     {
-        for (idx, orderUnit) in order.products.enumerated() {
-            if id != orderUnit.product {
+        for (idx, unit) in order.products.enumerated() {
+            if id != unit.item.product {
                 continue
             }
 
             // Make sure that only fulfilled (delivered) items are returned/refunded/picked up.
-            if expectFulfillment && orderUnit.status == nil {
+            if expectFulfillment && unit.status == nil {
                 throw OrdersError.unfulfilledItem(id)
             }
 

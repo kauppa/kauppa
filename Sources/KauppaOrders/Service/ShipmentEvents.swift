@@ -8,7 +8,7 @@ extension OrdersService {
         for unit in data.items {
             let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product,
                                                             expectFulfillment: false)
-            let expectedQuantity = order.products[i].quantity
+            let expectedQuantity = order.products[i].item.quantity
             if unit.quantity > expectedQuantity {
                 throw OrdersError.invalidDeliveryQuantity(unit.product, expectedQuantity)
             }
@@ -24,7 +24,7 @@ extension OrdersService {
             let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
             let scheduled = order.products[i].status!.pickupQuantity    // safe to unwrap here
             if unit.quantity > scheduled {      // picked up more than what was scheduled
-                throw OrdersError.invalidPickupQuantity(order.products[i].product, scheduled)
+                throw OrdersError.invalidPickupQuantity(order.products[i].item.product, scheduled)
             }
 
             order.products[i].status!.pickupQuantity -= unit.quantity

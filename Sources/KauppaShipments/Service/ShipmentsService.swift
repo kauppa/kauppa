@@ -28,7 +28,8 @@ extension ShipmentsService: ShipmentsServiceCallable {
     public func createShipment(forOrder id: UUID) throws -> Shipment {
         let order = try ordersService.getOrder(forId: id)
         let address = order.shippingAddress
-        return try repository.createShipment(forOrder: id, address: address, items: order.products)
+        let items = order.products.map { $0.item }
+        return try repository.createShipment(forOrder: id, address: address, items: items)
     }
 
     public func notifyShipping(id: UUID) throws -> Shipment {
