@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaCartModel
 import KauppaOrdersModel
 import KauppaOrdersRepository
 import KauppaProductsClient
@@ -12,7 +13,7 @@ class RefundsFactory {
     let productsService: ProductsServiceCallable
 
     private var atleastOneItemExists = false
-    private var refundItems = [GenericOrderUnit<Product>]()
+    private var refundItems = [GenericCartUnit<Product>]()
 
     init(with data: RefundData, using service: ProductsServiceCallable) {
         self.data = data
@@ -24,12 +25,12 @@ class RefundsFactory {
     /// will be set to `nil`
     private func getAllRefundableItems(forOrder data: inout Order) throws {
         for (i, unit) in data.products.enumerated() {
-            let product = try productsService.getProduct(id: unit.product)
+            let product = try productsService.getProduct(id: unit.item.product)
             // Only collect fulfilled items (if any) from each unit.
             if let unitStatus = unit.status {
                 if unitStatus.refundableQuantity > 0 {
-                    let refundUnit = GenericOrderUnit(product: product,
-                                                      quantity: unitStatus.refundableQuantity)
+                    let refundUnit = GenericCartUnit(product: product,
+                                                     quantity: unitStatus.refundableQuantity)
                     data.products[i].status!.refundableQuantity = 0    // reset refundable quantity
                     refundItems.append(refundUnit)
                 }
@@ -58,7 +59,7 @@ class RefundsFactory {
                 throw OrdersError.invalidRefundQuantity(product.id, refundable)
             }
 
-            refundItems.append(GenericOrderUnit(product: product, quantity: unit.quantity))
+            refundItems.append(GenericCartUnit(product: product, quantity: unit.quantity))
             order.products[i].status!.refundableQuantity -= unit.quantity
 
             // Check whether all items have been refunded in this unit
@@ -92,10 +93,10 @@ class RefundsFactory {
         // order *will* have the same currency, because the cart checks it.
         let currency = refundItems[0].product.data.price.unit
         var totalPrice = UnitMeasurement(value: 0.0, unit: currency)
-        var items = [OrderUnit]()
+        var items = [CartUnit]()
         for item in refundItems {
             totalPrice.value += item.product.data.price.value * Double(item.quantity)
-            let unit = OrderUnit(product: item.product.id, quantity: item.quantity)
+            let unit = CartUnit(product: item.product.id, quantity: item.quantity)
             items.append(unit)
         }
 

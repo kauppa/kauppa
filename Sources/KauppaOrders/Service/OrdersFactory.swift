@@ -55,36 +55,36 @@ class OrdersFactory {
     {
         // Let's also check for duplicated product (if it exists in our dict)
         let available = inventoryUpdates[product.id] ?? product.data.inventory
-        if available < unit.quantity {
+        if available < unit.item.quantity {
             throw OrdersError.productUnavailable
         }
 
-        let leftover = available - UInt32(unit.quantity)
+        let leftover = available - UInt32(unit.item.quantity)
         inventoryUpdates[product.id] = leftover
     }
 
     /// Update the counters which track the sum of values.
     private func updateCounters(forUnit unit: OrderUnit, with product: Product) {
-        totalPrice += Double(unit.quantity) * productPrice
+        totalPrice += Double(unit.item.quantity) * productPrice
         var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
-        weight.value *= Double(unit.quantity)
+        weight.value *= Double(unit.item.quantity)
         weightCounter.add(weight)
-        order.totalItems += UInt16(unit.quantity)
+        order.totalItems += UInt16(unit.item.quantity)
     }
 
     /// Feed an order unit to this factory.
     private func feed(_ unit: OrderUnit) throws {
         var unit = unit
         unit.status = nil           // reset the status of this `OrderUnit`
-        if unit.quantity == 0 {     // skip zero'ed items
+        if unit.item.quantity == 0 {     // skip zero'ed items
             return
         }
 
-        let product = try productsService.getProduct(id: unit.product)
+        let product = try productsService.getProduct(id: unit.item.product)
         try checkCurrency(forProduct: product)
         try updateConsumedInventory(forProduct: product, with: unit)
         order.products.append(unit)
-        units.append(GenericOrderUnit(product: product, quantity: unit.quantity))
+        units.append(GenericOrderUnit(product: product, quantity: unit.item.quantity))
         updateCounters(forUnit: unit, with: product)
     }
 

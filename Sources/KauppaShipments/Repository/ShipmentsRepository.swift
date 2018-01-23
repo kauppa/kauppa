@@ -2,6 +2,7 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
+import KauppaCartModel
 import KauppaOrdersModel
 import KauppaShipmentsModel
 import KauppaShipmentsStore
@@ -18,7 +19,7 @@ public class ShipmentsRepository {
     }
 
     /// Create a shipment object for an order.
-    public func createShipment(forOrder id: UUID, address: Address, items: [OrderUnit],
+    public func createShipment(forOrder id: UUID, address: Address, items: [CartUnit],
                                status: ShipmentStatus? = nil) throws -> Shipment
     {
         let date = Date()
@@ -47,10 +48,8 @@ public class ShipmentsRepository {
 
     /// Update shipment with data from the service.
     public func updateShipment(data: Shipment) throws -> Shipment {
-        var shipment = try getShipment(id: data.id)
+        var shipment = data
         shipment.updatedAt = Date()
-        shipment.items = data.items
-        shipment.status = data.status
         shipments[data.id] = shipment
         try store.updateShipment(data: shipment)
         return shipment

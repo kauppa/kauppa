@@ -94,8 +94,7 @@ extension CartService: CartServiceCallable {
 
         var units = [OrderUnit]()
         for unit in cart.items {
-            units.append(OrderUnit(product: unit.productId,
-                                   quantity: unit.quantity))
+            units.append(OrderUnit(product: unit.product, quantity: unit.quantity))
         }
 
         var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,

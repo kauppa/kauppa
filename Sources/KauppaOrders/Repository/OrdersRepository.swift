@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaCartModel
 import KauppaOrdersModel
 import KauppaOrdersStore
 
@@ -58,7 +59,7 @@ public class OrdersRepository {
 
     /// Create a refund for an order.
     public func createRefund(forOrder orderId: UUID,
-                             reason: String, items: [OrderUnit],
+                             reason: String, items: [CartUnit],
                              amount: UnitMeasurement<Currency>) throws -> Refund
     {
         let id = UUID()

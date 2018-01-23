@@ -4,9 +4,12 @@ import KauppaCartModel
 import KauppaProductsClient
 import KauppaProductsModel
 
+/// Factory class for adding a new item to the cart.
 class CartItemCreator {
     private let account: Account
     private var unit: CartUnit
+    /// Actual cart data which is used by this class. It's set during initialization,
+    /// and the service gets it after performing necessary checks and updating it.
     public private(set) var cart: Cart
 
     private var itemExists = false
@@ -30,8 +33,8 @@ class CartItemCreator {
 
     /// Check if the product already exists (if it does, mutate the corresponding unit)
     func updateItemIfExists(forProduct product: Product) throws {
-        for (i, item) in cart.items.enumerated() {
-            if item.productId == product.id {
+        for (i, unit) in cart.items.enumerated() {
+            if unit.product == product.id {
                 itemExists = true
                 cart.items[i].quantity += unit.quantity
                 let netPrice = Double(cart.items[i].quantity) * product.data.price.value
@@ -52,7 +55,7 @@ class CartItemCreator {
             throw CartError.noItemsToProcess
         }
 
-        let product = try productsService.getProduct(id: unit.productId)
+        let product = try productsService.getProduct(id: unit.product)
         if unit.quantity > product.data.inventory {
             throw CartError.productUnavailable      // precheck inventory
         }
