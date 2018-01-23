@@ -7,6 +7,7 @@ import KauppaCouponClient
 import KauppaOrdersClient
 import KauppaOrdersModel
 import KauppaProductsClient
+import KauppaTaxClient
 import KauppaCartClient
 import KauppaCartModel
 import KauppaCartRepository
@@ -18,26 +19,29 @@ public class CartService {
     let accountsService: AccountsServiceCallable
     let ordersService: OrdersServiceCallable
     let couponService: CouponServiceCallable
+    let taxService: TaxServiceCallable
 
-    /// Initializes a new `CartService` instance with a
-    /// repository, accounts, products and coupon service.
+    /// Initializes a new `CartService` instance with a repository,
+    /// accounts, products, coupon, orders and tax service.
     public init(withRepository repository: CartRepository,
                 productsService: ProductsServiceCallable,
                 accountsService: AccountsServiceCallable,
                 couponService: CouponServiceCallable,
-                ordersService: OrdersServiceCallable)
+                ordersService: OrdersServiceCallable,
+                taxService: TaxServiceCallable)
     {
         self.repository = repository
         self.productsService = productsService
         self.accountsService = accountsService
         self.ordersService = ordersService
         self.couponService = couponService
+        self.taxService = taxService
     }
 }
 
 // NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
-    public func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart {
+    public func addCartItem(forAccount userId: UUID, with unit: CartUnit) throws -> Cart {
         let account = try accountsService.getAccount(id: userId)
         let cart = try repository.getCart(forId: userId)
         let itemCreator = CartItemCreator(from: account, forCart: cart, with: unit)

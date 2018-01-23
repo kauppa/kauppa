@@ -16,7 +16,7 @@ public protocol CartServiceCallable {
     /// - Throws:
     ///   - `AccountsError` if the account doesn't exist.
     ///   - `CartError` if the item couldn't be added to the cart.
-    func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart
+    func addCartItem(forAccount userId: UUID, with unit: CartUnit) throws -> Cart
 
     /// Apply a coupon to this cart.
     ///
