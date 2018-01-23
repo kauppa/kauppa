@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaCore
+import KauppaCartModel
 import KauppaProductsModel
 import KauppaShipmentsModel
 @testable import KauppaAccountsModel
@@ -145,8 +146,8 @@ class TestReturns: XCTestCase {
         }
 
         var pickupData = PickupData()   // first partial return
-        pickupData.units = [OrderUnit(product: product1.id, quantity: 1),
-                            OrderUnit(product: product3.id, quantity: 1)]
+        pickupData.units = [CartUnit(product: product1.id, quantity: 1),
+                            CartUnit(product: product3.id, quantity: 1)]
         var updatedOrder = try! ordersService.returnOrder(id: order.id, data: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 1)
@@ -177,8 +178,8 @@ class TestReturns: XCTestCase {
             pickup2Scheduled.fulfill()
         }
 
-        pickupData.units = [OrderUnit(product: product1.id, quantity: 2),
-                            OrderUnit(product: product2.id, quantity: 1)]
+        pickupData.units = [CartUnit(product: product1.id, quantity: 2),
+                            CartUnit(product: product2.id, quantity: 1)]
         updatedOrder = try! ordersService.returnOrder(id: order.id, data: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[1].status!.fulfilledQuantity, 2)
@@ -248,7 +249,7 @@ class TestReturns: XCTestCase {
         let order = try! repository.updateOrder(withData: initial)
 
         var pickupData = PickupData()
-        pickupData.units = [OrderUnit(product: UUID(), quantity: 2)]
+        pickupData.units = [CartUnit(product: UUID(), quantity: 2)]
         do {    // Test invalid product
             let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
             XCTFail()
@@ -256,7 +257,7 @@ class TestReturns: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
         }
 
-        pickupData.units = [OrderUnit(product: product2.id, quantity: 2)]
+        pickupData.units = [CartUnit(product: product2.id, quantity: 2)]
         do {    // Test unfulfilled item
             let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
             XCTFail()
@@ -264,7 +265,7 @@ class TestReturns: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id))
         }
 
-        pickupData.units = [OrderUnit(product: product1.id, quantity: 5)]
+        pickupData.units = [CartUnit(product: product1.id, quantity: 5)]
         do {    // Test invalid quantity for fulfilled item
             let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
             XCTFail()

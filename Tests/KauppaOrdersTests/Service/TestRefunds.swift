@@ -3,6 +3,7 @@ import XCTest
 
 import KauppaCore
 import KauppaProductsModel
+import KauppaCartModel
 @testable import KauppaAccountsModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
@@ -137,8 +138,8 @@ class TestRefunds: XCTestCase {
         let order = try! repository.updateOrder(withData: initial)
 
         var refundData = RefundData(reason: "Boo!")
-        refundData.units = [OrderUnit(product: product1.id, quantity: 1),
-                            OrderUnit(product: product3.id, quantity: 1)]
+        refundData.units = [CartUnit(product: product1.id, quantity: 1),
+                            CartUnit(product: product3.id, quantity: 1)]
         let updatedOrder = try! ordersService.initiateRefund(forId: order.id, data: refundData)
         XCTAssertEqual(updatedOrder.refunds.count, 1)
         let refund1 = store.refunds[updatedOrder.refunds[0]]!
@@ -157,8 +158,8 @@ class TestRefunds: XCTestCase {
         XCTAssertNil(updatedOrder.products[2].status)
 
         // Now try and refund the remaining units
-        refundData.units = [OrderUnit(product: product1.id, quantity: 2),
-                            OrderUnit(product: product2.id, quantity: 2)]
+        refundData.units = [CartUnit(product: product1.id, quantity: 2),
+                            CartUnit(product: product2.id, quantity: 2)]
         let finalUpdate = try! ordersService.initiateRefund(forId: order.id, data: refundData)
         XCTAssertEqual(finalUpdate.refunds.count, 2)
         XCTAssertEqual(finalUpdate.paymentStatus, .refunded)
@@ -276,7 +277,7 @@ class TestRefunds: XCTestCase {
 
         var refundData = RefundData(reason: "Boo!")
 
-        refundData.units = [OrderUnit(product: UUID(), quantity: 2)]
+        refundData.units = [CartUnit(product: UUID(), quantity: 2)]
         do {    // Test invalid product
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
@@ -284,7 +285,7 @@ class TestRefunds: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
         }
 
-        refundData.units = [OrderUnit(product: product2.id, quantity: 2)]
+        refundData.units = [CartUnit(product: product2.id, quantity: 2)]
         do {    // Test unfulfilled item
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
@@ -292,7 +293,7 @@ class TestRefunds: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id))
         }
 
-        refundData.units = [OrderUnit(product: product1.id, quantity: 5)]
+        refundData.units = [CartUnit(product: product1.id, quantity: 5)]
         do {    // Test invalid quantity for refundable item
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()

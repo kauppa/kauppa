@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaCore
+import KauppaCartModel
 import KauppaProductsModel
 import KauppaShipmentsModel
 @testable import KauppaAccountsModel
@@ -59,8 +60,8 @@ class TestShipmentUpdates: XCTestCase {
                                              OrderUnit(product: product2.id, quantity: 2)])
         var order = try! ordersService.createOrder(data: orderData)
         var shipmentData = Shipment()
-        shipmentData.items = [OrderUnit(product: product1.id, quantity: 2),
-                              OrderUnit(product: product2.id, quantity: 1)]
+        shipmentData.items = [CartUnit(product: product1.id, quantity: 2),
+                              CartUnit(product: product2.id, quantity: 1)]
         shipmentData.status = .returned
 
         do {    // items haven't been delivered yet - so failure
@@ -90,7 +91,7 @@ class TestShipmentUpdates: XCTestCase {
         XCTAssertEqual(updatedOrder.products[1].status!.refundableQuantity, 1)
         XCTAssertEqual(updatedOrder.shipments[shipmentData.id]!, .returned)
 
-        shipmentData.items = [OrderUnit(product: UUID(), quantity: 1)]
+        shipmentData.items = [CartUnit(product: UUID(), quantity: 1)]
 
         do {    // item not found in order - failure
             let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
@@ -99,7 +100,7 @@ class TestShipmentUpdates: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
         }
 
-        shipmentData.items = [OrderUnit(product: product1.id, quantity: 3)]
+        shipmentData.items = [CartUnit(product: product1.id, quantity: 3)]
         do {    // No pickups have been scheduled yet
             let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
             XCTFail()
@@ -108,7 +109,7 @@ class TestShipmentUpdates: XCTestCase {
         }
 
         repository.orders[order.id]!.products[0].status!.pickupQuantity = 3
-        shipmentData.items = [OrderUnit(product: product1.id, quantity: 3)]
+        shipmentData.items = [CartUnit(product: product1.id, quantity: 3)]
         do {    // shipment has picked up 3 items, but only 1 item has been fulfilled
             let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
             XCTFail()
@@ -142,8 +143,8 @@ class TestShipmentUpdates: XCTestCase {
         var order = try! ordersService.createOrder(data: orderData)
 
         var shipmentData = Shipment()
-        shipmentData.items = [OrderUnit(product: product1.id, quantity: 3),
-                              OrderUnit(product: product2.id, quantity: 3)]
+        shipmentData.items = [CartUnit(product: product1.id, quantity: 3),
+                              CartUnit(product: product2.id, quantity: 3)]
         shipmentData.status = .delivered
         do {    // one two items were supposed to deliver for product2
             let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
@@ -152,7 +153,7 @@ class TestShipmentUpdates: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .invalidDeliveryQuantity(product2.id, 2))
         }
 
-        shipmentData.items[1] = OrderUnit(product: product2.id, quantity: 2)
+        shipmentData.items[1] = CartUnit(product: product2.id, quantity: 2)
         let _ = try! ordersService.updateShipment(forId: order.id, data: shipmentData)
         order = try! repository.getOrder(id: order.id)
         XCTAssertEqual(order.products[0].status!.fulfilledQuantity, 3)

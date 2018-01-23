@@ -3,6 +3,7 @@ import XCTest
 
 import KauppaCore
 import KauppaOrdersModel
+import KauppaCartModel
 @testable import KauppaAccountsModel
 @testable import KauppaShipmentsModel
 @testable import KauppaShipmentsRepository
@@ -43,7 +44,7 @@ class TestShipmentsService: XCTestCase {
         XCTAssertEqual(data.createdOn, data.updatedAt)      // created and updated timestamps are equal
         XCTAssertEqual(data.orderId, id)    // shipment is bound to this order ID.
         XCTAssertEqual(data.items.count, 1)     // order unit is obtained from orders service.
-        XCTAssertEqual(data.items[0].product, ordersService.order.products[0].product)
+        XCTAssertEqual(data.items[0].product, ordersService.order.products[0].item.product)
     }
 
     // Service supports scheduling pickups.
@@ -74,7 +75,7 @@ class TestShipmentsService: XCTestCase {
         }
 
         var pickupData = PickupItems()
-        pickupData.items = [OrderUnit(product: productId, quantity: 5)]
+        pickupData.items = [CartUnit(product: productId, quantity: 5)]
         data = try! service.schedulePickup(forOrder: ordersService.order.id, data: pickupData)
         let orderNotified = expectation(description: "orders service notified of pickup completion")
         ordersService.callback = { any in

@@ -33,8 +33,8 @@ class CartItemCreator {
 
     /// Check if the product already exists (if it does, mutate the corresponding unit)
     func updateItemIfExists(forProduct product: Product) throws {
-        for (i, unit) in cart.items.enumerated() {
-            if unit.product == product.id {
+        for (i, item) in cart.items.enumerated() {
+            if item.product == product.id {
                 itemExists = true
                 cart.items[i].quantity += unit.quantity
                 let netPrice = Double(cart.items[i].quantity) * product.data.price.value
@@ -50,7 +50,7 @@ class CartItemCreator {
     }
 
     /// Update this cart with the supplied cart unit.
-    func updateCart(using productsService: ProductsServiceCallable) throws {
+    func updateCartData(using productsService: ProductsServiceCallable) throws {
         if unit.quantity == 0 {
             throw CartError.noItemsToProcess
         }
