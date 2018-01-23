@@ -38,13 +38,4 @@ public struct Country: Mappable {
         self.name = name
         self.taxRate = taxRate
     }
-
-    /// Validate the data in this object.
-    public func validate() throws {
-        if name.isEmpty {
-            throw TaxError.invalidCountryName
-        }
-
-        try taxRate.validate()
-    }
 }

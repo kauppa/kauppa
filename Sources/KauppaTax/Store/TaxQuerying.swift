@@ -5,6 +5,9 @@ import KauppaTaxModel
 
 /// Methods that fetch data from the underlying store.
 public protocol TaxQuerying: Querying {
-    /// Get country corresponding to the given ID from the store for the repository.
+    /// Get the country corresponding to the given ID from the store for the repository.
     func getCountry(id: UUID) throws -> Country
+
+    /// Get the region corresponding to the given ID from store for the repository.
+    func getRegion(id: UUID) throws -> Region
 }
