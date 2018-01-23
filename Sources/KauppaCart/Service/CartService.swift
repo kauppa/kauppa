@@ -38,53 +38,11 @@ public class CartService {
 // NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
     public func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart {
-        var unit = unit
-        if unit.quantity == 0 {
-            throw CartError.noItemsToProcess
-        }
-
-        let _ = try accountsService.getAccount(id: userId)
-        let product = try productsService.getProduct(id: unit.productId)
-        if unit.quantity > product.data.inventory {
-            throw CartError.productUnavailable      // precheck inventory
-        }
-
-        let netPrice = Double(unit.quantity) * product.data.price.value
-        unit.netPrice = UnitMeasurement(value: netPrice, unit: product.data.price.unit)
-
-        var itemExists = false
-        var cart = try repository.getCart(forId: userId)
-        // Make sure that the cart maintains its currency unit
-        if let price = cart.netPrice {
-            if price.unit != product.data.price.unit {
-                throw CartError.ambiguousCurrencies
-            }
-        } else {    // initialize price if it's not been done already
-            cart.netPrice = UnitMeasurement(value: 0.0, unit: product.data.price.unit)
-        }
-
-        // Check if the product already exists (if it does, mutate the corresponding unit)
-        for (i, item) in cart.items.enumerated() {
-            if item.productId == product.id {
-                itemExists = true
-                cart.items[i].quantity += unit.quantity
-                let netPrice = Double(cart.items[i].quantity) * product.data.price.value
-                cart.items[i].netPrice!.value = netPrice
-
-                // This is just for notifying the customer. Orders service
-                // will verify this before placing the order.
-                if cart.items[i].quantity > product.data.inventory {
-                    throw CartError.productUnavailable
-                }
-            }
-        }
-
-        cart.netPrice!.value += unit.netPrice!.value
-        if !itemExists {
-            cart.items.append(unit)
-        }
-
-        return try repository.updateCart(data: cart)
+        let account = try accountsService.getAccount(id: userId)
+        let cart = try repository.getCart(forId: userId)
+        let itemCreator = CartItemCreator(from: account, forCart: cart, with: unit)
+        try itemCreator.updateCart(using: productsService)
+        return try repository.updateCart(data: itemCreator.cart)
     }
 
     public func applyCoupon(forAccount userId: UUID, code: String) throws -> Cart {
