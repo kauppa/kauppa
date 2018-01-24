@@ -16,7 +16,7 @@ class TestTaxService: TaxServiceCallable {
             callback(address)
         }
 
-        return rate!
+        return rate ?? TaxRate()
     }
 
     // NOTE: Not meant to be called by cart

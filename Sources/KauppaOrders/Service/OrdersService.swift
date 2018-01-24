@@ -50,8 +50,9 @@ extension OrdersService: OrdersServiceCallable {
             throw OrdersError.unverifiedAccount
         }
 
-        let factory = OrdersFactory(with: data, by: account, service: productsService)
-        try factory.createOrder(with: shippingService, using: couponService, and: taxService)
+        let factory = OrdersFactory(with: data, from: account, using: productsService)
+        try factory.createOrder(with: shippingService, using: couponService,
+                                calculatingWith: taxService)
         let detailedOrder = factory.createOrder()
 
         try repository.createOrder(withData: factory.order)

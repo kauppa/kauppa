@@ -78,8 +78,8 @@ class TestOrdersWithCoupons: XCTestCase {
         orderData.appliedCoupons.inner = [coupon1.id, coupon2.id]
 
         let order = try! ordersService.createOrder(data: orderData)
-        XCTAssertEqual(order.totalPrice.value, 15.0)
-        XCTAssertEqual(order.finalPrice.value, 0.0)     // final price (after applying coupons)
+        XCTAssertEqual(order.netPrice.value, 15.0)
+        XCTAssertEqual(order.grossPrice.value, 0.0)     // final price (after applying coupons)
     }
 
     // Test that the orders service carries proper validations on the coupon.\

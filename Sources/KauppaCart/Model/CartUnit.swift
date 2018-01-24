@@ -12,7 +12,7 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
     /// Required quantity of this product
     public var quantity: UInt8
     /// Tax rate used for this product (set by service).
-    public var taxRate: Float? = nil
+    public var taxRate: Double? = nil
     /// Tax for this item i.e., `quantity` times `taxRate` (set by service).
     public var tax: UnitMeasurement<Currency>? = nil
     /// The price of this unit without tax (set by service).

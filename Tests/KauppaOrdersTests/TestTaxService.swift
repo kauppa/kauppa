@@ -5,18 +5,11 @@ import KauppaAccountsModel
 import KauppaTaxClient
 import KauppaTaxModel
 
-typealias TaxCallback = (Address) -> Void
-
 class TestTaxService: TaxServiceCallable {
-    var callback: TaxCallback? = nil
     var rate: TaxRate? = nil
 
     public func getTaxRate(forAddress address: Address) throws -> TaxRate {
-        if let callback = callback {
-            callback(address)
-        }
-
-        return rate!
+        return rate ?? TaxRate()
     }
 
     // NOTE: Not meant to be called by orders
