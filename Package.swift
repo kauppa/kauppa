@@ -174,6 +174,7 @@ let serviceTargets: [Target] = [
             "KauppaAccountsClient",
             "KauppaProductsClient",
             "KauppaShipmentsClient",
+            "KauppaTaxClient",
         ],
         path: "Sources/KauppaOrders/Service"
     ),
@@ -382,6 +383,8 @@ let testTargets: [Target] = [
             "KauppaOrdersRepository",
             "KauppaOrdersService",
             "KauppaOrdersStore",
+            "KauppaTaxModel",
+            "KauppaTaxClient",
         ]
     ),
     .testTarget(

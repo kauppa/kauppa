@@ -8,6 +8,7 @@ import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaProductsModel
 import KauppaShipmentsClient
+import KauppaTaxClient
 
 /// Factory class for creating orders.
 class OrdersFactory {
@@ -129,7 +130,8 @@ class OrdersFactory {
 
     /// Method to create an order using the data provided to this factory.
     func createOrder(with shippingService: ShipmentsServiceCallable,
-                     using couponService: CouponServiceCallable) throws
+                     using couponService: CouponServiceCallable,
+                     and taxService: TaxServiceCallable) throws
     {
         for orderUnit in data.products {
             try feed(orderUnit)

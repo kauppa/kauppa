@@ -11,6 +11,7 @@ import KauppaProductsClient
 import KauppaProductsModel
 import KauppaShipmentsClient
 import KauppaShipmentsModel
+import KauppaTaxClient
 
 /// Service that manages orders placed by customers.
 public class OrdersService {
@@ -19,6 +20,7 @@ public class OrdersService {
     let productsService: ProductsServiceCallable
     let shippingService: ShipmentsServiceCallable
     let couponService: CouponServiceCallable
+    let taxService: TaxServiceCallable
 
     var mailService: MailClient? = nil
 
@@ -28,13 +30,15 @@ public class OrdersService {
                 accountsService: AccountsServiceCallable,
                 productsService: ProductsServiceCallable,
                 shippingService: ShipmentsServiceCallable,
-                couponService: CouponServiceCallable)
+                couponService: CouponServiceCallable,
+                taxService: TaxServiceCallable)
     {
         self.repository = repository
         self.accountsService = accountsService
         self.productsService = productsService
         self.shippingService = shippingService
         self.couponService = couponService
+        self.taxService = taxService
     }
 }
 
@@ -47,7 +51,7 @@ extension OrdersService: OrdersServiceCallable {
         }
 
         let factory = OrdersFactory(with: data, by: account, service: productsService)
-        try factory.createOrder(with: shippingService, using: couponService)
+        try factory.createOrder(with: shippingService, using: couponService, and: taxService)
         let detailedOrder = factory.createOrder()
 
         try repository.createOrder(withData: factory.order)
