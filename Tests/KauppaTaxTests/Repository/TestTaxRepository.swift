@@ -101,7 +101,7 @@ class TestTaxRepository: XCTestCase {
     // Ensures that repository calls the store appropriately.
     func testStoreCalls() {
         let store = TestStore()
-        let countryData = Country(name: "", taxRate: TaxRate())
+        let countryData = Country(name: "foo", taxRate: TaxRate())
         let repository = TaxRepository(withStore: store)
         try! repository.createCountry(with: countryData)
         repository.countries = [:]      // clear the repository
@@ -112,14 +112,32 @@ class TestTaxRepository: XCTestCase {
         // store shouldn't be called, because it was recently fetched by the repository
         XCTAssertFalse(store.getCountryCalled)
 
+        repository.countryNames = [:]       // reset the names
+        let _ = try! repository.getCountry(name: "foo")
+        XCTAssertTrue(store.getCountryCalled)   // this should call the store
+        store.getCountryCalled = false
+        let _ = try! repository.getCountry(name: "foo")
+        XCTAssertFalse(store.getCountryCalled)      // future `get` shouldn't call the store
+
         // similar events should happen for region
-        let regionData = Region(name: "", taxRate: TaxRate(), kind: .city, country: UUID())
+        let regionData = Region(name: "bar", taxRate: TaxRate(), kind: .city, country: countryData.id)
         try! repository.createRegion(with: regionData)
         repository.regions = [:]    // clear the repository
         let _ = try! repository.getRegion(id: regionData.id)
         XCTAssertTrue(store.getRegionCalled)
         store.getRegionCalled = false
         let _ = try! repository.getRegion(id: regionData.id)
+        XCTAssertFalse(store.getRegionCalled)
+
+        repository.countryNames = [:]       // reset the country names
+        repository.regionNames = [:]        // and region names
+        let _ = try! repository.getRegion(name: "bar", forCountry: "foo")
+        XCTAssertTrue(store.getCountryCalled)   // this should call the store for getting country name
+        XCTAssertTrue(store.getRegionCalled)    // ... and region name.
+        store.getCountryCalled = false
+        store.getRegionCalled = false
+        let _ = try! repository.getRegion(name: "bar", forCountry: "foo")
+        XCTAssertFalse(store.getCountryCalled)      // future `get` shouldn't call the store
         XCTAssertFalse(store.getRegionCalled)
     }
 }

@@ -33,4 +33,19 @@ class TestTaxService: TaxServiceCallable {
     public func deleteCountry(id: UUID) throws -> () {
         throw TaxError.invalidCountryId
     }
+
+    // NOTE: Not meant to be called by cart
+    public func addRegion(toCountry id: UUID, data: RegionData) throws -> Region {
+        throw TaxError.invalidRegionId
+    }
+
+    // NOTE: Not meant to be called by cart
+    public func updateRegion(id: UUID, with data: RegionPatch) throws -> Region {
+        throw TaxError.invalidRegionId
+    }
+
+    // NOTE: Not meant to be called by cart
+    public func deleteRegion(id: UUID) throws -> () {
+        throw TaxError.invalidRegionId
+    }
 }

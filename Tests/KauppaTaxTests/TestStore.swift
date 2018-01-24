@@ -24,13 +24,14 @@ public class TestStore: TaxStorable {
     }
 
     public func getCountry(name: String) throws -> Country {
+        getCountryCalled = true
         for (_, country) in countries {
             if country.name == name {
                 return country
             }
         }
 
-        throw TaxError.noMatchingTaxRate
+        throw TaxError.noMatchingCountry
     }
 
     public func getCountry(id: UUID) throws -> Country {
@@ -64,6 +65,18 @@ public class TestStore: TaxStorable {
         }
 
         return data
+    }
+
+    public func getRegion(name: String, forCountry countryName: String) throws -> Region {
+        getRegionCalled = true
+        let country = try getCountry(name: countryName)
+        for (_, region) in regions {
+            if region.name == name && region.countryId == country.id {
+                return region
+            }
+        }
+
+        throw TaxError.noMatchingRegion
     }
 
     public func updateRegion(with data: Region) throws -> () {
