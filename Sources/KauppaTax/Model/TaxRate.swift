@@ -10,4 +10,12 @@ public struct TaxRate: Mappable {
     public var categories = [String: Float]()
 
     public init() {}
+
+    /// Apply tax rate overrides from another instance of `TaxRate`
+    public mutating func applyOverrideFrom(_ other: TaxRate) {
+        general = other.general
+        for (category, rate) in other.categories {
+            categories[category] = rate
+        }
+    }
 }

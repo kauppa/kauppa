@@ -18,9 +18,23 @@ public class TaxService {
 // NOTE: See the actual protocol in `KauppaTaxClient` for exact usage.
 extension TaxService: TaxServiceCallable {
     public func getTaxRate(forAddress address: Address) throws -> TaxRate {
-        // TODO: Get taxes for regions (blocked on !54)
+        // FIXME: This could be done efficiently?
+        // Get the country first. This should match a valid country in the store.
         let country = try repository.getCountry(name: address.country)
-        return country.taxRate
+        var taxRate = country.taxRate
+        // Try getting the province. If it matches, override the rates in country with
+        // the values from province.
+        if let province = try? repository.getRegion(name: address.province,
+                                                    forCountry: address.country)
+        {
+            taxRate.applyOverrideFrom(province.taxRate)
+        }
+
+        if let city = try? repository.getRegion(name: address.city, forCountry: address.country) {
+            taxRate.applyOverrideFrom(city.taxRate)
+        }
+
+        return taxRate
     }
 
     public func createCountry(with data: CountryData) throws -> Country {

@@ -8,6 +8,7 @@ public class TaxRepository {
     var countries = [UUID: Country]()
     var regions = [UUID: Region]()
     var countryNames = [String: UUID]()
+    var regionNames = [String: UUID]()
 
     let store: TaxStorable
 
@@ -43,6 +44,27 @@ public class TaxRepository {
         }
 
         return data
+    }
+
+    /// Get the region matching a given name and belonging to a given country.
+    public func getRegion(name: String, forCountry countryName: String) throws -> Region {
+        let country = try getCountry(name: countryName)
+        var region: Region? = nil
+        if let id = regionNames[name] {
+            let r = try getRegion(id: id)
+            // Ensure that the region belongs to the given country.
+            if r.countryId == country.id {
+                region = r
+            }
+        }
+
+        guard let regionData = region else {
+            let region = try store.getRegion(name: name, forCountry: countryName)
+            regionNames[region.name] = region.id
+            return region
+        }
+
+        return regionData
     }
 
     /// Update the country data in repository and store.

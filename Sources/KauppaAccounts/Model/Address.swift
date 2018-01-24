@@ -11,9 +11,9 @@ public struct Address: Mappable, Hashable {
     /// Address line 2
     public let line2: String
     /// Province
-    public let province: String
+    public var province: String
     /// City
-    public let city: String
+    public var city: String
     /// Country
     public var country: String
     /// Postal/ZIP code

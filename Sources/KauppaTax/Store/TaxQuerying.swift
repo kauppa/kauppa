@@ -13,4 +13,7 @@ public protocol TaxQuerying: Querying {
 
     /// Get country matching the given name.
     func getCountry(name: String) throws -> Country
+
+    /// Get the region matching a given name and belonging to a given country.
+    func getRegion(name: String, forCountry countryName: String) throws -> Region
 }
