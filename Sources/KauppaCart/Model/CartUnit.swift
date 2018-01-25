@@ -13,7 +13,7 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
     /// Required quantity of this product.
     public var quantity: UInt8
     /// Tax data for this cart unit (set by service).
-    public var tax = UnitTax()
+    public var tax: UnitTax? = nil
     /// The price of this unit without tax (set by service).
     public var netPrice: UnitMeasurement<Currency>? = nil
     /// The price of this unit with tax (set by service).
@@ -26,22 +26,32 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
         grossPrice = nil
     }
 
+    /// Initialize tax data (if it's not been done already)
+    /// and set the tax category for this unit.
+    public mutating func setTax(category: String? = nil) {
+        if tax == nil {
+            tax = UnitTax()
+        }
+
+        tax!.category = category
+    }
+
     /// Set the tax-related properties using the given `TaxRate`
     ///
-    /// NOTE: This requires the `netPrice` to be set for this item.
-    /// If this item belongs to a category, then set the category in `tax` property.
+    /// NOTE: This requires the `tax` and `netPrice` to be set for this unit.
+    /// If this item belongs to a category, then it should be set in the `tax` property.
     public mutating func setPrices(using taxRate: TaxRate) {
         let currency = netPrice!.unit
         var rate = taxRate.general
-        if let category = tax.category {
+        if let category = tax!.category {
             if let r = taxRate.categories[category] {
                 rate = r
             }
         }
 
-        tax.rate = rate
+        tax!.rate = rate
         let unitTax = rate * 0.01 * netPrice!.value
-        tax.total = UnitMeasurement(value: unitTax, unit: currency)
+        tax!.total = UnitMeasurement(value: unitTax, unit: currency)
         let unitGross = netPrice!.value + unitTax
         grossPrice = UnitMeasurement(value: unitGross, unit: currency)
     }

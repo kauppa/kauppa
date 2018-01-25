@@ -70,17 +70,16 @@ class OrdersFactory {
 
     /// Step 3: Calculate tax and prices for a given order unit. This sets the tax rate,
     /// tax, net price and gross price for a give unit (meant to be called by `feed`).
-    private func calculateUnitPrices(forUnit unit: inout OrderUnit, category: String?) {
+    private func calculateUnitPrices(forUnit unit: inout OrderUnit) {
         let netPrice = Double(unit.item.quantity) * productPrice
         unit.item.netPrice = UnitMeasurement(value: netPrice, unit: priceUnit!)
-        unit.item.tax.category = category       // set the category for taxes
         unit.item.setPrices(using: taxRate!)
     }
 
     /// Final step: Update the counters which track the sum of values.
     private func updateCounters(forUnit unit: OrderUnit, with product: Product) {
         totalPrice += unit.item.netPrice!.value
-        totalTax += unit.item.tax.total.value
+        totalTax += unit.item.tax!.total.value
         var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
         weight.value *= Double(unit.item.quantity)
         weightCounter.add(weight)
@@ -100,7 +99,8 @@ class OrdersFactory {
         let product = try productsService.getProduct(id: unit.item.product)
         try checkCurrency(forProduct: product)
         try updateConsumedInventory(forProduct: product, with: unit)
-        calculateUnitPrices(forUnit: &unit, category: product.data.category)
+        unit.item.setTax(category: product.data.category)   // set the category for taxes
+        calculateUnitPrices(forUnit: &unit)
 
         order.products.append(unit)
         units.append(GenericOrderUnit(product: product, quantity: unit.item.quantity))

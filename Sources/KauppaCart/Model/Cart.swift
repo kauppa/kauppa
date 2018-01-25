@@ -34,7 +34,8 @@ public struct Cart: Mappable {
     /// and calculate the gross price.
     ///
     /// NOTE: This requires the `netPrice` to be set for the cart and the items in it.
-    /// If an item belongs to a category, then set the category in its `tax` property.
+    /// If an item belongs to a category, then the category should be set in its `tax` property.
+    /// The `tax` property of the items should've also been initialized at this point.
     public mutating func setPrices(using taxRate: TaxRate) {
         var gross = 0.0
         let currency = netPrice!.unit

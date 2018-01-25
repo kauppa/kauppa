@@ -101,9 +101,9 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(cart.items[0].product, product.id)       // item exists in cart
         XCTAssertEqual(cart.items[0].quantity, 4)
         XCTAssertEqual(cart.items[0].netPrice!.value, 28.0)
-        XCTAssertEqual(cart.items[0].tax.category!, "some unknown category")
-        XCTAssertEqual(cart.items[0].tax.rate, 14.0)
-        let taxValue = cart.items[0].tax.total.value
+        XCTAssertEqual(cart.items[0].tax!.category!, "some unknown category")
+        XCTAssertEqual(cart.items[0].tax!.rate, 14.0)
+        let taxValue = cart.items[0].tax!.total.value
         XCTAssert(taxValue > 3.919999999999 && taxValue < 3.920000000001)   // FIXME: Floating point mystery
         XCTAssertEqual(cart.items[0].grossPrice!.value, 31.92)
         XCTAssertEqual(cart.netPrice!.value, 28.0)
@@ -118,15 +118,15 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(updatedCart.items.count, 2)
         XCTAssertEqual(updatedCart.items[0].quantity, 7)    // quantity has been increased
         XCTAssertEqual(updatedCart.items[0].netPrice!.value, 49.0)
-        XCTAssertEqual(updatedCart.items[0].tax.category!, "some unknown category")
-        XCTAssertEqual(updatedCart.items[0].tax.rate, 14.0)
-        XCTAssertEqual(updatedCart.items[0].tax.total.value, 6.86)
+        XCTAssertEqual(updatedCart.items[0].tax!.category!, "some unknown category")
+        XCTAssertEqual(updatedCart.items[0].tax!.rate, 14.0)
+        XCTAssertEqual(updatedCart.items[0].tax!.total.value, 6.86)
         XCTAssertEqual(updatedCart.items[0].grossPrice!.value, 55.86)
         XCTAssertEqual(updatedCart.items[1].quantity, 5)
         XCTAssertEqual(updatedCart.items[1].netPrice!.value, 65.0)
-        XCTAssertEqual(updatedCart.items[1].tax.category!, "food")
-        XCTAssertEqual(updatedCart.items[1].tax.rate, 10.0)
-        XCTAssertEqual(updatedCart.items[1].tax.total.value, 6.5)
+        XCTAssertEqual(updatedCart.items[1].tax!.category!, "food")
+        XCTAssertEqual(updatedCart.items[1].tax!.rate, 10.0)
+        XCTAssertEqual(updatedCart.items[1].tax!.total.value, 6.5)
         XCTAssertEqual(updatedCart.items[1].grossPrice!.value, 71.5)
         XCTAssertEqual(updatedCart.netPrice!.value, 114.0)
         XCTAssertEqual(updatedCart.grossPrice!.value, 127.36)
