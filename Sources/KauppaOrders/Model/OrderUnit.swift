@@ -29,6 +29,12 @@ public struct GenericOrderUnit<P: Mappable>: Mappable {
         return self.status != nil
     }
 
+    /// Resets the service-settable properties in this object.
+    public mutating func resetInternalProperties() {
+        item.resetInternalProperties()
+        status = nil
+    }
+
     /// Number of items that have been fulfilled and hasn't been scheduled for pickup.
     // FIXME: May need a better name?
     public func untouchedItems() -> UInt8 {

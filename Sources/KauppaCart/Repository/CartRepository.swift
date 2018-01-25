@@ -46,11 +46,10 @@ public class CartRepository {
     }
 
     /// Update the items in a customer's cart.
-    public func updateCart(data: Cart) throws -> Cart {
+    public func updateCart(data: Cart) throws -> () {
         var cart = data
         cart.updatedAt = Date()
         carts[cart.id] = cart
         try store.updateCart(data: cart)
-        return cart
     }
 }
