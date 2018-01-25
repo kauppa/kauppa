@@ -26,6 +26,7 @@ public struct Cart: Mappable {
     public mutating func reset() {
         items = []
         netPrice = nil
+        grossPrice = nil
         coupons = ArraySet()
     }
 

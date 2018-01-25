@@ -17,6 +17,7 @@ XCTMain([
     testCase(TestMailService.allTests),
     testCase(TestCartRepository.allTests),
     testCase(TestCartService.allTests),
+    testCase(TestCartTypes.allTests),
     testCase(TestOrdersWithCoupons.allTests),
     testCase(TestCouponRepository.allTests),
     testCase(TestCouponService.allTests),
