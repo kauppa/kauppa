@@ -18,6 +18,7 @@ class CartItemCreator {
         self.account = account
         self.cart = cart
         self.unit = unit
+        self.unit.resetInternalProperties()
     }
 
     // Function to make sure that the cart maintains its currency unit.
@@ -56,6 +57,9 @@ class CartItemCreator {
         }
 
         let product = try productsService.getProduct(id: unit.product)
+        // set product category (for calculating tax later)
+        unit.setTax(category: product.data.category)
+
         if unit.quantity > product.data.inventory {
             throw CartError.productUnavailable      // precheck inventory
         }

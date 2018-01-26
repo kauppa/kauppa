@@ -41,15 +41,20 @@ public class CartService {
 
 // NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
-    public func addCartItem(forAccount userId: UUID, with unit: CartUnit) throws -> Cart {
+    public func addCartItem(forAccount userId: UUID, with unit: CartUnit,
+                            from address: Address) throws -> Cart
+    {
         let account = try accountsService.getAccount(id: userId)
         let cart = try repository.getCart(forId: userId)
         let itemCreator = CartItemCreator(from: account, forCart: cart, with: unit)
         try itemCreator.updateCartData(using: productsService)
-        return try repository.updateCart(data: itemCreator.cart)
+        try repository.updateCart(data: itemCreator.cart)
+        return try getCart(forAccount: userId, from: address)
     }
 
-    public func applyCoupon(forAccount userId: UUID, code: String) throws -> Cart {
+    public func applyCoupon(forAccount userId: UUID, code: String,
+                            from address: Address) throws -> Cart
+    {
         let _ = try accountsService.getAccount(id: userId)
         var cart = try repository.getCart(forId: userId)
         if cart.items.isEmpty {     // cannot apply coupon when there aren't any items.
@@ -62,14 +67,24 @@ extension CartService: CartServiceCallable {
         try coupon.data.deductPrice(from: &zero)
         cart.coupons.insert(coupon.id)
 
-        return try repository.updateCart(data: cart)
+        try repository.updateCart(data: cart)
+        return try getCart(forAccount: userId, from: address)
     }
 
-    public func getCart(forAccount userId: UUID) throws -> Cart {
+    public func getCart(forAccount userId: UUID, from address: Address) throws -> Cart {
         let _ = try accountsService.getAccount(id: userId)
         // FIXME: Make sure that product items are available
 
-        return try repository.getCart(forId: userId)
+        // Cart (by itself) doesn't store tax information. It gets the tax data
+        // from the tax service, applies those rates to the cart items and
+        // returns the mutated data upon request.
+        var cart = try repository.getCart(forId: userId)
+        if !cart.items.isEmpty {
+            let taxRate = try taxService.getTaxRate(forAddress: address)
+            cart.setPrices(using: taxRate)
+        }
+
+        return cart
     }
 
     public func placeOrder(forAccount userId: UUID, data: CheckoutData) throws -> Order {
@@ -103,7 +118,7 @@ extension CartService: CartServiceCallable {
         let order = try ordersService.createOrder(data: orderData)
 
         cart.reset()
-        let _ = try repository.updateCart(data: cart)
+        try repository.updateCart(data: cart)
         return order
     }
 }

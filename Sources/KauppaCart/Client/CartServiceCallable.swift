@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaAccountsModel
 import KauppaCartModel
 import KauppaOrdersModel
 
@@ -16,7 +17,8 @@ public protocol CartServiceCallable {
     /// - Throws:
     ///   - `AccountsError` if the account doesn't exist.
     ///   - `CartError` if the item couldn't be added to the cart.
-    func addCartItem(forAccount userId: UUID, with unit: CartUnit) throws -> Cart
+    func addCartItem(forAccount userId: UUID, with unit: CartUnit,
+                     from address: Address) throws -> Cart
 
     /// Apply a coupon to this cart.
     ///
@@ -27,7 +29,8 @@ public protocol CartServiceCallable {
     /// - Throws:
     ///   - `AccountsError` if the account doesn't exist.
     ///   - `CouponError` if the given coupon code is invalid.
-    func applyCoupon(forAccount userId: UUID, code: String) throws -> Cart
+    func applyCoupon(forAccount userId: UUID, code: String,
+                     from address: Address) throws -> Cart
 
     /// Get the cart data for an account.
     ///
@@ -35,7 +38,7 @@ public protocol CartServiceCallable {
     ///   - forAccount: The `UUID` of the account maintaining this cart.
     /// - Returns: The `Cart` data (with all the items contained inside)
     /// - Throws: `AccountsError` (if the account doesn't exist)
-    func getCart(forAccount userId: UUID) throws -> Cart
+    func getCart(forAccount userId: UUID, from address: Address) throws -> Cart
 
     /// Checkout the cart and place an order with the items in the cart.
     ///

@@ -6,6 +6,13 @@ import KauppaTaxModel
 /// General API for the tax service to be implemented by both the service
 /// and the client.
 public protocol TaxServiceCallable {
+    /// Get the tax rate for a given address.
+    ///
+    /// - Parameters:
+    ///   - forAddress: The `Address` for which the rate should be calculated.
+    /// - Returns: `TaxRate` for the matching area.
+    /// - Throws: `TaxError` if the tax rate could not be obtained.
+    func getTaxRate(forAddress address: Address) throws -> TaxRate
     /// Create a country with the given data.
     ///
     /// - Parameters:

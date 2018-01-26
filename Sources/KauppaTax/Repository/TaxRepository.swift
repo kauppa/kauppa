@@ -7,6 +7,8 @@ import KauppaTaxStore
 public class TaxRepository {
     var countries = [UUID: Country]()
     var regions = [UUID: Region]()
+    var countryNames = [String: UUID]()
+    var regionNames = [String: UUID]()
 
     let store: TaxStorable
 
@@ -18,7 +20,19 @@ public class TaxRepository {
     /// Create a country with validated data from the service.
     public func createCountry(with data: Country) throws -> () {
         countries[data.id] = data
+        countryNames[data.name] = data.id
         try store.createCountry(with: data)
+    }
+
+    /// Get the country for a given name (fetch it from store if it's not available)
+    public func getCountry(name: String) throws -> Country {
+        guard let id = countryNames[name] else {
+            let data = try store.getCountry(name: name)
+            countryNames[data.name] = data.id
+            return data
+        }
+
+        return try getCountry(id: id)
     }
 
     /// Get the country for a given ID (fetch it from store if it's not available in repository)
@@ -32,6 +46,27 @@ public class TaxRepository {
         return data
     }
 
+    /// Get the region matching a given name and belonging to a given country.
+    public func getRegion(name: String, forCountry countryName: String) throws -> Region {
+        let country = try getCountry(name: countryName)
+        var region: Region? = nil
+        if let id = regionNames[name] {
+            let r = try getRegion(id: id)
+            // Ensure that the region belongs to the given country.
+            if r.countryId == country.id {
+                region = r
+            }
+        }
+
+        guard let regionData = region else {
+            let region = try store.getRegion(name: name, forCountry: countryName)
+            regionNames[region.name] = region.id
+            return region
+        }
+
+        return regionData
+    }
+
     /// Update the country data in repository and store.
     public func updateCountry(with data: Country) throws -> Country {
         var data = data
@@ -43,7 +78,9 @@ public class TaxRepository {
 
     /// Delete the country matching the given ID from cache and store.
     public func deleteCountry(id: UUID) throws -> () {
-        countries.removeValue(forKey: id)
+        let country = try getCountry(id: id)
+        countries.removeValue(forKey: country.id)
+        countryNames.removeValue(forKey: country.name)
         return try store.deleteCountry(id: id)
     }
 

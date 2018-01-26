@@ -14,6 +14,7 @@ class TestOrdersWithCoupons: XCTestCase {
     let accountsService = TestAccountsService()
     var shippingService = TestShipmentsService()
     var couponService = TestCouponService()
+    var taxService = TestTaxService()
 
     static var allTests: [(String, (TestOrdersWithCoupons) -> () throws -> Void)] {
         return [
@@ -27,6 +28,7 @@ class TestOrdersWithCoupons: XCTestCase {
         accountsService.accounts = [:]
         shippingService = TestShipmentsService()
         couponService = TestCouponService()
+        taxService = TestTaxService()
         super.setUp()
     }
 
@@ -66,7 +68,8 @@ class TestOrdersWithCoupons: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          couponService: couponService)
+                                          couponService: couponService,
+                                          taxService: taxService)
         let unit = OrderUnit(product: product.id, quantity: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
@@ -75,8 +78,8 @@ class TestOrdersWithCoupons: XCTestCase {
         orderData.appliedCoupons.inner = [coupon1.id, coupon2.id]
 
         let order = try! ordersService.createOrder(data: orderData)
-        XCTAssertEqual(order.totalPrice.value, 15.0)
-        XCTAssertEqual(order.finalPrice.value, 0.0)     // final price (after applying coupons)
+        XCTAssertEqual(order.netPrice.value, 15.0)
+        XCTAssertEqual(order.grossPrice.value, 0.0)     // final price (after applying coupons)
     }
 
     // Test that the orders service carries proper validations on the coupon.\
@@ -96,7 +99,8 @@ class TestOrdersWithCoupons: XCTestCase {
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
-                                          couponService: couponService)
+                                          couponService: couponService,
+                                          taxService: taxService)
         let unit = OrderUnit(product: product.id, quantity: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])

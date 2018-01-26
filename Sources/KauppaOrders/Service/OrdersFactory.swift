@@ -8,6 +8,8 @@ import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaProductsModel
 import KauppaShipmentsClient
+import KauppaTaxClient
+import KauppaTaxModel
 
 /// Factory class for creating orders.
 class OrdersFactory {
@@ -21,22 +23,25 @@ class OrdersFactory {
     // Initial values required for keeping track of order properties during creation.
     private var productPrice = 0.0
     private var priceUnit: Currency? = nil
+    private var taxRate: TaxRate? = nil
     private var totalPrice = 0.0
+    private var totalTax = 0.0
     private let weightCounter = WeightCounter()
-    private var units = [GenericOrderUnit<Product>]()
+    private var units = [DetailedUnit]()
     private var inventoryUpdates = [UUID: UInt32]()
     private var appliedCoupons = [Coupon]()
 
-    init(with data: OrderData, by account: Account,
-         service: ProductsServiceCallable)
+    init(with data: OrderData, from account: Account,
+         using productsService: ProductsServiceCallable)
     {
-        productsService = service
+        self.productsService = productsService
         self.data = data
         self.account = account
         order = Order(placedBy: account.id)
     }
 
-    /// Check that the product currency matches with other items' currencies.
+    /// Step 1: Check that the product currency matches with other items' currencies.
+    /// (This sets the current unit's price and the currency unit used throughout the order)
     private func checkCurrency(forProduct product: Product) throws {
         productPrice = product.data.price.value
         if let unit = priceUnit {
@@ -48,7 +53,7 @@ class OrdersFactory {
         }
     }
 
-    /// Update the dictionary which tracks individual products' inventory
+    /// Step 2: Update the dictionary which tracks individual products' inventory
     /// requirements. This should be called only by `feed`
     private func updateConsumedInventory(forProduct product: Product,
                                          with unit: OrderUnit) throws
@@ -63,26 +68,40 @@ class OrdersFactory {
         inventoryUpdates[product.id] = leftover
     }
 
-    /// Update the counters which track the sum of values.
+    /// Step 3: Calculate tax and prices for a given order unit. This sets the tax rate,
+    /// tax, net price and gross price for a give unit (meant to be called by `feed`).
+    private func calculateUnitPrices(forUnit unit: inout OrderUnit) {
+        let netPrice = Double(unit.item.quantity) * productPrice
+        unit.item.netPrice = UnitMeasurement(value: netPrice, unit: priceUnit!)
+        unit.item.setPrices(using: taxRate!)
+    }
+
+    /// Final step: Update the counters which track the sum of values.
     private func updateCounters(forUnit unit: OrderUnit, with product: Product) {
-        totalPrice += Double(unit.item.quantity) * productPrice
+        totalPrice += unit.item.netPrice!.value
+        totalTax += unit.item.tax!.total.value
         var weight = product.data.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
         weight.value *= Double(unit.item.quantity)
         weightCounter.add(weight)
         order.totalItems += UInt16(unit.item.quantity)
     }
 
-    /// Feed an order unit to this factory.
+    /// Feed an order unit to this factory. This checks each product, tracks inventory,
+    /// sets the net price, gross price and tax for each unit and finally, it updates
+    /// the weight, total price and item count.
     private func feed(_ unit: OrderUnit) throws {
         var unit = unit
-        unit.status = nil           // reset the status of this `OrderUnit`
-        if unit.item.quantity == 0 {     // skip zero'ed items
+        unit.resetInternalProperties()      // reset this unit
+        if unit.item.quantity == 0 {        // skip zero'ed items
             return
         }
 
         let product = try productsService.getProduct(id: unit.item.product)
         try checkCurrency(forProduct: product)
         try updateConsumedInventory(forProduct: product, with: unit)
+        unit.item.setTax(category: product.data.category)   // set the category for taxes
+        calculateUnitPrices(forUnit: &unit)
+
         order.products.append(unit)
         units.append(GenericOrderUnit(product: product, quantity: unit.item.quantity))
         updateCounters(forUnit: unit, with: product)
@@ -103,12 +122,11 @@ class OrdersFactory {
 
     /// Apply the user-provided coupons to this order. This affects the `finalPrice`
     ///
-    /// NOTE: This should be called only after calculating the `totalPrice`
-    /// and landing on a valid `priceUnit`
-    func applyCouponsOnPrice(using couponService: CouponServiceCallable) throws
-                              -> UnitMeasurement<Currency>
+    /// NOTE: This should be called only after `feed`ing all items.
+    private func applyCouponsOnPrice(using couponService: CouponServiceCallable) throws
+                                    -> UnitMeasurement<Currency>
     {
-        var finalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
+        var finalPrice = UnitMeasurement(value: totalPrice + totalTax, unit: priceUnit!)
         for id in data.appliedCoupons {
             var coupon = try couponService.getCoupon(id: id)
             try coupon.data.deductPrice(from: &finalPrice)
@@ -119,7 +137,7 @@ class OrdersFactory {
     }
 
     /// Update the coupons after applying them in the order.
-    func updateCoupons(using couponService: CouponServiceCallable) throws {
+    private func updateCoupons(using couponService: CouponServiceCallable) throws {
         for (i, coupon) in appliedCoupons.enumerated() {
             var patch = CouponPatch()
             patch.balance = coupon.data.balance
@@ -129,8 +147,10 @@ class OrdersFactory {
 
     /// Method to create an order using the data provided to this factory.
     func createOrder(with shippingService: ShipmentsServiceCallable,
-                     using couponService: CouponServiceCallable) throws
+                     using couponService: CouponServiceCallable,
+                 calculatingWith taxService: TaxServiceCallable) throws
     {
+        taxRate = try taxService.getTaxRate(forAddress: data.shippingAddress)
         for orderUnit in data.products {
             try feed(orderUnit)
         }
@@ -140,9 +160,10 @@ class OrdersFactory {
         order.placedBy = account.id
         order.shippingAddress = data.shippingAddress
         order.billingAddress = data.billingAddress
-        order.totalPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
+        order.totalTax = UnitMeasurement(value: totalTax, unit: priceUnit!)
+        order.netPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
         order.totalWeight = weightCounter.sum()
-        order.finalPrice = try applyCouponsOnPrice(using: couponService)
+        order.grossPrice = try applyCouponsOnPrice(using: couponService)
 
         try updateCoupons(using: couponService)
 

@@ -1,5 +1,6 @@
 import XCTest
 
+import KauppaAccountsModel
 import KauppaTaxModel
 import KauppaTaxService
 import KauppaTaxRepository
@@ -9,11 +10,13 @@ class TestTaxService: XCTestCase {
     static var allTests: [(String, (TestTaxService) -> () throws -> Void)] {
         return [
             ("Test country creation", testCountryCreation),
+            ("Test tax calculation for country", testTaxCalculationCountry),
             ("Test invalid country creation data", testCountryCreationInvalidData),
             ("Test country update", testCountryUpdate),
             ("Test invalid country update data", testCountryUpdateInvalidData),
             ("Test country deletion", testCountryDeletion),
             ("Test region creation", testRegionCreation),
+            ("Test tax calculation for region", testTaxCalculationRegion),
             ("Test invalid region creation data", testRegionCreationInvalidData),
             ("Test region update", testRegionUpdate),
             ("Test invalid region update data", testRegionUpdateInvalidData),
@@ -43,6 +46,28 @@ class TestTaxService: XCTestCase {
         XCTAssertEqual(country.name, "India")
         XCTAssertEqual(country.taxRate.general, 18.0)
         XCTAssertEqual(country.taxRate.categories["drink"]!, 5.0)
+    }
+
+    /// Check that the service returns the right tax rate for a country.
+    func testTaxCalculationCountry() {
+        let store = TestStore()
+        let repository = TaxRepository(withStore: store)
+        let service = TaxService(withRepository: repository)
+        var rate = TaxRate()
+        rate.general = 18.0
+        let data = CountryData(name: "India", taxRate: rate)
+        let _ = try! service.createCountry(with: data)
+        var address = Address()
+        do {    // no country - error
+            let _ = try service.getTaxRate(forAddress: address)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! TaxError, .noMatchingCountry)
+        }
+
+        address.country = "India"
+        let taxRate = try! service.getTaxRate(forAddress: address)
+        XCTAssertEqual(taxRate.general, 18.0)
     }
 
     /// Ensure that invalid country data is rejected by the service.
@@ -147,6 +172,51 @@ class TestTaxService: XCTestCase {
         XCTAssertEqual(region.taxRate.general, 28.0)
         XCTAssertEqual(region.countryId, country.id)
         XCTAssertEqual(region.kind.rawValue, "province")
+    }
+
+    /// Check that the service returns the right tax rate for a region. It should propagate
+    /// tax rates for categories in hierarchy.
+    ///
+    /// NOTE: These values are hypothetical
+    func testTaxCalculationRegion() {
+        let store = TestStore()
+        let repository = TaxRepository(withStore: store)
+        let service = TaxService(withRepository: repository)
+        var rate = TaxRate()
+        rate.general = 14.0
+        // assume that there's a general tax rate for electronics throughout the country
+        rate.categories["electronics"] = 20.0
+        let data = CountryData(name: "India", taxRate: rate)
+        let country = try! service.createCountry(with: data)
+        rate = TaxRate()
+        rate.general = 18.0
+        rate.categories["food"] = 19.0      // this province has some tax rate for food
+        rate.categories["drink"] = 15.0     // ... and drink
+        var regionData = RegionData(name: "Maharashtra", taxRate: rate, kind: .province)
+        let _ = try! service.addRegion(toCountry: country.id, data: regionData)
+        rate = TaxRate()
+        rate.general = 28.0
+        rate.categories["drink"] = 20.0     // this city has a special tax rate for drinks
+        regionData = RegionData(name: "Mumbai", taxRate: rate, kind: .city)
+        let _ = try! service.addRegion(toCountry: country.id, data: regionData)
+
+        var address = Address()
+        address.city = "Mumbai"
+        address.province = "Maharashtra"
+        address.country = "India"
+        var taxRate = try! service.getTaxRate(forAddress: address)
+        XCTAssertEqual(taxRate.general, 28.0)                       // (from city)
+        XCTAssertEqual(taxRate.categories["drink"]!, 20.0)          // (from city)
+        XCTAssertEqual(taxRate.categories["food"]!, 19.0)           // (from province)
+        XCTAssertEqual(taxRate.categories["electronics"], 20.0)     // (from country)
+
+        // similarly, get the tax rate for the province
+        address.city = "Pune"
+        taxRate = try! service.getTaxRate(forAddress: address)
+        XCTAssertEqual(taxRate.general, 18.0)                       // (from province)
+        XCTAssertEqual(taxRate.categories["drink"]!, 15.0)          // (from province)
+        XCTAssertEqual(taxRate.categories["food"]!, 19.0)           // (from province)
+        XCTAssertEqual(taxRate.categories["electronics"], 20.0)     // (from country)
     }
 
     /// Test region creation with possible error cases.

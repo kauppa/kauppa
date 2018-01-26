@@ -10,4 +10,10 @@ public protocol TaxQuerying: Querying {
 
     /// Get the region corresponding to the given ID from store for the repository.
     func getRegion(id: UUID) throws -> Region
+
+    /// Get country matching the given name.
+    func getCountry(name: String) throws -> Country
+
+    /// Get the region matching a given name and belonging to a given country.
+    func getRegion(name: String, forCountry countryName: String) throws -> Region
 }

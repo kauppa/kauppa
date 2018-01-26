@@ -21,11 +21,13 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
     /// Total number of items processed (includes the quantity)
     public var totalItems: UInt16 = 0
     /// Total price of all items (includes the quantity) without tax/shipping.
-    public var totalPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
+    public var netPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
+    /// Total tax for this order.
+    public var totalTax = UnitMeasurement(value: 0.0, unit: Currency.usd)
     /// List of coupons applied in this order.
     public var appliedCoupons = [Coupon]()
-    /// Final price after adding taxes, shipment fee and applying coupons (if any)
-    public var finalPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
+    /// Final price after adding taxes, shipment fee and coupon deductions (if any)
+    public var grossPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
     /// Total weight of this purchase (includes the quantity)
     public var totalWeight = UnitMeasurement(value: 0.0, unit: Weight.gram)
     /// Status of this order.
@@ -61,8 +63,9 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
         data.createdOn = createdOn
         data.updatedAt = updatedAt
         data.totalItems = totalItems
-        data.totalPrice = totalPrice
-        data.finalPrice = finalPrice
+        data.netPrice = netPrice
+        data.totalTax = totalTax
+        data.grossPrice = grossPrice
         data.totalWeight = totalWeight
         data.fulfillment = fulfillment
         data.paymentStatus = paymentStatus
