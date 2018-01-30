@@ -86,7 +86,7 @@ extension OrdersService: OrdersServiceCallable {
     public func returnOrder(id: UUID, data: PickupData) throws -> Order {
         var order = try repository.getOrder(id: id)
         let factory = ReturnsFactory(with: data, using: productsService)
-        try factory.initiatePickup(forOrder: &order, withShipping: shippingService)
+        try factory.initiatePickup(forOrder: &order, with: shippingService)
         return try repository.updateOrder(withData: order)
     }
 

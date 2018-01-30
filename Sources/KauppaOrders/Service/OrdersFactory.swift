@@ -96,7 +96,8 @@ class OrdersFactory {
             return
         }
 
-        let product = try productsService.getProduct(id: unit.item.product)
+        let product = try productsService.getProduct(id: unit.item.product,
+                                                     from: data.shippingAddress)
         try checkCurrency(forProduct: product)
         try updateConsumedInventory(forProduct: product, with: unit)
         unit.item.setTax(category: product.data.category)   // set the category for taxes
@@ -148,7 +149,7 @@ class OrdersFactory {
     /// Method to create an order using the data provided to this factory.
     func createOrder(with shippingService: ShipmentsServiceCallable,
                      using couponService: CouponServiceCallable,
-                 calculatingWith taxService: TaxServiceCallable) throws
+                     calculatingWith taxService: TaxServiceCallable) throws
     {
         taxRate = try taxService.getTaxRate(forAddress: data.shippingAddress)
         for orderUnit in data.products {

@@ -13,6 +13,8 @@ public protocol CartServiceCallable {
     ///
     /// - Parameters:
     ///   - forAccount: The `UUID` of the account maintaining this cart.
+    ///   - with: The `CartUnit` that needs to be added to the cart.
+    ///   - from: The `Address` from which this request was originated.
     /// - Returns: The `Cart` data (with all the items contained inside)
     /// - Throws:
     ///   - `AccountsError` if the account doesn't exist.
@@ -25,6 +27,7 @@ public protocol CartServiceCallable {
     /// - Parameters:
     ///   - forAccount: The `UUID` of the account maintaining this cart.
     ///   - code: The unique alphanumeric code of the coupon.
+    ///   - from: The `Address` from which this request was originated.
     /// - Returns: The `Cart` with the coupon applied.
     /// - Throws:
     ///   - `AccountsError` if the account doesn't exist.
@@ -36,6 +39,7 @@ public protocol CartServiceCallable {
     ///
     /// - Parameters:
     ///   - forAccount: The `UUID` of the account maintaining this cart.
+    ///   - from: The `Address` from which this request was originated.
     /// - Returns: The `Cart` data (with all the items contained inside)
     /// - Throws: `AccountsError` (if the account doesn't exist)
     func getCart(forAccount userId: UUID, from address: Address) throws -> Cart

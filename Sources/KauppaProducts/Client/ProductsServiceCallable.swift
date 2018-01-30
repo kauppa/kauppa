@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaAccountsModel
 import KauppaProductsModel
 
 /// General API meant for the products service to be used by both the
@@ -11,17 +12,19 @@ public protocol ProductsServiceCallable {
     ///
     /// - Parameters:
     ///   - data: The `ProductData` required for creating a product.
+    ///   - from: The `Address` from which this request was originated.
     /// - Returns: `Product`
     /// - Throws: `ProductsError` if there were errors validating the data.
-    func createProduct(data: ProductData) throws -> Product
+    func createProduct(data: ProductData, from address: Address) throws -> Product
 
     /// Get product for a given ID.
     ///
     /// - Parameters:
     ///   - id: The `UUID` of the `Product`
+    ///   - from: The `Address` from which this request was originated.
     /// - Returns: `Product` (if it exists)
     /// - Throws: `ProductsError` (if it doesn't).
-    func getProduct(id: UUID) throws -> Product
+    func getProduct(id: UUID, from address: Address) throws -> Product
 
     /// Delete product corresponding to a given ID.
     ///

@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaTaxModel
 
 /// User-supplied information for a product.
 public struct ProductData: Mappable {
@@ -19,14 +20,21 @@ public struct ProductData: Mappable {
     /// Color in hex code
     public var color: String? = nil
     /// Weight of this product in some chosen measurement.
-    public var weight: UnitMeasurement<Weight>?
+    public var weight: UnitMeasurement<Weight>? = nil
     /// Amount of items of this product in the inventory
     public var inventory: UInt32 = 0
     /// Base64-encoded images
     public var images = ArraySet<String>()
     /// Price of the product in some chosen currency
     // FIXME: Avoid `Double` to avoid floating point disasters.
-    public var price: UnitMeasurement<Currency> = UnitMeasurement(value: 0, unit: .usd)
+    public var price = UnitMeasurement(value: 0, unit: Currency.usd)
+    /// Specify whether this price is inclusive of taxes.
+    ///
+    /// If this is `true` while creating the product, then the tax is deducted
+    /// from the price, this flag is changed, and the base price is stored.
+    public var taxInclusive: Bool = false
+    /// Tax data for this product.
+    public var tax: UnitTax? = nil
     /// (child) variants of this product. For now, the variants belong to a single parent
     /// product, and hence this is an internal property. It shouldn't be updated
     /// manually by the user. Instead, the user should attach the ID of the parent
@@ -40,6 +48,42 @@ public struct ProductData: Mappable {
         self.title = title
         self.subtitle = subtitle
         self.description = description
+    }
+
+    /// Reset `tax` field and strip tax from price using the given `TaxRate`
+    /// if it's inclusive of tax.
+    public mutating func stripTax(using taxRate: TaxRate) {
+        tax = nil
+        var rate = taxRate.general
+        if let category = self.category {
+            if let r = taxRate.categories[category] {
+                rate = r
+            }
+        }
+
+        if taxInclusive {   // revert the flag and set the actual product price
+            taxInclusive = false
+            price.value /= (1 + 0.01 * rate)
+        }
+    }
+
+    /// Set the tax-related properties using the given `TaxRate`
+    ///
+    /// NOTE: The `price` should be exclusive of tax.
+    public mutating func setTax(using taxRate: TaxRate) {
+        tax = UnitTax()     // initialize tax data
+        var rate = taxRate.general
+        if let category = self.category {
+            if let r = taxRate.categories[category] {
+                // If the category exists, set that category for tax.
+                tax!.category = category
+                rate = r
+            }
+        }
+
+        tax!.rate = rate
+        let unitTax = rate * 0.01 * price.value
+        tax!.total = UnitMeasurement(value: unitTax, unit: price.unit)
     }
 
     /// Perform basic validation on product data.
