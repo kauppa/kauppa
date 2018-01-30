@@ -30,7 +30,9 @@ public class TestProductsService: ProductsServiceCallable {
         throw ProductsError.invalidProduct
     }
 
-    public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
+    public func updateProduct(id: UUID, data: ProductPatch,
+                              from address: Address) throws -> Product
+    {
         if let callback = callbacks[id] {
             callback(data)
         }
@@ -39,12 +41,16 @@ public class TestProductsService: ProductsServiceCallable {
     }
 
     // NOTE: Not meant to be called by orders
-    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch,
+                                   from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
     // NOTE: Not meant to be called by orders
-    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch,
+                                      from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 

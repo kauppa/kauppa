@@ -17,6 +17,7 @@ class TestProductsService: XCTestCase {
             ("Test product creation - inclusive tax", testProductCreationInclusiveTax),
             ("Test product deletion", testProductDeletion),
             ("Test update of product", testProductUpdate),
+            ("Test product price update - inclusive tax", testProductUpdateInclusiveTax),
             ("Test individual property deletion", testPropertyDeletion),
             ("Test individual property addition", testPropertyAddition),
             ("Test collection creation", testCollectionCreation),
@@ -137,7 +138,7 @@ class TestProductsService: XCTestCase {
             let jsonStr = "{\"\(attribute)\": \(value)}"
             let jsonData = jsonStr.data(using: .utf8)!
             let data = try! JSONDecoder().decode(ProductPatch.self, from: jsonData)
-            let result = try? service.updateProduct(id: productId, data: data)
+            let result = try? service.updateProduct(id: productId, data: data, from: Address())
             if i < validTests.count {
                 XCTAssertNotNil(result)
             } else {
@@ -171,9 +172,41 @@ class TestProductsService: XCTestCase {
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
         XCTAssertEqual(updatedProduct.data.variantId, anotherId)
 
-        waitForExpectations(timeout: 2) { error in
+        waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
         }
+    }
+
+    func testProductUpdateInclusiveTax() {
+        let store = TestStore()
+        let repository = ProductsRepository(withStore: store)
+        var rate = TaxRate()
+        rate.general = 18.0
+        rate.categories["food"] = 12.0
+        taxService.rate = rate
+        let service = ProductsService(withRepository: repository, taxService: taxService)
+        let data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var product = try! service.createProduct(data: data, from: Address())
+
+        var patch = ProductPatch()
+        patch.price = UnitMeasurement(value: 10.0, unit: .usd)
+        patch.taxInclusive = true
+        product = try! service.updateProduct(id: product.id, data: patch, from: Address())
+        var price = product.data.price.value
+        XCTAssertTrue(price > 8.47457627 && price < 8.47457628)
+        XCTAssertNil(product.data.tax!.category)
+        XCTAssertEqual(product.data.tax!.rate, 18.0)
+        var tax = product.data.tax!.total.value
+        XCTAssertTrue(tax > 1.525423728 && tax < 1.525423729)
+
+        patch.category = "food"
+        product = try! service.updateProduct(id: product.id, data: patch, from: Address())
+        price = product.data.price.value
+        XCTAssertTrue(price > 8.92857142 && price < 8.92857143)
+        XCTAssertEqual(product.data.tax!.category!, "food")
+        XCTAssertEqual(product.data.tax!.rate, 12.0)
+        tax = product.data.tax!.total.value
+        XCTAssertTrue(tax > 1.071428571 && tax < 1.071428572)
     }
 
     // Service supports adding items to collection properties.
@@ -187,7 +220,8 @@ class TestProductsService: XCTestCase {
 
         var patch = ProductPropertyAdditionPatch()
         patch.image = "data:image/png;base64,foobar"
-        let updatedProduct = try! service.addProductProperty(id: data.id, data: patch)
+        let updatedProduct = try! service.addProductProperty(id: data.id, data: patch,
+                                                             from: Address())
         // image should've been added
         XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,foobar"])
     }
@@ -215,7 +249,8 @@ class TestProductsService: XCTestCase {
         patch.removeSize = true
         patch.removeWeight = true
         patch.removeImageAt = 0     // remove image at zero'th index
-        let updatedProduct = try! service.deleteProductProperty(id: data.id, data: patch)
+        let updatedProduct = try! service.deleteProductProperty(id: data.id, data: patch,
+                                                                from: Address())
         XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,baz"])
         XCTAssertNil(updatedProduct.data.size)
         XCTAssertNil(updatedProduct.data.category)

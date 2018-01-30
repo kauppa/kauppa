@@ -28,17 +28,23 @@ public class TestProductsService: ProductsServiceCallable {
     }
 
     // NOTE: Not meant to be called by cart
-    public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
+    public func updateProduct(id: UUID, data: ProductPatch,
+                              from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
     // NOTE: Not meant to be called by cart
-    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch,
+                                   from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
     // NOTE: Not meant to be called by cart
-    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch,
+                                      from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 

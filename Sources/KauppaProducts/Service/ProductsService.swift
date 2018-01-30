@@ -68,7 +68,9 @@ extension ProductsService: ProductsServiceCallable {
         return try repository.deleteProduct(id: id)
     }
 
-    public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
+    public func updateProduct(id: UUID, data: ProductPatch,
+                              from address: Address) throws -> Product
+    {
         var productData = try repository.getProductData(id: id)
 
         if let title = data.title {
@@ -123,6 +125,12 @@ extension ProductsService: ProductsServiceCallable {
             productData.category = category
         }
 
+        if data.taxInclusive ?? false {
+            productData.taxInclusive = true
+            let taxRate = try taxService.getTaxRate(forAddress: address)
+            productData.stripTax(using: taxRate)
+        }
+
         /// NOTE: No support for `variants` directly
 
         if let variantId = data.variantId {
@@ -142,20 +150,26 @@ extension ProductsService: ProductsServiceCallable {
             }
         }
 
-        return try repository.updateProductData(id: id, data: productData)
+        let _ = try repository.updateProductData(id: id, data: productData)
+        return try getProduct(id: id, from: address)
     }
 
-    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch,
+                                   from address: Address) throws -> Product
+    {
         var productData = try repository.getProductData(id: id)
 
         if let image = data.image {
             productData.images.insert(image)
         }
 
-        return try repository.updateProductData(id: id, data: productData)
+        let _ = try repository.updateProductData(id: id, data: productData)
+        return try getProduct(id: id, from: address)
     }
 
-    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch,
+                                      from address: Address) throws -> Product
+    {
         var productData = try repository.getProductData(id: id)
 
         if (data.removeCategory ?? false) {
@@ -187,7 +201,8 @@ extension ProductsService: ProductsServiceCallable {
             }
         }
 
-        return try repository.updateProductData(id: id, data: productData)
+        let _ = try repository.updateProductData(id: id, data: productData)
+        return try getProduct(id: id, from: address)
     }
 
     public func createCollection(data: ProductCollectionData) throws -> ProductCollection {

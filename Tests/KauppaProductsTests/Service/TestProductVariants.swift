@@ -70,7 +70,7 @@ class TestProductVariants: XCTestCase {
         // patch the variant referencing the parent product
         var patch = ProductPatch()
         patch.variantId = parentProduct.id
-        let _ = try! service.updateProduct(id: childVariant.id, data: patch)
+        let _ = try! service.updateProduct(id: childVariant.id, data: patch, from: Address())
 
         let parent = try! service.getProduct(id: parentProduct.id, from: Address())
         // should automatically add the variant to parent's list
@@ -120,14 +120,14 @@ class TestProductVariants: XCTestCase {
         // Make the second product a variant of the first
         var patch = ProductPatch()
         patch.variantId = parentProduct.id
-        let _ = try! service.updateProduct(id: firstChild.id, data: patch)
+        let _ = try! service.updateProduct(id: firstChild.id, data: patch, from: Address())
         let child1 = try! service.getProduct(id: firstChild.id, from: Address())
         // check that the data has been reflected
         XCTAssertEqual(child1.data.variantId, parentProduct.id)
 
         // Make the third product variant of the second
         patch.variantId = firstChild.id
-        let _ = try! service.updateProduct(id: secondChild.id, data: patch)
+        let _ = try! service.updateProduct(id: secondChild.id, data: patch, from: Address())
         let child2 = try! service.getProduct(id: secondChild.id, from: Address())
         // The variant should reference the actual parent
         XCTAssertEqual(child2.data.variantId, parentProduct.id)
@@ -154,7 +154,8 @@ class TestProductVariants: XCTestCase {
 
         var patch = ProductPropertyDeletionPatch()
         patch.removeVariant = true
-        let updatedChild = try! service.deleteProductProperty(id: childVariant.id, data: patch)
+        let updatedChild = try! service.deleteProductProperty(id: childVariant.id,
+                                                              data: patch, from: Address())
         XCTAssertNil(updatedChild.data.variantId)   // variant field has been reset
         let updatedParent = try! service.getProduct(id: parentProduct.id, from: Address())
         XCTAssertEqual(updatedParent.data.variants, [])     // child removed

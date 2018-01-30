@@ -117,7 +117,8 @@ class OrdersFactory {
         for (id, leftover) in inventoryUpdates {
             var patch = ProductPatch()
             patch.inventory = leftover
-            let _ = try productsService.updateProduct(id: id, data: patch)
+            let _ = try productsService.updateProduct(id: id, data: patch,
+                                                      from: data.shippingAddress)
         }
     }
 
