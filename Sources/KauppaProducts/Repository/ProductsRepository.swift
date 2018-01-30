@@ -22,10 +22,11 @@ public class ProductsRepository {
     }
 
     /// Create product from the given product data.
-    public func createProduct(data: Product) throws {
+    public func createProduct(data: Product) throws -> Product {
         try self.store.createNewProduct(productData: data)
         products[data.id] = data
         updateCategoriesAndTags(using: data)
+        return data
     }
 
     /// Delete the product corresponding to an ID.

@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 
+import KauppaAccountsModel
 import KauppaProductsClient
 import KauppaProductsModel
 
@@ -10,14 +11,13 @@ public class TestProductsService: ProductsServiceCallable {
     var products = [UUID: Product]()
     var callbacks = [UUID: ProductsCallback]()
 
-    public func createProduct(data: ProductData) throws -> Product {
-        let id = UUID()
-        let date = Date()
-        products[id] = Product(id: id, createdOn: date, updatedAt: date, data: data)
-        return products[id]!
+    public func createProduct(data: ProductData, from address: Address) throws -> Product {
+        let product = Product(data: data)
+        products[product.id] = product
+        return product
     }
 
-    public func getProduct(id: UUID) throws -> Product {
+    public func getProduct(id: UUID, from address: Address) throws -> Product {
         guard let product = products[id] else {
             throw ProductsError.invalidProduct
         }
@@ -35,7 +35,7 @@ public class TestProductsService: ProductsServiceCallable {
             callback(data)
         }
 
-        return try getProduct(id: id)   // This is just a stub
+        return try getProduct(id: id, from: Address())  // This is just a stub
     }
 
     // NOTE: Not meant to be called by orders

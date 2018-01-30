@@ -1,12 +1,14 @@
 import Foundation
 import XCTest
 
+import KauppaAccountsModel
 @testable import KauppaCore
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository
 @testable import KauppaProductsService
 
 class TestProductsService: XCTestCase {
+    var taxService = TestTaxService()
 
     static var allTests: [(String, (TestProductsService) -> () throws -> Void)] {
         return [
@@ -25,6 +27,7 @@ class TestProductsService: XCTestCase {
     }
 
     override func setUp() {
+        taxService = TestTaxService()
         super.setUp()
     }
 
@@ -36,18 +39,18 @@ class TestProductsService: XCTestCase {
     func testProductCreation() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let _ = try! service.createProduct(data: product)
+        let _ = try! service.createProduct(data: product, from: Address())
     }
 
     // Service supports product deletion
     func testProductDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let data = try! service.createProduct(data: product)
+        let data = try! service.createProduct(data: product, from: Address())
         try! service.deleteProduct(id: data.id)     // deletion succeeded
     }
 
@@ -55,15 +58,15 @@ class TestProductsService: XCTestCase {
     func testProductUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         let product = ProductData(title: "Foo",
                                   subtitle: "Bar",
                                   description: "Foobar")
-        let data = try! service.createProduct(data: product)
+        let data = try! service.createProduct(data: product, from: Address())
         let productId = data.id
 
         let anotherProduct = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let anotherData = try! service.createProduct(data: anotherProduct)
+        let anotherData = try! service.createProduct(data: anotherProduct, from: Address())
         let anotherId = anotherData.id
         let randomId = UUID()
 
@@ -111,7 +114,7 @@ class TestProductsService: XCTestCase {
         }
 
         // All successful updates
-        let updatedProduct = try! service.getProduct(id: productId)
+        let updatedProduct = try! service.getProduct(id: productId, from: Address())
         XCTAssertEqual(updatedProduct.data.title, "Foobar")
         XCTAssertEqual(updatedProduct.data.subtitle, "Baz")
         XCTAssertEqual(updatedProduct.data.description, "Foo Bar Baz")
@@ -142,9 +145,9 @@ class TestProductsService: XCTestCase {
     func testPropertyAddition() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         let product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let data = try! service.createProduct(data: product)
+        let data = try! service.createProduct(data: product, from: Address())
         XCTAssertEqual(data.data.images.inner, [])      // no images
 
         var patch = ProductPropertyAdditionPatch()
@@ -158,7 +161,7 @@ class TestProductsService: XCTestCase {
     func testPropertyDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         var product = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         // set all additional attributes required for testing
         product.images.inner = ["data:image/png;base64,bar", "data:image/png;base64,baz"]
@@ -169,7 +172,7 @@ class TestProductsService: XCTestCase {
         product.size = size
         product.category = "food"
         // variant is checked in `TestProductVariants`
-        let data = try! service.createProduct(data: product)
+        let data = try! service.createProduct(data: product, from: Address())
 
         var patch = ProductPropertyDeletionPatch()
         patch.removeCategory = true
@@ -189,11 +192,11 @@ class TestProductsService: XCTestCase {
     func testCollectionCreation() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let product1 = try! service.createProduct(data: productData)
+        let product1 = try! service.createProduct(data: productData, from: Address())
         productData.color = "#000"
-        let product2 = try! service.createProduct(data: productData)
+        let product2 = try! service.createProduct(data: productData, from: Address())
 
         let collection = ProductCollectionData(name: "foo", description: "bar",
                                                products: [product1.id, product2.id])
@@ -205,7 +208,7 @@ class TestProductsService: XCTestCase {
     func testCollectionInvalidProduct() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         let collection = ProductCollectionData(name: "foo", description: "bar", products: [UUID()])
         do {
             let _ = try service.createCollection(data: collection)
@@ -219,7 +222,7 @@ class TestProductsService: XCTestCase {
     func testCollectionDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         let collection = ProductCollectionData(name: "foo", description: "bar", products: [])
         let data = try! service.createCollection(data: collection)
         let _ = try! service.deleteCollection(id: data.id)
@@ -229,9 +232,9 @@ class TestProductsService: XCTestCase {
     func testCollectionUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         let productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let product1 = try! service.createProduct(data: productData)
+        let product1 = try! service.createProduct(data: productData, from: Address())
         let collection = ProductCollectionData(name: "foo", description: "bar", products: [])
         let data = try! service.createCollection(data: collection)
         XCTAssertTrue(data.data.products.isEmpty)
@@ -260,11 +263,11 @@ class TestProductsService: XCTestCase {
     func testCollectionAdd() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let product1 = try! service.createProduct(data: productData)
+        let product1 = try! service.createProduct(data: productData, from: Address())
         productData.color = "#FFF"
-        let product2 = try! service.createProduct(data: productData)
+        let product2 = try! service.createProduct(data: productData, from: Address())
         let collection = ProductCollectionData(name: "foo", description: "bar", products: [])
         let data = try! service.createCollection(data: collection)
 
@@ -286,11 +289,11 @@ class TestProductsService: XCTestCase {
     func testCollectionRemove() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
-        let service = ProductsService(withRepository: repository)
+        let service = ProductsService(withRepository: repository, taxService: taxService)
         var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
-        let product1 = try! service.createProduct(data: productData)
+        let product1 = try! service.createProduct(data: productData, from: Address())
         productData.color = "#fff"
-        let product2 = try! service.createProduct(data: productData)
+        let product2 = try! service.createProduct(data: productData, from: Address())
         let collection = ProductCollectionData(name: "foo", description: "bar",
                                                products: [product1.id, product2.id])
         let data = try! service.createCollection(data: collection)

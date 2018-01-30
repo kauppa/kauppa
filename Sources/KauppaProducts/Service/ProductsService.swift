@@ -46,8 +46,8 @@ extension ProductsService: ProductsServiceCallable {
         let taxRate = try taxService.getTaxRate(forAddress: address)
         data.stripTax(using: taxRate)
 
-        var product = Product(data: data)
-        try repository.createProduct(data: product)
+        let product = Product(data: data)
+        let _ = try repository.createProduct(data: product)
         if let variant = variant {
             var variantData = variant.data
             variantData.variants.insert(product.id)
