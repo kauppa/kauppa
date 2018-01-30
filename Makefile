@@ -40,4 +40,10 @@ build-containers: build-release
 		fi ; \
 	done
 
+remove-containers:
+	docker images | grep $(CONTAINER_URL).*$(CONTAINER_VERSION) | awk -v OFS=':' '{print $$1,$$2}' | xargs docker rmi
+
+push-containers: build-containers
+	docker images | grep $(CONTAINER_URL).*$(CONTAINER_VERSION) | awk -v OFS=':' '{print $$1,$$2}' | xargs echo 'Pushing'
+
 .PHONY: clean build test run
