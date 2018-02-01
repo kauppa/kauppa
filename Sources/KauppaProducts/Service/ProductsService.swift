@@ -1,26 +1,35 @@
 import Foundation
 
+import KauppaAccountsModel
 import KauppaProductsClient
 import KauppaProductsModel
 import KauppaProductsRepository
+import KauppaTaxClient
 
 /// Products service
 public class ProductsService {
     let repository: ProductsRepository
+    let taxService: TaxServiceCallable
 
-    public init(withRepository repository: ProductsRepository) {
+    public init(withRepository repository: ProductsRepository,
+                taxService: TaxServiceCallable)
+    {
         self.repository = repository
+        self.taxService = taxService
     }
 }
 
 // NOTE: See the actual protocol in `KauppaProductsClient` for exact usage.
 extension ProductsService: ProductsServiceCallable {
-    public func createProduct(data: ProductData) throws -> Product {
+    public func createProduct(data: ProductData,
+                              from address: Address) throws -> Product
+    {
         var data = data
         data.variants = []  // ensure that variants can't be "set" manually
         try data.validate()
         var variant: Product? = nil
 
+        // Check the variant data (if provided)
         if let variantId = data.variantId {
             do {
                 variant = try repository.getProduct(id: variantId)
@@ -34,26 +43,34 @@ extension ProductsService: ProductsServiceCallable {
             }
         }
 
-        let productData = try repository.createProduct(data: data)
+        let taxRate = try taxService.getTaxRate(forAddress: address)
+        data.stripTax(using: taxRate)
+
+        let product = Product(data: data)
+        let _ = try repository.createProduct(data: product)
         if let variant = variant {
             var variantData = variant.data
-            variantData.variants.insert(productData.id)
-            // FIXME: Make sure that the data of variants is reflected
-            let _ = try? repository.updateProductData(id: variant.id, data: variantData)
+            variantData.variants.insert(product.id)
+            let _ = try repository.updateProductData(id: variant.id, data: variantData)
         }
 
-        return productData
+        return try getProduct(id: product.id, from: address)
     }
 
-    public func getProduct(id: UUID) throws -> Product {
-        return try repository.getProduct(id: id)
+    public func getProduct(id: UUID, from address: Address) throws -> Product {
+        var product = try repository.getProduct(id: id)
+        let taxRate = try taxService.getTaxRate(forAddress: address)
+        product.data.setTax(using: taxRate)
+        return product
     }
 
     public func deleteProduct(id: UUID) throws -> () {
         return try repository.deleteProduct(id: id)
     }
 
-    public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
+    public func updateProduct(id: UUID, data: ProductPatch,
+                              from address: Address) throws -> Product
+    {
         var productData = try repository.getProductData(id: id)
 
         if let title = data.title {
@@ -108,6 +125,12 @@ extension ProductsService: ProductsServiceCallable {
             productData.category = category
         }
 
+        if data.taxInclusive ?? false {
+            productData.taxInclusive = true
+            let taxRate = try taxService.getTaxRate(forAddress: address)
+            productData.stripTax(using: taxRate)
+        }
+
         /// NOTE: No support for `variants` directly
 
         if let variantId = data.variantId {
@@ -127,20 +150,26 @@ extension ProductsService: ProductsServiceCallable {
             }
         }
 
-        return try repository.updateProductData(id: id, data: productData)
+        let _ = try repository.updateProductData(id: id, data: productData)
+        return try getProduct(id: id, from: address)
     }
 
-    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch,
+                                   from address: Address) throws -> Product
+    {
         var productData = try repository.getProductData(id: id)
 
         if let image = data.image {
             productData.images.insert(image)
         }
 
-        return try repository.updateProductData(id: id, data: productData)
+        let _ = try repository.updateProductData(id: id, data: productData)
+        return try getProduct(id: id, from: address)
     }
 
-    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch,
+                                      from address: Address) throws -> Product
+    {
         var productData = try repository.getProductData(id: id)
 
         if (data.removeCategory ?? false) {
@@ -172,7 +201,8 @@ extension ProductsService: ProductsServiceCallable {
             }
         }
 
-        return try repository.updateProductData(id: id, data: productData)
+        let _ = try repository.updateProductData(id: id, data: productData)
+        return try getProduct(id: id, from: address)
     }
 
     public func createCollection(data: ProductCollectionData) throws -> ProductCollection {

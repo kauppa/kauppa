@@ -25,7 +25,8 @@ class RefundsFactory {
     /// will be set to `nil`
     private func getAllRefundableItems(forOrder data: inout Order) throws {
         for (i, unit) in data.products.enumerated() {
-            let product = try productsService.getProduct(id: unit.item.product)
+            let product = try productsService.getProduct(id: unit.item.product,
+                                                         from: data.shippingAddress)
             // Only collect fulfilled items (if any) from each unit.
             if let unitStatus = unit.status {
                 if unitStatus.refundableQuantity > 0 {
@@ -50,7 +51,8 @@ class RefundsFactory {
     private func getSpecifiedItemsForRefund(forOrder order: inout Order) throws {
         for unit in data.units ?? [] {
             let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
-            let product = try productsService.getProduct(id: unit.product)
+            let product = try productsService.getProduct(id: unit.product,
+                                                         from: order.shippingAddress)
             // It's safe to unwrap here because the function checks this.
             let unitStatus = order.products[i].status!
             let refundable = unitStatus.refundableQuantity

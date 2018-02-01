@@ -1,20 +1,20 @@
 import Foundation
 import XCTest
 
+import KauppaAccountsModel
 import KauppaProductsClient
 import KauppaProductsModel
 
 public class TestProductsService: ProductsServiceCallable {
     var products = [UUID: Product]()
 
-    public func createProduct(data: ProductData) throws -> Product {
-        let id = UUID()
-        let date = Date()
-        products[id] = Product(id: id, createdOn: date, updatedAt: date, data: data)
-        return products[id]!
+    public func createProduct(data: ProductData, from address: Address) throws -> Product {
+        let product = Product(data: data)
+        products[product.id] = product
+        return product
     }
 
-    public func getProduct(id: UUID) throws -> Product {
+    public func getProduct(id: UUID, from address: Address) throws -> Product {
         guard let product = products[id] else {
             throw ProductsError.invalidProduct
         }
@@ -28,17 +28,23 @@ public class TestProductsService: ProductsServiceCallable {
     }
 
     // NOTE: Not meant to be called by cart
-    public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
+    public func updateProduct(id: UUID, data: ProductPatch,
+                              from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
     // NOTE: Not meant to be called by cart
-    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch,
+                                   from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
     // NOTE: Not meant to be called by cart
-    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch,
+                                      from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
