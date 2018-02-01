@@ -14,7 +14,6 @@ public class TestStore: CartStorable {
     public func createCart(data: Cart) throws -> () {
         createCalled = true
         carts[data.id] = data
-        return ()
     }
 
     public func getCart(id: UUID) throws -> Cart {

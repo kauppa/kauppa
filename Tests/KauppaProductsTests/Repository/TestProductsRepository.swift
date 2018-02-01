@@ -28,6 +28,8 @@ class TestProductsRepository: XCTestCase {
         super.tearDown()
     }
 
+    // This doesn't carry any validation - it just ensures that the repository can create a
+    // product with necessary timestamps and calls the store.
     func testProductCreation() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -45,6 +47,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertNotNil(repository.products[data!.id])  // repository now has product data
     }
 
+    // Repository should call the store for product deletion and delete cached data.
     func testProductDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -57,6 +60,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.deleteCalled)       // delete should've been called in store (by repository)
     }
 
+    // Updating a product should change the timestamp, update cache, and should call the store.
     func testProductUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -72,6 +76,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.updateCalled)   // update called on store
     }
 
+    // Same thing as product creation - for colleciton (product IDs are checked by service).
     func testCollectionCreation() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -89,6 +94,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertNotNil(repository.collections[data.id])    // repository now has collection data
     }
 
+    // Same as product update - for collection
     func testCollectionUpdate() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -101,6 +107,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.collectionUpdateCalled)     // update called on store
     }
 
+    // Same as product deleteion - for collection
     func testCollectionDeletion() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -112,6 +119,7 @@ class TestProductsRepository: XCTestCase {
         XCTAssertTrue(store.collectionDeleteCalled)     // delete should've been called in store
     }
 
+    // Ensures that product and collection repositories call the stores appropriately.
     func testStoreCalls() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)

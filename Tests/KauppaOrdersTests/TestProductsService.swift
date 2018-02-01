@@ -4,11 +4,11 @@ import XCTest
 import KauppaProductsClient
 import KauppaProductsModel
 
-public typealias Callback = (ProductPatch) -> Void
+public typealias ProductsCallback = (ProductPatch) -> Void
 
 public class TestProductsService: ProductsServiceCallable {
     var products = [UUID: Product]()
-    public var callbacks = [UUID: Callback]()
+    var callbacks = [UUID: ProductsCallback]()
 
     public func createProduct(data: ProductData) throws -> Product {
         let id = UUID()

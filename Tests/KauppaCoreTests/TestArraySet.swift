@@ -43,6 +43,8 @@ class TestArraySet: XCTestCase {
         XCTAssertEqual(array.count, 2)
     }
 
+    /// Test for `mutateOnce` which should call the element matching the
+    /// predicate with an `inout` closure.
     func testArrayMutationWithPredicate() {
         let id = UUID()
         var array = ArraySet([TestType(id: id, thing: "foo"),
@@ -63,10 +65,11 @@ class TestArraySet: XCTestCase {
 
     func testArrayGet() {
         let array = ArraySet([1])
-        XCTAssertEqual(array.get(from: 0), 1)
-        XCTAssertNil(array.get(from: 1))    // try out-of-bounds indexing
+        XCTAssertEqual(array[0], 1)
+        XCTAssertNil(array[1])      // try out-of-bounds indexing
     }
 
+    // Test for getting an element matching a predicate.
     func testArrayGetWithPredicate() {
         let id = UUID()
         let array = ArraySet([TestType(id: id, thing: "foo"),
@@ -93,6 +96,8 @@ class TestArraySet: XCTestCase {
         XCTAssertEqual(string, "[1,2,3]")
     }
 
+    // Test for JSON decoding an array into `ArraySet`
+    // (which automatically removes duplicate elements)
     func testDecodable() {
         let jsonString = "[5, 10, 15, 15, 15, 20]"
         let data = jsonString.data(using: .utf8)!

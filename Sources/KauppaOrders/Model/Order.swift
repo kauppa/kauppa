@@ -4,24 +4,30 @@ import KauppaCore
 import KauppaAccountsModel
 
 /// Order that only has the product IDs and quantity
-public typealias Order = GenericOrder<UUID, OrderUnit>
+public typealias Order = GenericOrder<UUID, UUID, OrderUnit>
 
 /// Generic order structure for holding product data.
-public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
+public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Mappable {
     /// Unique identifier for this order.
     public var id: UUID
     /// User ID associated with this order.
-    public var placedBy: U
+    public var placedBy: User
     /// Creation timestamp
     public var createdOn: Date
     /// Last updated timestamp
     public var updatedAt: Date
     /// List of product IDs and the associated quantity
-    public var products = [P]()
+    public var products = [Item]()
     /// Total number of items processed (includes the quantity)
     public var totalItems: UInt16 = 0
     /// Total price of all items (includes the quantity) without tax/shipping.
-    public var totalPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
+    public var netPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
+    /// Total tax for this order.
+    public var totalTax = UnitMeasurement(value: 0.0, unit: Currency.usd)
+    /// List of coupons applied in this order.
+    public var appliedCoupons = [Coupon]()
+    /// Final price after adding taxes, shipment fee and coupon deductions (if any)
+    public var grossPrice = UnitMeasurement(value: 0.0, unit: Currency.usd)
     /// Total weight of this purchase (includes the quantity)
     public var totalWeight = UnitMeasurement(value: 0.0, unit: Weight.gram)
     /// Status of this order.
@@ -41,7 +47,7 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
 
     /// Creates an order with the given account (generic type). By default,
     /// the shipping an billing addresses are invalid.
-    public init(placedBy account: U) {
+    public init(placedBy account: User) {
         id = UUID()
         let date = Date()
         createdOn = date
@@ -52,12 +58,14 @@ public struct GenericOrder<U: Mappable, P: Mappable>: Mappable {
     }
 
     /// Copy the type-independent values from this type to a mail-specific order.
-    public func copyValues<U, P>(into data: inout GenericOrder<U, P>) {
+    public func copyValues<U, G, P>(into data: inout GenericOrder<U, G, P>) {
         data.id = id
         data.createdOn = createdOn
         data.updatedAt = updatedAt
         data.totalItems = totalItems
-        data.totalPrice = totalPrice
+        data.netPrice = netPrice
+        data.totalTax = totalTax
+        data.grossPrice = grossPrice
         data.totalWeight = totalWeight
         data.fulfillment = fulfillment
         data.paymentStatus = paymentStatus

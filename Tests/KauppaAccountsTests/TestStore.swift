@@ -15,9 +15,11 @@ public class TestStore: AccountsStorable {
 
     public func createAccount(data: Account) throws -> () {
         createCalled = true
-        emails[data.data.email] = data.id
+        for email in data.data.emails {
+            emails[email.value] = data.id
+        }
+
         accounts[data.id] = data
-        return ()
     }
 
     public func getAccount(id: UUID) throws -> Account {
@@ -40,7 +42,7 @@ public class TestStore: AccountsStorable {
     public func deleteAccount(forId id: UUID) throws -> () {
         deleteCalled = true
         if accounts.removeValue(forKey: id) != nil {
-            return ()
+            return
         } else {
             throw AccountsError.invalidAccount
         }
@@ -49,6 +51,5 @@ public class TestStore: AccountsStorable {
     public func updateAccount(accountData: Account) throws -> () {
         updateCalled = true
         accounts[accountData.id] = accountData
-        return ()
     }
 }

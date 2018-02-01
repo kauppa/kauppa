@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaCartModel
 import KauppaOrdersModel
 import KauppaOrdersStore
 
@@ -17,10 +18,9 @@ public class OrdersRepository {
     }
 
     /// Create an order with service-supplied order data.
-    public func createOrder(withData data: Order) throws -> Order {
+    public func createOrder(withData data: Order) throws {
         orders[data.id] = data
         try store.createNewOrder(orderData: data)
-        return data
     }
 
     /// Get an order corresponding to an ID.
@@ -59,7 +59,7 @@ public class OrdersRepository {
 
     /// Create a refund for an order.
     public func createRefund(forOrder orderId: UUID,
-                             reason: String, items: [OrderUnit],
+                             reason: String, items: [CartUnit],
                              amount: UnitMeasurement<Currency>) throws -> Refund
     {
         let id = UUID()

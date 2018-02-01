@@ -32,8 +32,6 @@ public class TestOrdersService: OrdersServiceCallable {
         if let err = error {
             throw err
         }
-
-        return ()
     }
 
     // NOTE: Not meant to be called by shipments

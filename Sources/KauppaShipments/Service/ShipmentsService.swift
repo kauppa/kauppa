@@ -23,11 +23,35 @@ public class ShipmentsService {
     }
 }
 
+// NOTE: See the actual protocol in `KauppaShipmentsClient` for exact usage.
 extension ShipmentsService: ShipmentsServiceCallable {
     public func createShipment(forOrder id: UUID) throws -> Shipment {
         let order = try ordersService.getOrder(forId: id)
         let address = order.shippingAddress
-        return try repository.createShipment(forOrder: id, address: address, items: order.products)
+        let items = order.products.map { $0.item }
+        return try repository.createShipment(forOrder: id, address: address, items: items)
+    }
+
+    public func notifyShipping(id: UUID) throws -> Shipment {
+        var data = try repository.getShipment(id: id)
+        if data.status != .shipping {
+            throw ShipmentsError.notQueuedForShipping
+        }
+
+        data.status = .shipped
+        try ordersService.updateShipment(forId: data.orderId, data: data)
+        return try repository.updateShipment(data: data)
+    }
+
+    public func notifyDelivery(id: UUID) throws -> Shipment {
+        var data = try repository.getShipment(id: id)
+        if data.status != .shipped {
+            throw ShipmentsError.notBeingShipped
+        }
+
+        data.status = .delivered
+        try ordersService.updateShipment(forId: data.orderId, data: data)
+        return try repository.updateShipment(data: data)
     }
 
     public func schedulePickup(forOrder id: UUID, data: PickupItems) throws -> Shipment {
@@ -39,6 +63,10 @@ extension ShipmentsService: ShipmentsServiceCallable {
 
     public func completePickup(id: UUID) throws -> Shipment {
         var data = try repository.getShipment(id: id)
+        if data.status != .pickup {
+            throw ShipmentsError.notScheduledForPickup
+        }
+
         data.status = .returned
         try ordersService.updateShipment(forId: data.orderId, data: data)
         return try repository.updateShipment(data: data)

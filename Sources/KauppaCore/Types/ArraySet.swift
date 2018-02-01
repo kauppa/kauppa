@@ -53,6 +53,13 @@ public struct ArraySet<Element>: Mappable
         return false
     }
 
+    /// Index the array inside this `ArraySet`
+    public subscript(i: Int) -> Element? {
+        get {
+            return get(from: i)
+        }
+    }
+
     /// Index this collection (i.e., get the element if it exists at the index)
     public func get(from index: Int) -> Element? {
         return (index < self.inner.count) ? self.inner[index] : nil

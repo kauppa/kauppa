@@ -7,3 +7,4 @@ public protocol Mappable: Codable {
 }
 
 extension UUID: Mappable {}
+extension String: Mappable {}

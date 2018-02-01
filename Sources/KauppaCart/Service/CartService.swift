@@ -3,9 +3,11 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 import KauppaAccountsClient
+import KauppaCouponClient
 import KauppaOrdersClient
 import KauppaOrdersModel
 import KauppaProductsClient
+import KauppaTaxClient
 import KauppaCartClient
 import KauppaCartModel
 import KauppaCartRepository
@@ -16,70 +18,73 @@ public class CartService {
     let productsService: ProductsServiceCallable
     let accountsService: AccountsServiceCallable
     let ordersService: OrdersServiceCallable
+    let couponService: CouponServiceCallable
+    let taxService: TaxServiceCallable
 
-    /// Initializes a new `CartService` instance with a
-    /// repository, accounts and products service.
+    /// Initializes a new `CartService` instance with a repository,
+    /// accounts, products, coupon, orders and tax service.
     public init(withRepository repository: CartRepository,
                 productsService: ProductsServiceCallable,
                 accountsService: AccountsServiceCallable,
-                ordersService: OrdersServiceCallable)
+                couponService: CouponServiceCallable,
+                ordersService: OrdersServiceCallable,
+                taxService: TaxServiceCallable)
     {
         self.repository = repository
         self.productsService = productsService
         self.accountsService = accountsService
         self.ordersService = ordersService
+        self.couponService = couponService
+        self.taxService = taxService
     }
 }
 
+// NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
-    public func addCartItem(forAccount userId: UUID, withUnit unit: CartUnit) throws -> Cart {
-        if unit.quantity == 0 {
-            throw CartError.noItemsToProcess
-        }
-
-        let _ = try accountsService.getAccount(id: userId)
-        let product = try productsService.getProduct(id: unit.productId)
-        if unit.quantity > product.data.inventory {
-            throw CartError.productUnavailable      // precheck inventory
-        }
-
-        var itemExists = false
-        var cart = try repository.getCart(forId: userId)
-        // Make sure that the cart maintains its currency unit
-        if let currency = cart.currency {
-            if currency != product.data.price.unit {
-                throw CartError.ambiguousCurrencies
-            }
-        } else {
-            cart.currency = product.data.price.unit
-        }
-
-        // Check if the product already exists
-        for (i, item) in cart.items.enumerated() {
-            if item.productId == product.id {
-                itemExists = true
-                cart.items[i].quantity += unit.quantity
-
-                // This is just for notifying the customer. Orders service
-                // will verify this before placing the order.
-                if cart.items[i].quantity > product.data.inventory {
-                    throw CartError.productUnavailable
-                }
-            }
-        }
-
-        if !itemExists {
-            cart.items.append(unit)
-        }
-
-        return try repository.updateCart(data: cart)
+    public func addCartItem(forAccount userId: UUID, with unit: CartUnit,
+                            from address: Address) throws -> Cart
+    {
+        let account = try accountsService.getAccount(id: userId)
+        let cart = try repository.getCart(forId: userId)
+        let itemCreator = CartItemCreator(from: account, forCart: cart, with: unit)
+        try itemCreator.updateCartData(using: productsService)
+        try repository.updateCart(data: itemCreator.cart)
+        return try getCart(forAccount: userId, from: address)
     }
 
-    public func getCart(forAccount userId: UUID) throws -> Cart {
+    public func applyCoupon(forAccount userId: UUID, code: String,
+                            from address: Address) throws -> Cart
+    {
+        let _ = try accountsService.getAccount(id: userId)
+        var cart = try repository.getCart(forId: userId)
+        if cart.items.isEmpty {     // cannot apply coupon when there aren't any items.
+            throw CartError.noItemsInCart
+        }
+
+        var coupon = try couponService.getCoupon(forCode: code)
+        var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
+        // This only validates the coupon - because we're passing zero.
+        try coupon.data.deductPrice(from: &zero)
+        cart.coupons.insert(coupon.id)
+
+        try repository.updateCart(data: cart)
+        return try getCart(forAccount: userId, from: address)
+    }
+
+    public func getCart(forAccount userId: UUID, from address: Address) throws -> Cart {
         let _ = try accountsService.getAccount(id: userId)
         // FIXME: Make sure that product items are available
 
-        return try repository.getCart(forId: userId)
+        // Cart (by itself) doesn't store tax information. It gets the tax data
+        // from the tax service, applies those rates to the cart items and
+        // returns the mutated data upon request.
+        var cart = try repository.getCart(forId: userId)
+        if !cart.items.isEmpty {
+            let taxRate = try taxService.getTaxRate(forAddress: address)
+            cart.setPrices(using: taxRate)
+        }
+
+        return cart
     }
 
     public func placeOrder(forAccount userId: UUID, data: CheckoutData) throws -> Order {
@@ -104,16 +109,16 @@ extension CartService: CartServiceCallable {
 
         var units = [OrderUnit]()
         for unit in cart.items {
-            units.append(OrderUnit(product: unit.productId,
-                                   quantity: unit.quantity))
+            units.append(OrderUnit(product: unit.product, quantity: unit.quantity))
         }
 
-        let orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
+        var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
                                   placedBy: userId, products: units)
+        orderData.appliedCoupons = cart.coupons
         let order = try ordersService.createOrder(data: orderData)
 
         cart.reset()
-        let _ = try repository.updateCart(data: cart)
+        try repository.updateCart(data: cart)
         return order
     }
 }

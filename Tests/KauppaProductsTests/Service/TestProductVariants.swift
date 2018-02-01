@@ -26,6 +26,8 @@ class TestProductVariants: XCTestCase {
         super.tearDown()
     }
 
+    // Service supports creating variant of a product. This should automatically add
+    // the product's ID to the parent's `variants` list.
     func testProductCreationWithVariant() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -41,6 +43,7 @@ class TestProductVariants: XCTestCase {
         XCTAssertNotNil(childVariant.data.variantId)
     }
 
+    // Service shouldn't allow creating variant when the parent doesn't exist.
     func testProductCreationWithInvalidVariant() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -51,6 +54,8 @@ class TestProductVariants: XCTestCase {
         XCTAssertNil(product.data.variantId)    // invalid variant - ignored
     }
 
+    // When a product is updated with `variantId`, it should add the product's ID to
+    // the parent product's `variants` list.
     func testProductUpdateWithVariant() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -71,6 +76,8 @@ class TestProductVariants: XCTestCase {
         XCTAssertNotNil(child.data.variantId)   // child should now reference parent
     }
 
+    // If a product is created with `variantId` pointing to another variant, then the `variantId`
+    // is changed to the parent's ID, and the parent's list is updated.
     func testProductCreationWithCrossReferencingVariant() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -97,6 +104,7 @@ class TestProductVariants: XCTestCase {
         XCTAssertEqual(child1.data.variants, [])
     }
 
+    // The same applies for updating product with `variantId` referencing another variant.
     func testProductUpdateWithCrossReferencingVariants() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)
@@ -126,6 +134,7 @@ class TestProductVariants: XCTestCase {
         XCTAssertEqual(parent.data.variants, [firstChild.id, secondChild.id])
     }
 
+    // Removing a variant also removes the variant from the product's `variants` list.
     func testVariantRemoval() {
         let store = TestStore()
         let repository = ProductsRepository(withStore: store)

@@ -16,11 +16,14 @@ public class AccountsService {
     }
 }
 
+// NOTE: See the actual protocol in `KauppaAccountsClient` for exact usage.
 extension AccountsService: AccountsServiceCallable {
     public func createAccount(withData data: AccountData) throws -> Account {
         try data.validate()
-        if let _ = try? repository.getAccount(forEmail: data.email) {
-            throw AccountsError.accountExists
+        for email in data.emails {
+            if let _ = try? repository.getAccount(forEmail: email.value) {
+                throw AccountsError.accountExists
+            }
         }
 
         return try repository.createAccount(data: data)
@@ -34,6 +37,17 @@ extension AccountsService: AccountsServiceCallable {
         return try repository.deleteAccount(forId: id)
     }
 
+    public func verifyEmail(_ email: String) throws {
+        let account = try repository.getAccount(forEmail: email)
+        var accountData = account.data
+
+        accountData.emails.mutateOnce(matching: { $0.value == email }, with: { email in
+            email.isVerified = true
+        })
+
+        let _ = try repository.updateAccountData(forId: account.id, data: accountData)
+    }
+
     public func updateAccount(id: UUID, data: AccountPatch) throws -> Account {
         var accountData = try repository.getAccountData(forId: id)
 
@@ -41,8 +55,12 @@ extension AccountsService: AccountsServiceCallable {
             accountData.name = name
         }
 
-        if let phone = data.phone {
-            accountData.phone = phone
+        if let numbers = data.phoneNumbers {
+            accountData.phoneNumbers = numbers
+        }
+
+        if let emails = data.emails {
+            accountData.emails = emails
         }
 
         if let addressList = data.address {
@@ -60,6 +78,14 @@ extension AccountsService: AccountsServiceCallable {
             accountData.address.insert(address)
         }
 
+        if let number = data.phone {
+            accountData.phoneNumbers.insert(number)
+        }
+
+        if let email = data.email {
+            accountData.emails.insert(email)
+        }
+
         try accountData.validate()
         return try repository.updateAccountData(forId: id, data: accountData)
     }
@@ -67,8 +93,15 @@ extension AccountsService: AccountsServiceCallable {
     public func deleteAccountProperty(id: UUID, data: AccountPropertyDeletionPatch) throws -> Account {
         var accountData = try repository.getAccountData(forId: id)
 
-        if (data.removePhone ?? false) {
-            accountData.phone = nil
+        if let index = data.removeEmailAt {
+            accountData.emails.remove(at: index)
+            if accountData.emails.isEmpty {         // if there are no more emails, disallow this
+                throw AccountsError.emailRequired
+            }
+        }
+
+        if let index = data.removePhoneAt {
+            accountData.phoneNumbers.remove(at: index)
         }
 
         if let index = data.removeAddressAt {

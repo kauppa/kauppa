@@ -3,6 +3,7 @@ import XCTest
 
 import KauppaCore
 import KauppaProductsModel
+import KauppaCartModel
 @testable import KauppaAccountsModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
@@ -11,13 +12,14 @@ import KauppaProductsModel
 class TestRefunds: XCTestCase {
     let productsService = TestProductsService()
     let accountsService = TestAccountsService()
-    let shippingService = TestShipmentsService()
+    var shippingService = TestShipmentsService()
+    var couponService = TestCouponService()
+    var taxService = TestTaxService()
 
     static var allTests: [(String, (TestRefunds) -> () throws -> Void)] {
         return [
             ("Test full refund", testFullRefund),
             ("Test partial refunds", testPartialRefunds),
-            ("Test refund with no reason", testRefundNoReason),
             ("Test cancelled order", testCancelledOrder),
             ("Test unpaid refund", testUnpaidRefund),
             ("Test invalid refund data", testInvalidRefunds),
@@ -27,6 +29,9 @@ class TestRefunds: XCTestCase {
     override func setUp() {
         productsService.products = [:]
         accountsService.accounts = [:]
+        shippingService = TestShipmentsService()
+        couponService = TestCouponService()
+        taxService = TestTaxService()
         super.setUp()
     }
 
@@ -34,6 +39,9 @@ class TestRefunds: XCTestCase {
         super.tearDown()
     }
 
+    // A refund can be issued once items have been taken back (i.e, when there are refundable items)
+    // A full refund happens for all refundable items in an order. This will update the corresponding
+    // quantity fields and the item status fields.
     func testFullRefund() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -50,7 +58,9 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          couponService: couponService,
+                                          taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -63,7 +73,15 @@ class TestRefunds: XCTestCase {
         initial.products[1].status!.refundableQuantity = 2
         let order = try! repository.updateOrder(withData: initial)
 
-        var refundData = RefundData(reason: "I hate you!")
+        var refundData = RefundData(reason: "")
+        do {
+            let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! OrdersError, .invalidReason)
+        }
+
+        refundData = RefundData(reason: "I hate you!")
         refundData.fullRefund = true
         let updatedOrder = try! ordersService.initiateRefund(forId: order.id, data: refundData)
         // Check the order data
@@ -86,6 +104,7 @@ class TestRefunds: XCTestCase {
         XCTAssertEqual(refund.reason, refundData.reason)
     }
 
+    // Partial refunds happen when specific items can be refunded to the customer.
     func testPartialRefunds() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -104,7 +123,9 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          couponService: couponService,
+                                          taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2),
@@ -121,8 +142,8 @@ class TestRefunds: XCTestCase {
         let order = try! repository.updateOrder(withData: initial)
 
         var refundData = RefundData(reason: "Boo!")
-        refundData.units = [OrderUnit(product: product1.id, quantity: 1),
-                            OrderUnit(product: product3.id, quantity: 1)]
+        refundData.units = [CartUnit(product: product1.id, quantity: 1),
+                            CartUnit(product: product3.id, quantity: 1)]
         let updatedOrder = try! ordersService.initiateRefund(forId: order.id, data: refundData)
         XCTAssertEqual(updatedOrder.refunds.count, 1)
         let refund1 = store.refunds[updatedOrder.refunds[0]]!
@@ -141,8 +162,8 @@ class TestRefunds: XCTestCase {
         XCTAssertNil(updatedOrder.products[2].status)
 
         // Now try and refund the remaining units
-        refundData.units = [OrderUnit(product: product1.id, quantity: 2),
-                            OrderUnit(product: product2.id, quantity: 2)]
+        refundData.units = [CartUnit(product: product1.id, quantity: 2),
+                            CartUnit(product: product2.id, quantity: 2)]
         let finalUpdate = try! ordersService.initiateRefund(forId: order.id, data: refundData)
         XCTAssertEqual(finalUpdate.refunds.count, 2)
         XCTAssertEqual(finalUpdate.paymentStatus, .refunded)
@@ -164,22 +185,7 @@ class TestRefunds: XCTestCase {
         }
     }
 
-    func testRefundNoReason() {
-        let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
-        let ordersService = OrdersService(withRepository: repository,
-                                          accountsService: accountsService,
-                                          productsService: productsService,
-                                          shippingService: shippingService)
-        let refundData = RefundData(reason: "")
-        do {
-            let _ = try ordersService.initiateRefund(forId: UUID(), data: refundData)
-            XCTFail()
-        } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidReason)
-        }
-    }
-
+    // Cancelled orders cannot be refunded.
     func testCancelledOrder() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -192,7 +198,9 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          couponService: couponService,
+                                          taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         let order = try! ordersService.createOrder(data: orderData)
@@ -206,6 +214,7 @@ class TestRefunds: XCTestCase {
         }
     }
 
+    // If the payment hasn't been received for an order, then it cannot be refunded.
     func testUnpaidRefund() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -218,7 +227,9 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          couponService: couponService,
+                                          taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         var order = try! ordersService.createOrder(data: orderData)
@@ -240,6 +251,8 @@ class TestRefunds: XCTestCase {
         }
     }
 
+    // A number of cases when refund can fail - item doesn't exist in order, item hasn't been fulfilled,
+    // item hasn't been returned, etc.
     func testInvalidRefunds() {
         let store = TestStore()
         let repository = OrdersRepository(withStore: store)
@@ -256,7 +269,9 @@ class TestRefunds: XCTestCase {
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
-                                          shippingService: shippingService)
+                                          shippingService: shippingService,
+                                          couponService: couponService,
+                                          taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
@@ -269,7 +284,7 @@ class TestRefunds: XCTestCase {
 
         var refundData = RefundData(reason: "Boo!")
 
-        refundData.units = [OrderUnit(product: UUID(), quantity: 2)]
+        refundData.units = [CartUnit(product: UUID(), quantity: 2)]
         do {    // Test invalid product
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
@@ -277,7 +292,7 @@ class TestRefunds: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
         }
 
-        refundData.units = [OrderUnit(product: product2.id, quantity: 2)]
+        refundData.units = [CartUnit(product: product2.id, quantity: 2)]
         do {    // Test unfulfilled item
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
@@ -285,12 +300,12 @@ class TestRefunds: XCTestCase {
             XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id))
         }
 
-        refundData.units = [OrderUnit(product: product1.id, quantity: 5)]
+        refundData.units = [CartUnit(product: product1.id, quantity: 5)]
         do {    // Test invalid quantity for refundable item
             let _ = try ordersService.initiateRefund(forId: order.id, data: refundData)
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! OrdersError, .invalidOrderQuantity(product1.id, 3, true))
+            XCTAssertEqual(err as! OrdersError, .invalidRefundQuantity(product1.id, 3))
         }
 
         refundData.units = []

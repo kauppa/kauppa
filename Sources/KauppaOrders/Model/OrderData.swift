@@ -13,6 +13,8 @@ public struct OrderData: Mappable {
     public let placedBy: UUID
     /// List of product IDs and their quantity (as an order unit).
     public let products: [OrderUnit]
+    /// List of UUIDs of the coupons applied by the user.
+    public var appliedCoupons = ArraySet<UUID>()
 
     public init(shippingAddress: Address, billingAddress: Address? = nil,
                 placedBy id: UUID, products: [OrderUnit])

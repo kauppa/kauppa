@@ -17,7 +17,6 @@ public class TestStore: OrdersStorable {
     public func createNewOrder(orderData: Order) throws -> () {
         createCalled = true
         orders[orderData.id] = orderData
-        return ()
     }
 
     public func getOrder(id: UUID) throws -> Order {
@@ -32,7 +31,6 @@ public class TestStore: OrdersStorable {
     public func updateOrder(data: Order) throws -> () {
         updateCalled = true
         orders[data.id] = data
-        return ()
     }
 
     public func deleteOrder(id: UUID) throws -> () {
@@ -40,13 +38,10 @@ public class TestStore: OrdersStorable {
         if orders.removeValue(forKey: id) == nil {
             throw OrdersError.invalidOrder
         }
-
-        return ()
     }
 
     public func createRefund(data: Refund) throws -> () {
         refundCreated = true
         refunds[data.id] = data
-        return ()
     }
 }

@@ -2,6 +2,7 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
+import KauppaCartModel
 import KauppaOrdersModel
 
 /// Shipment data that exists in repository and store.
@@ -17,9 +18,19 @@ public struct Shipment: Mappable {
     /// Shipping address for the order.
     public let address: Address
     /// Items from the order.
-    public var items = [OrderUnit]()
+    public var items = [CartUnit]()
     /// Status of this shipment.
     public var status = ShipmentStatus.shipping
+
+    /// Empty init (for testing)
+    public init() {
+        let date = Date()
+        id = UUID()
+        createdOn = date
+        updatedAt = date
+        orderId = UUID()
+        address = Address()
+    }
 
     public init(id: UUID, createdOn: Date, updatedAt: Date, orderId: UUID, address: Address) {
         self.id = id

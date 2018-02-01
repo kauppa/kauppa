@@ -2,13 +2,14 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
+import KauppaCouponModel
 import KauppaProductsModel
 
 /// An order unit which has the entire product data.
 public typealias DetailedUnit = GenericOrderUnit<Product>
 
 /// Order that has the entire product data.
-public typealias DetailedOrder = GenericOrder<Account, DetailedUnit>
+public typealias DetailedOrder = GenericOrder<Account, Coupon, DetailedUnit>
 
 // NOTE: This is a workaround because (at the time of this implementation)
 // Swift didn't allow us to implement protocol extensions for constrained types.
