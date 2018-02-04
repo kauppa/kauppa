@@ -12,6 +12,10 @@
     </a>
 </p>
 
-Kauppa is an open source set of microservices for ecommerce. Although 
-generic in design, Kauppa is intended to be used with Naamio to provide 
+Kauppa is an open source set of microservices for ecommerce. Although
+generic in design, Kauppa is intended to be used with Naamio to provide
 ecommerce-specific extensions to the platform.
+
+### References:
+
+ - **Building:** See `docs/build.md`
