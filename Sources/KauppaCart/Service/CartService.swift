@@ -80,7 +80,7 @@ extension CartService: CartServiceCallable {
         // returns the mutated data upon request.
         var cart = try repository.getCart(forId: userId)
         if !cart.items.isEmpty {
-            let taxRate = try taxService.getTaxRate(forAddress: address)
+            let taxRate = try taxService.getTaxRate(for: address)
             cart.setPrices(using: taxRate)
         }
 

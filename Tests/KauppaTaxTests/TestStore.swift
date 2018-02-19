@@ -67,7 +67,7 @@ public class TestStore: TaxStorable {
         return data
     }
 
-    public func getRegion(name: String, forCountry countryName: String) throws -> Region {
+    public func getRegion(name: String, for countryName: String) throws -> Region {
         getRegionCalled = true
         let country = try getCountry(name: countryName)
         for (_, region) in regions {

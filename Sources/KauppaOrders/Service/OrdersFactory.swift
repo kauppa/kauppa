@@ -152,7 +152,7 @@ class OrdersFactory {
                      using couponService: CouponServiceCallable,
                      calculatingWith taxService: TaxServiceCallable) throws
     {
-        taxRate = try taxService.getTaxRate(forAddress: data.shippingAddress)
+        taxRate = try taxService.getTaxRate(for: data.shippingAddress)
         for orderUnit in data.products {
             try feed(orderUnit)
         }

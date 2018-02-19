@@ -10,27 +10,25 @@ public class TaxService {
     let repository: TaxRepository
 
     /// Initializes a new `TaxService` instance with a repository.
-    public init(withRepository repository: TaxRepository) {
+    public init(with repository: TaxRepository) {
         self.repository = repository
     }
 }
 
 // NOTE: See the actual protocol in `KauppaTaxClient` for exact usage.
 extension TaxService: TaxServiceCallable {
-    public func getTaxRate(forAddress address: Address) throws -> TaxRate {
+    public func getTaxRate(for address: Address) throws -> TaxRate {
         // FIXME: This could be done efficiently?
         // Get the country first. This should match a valid country in the store.
         let country = try repository.getCountry(name: address.country)
         var taxRate = country.taxRate
         // Try getting the province. If it matches, override the rates in country with
         // the values from province.
-        if let province = try? repository.getRegion(name: address.province,
-                                                    forCountry: address.country)
-        {
+        if let province = try? repository.getRegion(name: address.province, for: address.country) {
             taxRate.applyOverrideFrom(province.taxRate)
         }
 
-        if let city = try? repository.getRegion(name: address.city, forCountry: address.country) {
+        if let city = try? repository.getRegion(name: address.city, for: address.country) {
             taxRate.applyOverrideFrom(city.taxRate)
         }
 
@@ -63,7 +61,7 @@ extension TaxService: TaxServiceCallable {
         try repository.deleteCountry(id: id)
     }
 
-    public func addRegion(toCountry id: UUID, data: RegionData) throws -> Region {
+    public func addRegion(to id: UUID, data: RegionData) throws -> Region {
         let _ = try repository.getCountry(id: id)
         let region = Region(name: data.name, taxRate: data.taxRate, kind: data.kind, country: id)
         try region.validate()

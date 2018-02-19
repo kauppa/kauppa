@@ -71,16 +71,16 @@ rate.general = 28.0
 
 // add a region to it
 let regionData = RegionData(name: "Chennai", taxRate: rate, kind: .city)
-let region = try! service.addRegion(toCountry: country.id, data: regionData)
+let region = try! service.addRegion(to: country.id, data: regionData)
 
 // query the rate for an address
 var address = Address()
 address.country = "India"
-var rate = try! service.getTaxRate(forAddress: address)
+var rate = try! service.getTaxRate(for: address)
 print("\(rate.general)")      // 18.0
 
 address.city = "Chennai"
-rate = try! service.getTaxRate(forAddress: address)
+rate = try! service.getTaxRate(for: address)
 print("\(rate.general)")      // 28.0
 print("\(rate.categories)")   // { "drink": 28.0 }
 ```

@@ -43,7 +43,7 @@ extension ProductsService: ProductsServiceCallable {
             }
         }
 
-        let taxRate = try taxService.getTaxRate(forAddress: address)
+        let taxRate = try taxService.getTaxRate(for: address)
         data.stripTax(using: taxRate)
 
         let product = Product(data: data)
@@ -59,7 +59,7 @@ extension ProductsService: ProductsServiceCallable {
 
     public func getProduct(id: UUID, from address: Address) throws -> Product {
         var product = try repository.getProduct(id: id)
-        let taxRate = try taxService.getTaxRate(forAddress: address)
+        let taxRate = try taxService.getTaxRate(for: address)
         product.data.setTax(using: taxRate)
         return product
     }
@@ -127,7 +127,7 @@ extension ProductsService: ProductsServiceCallable {
 
         if data.taxInclusive ?? false {
             productData.taxInclusive = true
-            let taxRate = try taxService.getTaxRate(forAddress: address)
+            let taxRate = try taxService.getTaxRate(for: address)
             productData.stripTax(using: taxRate)
         }
 
