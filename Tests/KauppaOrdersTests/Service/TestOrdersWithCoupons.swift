@@ -61,7 +61,7 @@ class TestOrdersWithCoupons: XCTestCase {
         }
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -91,7 +91,7 @@ class TestOrdersWithCoupons: XCTestCase {
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
         let product = try! productsService.createProduct(data: productData, from: Address())
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,

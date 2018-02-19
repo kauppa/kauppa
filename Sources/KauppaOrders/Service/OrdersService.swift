@@ -45,7 +45,7 @@ public class OrdersService {
 // NOTE: See the actual protocol in `KauppaOrdersClient` for exact usage.
 extension OrdersService: OrdersServiceCallable {
     public func createOrder(data: OrderData) throws -> Order {
-        let account = try accountsService.getAccount(id: data.placedBy)
+        let account = try accountsService.getAccount(for: data.placedBy)
         if !account.isVerified {
             throw OrdersError.unverifiedAccount
         }

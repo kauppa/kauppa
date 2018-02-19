@@ -51,7 +51,7 @@ class TestCartService: XCTestCase {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
@@ -83,7 +83,7 @@ class TestCartService: XCTestCase {
         let anotherProduct = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         var rate = TaxRate()
         rate.general = 14.0
@@ -141,7 +141,7 @@ class TestCartService: XCTestCase {
         let product = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
@@ -179,7 +179,7 @@ class TestCartService: XCTestCase {
         let product = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
@@ -258,7 +258,7 @@ class TestCartService: XCTestCase {
         let store = TestStore()
         let repository = CartRepository(withStore: store)
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
@@ -283,7 +283,7 @@ class TestCartService: XCTestCase {
         productData.inventory = 10
         let product = try! productsService.createProduct(data: productData, from: Address())
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
@@ -321,7 +321,7 @@ class TestCartService: XCTestCase {
         productData.price.unit = .euro
         let productEuro = try! productsService.createProduct(data: productData, from: Address())
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
@@ -354,7 +354,7 @@ class TestCartService: XCTestCase {
         let address = Address(name: "foobar", line1: "foo", line2: "bar", city: "baz",
                               province: "blah", country: "bleh", code: "666", label: nil)
         accountData.address.insert(address)
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         var couponData = CouponData()       // create coupon
         couponData.balance.value = 10.0
@@ -412,7 +412,7 @@ class TestCartService: XCTestCase {
         let address = Address(name: "foobar", line1: "foo", line2: "bar", city: "baz",
                               province: "blah", country: "bleh", code: "666", label: nil)
         accountData.address.insert(address)
-        var account = try! accountsService.createAccount(withData: accountData)
+        var account = try! accountsService.createAccount(with: accountData)
         let service = CartService(withRepository: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
@@ -434,7 +434,7 @@ class TestCartService: XCTestCase {
 
         ordersService.error = nil
         accountData = AccountData()
-        account = try! accountsService.createAccount(withData: accountData)
+        account = try! accountsService.createAccount(with: accountData)
         let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
 
         do {    // checking out requires a valid shipping address (user doesn't have any)

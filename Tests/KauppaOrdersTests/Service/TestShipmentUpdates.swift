@@ -51,7 +51,7 @@ class TestShipmentUpdates: XCTestCase {
         let product2 = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -134,7 +134,7 @@ class TestShipmentUpdates: XCTestCase {
         let product2 = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,

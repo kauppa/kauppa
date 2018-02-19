@@ -67,7 +67,7 @@ class TestOrdersService: XCTestCase {
         var emails = [Email("foo@bar.com"), Email("baz@bar.com")]
         emails[0].isVerified = true     // the first one is verified
         accountData.emails = ArraySet(emails)
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         var rate = TaxRate()
         rate.general = 15.0
@@ -137,7 +137,7 @@ class TestOrdersService: XCTestCase {
         var accountData = AccountData()
         accountsService.markAsVerified = false      // disable auto-enabling verification
         accountData.emails = ArraySet([Email("foo@bar.com")])
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -163,7 +163,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -208,7 +208,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -236,7 +236,7 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
@@ -265,7 +265,7 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -297,7 +297,7 @@ class TestOrdersService: XCTestCase {
         let secondProduct = try! productsService.createProduct(data: anotherProductData,
                                                                from: Address())
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -324,7 +324,7 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -366,7 +366,7 @@ class TestOrdersService: XCTestCase {
         let secondProduct = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
@@ -393,7 +393,7 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,
@@ -419,7 +419,7 @@ class TestOrdersService: XCTestCase {
         let product = try! productsService.createProduct(data: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         let ordersService = OrdersService(withRepository: repository,
                                           accountsService: accountsService,

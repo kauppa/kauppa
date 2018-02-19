@@ -44,7 +44,7 @@ extension CartService: CartServiceCallable {
     public func addCartItem(forAccount userId: UUID, with unit: CartUnit,
                             from address: Address) throws -> Cart
     {
-        let account = try accountsService.getAccount(id: userId)
+        let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(forId: userId)
         let itemCreator = CartItemCreator(from: account, forCart: cart, with: unit)
         try itemCreator.updateCartData(using: productsService, with: address)
@@ -55,7 +55,7 @@ extension CartService: CartServiceCallable {
     public func applyCoupon(forAccount userId: UUID, code: String,
                             from address: Address) throws -> Cart
     {
-        let _ = try accountsService.getAccount(id: userId)
+        let _ = try accountsService.getAccount(for: userId)
         var cart = try repository.getCart(forId: userId)
         if cart.items.isEmpty {     // cannot apply coupon when there aren't any items.
             throw CartError.noItemsInCart
@@ -72,7 +72,7 @@ extension CartService: CartServiceCallable {
     }
 
     public func getCart(forAccount userId: UUID, from address: Address) throws -> Cart {
-        let _ = try accountsService.getAccount(id: userId)
+        let _ = try accountsService.getAccount(for: userId)
         // FIXME: Make sure that product items are available
 
         // Cart (by itself) doesn't store tax information. It gets the tax data
@@ -88,7 +88,7 @@ extension CartService: CartServiceCallable {
     }
 
     public func placeOrder(forAccount userId: UUID, data: CheckoutData) throws -> Order {
-        let account = try accountsService.getAccount(id: userId)
+        let account = try accountsService.getAccount(for: userId)
         var cart = try repository.getCart(forId: userId)
         if cart.items.isEmpty {
             throw CartError.noItemsToProcess

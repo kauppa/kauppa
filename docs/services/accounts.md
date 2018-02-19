@@ -61,7 +61,7 @@ let _nil = try? service.createAccount(with: data)   // nil
 // update our name
 var namePatch = AccountPatch()
 namePatch.name = "Sherlock Holmes"
-account = try! service.updateAccount(id: account.id, data: namePatch)
+account = try! service.updateAccount(for: account.id, with: namePatch)
 print("\(account.name)")    // Sherlock Holmes
 
 var address = Address()
@@ -75,5 +75,5 @@ address.code = "NW1 6XE"
 // add a new address
 var addressPatch = AccountPropertyAdditionPatch()
 addressPatch.address = address
-account = try! service.addAccountProperty(id: account.id, data: addressPatch)
+account = try! service.addAccountProperty(to: account.id, using: addressPatch)
 ```
