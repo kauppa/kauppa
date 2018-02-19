@@ -49,20 +49,20 @@ class TestCartService: XCTestCase {
     // Empty cart shouldn't be calculating taxes, and it shouldn't be allowed to place order.
     func testEmptyCart() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
                                   ordersService: ordersService,
                                   taxService: taxService)
         // Empty cart shouldn't be calculating any taxes.
-        let _ = try! service.getCart(forAccount: account.id, from: Address())
+        let _ = try! service.getCart(for: account.id, from: Address())
 
         do {    // empty cart should fail to place orders
-            let _ = try service.placeOrder(forAccount: account.id, data: CheckoutData())
+            let _ = try service.placeOrder(for: account.id, with: CheckoutData())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CartError, CartError.noItemsToProcess)
@@ -72,7 +72,7 @@ class TestCartService: XCTestCase {
     // Service should support adding new items to a cart. All accounts have carts.
     func testCartItemAddition() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         productData.price.value = 7.0       // default is USD
@@ -90,14 +90,14 @@ class TestCartService: XCTestCase {
         rate.categories["food"] = 10.0
         taxService.rate = rate
 
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
                                   ordersService: ordersService,
                                   taxService: taxService)
         var cartUnit = CartUnit(product: product.id, quantity: 4)
-        let cart = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let cart = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
         XCTAssertEqual(cart.items[0].product, product.id)       // item exists in cart
         XCTAssertEqual(cart.items[0].quantity, 4)
         XCTAssertEqual(cart.items[0].netPrice!.value, 28.0)
@@ -111,10 +111,10 @@ class TestCartService: XCTestCase {
 
         // 3 more items of the same product (should be merged with the existing item).
         cartUnit = CartUnit(product: product.id, quantity: 3)
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
 
         cartUnit = CartUnit(product: anotherProduct.id, quantity: 5)
-        let updatedCart = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let updatedCart = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
         XCTAssertEqual(updatedCart.items.count, 2)
         XCTAssertEqual(updatedCart.items[0].quantity, 7)    // quantity has been increased
         XCTAssertEqual(updatedCart.items[0].netPrice!.value, 49.0)
@@ -135,7 +135,7 @@ class TestCartService: XCTestCase {
     // Service should support adding coupons only if the cart is non-empty.
     func testCouponApply() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         let product = try! productsService.createProduct(data: productData, from: Address())
@@ -143,14 +143,14 @@ class TestCartService: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
                                   ordersService: ordersService,
                                   taxService: taxService)
         do {    // cart is empty
-            let _ = try service.applyCoupon(forAccount: account.id, code: "", from: Address())
+            let _ = try service.applyCoupon(for: account.id, using: "", from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CartError, .noItemsInCart)
@@ -162,18 +162,18 @@ class TestCartService: XCTestCase {
         let coupon = try! couponService.createCoupon(with: couponData)
 
         let cartUnit = CartUnit(product: product.id, quantity: 4)
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
-        let updatedCart = try! service.applyCoupon(forAccount: account.id, code: coupon.data.code!,
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
+        let updatedCart = try! service.applyCoupon(for: account.id, using: coupon.data.code!,
                                                    from: Address())
         // apply another time (to ensure we properly ignore duplicated coupons)
-        let _ = try! service.applyCoupon(forAccount: account.id, code: coupon.data.code!, from: Address())
+        let _ = try! service.applyCoupon(for: account.id, using: coupon.data.code!, from: Address())
         XCTAssertEqual(updatedCart.coupons.inner, [coupon.id])
     }
 
     // Validation for coupons should also happen in the service.
     func testInvalidCoupons() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         let product = try! productsService.createProduct(data: productData, from: Address())
@@ -181,7 +181,7 @@ class TestCartService: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
@@ -193,7 +193,7 @@ class TestCartService: XCTestCase {
         let coupon = try! couponService.createCoupon(with: couponData)
 
         let cartUnit = CartUnit(product: product.id, quantity: 4)    // add sample unit
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
 
         // Test cases that should fail a coupon - This ensures that validation
         // happens every time a coupon is applied to a cart.
@@ -218,7 +218,7 @@ class TestCartService: XCTestCase {
                 var oldCoupon = couponService.coupons[coupon.id]!
                 modifyCoupon(&oldCoupon)
                 couponService.coupons[coupon.id] = oldCoupon
-                let _ = try service.applyCoupon(forAccount: account.id, code: coupon.data.code!,
+                let _ = try service.applyCoupon(for: account.id, using: coupon.data.code!,
                                                 from: Address())
                 XCTFail()
             } catch let err {
@@ -230,8 +230,8 @@ class TestCartService: XCTestCase {
     // If the account does not exist, then adding item and getting cart shouldn't work.
     func testInvalidAccount() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
-        let service = CartService(withRepository: repository,
+        let repository = CartRepository(with: store)
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
@@ -239,14 +239,14 @@ class TestCartService: XCTestCase {
                                   taxService: taxService)
         let cartUnit = CartUnit(product: UUID(), quantity: 4)
         do {    // random UUID - cannot add item - account doesn't exist
-            let _ = try service.addCartItem(forAccount: UUID(), with: cartUnit, from: Address())
+            let _ = try service.addCartItem(for: UUID(), with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! AccountsError, AccountsError.invalidAccount)
         }
 
         do {    // random UUID - cannot get cart - account doesn't exist
-            let _ = try service.getCart(forAccount: UUID(), from: Address())
+            let _ = try service.getCart(for: UUID(), from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! AccountsError, AccountsError.invalidAccount)
@@ -256,11 +256,11 @@ class TestCartService: XCTestCase {
     // Cart service should add items only if they exist (i.e., when the products service says so).
     func testInvalidProduct() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
@@ -268,7 +268,7 @@ class TestCartService: XCTestCase {
                                   taxService: taxService)
         let cartUnit = CartUnit(product: UUID(), quantity: 4)
         do {    // random UUID - product doesn't exist
-            let _ = try service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+            let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
@@ -278,14 +278,14 @@ class TestCartService: XCTestCase {
     // Cart service should check the inventory for required quantity when adding items.
     func testUnavailableItem() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         let product = try! productsService.createProduct(data: productData, from: Address())
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
@@ -293,18 +293,18 @@ class TestCartService: XCTestCase {
                                   taxService: taxService)
         var cartUnit = CartUnit(product: product.id, quantity: 15)
         do {
-            let _ = try service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+            let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CartError, CartError.productUnavailable)
         }
 
         cartUnit.quantity = 5       // now, we can add it to the cart.
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
         cartUnit.quantity = 10
 
         do {    // can't add now, because no more
-            let _ = try service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+            let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CartError, CartError.productUnavailable)
@@ -314,7 +314,7 @@ class TestCartService: XCTestCase {
     // Service should ensure that all product items in the cart use the same currency for price.
     func testCurrency() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         let productUsd = try! productsService.createProduct(data: productData, from: Address())
@@ -323,17 +323,17 @@ class TestCartService: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
                                   ordersService: ordersService,
                                   taxService: taxService)
         var cartUnit = CartUnit(product: productUsd.id, quantity: 5)
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
         cartUnit.product = productEuro.id
         do {    // product with different currency should fail
-            let _ = try service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+            let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CartError, CartError.ambiguousCurrencies)
@@ -344,7 +344,7 @@ class TestCartService: XCTestCase {
     // applied coupons and the required addresses through order data.
     func testPlacingOrder() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         let product = try! productsService.createProduct(data: productData, from: Address())
@@ -361,18 +361,18 @@ class TestCartService: XCTestCase {
         try! couponData.validate()
         let coupon = try! couponService.createCoupon(with: couponData)
 
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
                                   ordersService: ordersService,
                                   taxService: taxService)
         var cartUnit = CartUnit(product: product.id, quantity: 5)
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: address)
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: address)
         cartUnit.product = anotherProduct.id
         cartUnit.quantity = 2
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: address)
-        let _ = try! service.applyCoupon(forAccount: account.id, code: coupon.data.code!, from: address)
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: address)
+        let _ = try! service.applyCoupon(for: account.id, using: coupon.data.code!, from: address)
 
         let orderPlaced = expectation(description: "order has been placed")
         ordersService.callback = { data in  // make sure that orders service gets the right data
@@ -386,10 +386,10 @@ class TestCartService: XCTestCase {
             orderPlaced.fulfill()
         }
 
-        let _ = try! service.placeOrder(forAccount: account.id, data: CheckoutData())
+        let _ = try! service.placeOrder(for: account.id, with: CheckoutData())
         // Check that items have been flushed. This also ensures that tax isn't calculated
         // because the cart has been reset, and so the prices don't exist.
-        let cart = try! service.getCart(forAccount: account.id, from: address)
+        let cart = try! service.getCart(for: account.id, from: address)
         XCTAssertTrue(cart.items.isEmpty)
 
         waitForExpectations(timeout: 1) { error in
@@ -401,7 +401,7 @@ class TestCartService: XCTestCase {
     // propagating errros from orders service, etc.)
     func testOrdersFail() {
         let store = TestStore()
-        let repository = CartRepository(withStore: store)
+        let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         let product = try! productsService.createProduct(data: productData, from: Address())
@@ -413,32 +413,32 @@ class TestCartService: XCTestCase {
                               province: "blah", country: "bleh", code: "666", label: nil)
         accountData.address.insert(address)
         var account = try! accountsService.createAccount(with: accountData)
-        let service = CartService(withRepository: repository,
+        let service = CartService(with: repository,
                                   productsService: productsService,
                                   accountsService: accountsService,
                                   couponService: couponService,
                                   ordersService: ordersService,
                                   taxService: taxService)
         let cartUnit = CartUnit(product: product.id, quantity: 5)
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
 
         do {    // errors from orders service should be propagated
-            let _ = try service.placeOrder(forAccount: account.id, data: CheckoutData())
+            let _ = try service.placeOrder(for: account.id, with: CheckoutData())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, OrdersError.productUnavailable)
         }
 
-        let cart = try! service.getCart(forAccount: account.id, from: Address())
+        let cart = try! service.getCart(for: account.id, from: Address())
         XCTAssertFalse(cart.items.isEmpty)      // cart items should stay in case of failure
 
         ordersService.error = nil
         accountData = AccountData()
         account = try! accountsService.createAccount(with: accountData)
-        let _ = try! service.addCartItem(forAccount: account.id, with: cartUnit, from: Address())
+        let _ = try! service.addCartItem(for: account.id, with: cartUnit, from: Address())
 
         do {    // checking out requires a valid shipping address (user doesn't have any)
-            let _ = try service.placeOrder(forAccount: account.id, data: CheckoutData())
+            let _ = try service.placeOrder(for: account.id, with: CheckoutData())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CartError, CartError.invalidAddress)

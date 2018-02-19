@@ -18,7 +18,7 @@ public struct Cart: Mappable {
     /// Coupons applied in this cart.
     public var coupons = ArraySet<UUID>()
 
-    public init(withId id: UUID) {
+    public init(with id: UUID) {
         self.id = id
     }
 

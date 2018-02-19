@@ -11,12 +11,12 @@ public class TestStore: CartStorable {
     public var getCalled = false
     public var updateCalled = false
 
-    public func createCart(data: Cart) throws -> () {
+    public func createCart(with data: Cart) throws -> () {
         createCalled = true
         carts[data.id] = data
     }
 
-    public func getCart(id: UUID) throws -> Cart {
+    public func getCart(for id: UUID) throws -> Cart {
         getCalled = true
         guard let cart = carts[id] else {
             throw CartError.cartUnavailable
@@ -25,7 +25,7 @@ public class TestStore: CartStorable {
         return cart
     }
 
-    public func updateCart(data: Cart) throws -> () {
+    public func updateCart(with data: Cart) throws -> () {
         updateCalled = true
         carts[data.id] = data
     }
