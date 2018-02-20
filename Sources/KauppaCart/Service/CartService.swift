@@ -61,7 +61,7 @@ extension CartService: CartServiceCallable {
             throw CartError.noItemsInCart
         }
 
-        var coupon = try couponService.getCoupon(forCode: code)
+        var coupon = try couponService.getCoupon(for: code)
         var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
         // This only validates the coupon - because we're passing zero.
         try coupon.data.deductPrice(from: &zero)

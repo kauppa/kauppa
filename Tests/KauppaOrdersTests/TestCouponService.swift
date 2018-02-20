@@ -16,7 +16,7 @@ public class TestCouponService: CouponServiceCallable {
         return coupon
     }
 
-    public func getCoupon(id: UUID) throws -> Coupon {
+    public func getCoupon(for id: UUID) throws -> Coupon {
         guard let coupon = coupons[id] else {
             throw CouponError.invalidCouponId
         }
@@ -25,15 +25,15 @@ public class TestCouponService: CouponServiceCallable {
     }
 
     // NOTE: Not meant to be called by orders
-    public func getCoupon(forCode code: String) throws -> Coupon {
+    public func getCoupon(for code: String) throws -> Coupon {
         throw CouponError.invalidCouponCode
     }
 
-    public func updateCoupon(id: UUID, data: CouponPatch) throws -> Coupon {
+    public func updateCoupon(for id: UUID, with data: CouponPatch) throws -> Coupon {
         if let callback = callbacks[id] {
             callback(data)
         }
 
-        return try getCoupon(id: id)      // This is just a stub
+        return try getCoupon(for: id)       // This is just a stub
     }
 }

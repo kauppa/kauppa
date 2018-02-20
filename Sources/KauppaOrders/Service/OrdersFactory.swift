@@ -130,7 +130,7 @@ class OrdersFactory {
     {
         var finalPrice = UnitMeasurement(value: totalPrice + totalTax, unit: priceUnit!)
         for id in data.appliedCoupons {
-            var coupon = try couponService.getCoupon(id: id)
+            var coupon = try couponService.getCoupon(for: id)
             try coupon.data.deductPrice(from: &finalPrice)
             appliedCoupons.append(coupon)
         }
@@ -143,7 +143,7 @@ class OrdersFactory {
         for (i, coupon) in appliedCoupons.enumerated() {
             var patch = CouponPatch()
             patch.balance = coupon.data.balance
-            appliedCoupons[i] = try couponService.updateCoupon(id: coupon.id, data: patch)
+            appliedCoupons[i] = try couponService.updateCoupon(for: coupon.id, with: patch)
         }
     }
 
