@@ -57,10 +57,10 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
         productData.category = "drink"  // create another product with a different category
         productData.price.value = 4.0
-        let anotherProduct = try! productsService.createProduct(data: productData, from: Address())
+        let anotherProduct = try! productsService.createProduct(with: productData, from: Address())
 
         var accountData = AccountData()
         // Two emails in customer account data.
@@ -132,7 +132,7 @@ class TestOrdersService: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         var accountData = AccountData()
         accountsService.markAsVerified = false      // disable auto-enabling verification
@@ -233,7 +233,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
         let productData = ProductData(title: "", subtitle: "", description: "")
         // By default, inventory has zero items
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -262,7 +262,7 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -293,8 +293,8 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 10
         let anotherProductData = productData
 
-        let firstProduct = try! productsService.createProduct(data: productData, from: Address())
-        let secondProduct = try! productsService.createProduct(data: anotherProductData,
+        let firstProduct = try! productsService.createProduct(with: productData, from: Address())
+        let secondProduct = try! productsService.createProduct(with: anotherProductData,
                                                                from: Address())
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -321,7 +321,7 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 10
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -361,9 +361,9 @@ class TestOrdersService: XCTestCase {
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.inventory = 10
 
-        let firstProduct = try! productsService.createProduct(data: productData, from: Address())
+        let firstProduct = try! productsService.createProduct(with: productData, from: Address())
         productData.price.unit = .euro
-        let secondProduct = try! productsService.createProduct(data: productData, from: Address())
+        let secondProduct = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -390,7 +390,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -416,7 +416,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(withStore: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)

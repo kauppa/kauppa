@@ -24,7 +24,7 @@ class ReturnsFactory {
     /// been scheduled for pickup).
     func getAllItemsForPickup(forOrder order: inout Order) throws {
         for (i, unit) in order.products.enumerated() {
-            let product = try productsService.getProduct(id: unit.item.product,
+            let product = try productsService.getProduct(for: unit.item.product,
                                                          from: order.shippingAddress)
             // Only collect "untouched" items (if any) from each unit
             // (i.e., items that have been fulfilled and not scheduled for pickup)
@@ -41,7 +41,7 @@ class ReturnsFactory {
     func getSpecifiedItemsForPickup(forOrder order: inout Order) throws {
         for unit in data.units ?? [] {
             let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
-            let product = try productsService.getProduct(id: unit.product,
+            let product = try productsService.getProduct(for: unit.product,
                                                          from: order.shippingAddress)
 
             // Only items that have been fulfilled "and" not scheduled for pickup

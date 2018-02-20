@@ -46,9 +46,9 @@ class TestShipmentUpdates: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData, from: Address())
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData, from: Address())
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -129,9 +129,9 @@ class TestShipmentUpdates: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData, from: Address())
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData, from: Address())
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)

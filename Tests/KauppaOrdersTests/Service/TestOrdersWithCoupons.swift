@@ -45,7 +45,7 @@ class TestOrdersWithCoupons: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
         var couponData = CouponData()
         couponData.balance.value = 10.0
         let coupon1 = try! couponService.createCoupon(with: couponData)
@@ -89,7 +89,7 @@ class TestOrdersWithCoupons: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 

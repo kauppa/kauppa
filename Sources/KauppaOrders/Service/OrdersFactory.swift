@@ -96,7 +96,7 @@ class OrdersFactory {
             return
         }
 
-        let product = try productsService.getProduct(id: unit.item.product,
+        let product = try productsService.getProduct(for: unit.item.product,
                                                      from: data.shippingAddress)
         try checkCurrency(forProduct: product)
         try updateConsumedInventory(forProduct: product, with: unit)
@@ -117,7 +117,7 @@ class OrdersFactory {
         for (id, leftover) in inventoryUpdates {
             var patch = ProductPatch()
             patch.inventory = leftover
-            let _ = try productsService.updateProduct(id: id, data: patch,
+            let _ = try productsService.updateProduct(for: id, with: patch,
                                                       from: data.shippingAddress)
         }
     }

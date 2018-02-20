@@ -77,10 +77,10 @@ class TestCartService: XCTestCase {
         productData.inventory = 10
         productData.price.value = 7.0       // default is USD
         productData.category = "some unknown category"      // tax should default to general
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
         productData.price.value = 13.0
         productData.category = "food"
-        let anotherProduct = try! productsService.createProduct(data: productData, from: Address())
+        let anotherProduct = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -138,7 +138,7 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -176,7 +176,7 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -281,7 +281,7 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
@@ -317,9 +317,9 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        let productUsd = try! productsService.createProduct(data: productData, from: Address())
+        let productUsd = try! productsService.createProduct(with: productData, from: Address())
         productData.price.unit = .euro
-        let productEuro = try! productsService.createProduct(data: productData, from: Address())
+        let productEuro = try! productsService.createProduct(with: productData, from: Address())
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
@@ -347,8 +347,8 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        let product = try! productsService.createProduct(data: productData, from: Address())
-        let anotherProduct = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
+        let anotherProduct = try! productsService.createProduct(with: productData, from: Address())
 
         var accountData = AccountData()
         let address = Address(name: "foobar", line1: "foo", line2: "bar", city: "baz",
@@ -404,7 +404,7 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         ordersService.error = OrdersError.productUnavailable
 

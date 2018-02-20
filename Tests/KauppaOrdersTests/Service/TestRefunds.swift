@@ -48,9 +48,9 @@ class TestRefunds: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData, from: Address())
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData, from: Address())
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -111,11 +111,11 @@ class TestRefunds: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData, from: Address())
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData, from: Address())
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
-        let product3 = try! productsService.createProduct(data: productData, from: Address())
+        let product3 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
@@ -192,7 +192,7 @@ class TestRefunds: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
         let ordersService = OrdersService(withRepository: repository,
@@ -221,7 +221,7 @@ class TestRefunds: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product = try! productsService.createProduct(data: productData, from: Address())
+        let product = try! productsService.createProduct(with: productData, from: Address())
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
         let ordersService = OrdersService(withRepository: repository,
@@ -259,9 +259,9 @@ class TestRefunds: XCTestCase {
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData, from: Address())
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData, from: Address())
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)

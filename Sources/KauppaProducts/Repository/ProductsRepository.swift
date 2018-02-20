@@ -17,44 +17,44 @@ public class ProductsRepository {
     let store: ProductsStorable
 
     /// Initialize this repository with a store.
-    public init(withStore store: ProductsStorable) {
+    public init(with store: ProductsStorable) {
         self.store = store
     }
 
     /// Create product from the given product data.
-    public func createProduct(data: Product) throws -> Product {
-        try self.store.createNewProduct(productData: data)
+    public func createProduct(with data: Product) throws -> Product {
+        try self.store.createNewProduct(with: data)
         products[data.id] = data
         updateCategoriesAndTags(using: data)
         return data
     }
 
     /// Delete the product corresponding to an ID.
-    public func deleteProduct(id: UUID) throws -> () {
+    public func deleteProduct(for id: UUID) throws -> () {
         products.removeValue(forKey: id)
-        return try store.deleteProduct(id: id)
+        return try store.deleteProduct(for: id)
     }
 
     /// Get the product data corresponding to an ID.
-    public func getProductData(id: UUID) throws -> ProductData {
-        let product = try getProduct(id: id)
+    public func getProductData(for id: UUID) throws -> ProductData {
+        let product = try getProduct(for: id)
         return product.data
     }
 
     /// Update the product data for a given product ID.
-    public func updateProductData(id: UUID, data: ProductData) throws -> Product {
-        var product = try getProduct(id: id)
+    public func updateProduct(for id: UUID, with data: ProductData) throws -> Product {
+        var product = try getProduct(for: id)
         product.updatedAt = Date()
         product.data = data
         products[id] = product
-        try store.updateProduct(productData: product)
+        try store.updateProduct(with: product)
         return product
     }
 
     /// Fetch the whole product (from repository, if it's available, or store, if not).
-    public func getProduct(id: UUID) throws -> Product {
+    public func getProduct(for id: UUID) throws -> Product {
         guard let product = products[id] else {
-            let product = try store.getProduct(id: id)
+            let product = try store.getProduct(for: id)
             products[id] = product
             updateCategoriesAndTags(using: product)
             return product
@@ -65,20 +65,22 @@ public class ProductsRepository {
     }
 
     /// Create a product collection with data from the service.
-    public func createCollection(with data: ProductCollectionData) throws -> ProductCollection {
+    public func createCollection(with data: ProductCollectionData) throws
+                                -> ProductCollection
+    {
         let id = UUID()
         let date = Date()
         let collection = ProductCollection(id: id, createdOn: date,
                                            updatedAt: date, data: data)
-        try self.store.createNewCollection(data: collection)
+        try self.store.createNewCollection(with: collection)
         collections[id] = collection
         return collection
     }
 
     /// Fetch the entire collection (from repository, if it's available, or store, if not)
-    public func getCollection(id: UUID) throws -> ProductCollection {
+    public func getCollection(for id: UUID) throws -> ProductCollection {
         guard let collection = collections[id] else {
-            let collection = try store.getCollection(id: id)
+            let collection = try store.getCollection(for: id)
             collections[id] = collection
             return collection
         }
@@ -87,26 +89,28 @@ public class ProductsRepository {
     }
 
     /// Get the product data from the collection.
-    public func getCollectionData(id: UUID) throws -> ProductCollectionData {
-        let collection = try getCollection(id: id)
+    public func getCollectionData(for id: UUID) throws -> ProductCollectionData {
+        let collection = try getCollection(for: id)
         return collection.data
     }
 
     /// Update a collection with data from the service.
-    public func updateCollectionData(id: UUID, data: ProductCollectionData) throws -> ProductCollection {
-        var collection = try getCollection(id: id)
+    public func updateCollection(for id: UUID, with data: ProductCollectionData) throws
+                                -> ProductCollection
+    {
+        var collection = try getCollection(for: id)
         let date = Date()
         collection.updatedAt = date
         collection.data = data
         collections[id] = collection
-        try store.updateCollection(data: collection)
+        try store.updateCollection(with: collection)
         return collection
     }
 
     /// Delete the collection corresponding to an ID.
-    public func deleteCollection(id: UUID) throws -> () {
+    public func deleteCollection(for id: UUID) throws -> () {
         collections.removeValue(forKey: id)
-        return try store.deleteCollection(id: id)
+        return try store.deleteCollection(for: id)
     }
 
     private func updateCategoriesAndTags(using product: Product) {
