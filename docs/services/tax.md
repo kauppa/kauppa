@@ -19,9 +19,9 @@ The service allows you to create, update and delete countries and regions with t
 The flow goes like this:
 
  - Admin defines a country with a name and a tax rate.
- - The service returns a `UUID` for the country (if its valid).
+ - The service returns the data along with an `UUID` for the country (if its valid).
    - If a region (province/city) in that country has a different tax rate, then the region is created for that country.
-   - The service returns a `UUID` for the region (if its valid).
+   - The service returns the data along with an `UUID` for the region (if its valid).
  - Using this ID, the country's name or tax rate can be updated.
    - In case of regions, we can update the name, tax rate, map it to another (existing) country or change its type.
  - If the country/region is no longer required, then it can be deleted using the same ID.
