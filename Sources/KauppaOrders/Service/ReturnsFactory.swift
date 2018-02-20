@@ -75,7 +75,7 @@ class ReturnsFactory {
             pickupData.items.append(CartUnit(product: unit.product.id, quantity: unit.quantity))
         }
 
-        let shipment = try shippingService.schedulePickup(forOrder: order.id, data: pickupData)
+        let shipment = try shippingService.schedulePickup(for: order.id, with: pickupData)
         order.shipments[shipment.id] = shipment.status
     }
 }

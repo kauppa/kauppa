@@ -169,7 +169,7 @@ class OrdersFactory {
 
         try updateCoupons(using: couponService)
 
-        let shipment = try shippingService.createShipment(forOrder: order.id)
+        let shipment = try shippingService.createShipment(for: order.id)
         order.shipments[shipment.id] = shipment.status
     }
 
