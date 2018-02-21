@@ -18,4 +18,6 @@ ecommerce-specific extensions to the platform.
 
 ### References:
 
- - **Building:** See `docs/build.md`
+ - **Building:** For more detail about building Kauppa, see `docs/build.md`
+ - **Design:** For the overall design, see `docs/core`
+ - **Services:** For documentation of individual services, see `docs/services`
