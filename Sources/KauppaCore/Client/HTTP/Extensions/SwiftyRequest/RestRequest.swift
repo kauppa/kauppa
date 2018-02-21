@@ -28,7 +28,7 @@ public class SwiftyRestRequest: ClientCallable {
 
     public required init(with method: HTTPMethod, on url: URL) {
         let requestMethod = SwiftyRestRequest.translateMethod(from: method)
-        self.client = RestRequest(method: requestMethod, url: "\(url)")
+        self.client = RestRequest(method: requestMethod, url: url.absoluteString)
     }
 
     public func setHeader(key: String, value: String) {

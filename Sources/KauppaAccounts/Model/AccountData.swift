@@ -13,6 +13,9 @@ public struct AccountData: Mappable {
     /// A list of user's addresses
     public var address = ArraySet<Address>()
 
+    // FIXME: Remove this
+    public init() {}
+
     /// Try some basic validations on the data. It checks that the name and emails aren't empty,
     /// evaluates the emails against a regex and validates addresses (if specified).
     ///

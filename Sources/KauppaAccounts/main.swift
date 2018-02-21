@@ -8,10 +8,22 @@ import KauppaAccountsRepository
 import KauppaAccountsService
 import KauppaAccountsStore
 
+var accountData = AccountData()
+accountData.name = "Richard Hendricks"
+var email = Email("richard.hendricks@piedpiper.com")
+email.isVerified = true
+accountData.emails.insert(email)
+var account = Account(with: accountData)
+account.id = "BAADA555-0B16-B00B-CAFE-BABE8BADF00D".parse()!
+
 class NoOpStore: AccountsStorable {
     public func createAccount(with data: Account) throws -> () {}
 
     public func getAccount(for id: UUID) throws -> Account {
+        if id == account.id {
+            return account
+        }
+
         throw ServiceError.invalidAccountId
     }
 
