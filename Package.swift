@@ -269,6 +269,18 @@ let clientTargets: [Target] = [
 
 let daemonTargets: [Target] = [
     .target(
+        name: "Kauppa",
+        dependencies: [
+            "KauppaAccounts",
+            "KauppaCart",
+            "KauppaCoupon",
+            "KauppaOrders",
+            "KauppaProducts",
+            "KauppaShipments",
+            "KauppaTax"
+        ]
+    ),
+    .target(
         name: "KauppaAccounts",
         dependencies: [
             "KauppaAccountsClient",
@@ -480,6 +492,10 @@ targets.append(contentsOf: testTargets)
 let package = Package(
     name: "Kauppa",
     products: [
+        .executable(
+            name: "Kauppa",
+            targets: ["Kauppa"]
+        ),
         .executable(
             name: "KauppaAccounts",
             targets: ["KauppaAccounts"]

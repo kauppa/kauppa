@@ -3,7 +3,6 @@ import Foundation
 import Kitura
 
 import KauppaCore
-import KauppaCartModel
 import KauppaCartRepository
 import KauppaCartService
 import KauppaCartStore

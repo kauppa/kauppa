@@ -3,7 +3,6 @@ import Foundation
 import Kitura
 
 import KauppaCore
-import KauppaCouponModel
 import KauppaCouponRepository
 import KauppaCouponService
 import KauppaCouponStore

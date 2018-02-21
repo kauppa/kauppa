@@ -3,7 +3,6 @@ import Foundation
 import Kitura
 
 import KauppaCore
-import KauppaShipmentsModel
 import KauppaShipmentsRepository
 import KauppaShipmentsService
 import KauppaShipmentsStore

@@ -3,7 +3,6 @@ import Foundation
 import Kitura
 
 import KauppaCore
-import KauppaTaxModel
 import KauppaTaxRepository
 import KauppaTaxService
 import KauppaTaxStore
