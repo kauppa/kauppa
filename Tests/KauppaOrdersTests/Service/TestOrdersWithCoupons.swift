@@ -41,7 +41,7 @@ class TestOrdersWithCoupons: XCTestCase {
     // the coupons.
     func testOrderCreationWithCoupons() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
@@ -63,7 +63,7 @@ class TestOrdersWithCoupons: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -76,7 +76,7 @@ class TestOrdersWithCoupons: XCTestCase {
         // Add two coupons to this order.
         orderData.appliedCoupons.inner = [coupon1.id, coupon2.id]
 
-        let order = try! ordersService.createOrder(data: orderData)
+        let order = try! ordersService.createOrder(with: orderData)
         XCTAssertEqual(order.netPrice.value, 15.0)
         XCTAssertEqual(order.grossPrice.value, 0.0)     // final price (after applying coupons)
     }
@@ -85,7 +85,7 @@ class TestOrdersWithCoupons: XCTestCase {
     // Basically, all errors from `CouponData.deductPrice`
     func testOrderWithInvalidCoupon() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
@@ -93,7 +93,7 @@ class TestOrdersWithCoupons: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -126,7 +126,7 @@ class TestOrdersWithCoupons: XCTestCase {
         for (id, error) in cases {
             do {
                 orderData.appliedCoupons.inner = [id]
-                let _ = try ordersService.createOrder(data: orderData)
+                let _ = try ordersService.createOrder(with: orderData)
                 XCTFail()
             } catch let err {
                 XCTAssertEqual(err as! CouponError, error)

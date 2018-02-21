@@ -26,7 +26,7 @@ public class ShipmentsService {
 // NOTE: See the actual protocol in `KauppaShipmentsClient` for exact usage.
 extension ShipmentsService: ShipmentsServiceCallable {
     public func createShipment(for id: UUID) throws -> Shipment {
-        let order = try ordersService.getOrder(forId: id)
+        let order = try ordersService.getOrder(for: id)
         let address = order.shippingAddress
         let items = order.products.map { $0.item }
         return try repository.createShipment(for: id, address: address, items: items)
@@ -39,7 +39,7 @@ extension ShipmentsService: ShipmentsServiceCallable {
         }
 
         data.status = .shipped
-        try ordersService.updateShipment(forId: data.orderId, data: data)
+        try ordersService.updateShipment(for: data.orderId, with: data)
         return try repository.updateShipment(with: data)
     }
 
@@ -50,12 +50,12 @@ extension ShipmentsService: ShipmentsServiceCallable {
         }
 
         data.status = .delivered
-        try ordersService.updateShipment(forId: data.orderId, data: data)
+        try ordersService.updateShipment(for: data.orderId, with: data)
         return try repository.updateShipment(with: data)
     }
 
     public func schedulePickup(for id: UUID, with data: PickupItems) throws -> Shipment {
-        let order = try ordersService.getOrder(forId: id)
+        let order = try ordersService.getOrder(for: id)
         let address = order.shippingAddress
         return try repository.createShipment(for: id, address: address,
                                              items: data.items, status: .pickup)
@@ -68,7 +68,7 @@ extension ShipmentsService: ShipmentsServiceCallable {
         }
 
         data.status = .returned
-        try ordersService.updateShipment(forId: data.orderId, data: data)
+        try ordersService.updateShipment(for: data.orderId, with: data)
         return try repository.updateShipment(with: data)
     }
 }

@@ -25,9 +25,9 @@ class TestOrdersRepository: XCTestCase {
     // Test order creation in repository. This just checks for timestamps, caching and store calls.
     func testOrderCreation() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         let data = Order(placedBy: UUID())
-        try! repository.createOrder(withData: data)
+        try! repository.createOrder(with: data)
         // creation and updated timestamps should be the same during creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertNotNil(repository.orders[data.id])
@@ -37,10 +37,10 @@ class TestOrdersRepository: XCTestCase {
     // Test order deletion - should delete from cache and call store.
     func testOrderDeletion() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         let data = Order(placedBy: UUID())
-        try! repository.createOrder(withData: data)
-        let _ = try! repository.deleteOrder(id: data.id)
+        try! repository.createOrder(with: data)
+        let _ = try! repository.deleteOrder(for: data.id)
         XCTAssertTrue(store.deleteCalled)   // store's delete method called by repository
         XCTAssertNil(repository.orders[data.id])    // order has been removed from repository
     }
@@ -48,13 +48,13 @@ class TestOrdersRepository: XCTestCase {
     // Updating order data in repository should update timestamp, cache and call the store.
     func testOrderUpdate() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         let order = Order(placedBy: UUID())
-        try! repository.createOrder(withData: order)
+        try! repository.createOrder(with: order)
         XCTAssertEqual(order.createdOn, order.updatedAt)
-        let update1 = try! repository.updateOrder(withData: order, skipDate: true)
+        let update1 = try! repository.updateOrder(with: order, skippingDate: true)
         XCTAssertEqual(update1.createdOn, update1.updatedAt)    // date is still the same
-        let update2 = try! repository.updateOrder(withData: order)
+        let update2 = try! repository.updateOrder(with: order)
         // We're just testing the function calls (extensive testing is done in service)
         XCTAssertTrue(update2.createdOn != update2.updatedAt)
         XCTAssertTrue(store.updateCalled)   // update called on store
@@ -64,14 +64,14 @@ class TestOrdersRepository: XCTestCase {
     // it should get from the store and cache it. Re-getting the item shouldn't call the store.
     func testStoreCalls() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         let data = Order(placedBy: UUID())
-        try! repository.createOrder(withData: data)
+        try! repository.createOrder(with: data)
         repository.orders = [:]     // clear the repository
-        let _ = try! repository.getOrder(id: data.id)
+        let _ = try! repository.getOrder(for: data.id)
         XCTAssertTrue(store.getCalled)  // this should've called the store
         store.getCalled = false         // now, pretend that we never called the store
-        let _ = try! repository.getOrder(id: data.id)
+        let _ = try! repository.getOrder(for: data.id)
         // store shouldn't be called, because it was recently fetched by the repository
         XCTAssertFalse(store.getCalled)
     }

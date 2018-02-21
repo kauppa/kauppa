@@ -42,7 +42,7 @@ class TestShipmentUpdates: XCTestCase {
     // All other cases should fail.
     func testItemPickup() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
@@ -53,7 +53,7 @@ class TestShipmentUpdates: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -62,14 +62,14 @@ class TestShipmentUpdates: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
-        var order = try! ordersService.createOrder(data: orderData)
+        var order = try! ordersService.createOrder(with: orderData)
         var shipmentData = Shipment()
         shipmentData.items = [CartUnit(product: product1.id, quantity: 2),
                               CartUnit(product: product2.id, quantity: 1)]
         shipmentData.status = .returned
 
         do {    // items haven't been delivered yet - so failure
-            let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
+            let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product1.id))
@@ -80,10 +80,10 @@ class TestShipmentUpdates: XCTestCase {
         order.products[0].status!.pickupQuantity = 2
         order.products[1].status = OrderUnitStatus(quantity: 2)
         order.products[1].status!.pickupQuantity = 1
-        order = try! repository.updateOrder(withData: order)
+        order = try! repository.updateOrder(with: order)
 
-        let _ = try! ordersService.updateShipment(forId: order.id, data: shipmentData)
-        let updatedOrder = try! repository.getOrder(id: order.id)
+        let _ = try! ordersService.updateShipment(for: order.id, with: shipmentData)
+        let updatedOrder = try! repository.getOrder(for: order.id)
         // pickup quantity has been reset to zero
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 0)
         XCTAssertEqual(updatedOrder.products[1].status!.pickupQuantity, 0)
@@ -98,7 +98,7 @@ class TestShipmentUpdates: XCTestCase {
         shipmentData.items = [CartUnit(product: UUID(), quantity: 1)]
 
         do {    // item not found in order - failure
-            let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
+            let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
@@ -106,7 +106,7 @@ class TestShipmentUpdates: XCTestCase {
 
         shipmentData.items = [CartUnit(product: product1.id, quantity: 3)]
         do {    // No pickups have been scheduled yet
-            let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
+            let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .invalidPickupQuantity(product1.id, 0))
@@ -115,7 +115,7 @@ class TestShipmentUpdates: XCTestCase {
         repository.orders[order.id]!.products[0].status!.pickupQuantity = 3
         shipmentData.items = [CartUnit(product: product1.id, quantity: 3)]
         do {    // shipment has picked up 3 items, but only 1 item has been fulfilled
-            let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
+            let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product1.id))
@@ -125,7 +125,7 @@ class TestShipmentUpdates: XCTestCase {
     // Once shipment service notifies about a delivery event, order should be updated accordingly.
     func testItemDelivery() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
@@ -136,7 +136,7 @@ class TestShipmentUpdates: XCTestCase {
         let accountData = AccountData()
         let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -145,22 +145,22 @@ class TestShipmentUpdates: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
-        var order = try! ordersService.createOrder(data: orderData)
+        var order = try! ordersService.createOrder(with: orderData)
 
         var shipmentData = Shipment()
         shipmentData.items = [CartUnit(product: product1.id, quantity: 3),
                               CartUnit(product: product2.id, quantity: 3)]
         shipmentData.status = .delivered
         do {    // one two items were supposed to deliver for product2
-            let _ = try ordersService.updateShipment(forId: order.id, data: shipmentData)
+            let _ = try ordersService.updateShipment(for: order.id, with: shipmentData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .invalidDeliveryQuantity(product2.id, 2))
         }
 
         shipmentData.items[1] = CartUnit(product: product2.id, quantity: 2)
-        let _ = try! ordersService.updateShipment(forId: order.id, data: shipmentData)
-        order = try! repository.getOrder(id: order.id)
+        let _ = try! ordersService.updateShipment(for: order.id, with: shipmentData)
+        order = try! repository.getOrder(for: order.id)
         XCTAssertEqual(order.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(order.products[1].status!.fulfilledQuantity, 2)
     }

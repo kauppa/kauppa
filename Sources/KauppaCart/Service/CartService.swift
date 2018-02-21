@@ -115,7 +115,7 @@ extension CartService: CartServiceCallable {
         var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
                                   placedBy: userId, products: units)
         orderData.appliedCoupons = cart.coupons
-        let order = try ordersService.createOrder(data: orderData)
+        let order = try ordersService.createOrder(with: orderData)
 
         cart.reset()
         try repository.updateCart(with: cart)

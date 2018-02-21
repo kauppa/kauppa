@@ -26,7 +26,7 @@ public class OrdersService {
 
     /// Initialize this service with its repository, along with
     /// instances of clients to account and product services.
-    public init(withRepository repository: OrdersRepository,
+    public init(with repository: OrdersRepository,
                 accountsService: AccountsServiceCallable,
                 productsService: ProductsServiceCallable,
                 shippingService: ShipmentsServiceCallable,
@@ -44,7 +44,7 @@ public class OrdersService {
 
 // NOTE: See the actual protocol in `KauppaOrdersClient` for exact usage.
 extension OrdersService: OrdersServiceCallable {
-    public func createOrder(data: OrderData) throws -> Order {
+    public func createOrder(with data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(for: data.placedBy)
         if !account.isVerified {
             throw OrdersError.unverifiedAccount
@@ -55,7 +55,7 @@ extension OrdersService: OrdersServiceCallable {
                                 calculatingWith: taxService)
         let detailedOrder = factory.createOrder()
 
-        try repository.createOrder(withData: factory.order)
+        try repository.createOrder(with: factory.order)
         let mailOrder = MailOrder(from: detailedOrder)
         if let mailer = mailService {
             mailer.sendMail(to: account.data.getVerifiedEmails(), with: mailOrder)
@@ -64,55 +64,55 @@ extension OrdersService: OrdersServiceCallable {
         return factory.order
     }
 
-    public func getOrder(forId id: UUID) throws -> Order {
-        return try repository.getOrder(id: id)
+    public func getOrder(for id: UUID) throws -> Order {
+        return try repository.getOrder(for: id)
     }
 
-    public func cancelOrder(id: UUID) throws -> Order {
-        var order = try repository.getOrder(id: id)
+    public func cancelOrder(for id: UUID) throws -> Order {
+        var order = try repository.getOrder(for: id)
         let date = Date()
         order.cancelledAt = date
         order.updatedAt = date
-        return try repository.updateOrder(withData: order, skipDate: true)
+        return try repository.updateOrder(with: order, skippingDate: true)
     }
 
-    public func initiateRefund(forId id: UUID, data: RefundData) throws -> Order {
-        var order = try repository.getOrder(id: id)
+    public func initiateRefund(for id: UUID, with data: RefundData) throws -> Order {
+        var order = try repository.getOrder(for: id)
         let factory = RefundsFactory(with: data, using: productsService)
-        try factory.initiateRefund(forOrder: &order, using: repository)
-        return try repository.updateOrder(withData: order)
+        try factory.initiateRefund(for: &order, using: repository)
+        return try repository.updateOrder(with: order)
     }
 
-    public func returnOrder(id: UUID, data: PickupData) throws -> Order {
-        var order = try repository.getOrder(id: id)
+    public func returnOrder(for id: UUID, with data: PickupData) throws -> Order {
+        var order = try repository.getOrder(for: id)
         let factory = ReturnsFactory(with: data, using: productsService)
-        try factory.initiatePickup(forOrder: &order, with: shippingService)
-        return try repository.updateOrder(withData: order)
+        try factory.initiatePickup(for: &order, with: shippingService)
+        return try repository.updateOrder(with: order)
     }
 
-    public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
+    public func updateShipment(for id: UUID, with data: Shipment) throws -> () {
         if data.items.isEmpty {
             throw OrdersError.noItemsToProcess
         }
 
-        var order = try repository.getOrder(id: id)
+        var order = try repository.getOrder(for: id)
         order.shipments[data.id] = data.status
         // NOTE: The `items` in `Shipment` data should never be empty, because
         // it's called only by orders and it's responsible for supplying the items.
 
         switch data.status {
             case .returned:
-                try handlePickupEvent(forOrder: &order, data: data)
+                try handlePickupEvent(for: &order, with: data)
             case .delivered:
-                try handleDeliveryEvent(forOrder: &order, data: data)
+                try handleDeliveryEvent(for: &order, with: data)
 
             default: ()
         }
 
-        let _ = try repository.updateOrder(withData: order)
+        let _ = try repository.updateOrder(with: order)
     }
 
-    public func deleteOrder(id: UUID) throws -> () {
-        return try repository.deleteOrder(id: id)
+    public func deleteOrder(for id: UUID) throws -> () {
+        return try repository.deleteOrder(for: id)
     }
 }
