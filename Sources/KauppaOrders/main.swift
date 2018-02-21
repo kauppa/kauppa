@@ -13,24 +13,7 @@ import KauppaShipmentsClient
 import KauppaProductsClient
 import KauppaTaxClient
 
-class NoOpStore: OrdersStorable {
-    public func createOrder(with data: Order) throws -> () {}
-
-    public func getOrder(for id: UUID) throws -> Order {
-        throw ServiceError.invalidOrderId
-    }
-
-    public func updateOrder(with data: Order) throws -> () {}
-
-    public func deleteOrder(for id: UUID) throws -> () {
-        throw ServiceError.invalidOrderId
-    }
-
-    public func createRefund(with data: Refund) throws -> () {}
-}
-
-
-let repository = OrdersRepository(with: NoOpStore())
+let repository = OrdersRepository(with: OrdersNoOpStore())
 
 let accountsEndpoint = String.from(environment: "KAUPPA_ACCOUNTS_ENDPOINT")!
 let couponsEndpoint = String.from(environment: "KAUPPA_COUPONS_ENDPOINT")!
