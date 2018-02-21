@@ -1,4 +1,4 @@
-FROM ibmcom/swift-ubuntu-runtime:4.0.3
+FROM ibmcom/swift-ubuntu-runtime:4.0
 
 ADD .build/release/KauppaOrders /usr/share/kauppa/
 
