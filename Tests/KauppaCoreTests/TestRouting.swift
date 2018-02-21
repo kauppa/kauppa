@@ -54,7 +54,8 @@ class TestRouting: XCTestCase {
     func testServiceRouterInit() {
         let router = SampleRouter<String>()
         let _ = TestServiceRouter(with: router)
-        XCTAssertEqual(router.routes.count, 3)
+        // "3" for our routes, "3" for the same routes mounted for handling `OPTIONS` method.
+        XCTAssertEqual(router.routes.count, 3 + 3)
     }
 
     /// Test that date can be properly encoded in the expected format and content type
