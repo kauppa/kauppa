@@ -17,12 +17,12 @@ public class TestStore: ProductsStorable {
     public var collectionGetCalled = false
     public var collectionDeleteCalled = false
 
-    public func createNewProduct(productData: Product) throws -> () {
+    public func createNewProduct(with data: Product) throws -> () {
         createCalled = true
-        products[productData.id] = productData
+        products[data.id] = data
     }
 
-    public func getProduct(id: UUID) throws -> Product {
+    public func getProduct(for id: UUID) throws -> Product {
         getCalled = true
         guard let product = products[id] else {
             throw ProductsError.invalidProduct
@@ -31,7 +31,7 @@ public class TestStore: ProductsStorable {
         return product
     }
 
-    public func deleteProduct(id: UUID) throws -> () {
+    public func deleteProduct(for id: UUID) throws -> () {
         deleteCalled = true
         if products.removeValue(forKey: id) != nil {
             return
@@ -40,17 +40,17 @@ public class TestStore: ProductsStorable {
         }
     }
 
-    public func updateProduct(productData: Product) throws -> () {
+    public func updateProduct(with data: Product) throws -> () {
         updateCalled = true
-        products[productData.id] = productData
+        products[data.id] = data
     }
 
-    public func createNewCollection(data: ProductCollection) throws -> () {
+    public func createNewCollection(with data: ProductCollection) throws -> () {
         collectionCreateCalled = true
         collections[data.id] = data
     }
 
-    public func getCollection(id: UUID) throws -> ProductCollection {
+    public func getCollection(for id: UUID) throws -> ProductCollection {
         collectionGetCalled = true
         guard let collection = collections[id] else {
             throw ProductsError.invalidCollection
@@ -59,12 +59,12 @@ public class TestStore: ProductsStorable {
         return collection
     }
 
-    public func updateCollection(data: ProductCollection) throws -> () {
+    public func updateCollection(with data: ProductCollection) throws -> () {
         collectionUpdateCalled = true
         collections[data.id] = data
     }
 
-    public func deleteCollection(id: UUID) throws -> () {
+    public func deleteCollection(for id: UUID) throws -> () {
         collectionDeleteCalled = true
         if collections.removeValue(forKey: id) != nil {
             return

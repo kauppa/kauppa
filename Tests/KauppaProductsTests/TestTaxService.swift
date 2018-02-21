@@ -8,7 +8,7 @@ import KauppaTaxModel
 class TestTaxService: TaxServiceCallable {
     var rate: TaxRate? = nil
 
-    public func getTaxRate(forAddress address: Address) throws -> TaxRate {
+    public func getTaxRate(for address: Address) throws -> TaxRate {
         return rate ?? TaxRate()
     }
 
@@ -28,7 +28,7 @@ class TestTaxService: TaxServiceCallable {
     }
 
     // NOTE: Not meant to be called by products
-    public func addRegion(toCountry id: UUID, data: RegionData) throws -> Region {
+    public func addRegion(to id: UUID, data: RegionData) throws -> Region {
         throw TaxError.invalidRegionId
     }
 

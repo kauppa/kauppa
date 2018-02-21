@@ -13,7 +13,7 @@ public class TaxRepository {
     let store: TaxStorable
 
     /// Initialize this repository with the given store.
-    public init(withStore store: TaxStorable) {
+    public init(with store: TaxStorable) {
         self.store = store
     }
 
@@ -47,7 +47,7 @@ public class TaxRepository {
     }
 
     /// Get the region matching a given name and belonging to a given country.
-    public func getRegion(name: String, forCountry countryName: String) throws -> Region {
+    public func getRegion(name: String, for countryName: String) throws -> Region {
         let country = try getCountry(name: countryName)
         var region: Region? = nil
         if let id = regionNames[name] {
@@ -59,7 +59,7 @@ public class TaxRepository {
         }
 
         guard let regionData = region else {
-            let region = try store.getRegion(name: name, forCountry: countryName)
+            let region = try store.getRegion(name: name, for: countryName)
             regionNames[region.name] = region.id
             return region
         }

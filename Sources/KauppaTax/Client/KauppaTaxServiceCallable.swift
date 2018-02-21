@@ -9,10 +9,10 @@ public protocol TaxServiceCallable {
     /// Get the tax rate for a given address.
     ///
     /// - Parameters:
-    ///   - forAddress: The `Address` for which the rate should be calculated.
+    ///   - for: The `Address` for which the rate should be calculated.
     /// - Returns: `TaxRate` for the matching area.
     /// - Throws: `TaxError` if the tax rate could not be obtained.
-    func getTaxRate(forAddress address: Address) throws -> TaxRate
+    func getTaxRate(for address: Address) throws -> TaxRate
     /// Create a country with the given data.
     ///
     /// - Parameters:
@@ -40,11 +40,11 @@ public protocol TaxServiceCallable {
     /// Create a new region for a country.
     ///
     /// - Parameters:
-    ///   - toCountry: The `UUID` of the country to which the region is to be added.
+    ///   - to: The `UUID` of the country to which the region is to be added.
     ///   - data: `RegionData` input for creating a region.
     /// - Returns: `Region`
     /// - Throws: `TaxError`
-    func addRegion(toCountry id: UUID, data: RegionData) throws -> Region
+    func addRegion(to id: UUID, data: RegionData) throws -> Region
 
     /// Update a region with the given patch data.
     ///

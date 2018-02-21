@@ -13,7 +13,7 @@ public class TestStore: AccountsStorable {
     public var deleteCalled = false
     public var updateCalled = false
 
-    public func createAccount(data: Account) throws -> () {
+    public func createAccount(with data: Account) throws -> () {
         createCalled = true
         for email in data.data.emails {
             emails[email.value] = data.id
@@ -22,7 +22,7 @@ public class TestStore: AccountsStorable {
         accounts[data.id] = data
     }
 
-    public func getAccount(id: UUID) throws -> Account {
+    public func getAccount(for id: UUID) throws -> Account {
         getCalled = true
         guard let account = accounts[id] else {
             throw AccountsError.invalidAccount
@@ -31,15 +31,15 @@ public class TestStore: AccountsStorable {
         return account
     }
 
-    public func getAccount(email: String) throws -> Account {
+    public func getAccount(for email: String) throws -> Account {
         guard let id = emails[email] else {
             throw AccountsError.invalidAccount
         }
 
-        return try getAccount(id: id)
+        return try getAccount(for: id)
     }
 
-    public func deleteAccount(forId id: UUID) throws -> () {
+    public func deleteAccount(for id: UUID) throws -> () {
         deleteCalled = true
         if accounts.removeValue(forKey: id) != nil {
             return
@@ -48,8 +48,8 @@ public class TestStore: AccountsStorable {
         }
     }
 
-    public func updateAccount(accountData: Account) throws -> () {
+    public func updateAccount(with data: Account) throws -> () {
         updateCalled = true
-        accounts[accountData.id] = accountData
+        accounts[data.id] = data
     }
 }

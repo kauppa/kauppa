@@ -58,7 +58,7 @@ class CartItemCreator {
             throw CartError.noItemsToProcess
         }
 
-        let product = try productsService.getProduct(id: unit.product, from: address)
+        let product = try productsService.getProduct(for: unit.product, from: address)
         // set product category (for calculating tax later)
         unit.setTax(category: product.data.category)
 

@@ -11,7 +11,7 @@ public class TestShipmentsService: ShipmentsServiceCallable {
                                               orderId: UUID(), address: Address())
     public var callback: ((Any) -> Void)? = nil
 
-    public func createShipment(forOrder id: UUID) throws -> Shipment {
+    public func createShipment(for id: UUID) throws -> Shipment {
         if let callback = callback {
             callback(id as Any)
         }
@@ -23,7 +23,7 @@ public class TestShipmentsService: ShipmentsServiceCallable {
         return data
     }
 
-    public func schedulePickup(forOrder id: UUID, data: PickupItems) throws -> Shipment {
+    public func schedulePickup(for id: UUID, with data: PickupItems) throws -> Shipment {
         if let callback = callback {
             callback((id, data) as Any)
         }
@@ -36,17 +36,17 @@ public class TestShipmentsService: ShipmentsServiceCallable {
     }
 
     // NOTE: Not meant to be called by orders
-    public func completePickup(id: UUID) throws -> Shipment {
+    public func completePickup(for id: UUID) throws -> Shipment {
         throw ShipmentsError.invalidShipment
     }
 
     // NOTE: Not meant to be called by orders
-    public func notifyShipping(id: UUID) throws -> Shipment {
+    public func notifyShipping(for id: UUID) throws -> Shipment {
         throw ShipmentsError.invalidShipment
     }
 
     // NOTE: Not meant to be called by orders
-    public func notifyDelivery(id: UUID) throws -> Shipment {
+    public func notifyDelivery(for id: UUID) throws -> Shipment {
         throw ShipmentsError.invalidShipment
     }
 }
