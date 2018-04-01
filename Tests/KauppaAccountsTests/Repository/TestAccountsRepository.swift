@@ -32,9 +32,9 @@ class TestAccountsRepository: XCTestCase {
     // for caching the account, and calling the store.
     func testAccountCreation() {
         let store = TestStore()
-        let repository = AccountsRepository(withStore: store)
+        let repository = AccountsRepository(with: store)
         let accountData = AccountData()
-        let data = try? repository.createAccount(data: accountData)
+        let data = try? repository.createAccount(with: accountData)
         XCTAssertNotNil(data)
         // These two timestamps should be the same in creation
         XCTAssertEqual(data!.createdOn, data!.updatedAt)
@@ -46,11 +46,11 @@ class TestAccountsRepository: XCTestCase {
     // and it should call the store.
     func testAccountDeletion() {
         let store = TestStore()
-        let repository = AccountsRepository(withStore: store)
+        let repository = AccountsRepository(with: store)
         let accountData = AccountData()
 
-        let data = try! repository.createAccount(data: accountData)
-        let result: ()? = try? repository.deleteAccount(forId: data.id)
+        let data = try! repository.createAccount(with: accountData)
+        let result: ()? = try? repository.deleteAccount(for: data.id)
         XCTAssertNotNil(result)
         XCTAssertTrue(repository.accounts.isEmpty)      // repository shouldn't have the account
         XCTAssertTrue(store.deleteCalled)       // delete should've been called in store (by repository)
@@ -59,12 +59,12 @@ class TestAccountsRepository: XCTestCase {
     // Test the repository for account update. It should update the item in the cache and the store.
     func testAccountUpdate() {
         let store = TestStore()
-        let repository = AccountsRepository(withStore: store)
+        let repository = AccountsRepository(with: store)
         var accountData = AccountData()
-        let data = try! repository.createAccount(data: accountData)
+        let data = try! repository.createAccount(with: accountData)
         XCTAssertEqual(data.createdOn, data.updatedAt)
         accountData.name = "FooBar"
-        let updatedAccount = try! repository.updateAccountData(forId: data.id, data: accountData)
+        let updatedAccount = try! repository.updateAccount(for: data.id, with: accountData)
         // We're just testing the function calls (extensive testing is done in service)
         XCTAssertEqual(updatedAccount.data.name, "FooBar")
         XCTAssertTrue(store.updateCalled)
@@ -74,14 +74,14 @@ class TestAccountsRepository: XCTestCase {
     // it should get from the store and cache it. Re-getting the item shouldn't call the store.
     func testStoreCalls() {
         let store = TestStore()
-        let repository = AccountsRepository(withStore: store)
+        let repository = AccountsRepository(with: store)
         let accountData = AccountData()
-        let data = try! repository.createAccount(data: accountData)
+        let data = try! repository.createAccount(with: accountData)
         repository.accounts = [:]       // clear the repository
-        let _ = try? repository.getAccount(forId: data.id)
+        let _ = try? repository.getAccount(for: data.id)
         XCTAssertTrue(store.getCalled)  // this should've called the store
         store.getCalled = false         // now, pretend that we've never called the store
-        let _ = try? repository.getAccount(forId: data.id)
+        let _ = try? repository.getAccount(for: data.id)
         // store shouldn't be called, because it was recently fetched by the repository
         XCTAssertFalse(store.getCalled)
     }

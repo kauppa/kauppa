@@ -29,7 +29,7 @@ class TestTaxRepository: XCTestCase {
     func testCountryCreation() {
         let store = TestStore()
         let data = Country(name: "", taxRate: TaxRate())
-        let repository = TaxRepository(withStore: store)
+        let repository = TaxRepository(with: store)
         try! repository.createCountry(with: data)   // validation happens in service
         XCTAssertTrue(store.createCountryCalled)    // store has been called for creation
     }
@@ -38,7 +38,7 @@ class TestTaxRepository: XCTestCase {
     func testCountryUpdate() {
         let store = TestStore()
         var data = Country(name: "", taxRate: TaxRate())
-        let repository = TaxRepository(withStore: store)
+        let repository = TaxRepository(with: store)
         try! repository.createCountry(with: data)
         data.name = "foo"
         let newData = try! repository.updateCountry(with: data)
@@ -52,7 +52,7 @@ class TestTaxRepository: XCTestCase {
     func testCountryDeletion() {
         let store = TestStore()
         let data = Country(name: "", taxRate: TaxRate())
-        let repository = TaxRepository(withStore: store)
+        let repository = TaxRepository(with: store)
         try! repository.createCountry(with: data)
         XCTAssertFalse(repository.countries.isEmpty)
         XCTAssertFalse(repository.countryNames.isEmpty)
@@ -67,7 +67,7 @@ class TestTaxRepository: XCTestCase {
     func testRegionCreation() {
         let store = TestStore()
         let data = Region(name: "", taxRate: TaxRate(), kind: .city, country: UUID())
-        let repository = TaxRepository(withStore: store)
+        let repository = TaxRepository(with: store)
         try! repository.createRegion(with: data)    // validation happens in service
         XCTAssertTrue(store.createRegionCalled)     // store called for creation
     }
@@ -76,7 +76,7 @@ class TestTaxRepository: XCTestCase {
     func testRegionUpdate() {
         let store = TestStore()
         var data = Region(name: "", taxRate: TaxRate(), kind: .city, country: UUID())
-        let repository = TaxRepository(withStore: store)
+        let repository = TaxRepository(with: store)
         try! repository.createRegion(with: data)
         data.name = "foo"
         let newData = try! repository.updateRegion(with: data)
@@ -90,7 +90,7 @@ class TestTaxRepository: XCTestCase {
     func testRegionDeletion() {
         let store = TestStore()
         let data = Region(name: "", taxRate: TaxRate(), kind: .city, country: UUID())
-        let repository = TaxRepository(withStore: store)
+        let repository = TaxRepository(with: store)
         try! repository.createRegion(with: data)
         XCTAssertFalse(repository.regions.isEmpty)
         try! repository.deleteRegion(id: data.id)
@@ -102,7 +102,7 @@ class TestTaxRepository: XCTestCase {
     func testStoreCalls() {
         let store = TestStore()
         let countryData = Country(name: "foo", taxRate: TaxRate())
-        let repository = TaxRepository(withStore: store)
+        let repository = TaxRepository(with: store)
         try! repository.createCountry(with: countryData)
         repository.countries = [:]      // clear the repository
         let _ = try! repository.getCountry(id: countryData.id)
@@ -131,12 +131,12 @@ class TestTaxRepository: XCTestCase {
 
         repository.countryNames = [:]       // reset the country names
         repository.regionNames = [:]        // and region names
-        let _ = try! repository.getRegion(name: "bar", forCountry: "foo")
+        let _ = try! repository.getRegion(name: "bar", for: "foo")
         XCTAssertTrue(store.getCountryCalled)   // this should call the store for getting country name
         XCTAssertTrue(store.getRegionCalled)    // ... and region name.
         store.getCountryCalled = false
         store.getRegionCalled = false
-        let _ = try! repository.getRegion(name: "bar", forCountry: "foo")
+        let _ = try! repository.getRegion(name: "bar", for: "foo")
         XCTAssertFalse(store.getCountryCalled)      // future `get` shouldn't call the store
         XCTAssertFalse(store.getRegionCalled)
     }

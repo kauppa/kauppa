@@ -51,12 +51,14 @@ class CartItemCreator {
     }
 
     /// Update this cart with the supplied cart unit.
-    func updateCartData(using productsService: ProductsServiceCallable) throws {
+    func updateCartData(using productsService: ProductsServiceCallable,
+                        with address: Address) throws
+    {
         if unit.quantity == 0 {
             throw CartError.noItemsToProcess
         }
 
-        let product = try productsService.getProduct(id: unit.product)
+        let product = try productsService.getProduct(for: unit.product, from: address)
         // set product category (for calculating tax later)
         unit.setTax(category: product.data.category)
 

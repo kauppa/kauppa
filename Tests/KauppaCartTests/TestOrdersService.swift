@@ -10,7 +10,7 @@ public class TestOrdersService: OrdersServiceCallable {
     var callback: ((OrderData) -> Void)? = nil
     var error: OrdersError? = nil
 
-    public func createOrder(data: OrderData) throws -> Order {
+    public func createOrder(with data: OrderData) throws -> Order {
         if let call = callback {
             call(data)
         }
@@ -22,32 +22,32 @@ public class TestOrdersService: OrdersServiceCallable {
     }
 
     // NOTE: Not meant to be called by cart
-    public func getOrder(forId id: UUID) throws -> Order {
+    public func getOrder(for id: UUID) throws -> Order {
         throw OrdersError.invalidOrder
     }
 
     // NOTE: Not meant to be called by cart
-    public func deleteOrder(id: UUID) throws -> () {
+    public func deleteOrder(for id: UUID) throws -> () {
         throw OrdersError.invalidOrder
     }
 
     // NOTE: Not meant to be called by cart
-    public func updateShipment(forId id: UUID, data: Shipment) throws -> () {
+    public func updateShipment(for id: UUID, with data: Shipment) throws -> () {
         throw OrdersError.invalidOrder
     }
 
     // NOTE: Not meant to be called by cart
-    public func returnOrder(id: UUID, data: PickupData) throws -> Order {
+    public func returnOrder(for id: UUID, with data: PickupData) throws -> Order {
         throw OrdersError.invalidOrder
     }
 
     // NOTE: Not meant to be called by cart
-    public func cancelOrder(id: UUID) throws -> Order {
+    public func cancelOrder(for id: UUID) throws -> Order {
         throw OrdersError.invalidOrder
     }
 
     // NOTE: Not meant to be called by cart
-    public func initiateRefund(forId id: UUID, data: RefundData) throws -> Order {
+    public func initiateRefund(for id: UUID, with data: RefundData) throws -> Order {
         throw OrdersError.invalidOrder
     }
 }

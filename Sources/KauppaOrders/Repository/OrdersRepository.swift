@@ -13,20 +13,20 @@ public class OrdersRepository {
 
     let store: OrdersStorable
 
-    public init(withStore store: OrdersStorable) {
+    public init(with store: OrdersStorable) {
         self.store = store
     }
 
     /// Create an order with service-supplied order data.
-    public func createOrder(withData data: Order) throws {
+    public func createOrder(with data: Order) throws {
         orders[data.id] = data
-        try store.createNewOrder(orderData: data)
+        try store.createNewOrder(with: data)
     }
 
     /// Get an order corresponding to an ID.
-    public func getOrder(id: UUID) throws -> Order {
+    public func getOrder(for id: UUID) throws -> Order {
         guard let order = orders[id] else {
-            let order = try store.getOrder(id: id)
+            let order = try store.getOrder(for: id)
             orders[id] = order
             return order
         }
@@ -40,26 +40,26 @@ public class OrdersRepository {
     /// updating the `updatedAt` date object, because `Order` struct
     /// has a lot of fields for indicating different kinds of dates
     /// and we want the dates to be consistent whenever we make a change.
-    public func updateOrder(withData data: Order, skipDate: Bool = false) throws -> Order {
+    public func updateOrder(with data: Order, skippingDate: Bool = false) throws -> Order {
         var order = data
-        if !skipDate {
+        if !skippingDate {
             order.updatedAt = Date()
         }
 
         orders[order.id] = order
-        try store.updateOrder(data: order)
+        try store.updateOrder(with: order)
         return order
     }
 
     /// Delete an order corresponding to an ID.
-    public func deleteOrder(id: UUID) throws -> () {
+    public func deleteOrder(for id: UUID) throws -> () {
         orders.removeValue(forKey: id)
-        return try store.deleteOrder(id: id)
+        return try store.deleteOrder(for: id)
     }
 
     /// Create a refund for an order.
-    public func createRefund(forOrder orderId: UUID,
-                             reason: String, items: [CartUnit],
+    public func createRefund(for orderId: UUID,
+                             with reason: String, items: [CartUnit],
                              amount: UnitMeasurement<Currency>) throws -> Refund
     {
         let id = UUID()
@@ -67,7 +67,7 @@ public class OrdersRepository {
                             orderId: orderId, reason: reason, amount: amount)
         refund.items = items
         refunds[id] = refund
-        try store.createRefund(data: refund)
+        try store.createRefund(with: refund)
         return refund
     }
 }

@@ -11,7 +11,7 @@ public class CartRepository {
     var carts = [UUID: Cart]()
     var store: CartStorable
 
-    public init(withStore store: CartStorable) {
+    public init(with store: CartStorable) {
         self.store = store
     }
 
@@ -26,14 +26,14 @@ public class CartRepository {
     ///
     /// In case the store doesn't have a cart, the repository initializes
     /// one, and propagates any other error.
-    public func getCart(forId id: UUID) throws -> Cart {
+    public func getCart(for id: UUID) throws -> Cart {
         guard let cart = carts[id] else {
             let cart: Cart
             do {
-                cart = try store.getCart(id: id)
+                cart = try store.getCart(for: id)
             } catch CartError.cartUnavailable {
-                cart = Cart(withId: id)
-                try store.createCart(data: cart)
+                cart = Cart(with: id)
+                try store.createCart(with: cart)
             } catch let err {
                 throw err
             }
@@ -46,10 +46,10 @@ public class CartRepository {
     }
 
     /// Update the items in a customer's cart.
-    public func updateCart(data: Cart) throws -> () {
+    public func updateCart(with data: Cart) throws -> () {
         var cart = data
         cart.updatedAt = Date()
         carts[cart.id] = cart
-        try store.updateCart(data: cart)
+        try store.updateCart(with: cart)
     }
 }

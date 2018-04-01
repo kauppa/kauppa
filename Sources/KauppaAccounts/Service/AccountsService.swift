@@ -11,45 +11,45 @@ public class AccountsService {
 
     /// Initializes new `AccountsService` instance with
     /// a depositing-compliant object.
-    public init(withRepository repository: AccountsRepository) {
+    public init(with repository: AccountsRepository) {
         self.repository = repository
     }
 }
 
 // NOTE: See the actual protocol in `KauppaAccountsClient` for exact usage.
 extension AccountsService: AccountsServiceCallable {
-    public func createAccount(withData data: AccountData) throws -> Account {
+    public func createAccount(with data: AccountData) throws -> Account {
         try data.validate()
         for email in data.emails {
-            if let _ = try? repository.getAccount(forEmail: email.value) {
+            if let _ = try? repository.getAccount(for: email.value) {
                 throw AccountsError.accountExists
             }
         }
 
-        return try repository.createAccount(data: data)
+        return try repository.createAccount(with: data)
     }
 
-    public func getAccount(id: UUID) throws -> Account {
-        return try repository.getAccount(forId: id)
+    public func getAccount(for id: UUID) throws -> Account {
+        return try repository.getAccount(for: id)
     }
 
-    public func deleteAccount(id: UUID) throws -> () {
-        return try repository.deleteAccount(forId: id)
+    public func deleteAccount(for id: UUID) throws -> () {
+        return try repository.deleteAccount(for: id)
     }
 
     public func verifyEmail(_ email: String) throws {
-        let account = try repository.getAccount(forEmail: email)
+        let account = try repository.getAccount(for: email)
         var accountData = account.data
 
         accountData.emails.mutateOnce(matching: { $0.value == email }, with: { email in
             email.isVerified = true
         })
 
-        let _ = try repository.updateAccountData(forId: account.id, data: accountData)
+        let _ = try repository.updateAccount(for: account.id, with: accountData)
     }
 
-    public func updateAccount(id: UUID, data: AccountPatch) throws -> Account {
-        var accountData = try repository.getAccountData(forId: id)
+    public func updateAccount(for id: UUID, with data: AccountPatch) throws -> Account {
+        var accountData = try repository.getAccountData(for: id)
 
         if let name = data.name {
             accountData.name = name
@@ -68,11 +68,11 @@ extension AccountsService: AccountsServiceCallable {
         }
 
         try accountData.validate()
-        return try repository.updateAccountData(forId: id, data: accountData)
+        return try repository.updateAccount(for: id, with: accountData)
     }
 
-    public func addAccountProperty(id: UUID, data: AccountPropertyAdditionPatch) throws -> Account {
-        var accountData = try repository.getAccountData(forId: id)
+    public func addAccountProperty(to id: UUID, using data: AccountPropertyAdditionPatch) throws -> Account {
+        var accountData = try repository.getAccountData(for: id)
 
         if let address = data.address {
             accountData.address.insert(address)
@@ -87,11 +87,11 @@ extension AccountsService: AccountsServiceCallable {
         }
 
         try accountData.validate()
-        return try repository.updateAccountData(forId: id, data: accountData)
+        return try repository.updateAccount(for: id, with: accountData)
     }
 
-    public func deleteAccountProperty(id: UUID, data: AccountPropertyDeletionPatch) throws -> Account {
-        var accountData = try repository.getAccountData(forId: id)
+    public func deleteAccountProperty(from id: UUID, using data: AccountPropertyDeletionPatch) throws -> Account {
+        var accountData = try repository.getAccountData(for: id)
 
         if let index = data.removeEmailAt {
             accountData.emails.remove(at: index)
@@ -108,6 +108,6 @@ extension AccountsService: AccountsServiceCallable {
             accountData.address.remove(at: index)
         }
 
-        return try repository.updateAccountData(forId: id, data: accountData)
+        return try repository.updateAccount(for: id, with: accountData)
     }
 }

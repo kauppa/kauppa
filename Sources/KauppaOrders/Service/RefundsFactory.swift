@@ -23,9 +23,10 @@ class RefundsFactory {
     /// Fills `refundItems` with all refundable items in this order. If there aren't any fulfilled
     /// quantity after processing the refundable items in an unit, then the unit status
     /// will be set to `nil`
-    private func getAllRefundableItems(forOrder data: inout Order) throws {
+    private func getAllRefundableItems(for data: inout Order) throws {
         for (i, unit) in data.products.enumerated() {
-            let product = try productsService.getProduct(id: unit.item.product)
+            let product = try productsService.getProduct(for: unit.item.product,
+                                                         from: data.shippingAddress)
             // Only collect fulfilled items (if any) from each unit.
             if let unitStatus = unit.status {
                 if unitStatus.refundableQuantity > 0 {
@@ -47,10 +48,11 @@ class RefundsFactory {
     /// Fills `refundItems` with items from the given data that matches the refundable items
     /// in the order. If the quantity becomes zero after processing the refundable items in an unit,
     /// then its status will be set to `nil`
-    private func getSpecifiedItemsForRefund(forOrder order: inout Order) throws {
+    private func getSpecifiedItemsForRefund(for order: inout Order) throws {
         for unit in data.units ?? [] {
-            let i = try OrdersService.findEnumeratedProduct(inOrder: order, forId: unit.product)
-            let product = try productsService.getProduct(id: unit.product)
+            let i = try OrdersService.findEnumeratedProduct(in: order, for: unit.product)
+            let product = try productsService.getProduct(for: unit.product,
+                                                         from: order.shippingAddress)
             // It's safe to unwrap here because the function checks this.
             let unitStatus = order.products[i].status!
             let refundable = unitStatus.refundableQuantity
@@ -74,7 +76,7 @@ class RefundsFactory {
     }
 
     /// Set the payment and fulfillment status of the order.
-    private func setStatus(forOrder order: inout Order) throws {
+    private func setStatus(for order: inout Order) throws {
         // If we've come this far, then it's either a partial refund or full refund.
         if atleastOneItemExists {
             order.paymentStatus = .partialRefund
@@ -86,7 +88,7 @@ class RefundsFactory {
     }
 
     /// Create a `Refund` object with the collected items.
-    private func createRefund(forOrder id: UUID,
+    private func createRefund(for id: UUID,
                               using repository: OrdersRepository) throws -> Refund
     {
         // We can assume that all products in a successfully placed
@@ -100,11 +102,11 @@ class RefundsFactory {
             items.append(unit)
         }
 
-        return try repository.createRefund(forOrder: id, reason: data.reason,
+        return try repository.createRefund(for: id, with: data.reason,
                                            items: items, amount: totalPrice)
     }
 
-    func initiateRefund(forOrder order: inout Order,
+    func initiateRefund(for order: inout Order,
                         using repository: OrdersRepository) throws
     {
         if data.reason.isEmpty {
@@ -114,17 +116,17 @@ class RefundsFactory {
         try order.validateForRefund()
 
         if data.fullRefund ?? false {
-            try getAllRefundableItems(forOrder: &order)
+            try getAllRefundableItems(for: &order)
         } else {
-            try getSpecifiedItemsForRefund(forOrder: &order)
+            try getSpecifiedItemsForRefund(for: &order)
         }
 
         if refundItems.isEmpty {
             throw OrdersError.noItemsToProcess
         }
 
-        try setStatus(forOrder: &order)
-        let refund = try createRefund(forOrder: order.id, using: repository)
+        try setStatus(for: &order)
+        let refund = try createRefund(for: order.id, using: repository)
         order.refunds.append(refund.id)
     }
 }
