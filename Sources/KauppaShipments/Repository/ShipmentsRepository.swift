@@ -14,12 +14,12 @@ public class ShipmentsRepository {
     var shipments = [UUID: Shipment]()
     var store: ShipmentsStorable
 
-    public init(withStore store: ShipmentsStorable) {
+    public init(with store: ShipmentsStorable) {
         self.store = store
     }
 
     /// Create a shipment object for an order.
-    public func createShipment(forOrder id: UUID, address: Address, items: [CartUnit],
+    public func createShipment(for id: UUID, address: Address, items: [CartUnit],
                                status: ShipmentStatus? = nil) throws -> Shipment
     {
         let date = Date()
@@ -30,15 +30,15 @@ public class ShipmentsRepository {
             data.status = status
         }
 
-        try store.createShipment(data: data)
+        try store.createShipment(with: data)
         shipments[data.id] = data
         return data
     }
 
     /// Get the shipment for a given ID.
-    public func getShipment(id: UUID) throws -> Shipment {
+    public func getShipment(for id: UUID) throws -> Shipment {
         guard let shipment = shipments[id] else {
-            let data = try store.getShipment(id: id)
+            let data = try store.getShipment(for: id)
             shipments[id] = data
             return data
         }
@@ -47,11 +47,11 @@ public class ShipmentsRepository {
     }
 
     /// Update shipment with data from the service.
-    public func updateShipment(data: Shipment) throws -> Shipment {
+    public func updateShipment(with data: Shipment) throws -> Shipment {
         var shipment = data
         shipment.updatedAt = Date()
         shipments[data.id] = shipment
-        try store.updateShipment(data: shipment)
+        try store.updateShipment(with: shipment)
         return shipment
     }
 }

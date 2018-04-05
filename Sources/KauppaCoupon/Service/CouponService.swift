@@ -10,7 +10,7 @@ public class CouponService {
     let repository: CouponRepository
 
     /// Initializes a new `CouponService` instance with a repository.
-    public init(withRepository repository: CouponRepository) {
+    public init(with repository: CouponRepository) {
         self.repository = repository
     }
 }
@@ -20,23 +20,23 @@ extension CouponService: CouponServiceCallable {
     public func createCoupon(with data: CouponData) throws -> Coupon {
         var couponData = data
         try couponData.validate()
-        return try repository.createCoupon(data: couponData)
+        return try repository.createCoupon(with: couponData)
     }
 
-    public func getCoupon(id: UUID) throws -> Coupon {
-        var coupon = try repository.getCoupon(forId: id)
+    public func getCoupon(for id: UUID) throws -> Coupon {
+        var coupon = try repository.getCoupon(for: id)
         coupon.data.hideCode()
         return coupon
     }
 
-    public func getCoupon(forCode code: String) throws -> Coupon {
-        var coupon = try repository.getCoupon(forCode: code)
+    public func getCoupon(for code: String) throws -> Coupon {
+        var coupon = try repository.getCoupon(for: code)
         coupon.data.hideCode()
         return coupon
     }
 
-    public func updateCoupon(id: UUID, data: CouponPatch) throws -> Coupon {
-        var couponData = try repository.getCouponData(forId: id)
+    public func updateCoupon(for id: UUID, with data: CouponPatch) throws -> Coupon {
+        var couponData = try repository.getCouponData(for: id)
 
         if data.disable ?? false {
             couponData.disabledOn = Date()
@@ -55,7 +55,7 @@ extension CouponService: CouponServiceCallable {
         }
 
         try couponData.validate()
-        var coupon = try repository.updateCouponData(id: id, data: couponData)
+        var coupon = try repository.updateCoupon(for: id, with: couponData)
         coupon.data.hideCode()
         return coupon
     }

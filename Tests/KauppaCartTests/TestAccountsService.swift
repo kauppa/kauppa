@@ -7,14 +7,14 @@ import KauppaAccountsModel
 public class TestAccountsService: AccountsServiceCallable {
     var accounts = [UUID: Account]()
 
-    public func createAccount(withData data: AccountData) throws -> Account {
+    public func createAccount(with data: AccountData) throws -> Account {
         let id = UUID()
         let date = Date()
         accounts[id] = Account(id: id, createdOn: date, updatedAt: date, data: data)
         return accounts[id]!
     }
 
-    public func getAccount(id: UUID) throws -> Account {
+    public func getAccount(for id: UUID) throws -> Account {
         guard let account = accounts[id] else {
             throw AccountsError.invalidAccount
         }
@@ -28,22 +28,22 @@ public class TestAccountsService: AccountsServiceCallable {
     }
 
     // NOTE: Not meant to be called by cart
-    public func deleteAccount(id: UUID) throws -> () {
+    public func deleteAccount(for id: UUID) throws -> () {
         throw AccountsError.invalidAccount
     }
 
     // NOTE: Not meant to be called by cart
-    public func updateAccount(id: UUID, data: AccountPatch) throws -> Account {
+    public func updateAccount(for id: UUID, with data: AccountPatch) throws -> Account {
         throw AccountsError.invalidAccount
     }
 
     // NOTE: Not meant to be called by cart
-    public func addAccountProperty(id: UUID, data: AccountPropertyAdditionPatch) throws -> Account {
+    public func addAccountProperty(to id: UUID, using data: AccountPropertyAdditionPatch) throws -> Account {
         throw AccountsError.invalidAccount
     }
 
     // NOTE: Not meant to be called by cart
-    public func deleteAccountProperty(id: UUID, data: AccountPropertyDeletionPatch) throws -> Account {
+    public func deleteAccountProperty(from id: UUID, using data: AccountPropertyDeletionPatch) throws -> Account {
         throw AccountsError.invalidAccount
     }
 }

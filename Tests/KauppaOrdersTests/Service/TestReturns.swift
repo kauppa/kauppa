@@ -43,18 +43,18 @@ class TestReturns: XCTestCase {
     // the list of items to be picked up. Full return has a list of all fulfilled items.
     func testFullReturn() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData)
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData)
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -63,13 +63,13 @@ class TestReturns: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
-        var initial = try! ordersService.createOrder(data: orderData)   // create an order
+        var initial = try! ordersService.createOrder(with: orderData)   // create an order
         // Set the data which is usually set by shipping service.
         initial.products[0].status = OrderUnitStatus(quantity: 3)
         initial.products[0].status!.fulfillment = .fulfilled
         initial.products[1].status = OrderUnitStatus(quantity: 2)
         initial.products[1].status!.fulfillment = .fulfilled
-        let order = try! repository.updateOrder(withData: initial)
+        let order = try! repository.updateOrder(with: initial)
         let pickupScheduled = expectation(description: "Order items have been scheduled for pickup")
 
         // Make sure that shipments service is called for pickup
@@ -88,7 +88,7 @@ class TestReturns: XCTestCase {
 
         var pickupData = PickupData()
         pickupData.pickupAll = true
-        let updatedOrder = try! ordersService.returnOrder(id: order.id, data: pickupData)
+        let updatedOrder = try! ordersService.returnOrder(for: order.id, with: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 3)
         XCTAssertEqual(updatedOrder.products[1].status!.pickupQuantity, 2)
         let id = shippingService.shipment!.id
@@ -102,20 +102,20 @@ class TestReturns: XCTestCase {
     // Returns can be partial, i.e., specific items can be scheduled for pickup.
     func testPartialReturns() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData)
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData)
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
-        let product3 = try! productsService.createProduct(data: productData)
+        let product3 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -125,7 +125,7 @@ class TestReturns: XCTestCase {
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2),
                                              OrderUnit(product: product3.id, quantity: 1)])
-        var initial = try! ordersService.createOrder(data: orderData)
+        var initial = try! ordersService.createOrder(with: orderData)
         // Set the data which is usually set by shipping service.
         initial.products[0].status = OrderUnitStatus(quantity: 3)
         initial.products[0].status!.fulfillment = .fulfilled
@@ -133,7 +133,7 @@ class TestReturns: XCTestCase {
         initial.products[1].status!.fulfillment = .fulfilled
         initial.products[2].status = OrderUnitStatus(quantity: 1)
         initial.products[2].status!.fulfillment = .fulfilled
-        let order = try! repository.updateOrder(withData: initial)
+        let order = try! repository.updateOrder(with: initial)
         let pickup1Scheduled = expectation(description: "pickup scheduled for first partial return")
 
         // reset shipping data
@@ -152,7 +152,7 @@ class TestReturns: XCTestCase {
         var pickupData = PickupData()   // first partial return
         pickupData.units = [CartUnit(product: product1.id, quantity: 1),
                             CartUnit(product: product3.id, quantity: 1)]
-        var updatedOrder = try! ordersService.returnOrder(id: order.id, data: pickupData)
+        var updatedOrder = try! ordersService.returnOrder(for: order.id, with: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 1)
         // pickup quantity has been updated
@@ -163,7 +163,7 @@ class TestReturns: XCTestCase {
             // Try returning the same item. This will fail because `product3` only
             // has one item fulfilled, and it's been scheduled for pickup. It can't be
             // picked up again (obviously).
-            let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
+            let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .invalidReturnQuantity(product3.id, 0))
@@ -184,7 +184,7 @@ class TestReturns: XCTestCase {
 
         pickupData.units = [CartUnit(product: product1.id, quantity: 2),
                             CartUnit(product: product2.id, quantity: 1)]
-        updatedOrder = try! ordersService.returnOrder(id: order.id, data: pickupData)
+        updatedOrder = try! ordersService.returnOrder(for: order.id, with: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[1].status!.fulfilledQuantity, 2)
         // pickup quantities have been updated
@@ -200,13 +200,13 @@ class TestReturns: XCTestCase {
     // Cancelled order cannot be returned.
     func testCancelledOrder() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
-        let ordersService = OrdersService(withRepository: repository,
+        let account = try! accountsService.createAccount(with: accountData)
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -214,11 +214,11 @@ class TestReturns: XCTestCase {
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
-        let order = try! ordersService.createOrder(data: orderData)
-        let _ = try! ordersService.cancelOrder(id: order.id)
+        let order = try! ordersService.createOrder(with: orderData)
+        let _ = try! ordersService.cancelOrder(for: order.id)
         let pickupData = PickupData()
         do {
-            let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
+            let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .cancelledOrder)
@@ -228,18 +228,18 @@ class TestReturns: XCTestCase {
     // Possible cases for invalid returns - unfulfilled items, mismatching quantity values, etc.
     func testInvalidReturns() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product1 = try! productsService.createProduct(data: productData)
+        let product1 = try! productsService.createProduct(with: productData, from: Address())
         productData.price = UnitMeasurement(value: 10.0, unit: .usd)
-        let product2 = try! productsService.createProduct(data: productData)
+        let product2 = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -248,16 +248,16 @@ class TestReturns: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product1.id, quantity: 3),
                                              OrderUnit(product: product2.id, quantity: 2)])
-        var initial = try! ordersService.createOrder(data: orderData)
+        var initial = try! ordersService.createOrder(with: orderData)
         // Set the data which is usually set by shipping service.
         initial.products[0].status = OrderUnitStatus(quantity: 3)
         initial.products[0].status!.fulfillment = .fulfilled
-        let order = try! repository.updateOrder(withData: initial)
+        let order = try! repository.updateOrder(with: initial)
 
         var pickupData = PickupData()
         pickupData.units = [CartUnit(product: UUID(), quantity: 2)]
         do {    // Test invalid product
-            let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
+            let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .invalidOrderItem)
@@ -265,7 +265,7 @@ class TestReturns: XCTestCase {
 
         pickupData.units = [CartUnit(product: product2.id, quantity: 2)]
         do {    // Test unfulfilled item
-            let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
+            let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .unfulfilledItem(product2.id))
@@ -273,7 +273,7 @@ class TestReturns: XCTestCase {
 
         pickupData.units = [CartUnit(product: product1.id, quantity: 5)]
         do {    // Test invalid quantity for fulfilled item
-            let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
+            let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .invalidReturnQuantity(product1.id, 3))
@@ -281,7 +281,7 @@ class TestReturns: XCTestCase {
 
         pickupData.units = []
         do {    // Test no items
-            let _ = try ordersService.returnOrder(id: order.id, data: pickupData)
+            let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, .noItemsToProcess)

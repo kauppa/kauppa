@@ -51,30 +51,30 @@ class TestOrdersService: XCTestCase {
     // (for queuing the item for shipment), and coupon service (for checking gift cards, if any)
     func testOrderCreation() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.category = "food"
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
         productData.category = "drink"  // create another product with a different category
         productData.price.value = 4.0
-        let anotherProduct = try! productsService.createProduct(data: productData)
+        let anotherProduct = try! productsService.createProduct(with: productData, from: Address())
 
         var accountData = AccountData()
         // Two emails in customer account data.
         var emails = [Email("foo@bar.com"), Email("baz@bar.com")]
         emails[0].isVerified = true     // the first one is verified
         accountData.emails = ArraySet(emails)
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
         var rate = TaxRate()
         rate.general = 15.0
         rate.categories["food"] = 10.0      // different tax rate for food
         taxService.rate = rate
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -108,7 +108,7 @@ class TestOrdersService: XCTestCase {
         let nextUnit = OrderUnit(product: anotherProduct.id, quantity: 1)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit, nextUnit])
-        let order = try! ordersService.createOrder(data: orderData)
+        let order = try! ordersService.createOrder(with: orderData)
         // Make sure that the quantity is tracked while summing up values
         XCTAssertEqual(order.totalItems, 4)
         XCTAssertEqual(order.totalWeight.value, 20.0)
@@ -128,18 +128,18 @@ class TestOrdersService: XCTestCase {
     // An order placed from an account which doesn't have any verified mails.
     func testOrderWithUnverifiedMail() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         var accountData = AccountData()
         accountsService.markAsVerified = false      // disable auto-enabling verification
         accountData.emails = ArraySet([Email("foo@bar.com")])
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -150,7 +150,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
         do {
-            let _ = try ordersService.createOrder(data: orderData)
+            let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, OrdersError.unverifiedAccount)
@@ -160,12 +160,12 @@ class TestOrdersService: XCTestCase {
     // An order with no product items should fail.
     func testOrderWithNoProducts() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -174,7 +174,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [])
         do {
-            let _ = try ordersService.createOrder(data: orderData)
+            let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {   // no products - failure
             XCTAssertEqual(err as! OrdersError, OrdersError.noItemsToProcess)
@@ -184,9 +184,9 @@ class TestOrdersService: XCTestCase {
     // An order should always be associated with a valid account.
     func testOrderWithInvalidAccount() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -195,7 +195,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: UUID(), products: [])
         do {
-            let _ = try ordersService.createOrder(data: orderData)
+            let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! AccountsError, AccountsError.invalidAccount)
@@ -205,12 +205,12 @@ class TestOrdersService: XCTestCase {
     // An order should fail if its list of items has an invalid product.
     func testOrderWithInvalidProduct() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -220,7 +220,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: UUID(), quantity: 3)])
         do {
-            let _ = try ordersService.createOrder(data: orderData)
+            let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {   // random UUID - invalid product
             XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
@@ -230,14 +230,14 @@ class TestOrdersService: XCTestCase {
     // An order should fail if the product doesn't have enough items in the inventory.
     func testOrderWithUnavailableProduct() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         let productData = ProductData(title: "", subtitle: "", description: "")
         // By default, inventory has zero items
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
-        let ordersService = OrdersService(withRepository: repository,
+        let account = try! accountsService.createAccount(with: accountData)
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -247,7 +247,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
         do {
-            let _ = try ordersService.createOrder(data: orderData)
+            let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {   // no products - failure
             XCTAssertEqual(err as! OrdersError, OrdersError.productUnavailable)
@@ -257,17 +257,17 @@ class TestOrdersService: XCTestCase {
     // An order with product items but with zero quantity should still fail.
     func testOrderWithZeroQuantity() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -278,7 +278,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 0)])
         do {
-            let _ = try ordersService.createOrder(data: orderData)
+            let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, OrdersError.noItemsToProcess)
@@ -288,18 +288,18 @@ class TestOrdersService: XCTestCase {
     // An order with one produt having zero quantity will be ignored.
     func testOrderWithOneProductHavingZeroQuantity() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         let anotherProductData = productData
 
-        let firstProduct = try! productsService.createProduct(data: productData)
-        let secondProduct = try! productsService.createProduct(data: anotherProductData)
-
+        let firstProduct = try! productsService.createProduct(with: productData, from: Address())
+        let secondProduct = try! productsService.createProduct(with: anotherProductData,
+                                                               from: Address())
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -308,7 +308,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: firstProduct.id, quantity: 3),
                                              OrderUnit(product: secondProduct.id, quantity: 0)])
-        let order = try! ordersService.createOrder(data: orderData)
+        let order = try! ordersService.createOrder(with: orderData)
         // Second product (zero quantity) will be skipped while placing the order
         XCTAssertEqual(order.totalItems, 3)
     }
@@ -316,17 +316,17 @@ class TestOrdersService: XCTestCase {
     // An order with duplicated product items will still be tracked.
     func testOrderWithDuplicateProducts() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 10
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -342,7 +342,7 @@ class TestOrdersService: XCTestCase {
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3),
                                              OrderUnit(product: product.id, quantity: 3)])
-        let order = try! ordersService.createOrder(data: orderData)
+        let order = try! ordersService.createOrder(with: orderData)
         // All quantities are accumulated in the end
         XCTAssertEqual(order.totalItems, 6)
         XCTAssertEqual(order.totalWeight.value, 30.0)
@@ -356,18 +356,18 @@ class TestOrdersService: XCTestCase {
     // All items in the order should have the same currency - if they mismatch, then it's an error.
     func testOrderWithAmbiguousCurrencies() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         productData.inventory = 10
 
-        let firstProduct = try! productsService.createProduct(data: productData)
+        let firstProduct = try! productsService.createProduct(with: productData, from: Address())
         productData.price.unit = .euro
-        let secondProduct = try! productsService.createProduct(data: productData)
+        let secondProduct = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
-        let ordersService = OrdersService(withRepository: repository,
+        let account = try! accountsService.createAccount(with: accountData)
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -377,7 +377,7 @@ class TestOrdersService: XCTestCase {
                                   products: [OrderUnit(product: firstProduct.id, quantity: 3),
                                              OrderUnit(product: secondProduct.id, quantity: 3)])
         do {
-            let _ = try ordersService.createOrder(data: orderData)
+            let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! OrdersError, OrdersError.ambiguousCurrencies)
@@ -387,15 +387,15 @@ class TestOrdersService: XCTestCase {
     // Cancelling an order should update the `cancelledAt` timestamp.
     func testOrderCancellation() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -403,25 +403,25 @@ class TestOrdersService: XCTestCase {
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
-        let order = try! ordersService.createOrder(data: orderData)
+        let order = try! ordersService.createOrder(with: orderData)
         XCTAssertNil(order.cancelledAt)
 
-        let updatedOrder = try! ordersService.cancelOrder(id: order.id)
+        let updatedOrder = try! ordersService.cancelOrder(for: order.id)
         XCTAssertNotNil(updatedOrder.cancelledAt)
     }
 
     // Service should support deleting orders.
     func testOrderDeletion() {
         let store = TestStore()
-        let repository = OrdersRepository(withStore: store)
+        let repository = OrdersRepository(with: store)
         var productData = ProductData(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        let product = try! productsService.createProduct(data: productData)
+        let product = try! productsService.createProduct(with: productData, from: Address())
 
         let accountData = AccountData()
-        let account = try! accountsService.createAccount(withData: accountData)
+        let account = try! accountsService.createAccount(with: accountData)
 
-        let ordersService = OrdersService(withRepository: repository,
+        let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
@@ -429,7 +429,7 @@ class TestOrdersService: XCTestCase {
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
                                   products: [OrderUnit(product: product.id, quantity: 3)])
-        let order = try! ordersService.createOrder(data: orderData)
-        let _ = try! ordersService.deleteOrder(id: order.id)
+        let order = try! ordersService.createOrder(with: orderData)
+        let _ = try! ordersService.deleteOrder(for: order.id)
     }
 }

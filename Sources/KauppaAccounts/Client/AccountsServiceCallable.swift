@@ -8,10 +8,10 @@ public protocol AccountsServiceCallable {
     /// Create an account with user-supplied information.
     ///
     /// - Parameters:
-    ///   - withData: `AccountData` required for creating an account.
+    ///   - with: `AccountData` required for creating an account.
     /// - Returns: A validated `Account`
     /// - Throws: `AccountsError`
-    func createAccount(withData data: AccountData) throws -> Account
+    func createAccount(with data: AccountData) throws -> Account
 
     /// This notifies the service that an email has been verified.
     /// It gets the associated account, sets the `isVerified` flag
@@ -25,44 +25,44 @@ public protocol AccountsServiceCallable {
     /// Get an account associated with an ID.
     ///
     /// - Parameters:
-    ///   - id: The `UUID` of the account.
+    ///   - for: The `UUID` of the account.
     /// - Returns: The `Account` (if it exists)
     /// - Throws: `AccountsError` (if it's non-existent)
-    func getAccount(id: UUID) throws -> Account
+    func getAccount(for id: UUID) throws -> Account
 
     /// Delete an account associated with an ID.
     ///
     /// - Parameters:
     ///   - id: The `UUID` of the account.
     /// - Throws: `AccountsError` (if the account doesn't exist)
-    func deleteAccount(id: UUID) throws -> ()
+    func deleteAccount(for id: UUID) throws -> ()
 
     /// Update an account with user-supplied patch data.
     ///
     /// - Parameters:
-    ///   - id: The `UUID` of the account.
-    ///   - data: The `AccountPatch` data required for updating an account.
+    ///   - for: The `UUID` of the account.
+    ///   - with: The `AccountPatch` data required for updating an account.
     /// - Returns: The `Account` (if it's been updated successfully)
     /// - Throws: `AccountsError`
-    func updateAccount(id: UUID, data: AccountPatch) throws -> Account
+    func updateAccount(for id: UUID, with data: AccountPatch) throws -> Account
 
     /// Adds one or more items to the corresponding collection fields in an user account.
     ///
     /// - Parameters:
-    ///   - id: The `UUID` of the account.
-    ///   - data: The `AccountPropertyAdditionPatch` data required for adding
+    ///   - to: The `UUID` of the account.
+    ///   - using: The `AccountPropertyAdditionPatch` data required for adding
     ///     individual properties.
     /// - Returns: The `Account` (if it's been updated successfully)
     /// - Throws: `AccountsError`
-    func addAccountProperty(id: UUID, data: AccountPropertyAdditionPatch) throws -> Account
+    func addAccountProperty(to id: UUID, using data: AccountPropertyAdditionPatch) throws -> Account
 
     /// Reset individual account properties with the given patch.
     ///
     /// - Parameters:
-    ///   - id: The `UUID` of the account.
-    ///   - data: The `AccountPropertyDeletionPatch` data required for removing
+    ///   - from: The `UUID` of the account.
+    ///   - using: The `AccountPropertyDeletionPatch` data required for removing
     ///     individual properties.
     /// - Returns: The `Account` (if it's been updated successfully)
     /// - Throws: `AccountsError`
-    func deleteAccountProperty(id: UUID, data: AccountPropertyDeletionPatch) throws -> Account
+    func deleteAccountProperty(from id: UUID, using data: AccountPropertyDeletionPatch) throws -> Account
 }

@@ -6,8 +6,8 @@ import KauppaShipmentsModel
 /// Methods that mutate the underlying store with information.
 public protocol ShipmentsPersisting: Persisting {
     /// Create a shipment with data from the repository.
-    func createShipment(data: Shipment) throws -> ()
+    func createShipment(with data: Shipment) throws -> ()
 
     /// Update a shipment with data from the repository.
-    func updateShipment(data: Shipment) throws -> ()
+    func updateShipment(with data: Shipment) throws -> ()
 }

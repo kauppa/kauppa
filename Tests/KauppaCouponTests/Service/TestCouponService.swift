@@ -28,8 +28,8 @@ class TestCouponService: XCTestCase {
     // alphanumeric code is assigned to the coupon.
     func testCouponCreation() {
         let store = TestStore()
-        let repository = CouponRepository(withStore: store)
-        let service = CouponService(withRepository: repository)
+        let repository = CouponRepository(with: store)
+        let service = CouponService(with: repository)
         var data = CouponData()
         data.balance.unit = .rupee
         data.balance.value = 100.0
@@ -46,8 +46,8 @@ class TestCouponService: XCTestCase {
     // alphanumeric, then it'll be rejected.
     func testCouponCreationWithCode() {
         let store = TestStore()
-        let repository = CouponRepository(withStore: store)
-        let service = CouponService(withRepository: repository)
+        let repository = CouponRepository(with: store)
+        let service = CouponService(with: repository)
         var data = CouponData()
         data.code = "ef23f23qc"
         do {
@@ -60,16 +60,16 @@ class TestCouponService: XCTestCase {
         data.code = "ABCDEFGHIJKLMNOP"
         let coupon = try! service.createCoupon(with: data)
         XCTAssertEqual(coupon.data.code!, "ABCDEFGHIJKLMNOP")
-        let _ = try! service.getCoupon(forCode: data.code!)
-        let _ = try! service.getCoupon(id: coupon.id)
+        let _ = try! service.getCoupon(for: data.code!)
+        let _ = try! service.getCoupon(for: coupon.id)
     }
 
     // Test for service checking expiry dates for coupons, which should be at least
     // 1 day from the day of creation.
     func testCouponCreationWithExpiry() {
         let store = TestStore()
-        let repository = CouponRepository(withStore: store)
-        let service = CouponService(withRepository: repository)
+        let repository = CouponRepository(with: store)
+        let service = CouponService(with: repository)
         var data = CouponData()
         data.expiresOn = Date()
 
@@ -89,8 +89,8 @@ class TestCouponService: XCTestCase {
     // Future coupon objects will have hidden the code. Only creation should show the code.
     func testCouponUpdate() {
         let store = TestStore()
-        let repository = CouponRepository(withStore: store)
-        let service = CouponService(withRepository: repository)
+        let repository = CouponRepository(with: store)
+        let service = CouponService(with: repository)
         let data = CouponData()
         let coupon = try! service.createCoupon(with: data)
         let code = coupon.data.code!
@@ -102,7 +102,7 @@ class TestCouponService: XCTestCase {
         patch.disable = true
         patch.expiresOn = Date(timeIntervalSinceNow: 87000)
 
-        let updatedCoupon = try! service.updateCoupon(id: coupon.id, data: patch)
+        let updatedCoupon = try! service.updateCoupon(for: coupon.id, with: patch)
         XCTAssertTrue(updatedCoupon.createdOn != updatedCoupon.updatedAt)
         XCTAssertEqual(updatedCoupon.data.note!, "foobar")
         XCTAssertEqual(updatedCoupon.data.balance.value, 100.0)
@@ -114,7 +114,7 @@ class TestCouponService: XCTestCase {
 
         patch.expiresOn = Date()
         do {    // data is validated for update
-            let _ = try service.updateCoupon(id: coupon.id, data: patch)
+            let _ = try service.updateCoupon(for: coupon.id, with: patch)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! CouponError, CouponError.invalidExpiryDate)

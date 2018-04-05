@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 
+import KauppaAccountsModel
 import KauppaProductsClient
 import KauppaProductsModel
 
@@ -10,14 +11,13 @@ public class TestProductsService: ProductsServiceCallable {
     var products = [UUID: Product]()
     var callbacks = [UUID: ProductsCallback]()
 
-    public func createProduct(data: ProductData) throws -> Product {
-        let id = UUID()
-        let date = Date()
-        products[id] = Product(id: id, createdOn: date, updatedAt: date, data: data)
-        return products[id]!
+    public func createProduct(with data: ProductData, from address: Address) throws -> Product {
+        let product = Product(data: data)
+        products[product.id] = product
+        return product
     }
 
-    public func getProduct(id: UUID) throws -> Product {
+    public func getProduct(for id: UUID, from address: Address) throws -> Product {
         guard let product = products[id] else {
             throw ProductsError.invalidProduct
         }
@@ -26,50 +26,56 @@ public class TestProductsService: ProductsServiceCallable {
     }
 
     // NOTE: Not meant to be called by orders
-    public func deleteProduct(id: UUID) throws -> () {
+    public func deleteProduct(for id: UUID) throws -> () {
         throw ProductsError.invalidProduct
     }
 
-    public func updateProduct(id: UUID, data: ProductPatch) throws -> Product {
+    public func updateProduct(for id: UUID, with data: ProductPatch,
+                              from address: Address) throws -> Product
+    {
         if let callback = callbacks[id] {
             callback(data)
         }
 
-        return try getProduct(id: id)   // This is just a stub
+        return try getProduct(for: id, from: Address())     // This is just a stub
     }
 
     // NOTE: Not meant to be called by orders
-    public func addProductProperty(id: UUID, data: ProductPropertyAdditionPatch) throws -> Product {
+    public func addProductProperty(for id: UUID, with data: ProductPropertyAdditionPatch,
+                                   from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
     // NOTE: Not meant to be called by orders
-    public func deleteProductProperty(id: UUID, data: ProductPropertyDeletionPatch) throws -> Product {
+    public func deleteProductProperty(for id: UUID, with data: ProductPropertyDeletionPatch,
+                                      from address: Address) throws -> Product
+    {
         throw ProductsError.invalidProduct
     }
 
     // NOTE: Not meant to be called by orders
-    public func createCollection(data: ProductCollectionData) throws -> ProductCollection {
+    public func createCollection(with data: ProductCollectionData) throws -> ProductCollection {
         throw ProductsError.invalidCollection
     }
 
     // NOTE: Not meant to be called by orders
-    public func updateCollection(id: UUID, data: ProductCollectionPatch) throws -> ProductCollection {
+    public func updateCollection(for id: UUID, with data: ProductCollectionPatch) throws -> ProductCollection {
         throw ProductsError.invalidCollection
     }
 
     // NOTE: Not meant to be called by orders
-    public func deleteCollection(id: UUID) throws -> () {
+    public func deleteCollection(for id: UUID) throws -> () {
         throw ProductsError.invalidCollection
     }
 
     // NOTE: Not meant to be called by orders
-    public func addProduct(toCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection {
+    public func addProduct(to id: UUID, using data: ProductCollectionItemPatch) throws -> ProductCollection {
         throw ProductsError.invalidCollection
     }
 
     // NOTE: Not meant to be called by orders
-    public func removeProduct(fromCollection id: UUID, data: ProductCollectionItemPatch) throws -> ProductCollection {
+    public func removeProduct(from id: UUID, using data: ProductCollectionItemPatch) throws -> ProductCollection {
         throw ProductsError.invalidCollection
     }
 }

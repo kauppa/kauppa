@@ -11,18 +11,18 @@ public class TestStore: ShipmentsStorable {
     public var updateCalled = false
     public var getCalled = false
 
-    public func createShipment(data: Shipment) throws -> () {
+    public func createShipment(with data: Shipment) throws -> () {
         createCalled = true
         shipments[data.id] = data
     }
 
-    public func updateShipment(data: Shipment) throws -> () {
+    public func updateShipment(with data: Shipment) throws -> () {
         updateCalled = true
-        let _ = try getShipment(id: data.id)
+        let _ = try getShipment(for: data.id)
         shipments[data.id] = data
     }
 
-    public func getShipment(id: UUID) throws -> Shipment {
+    public func getShipment(for id: UUID) throws -> Shipment {
         getCalled = true
         guard let data = shipments[id] else {
             throw ShipmentsError.invalidShipment

@@ -51,7 +51,7 @@ class TestCartTypes: XCTestCase {
 
     /// Check that reseting cart properly sets all internal properties to `nil`.
     func testCartReset() {
-        var cart = Cart(withId: UUID())
+        var cart = Cart(with: UUID())
         cart.items.append(CartUnit(product: UUID(), quantity: 5))
         cart.netPrice = UnitMeasurement(value: 5.0, unit: Currency.usd)
         cart.grossPrice = UnitMeasurement(value: 5.5, unit: Currency.usd)
@@ -66,7 +66,7 @@ class TestCartTypes: XCTestCase {
 
     /// Test setting tax and prices in cart (should also affect the contained units).
     func testCartSetPrices() {
-        var cart = Cart(withId: UUID())
+        var cart = Cart(with: UUID())
         cart.netPrice = UnitMeasurement(value: 25.0, unit: Currency.usd)
         cart.items = [CartUnit(product: UUID(), quantity: 5),
                       CartUnit(product: UUID(), quantity: 3)]

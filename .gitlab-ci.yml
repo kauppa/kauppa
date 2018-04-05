@@ -10,7 +10,7 @@ stages:
   - deploy
 
 build:linux:
-  image: ibmcom/swift-ubuntu:latest
+  image: ibmcom/swift-ubuntu:4.0.3
   stage: build
   before_script:
     # install ssh-agent
@@ -28,7 +28,7 @@ build:linux:
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
     - echo "Building release artifact"
-    - swift build -c release -Xcc -fblocks -Xlinker -L/usr/local/lib 
+    - swift build -c release -Xcc -fblocks -Xlinker -L/usr/local/lib
   artifacts:
     paths:
     - .build/release/*
@@ -38,18 +38,18 @@ build:linux:
   only:
     - schedules
     - master
-    - release   
+    - release
 
 review:
-  image: ibmcom/swift-ubuntu:latest
+  image: ibmcom/swift-ubuntu:4.0.3
   stage: test
   script:
-    - echo "Reviewing $CI_PROJECT_NAME" 
+    - echo "Reviewing $CI_PROJECT_NAME"
     - make build
     - make test
   only:
     - branches
-  except: 
+  except:
     - master
 
 test:
@@ -76,10 +76,11 @@ build:container:
     - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
     - docker push $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
+    - make push-containers CONTAINER_URL=$CONTAINER_IMAGE CONTAINER_VERSION=$CI_BUILD_REF_NAME
   when: manual
   tags:
     - docker
-  only: 
+  only:
     - release
   dependencies:
     - build:linux
@@ -94,10 +95,11 @@ tag:container:
     - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
     - docker push $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
+    - make push-containers CONTAINER_URL=$CONTAINER_IMAGE CONTAINER_VERSION=$CI_BUILD_REF_NAME
   when: manual
   tags:
     - docker
-  only: 
+  only:
     - tags
   dependencies:
     - build:linux
@@ -112,6 +114,7 @@ nightly:container:
     - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:nightly
     - docker push $CONTAINER_IMAGE:nightly
+    - make push-containers CONTAINER_URL=$CONTAINER_IMAGE CONTAINER_VERSION=nightly
   when: on_success
   tags:
     - docker

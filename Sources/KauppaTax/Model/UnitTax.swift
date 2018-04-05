@@ -1,6 +1,6 @@
 import KauppaCore
 
-/// Tax data for a cart unit.
+/// Tax data for an unit (product, cart unit or order unit).
 public struct UnitTax: Mappable {
     /// Category of the product.
     public var category: String? = nil

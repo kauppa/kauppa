@@ -27,8 +27,8 @@ class TestShipmentsRepository: XCTestCase {
     // Test shipment creation through repository. This should cache the data and call the store.
     func testShipmentCreation() {
         let store = TestStore()
-        let repository = ShipmentsRepository(withStore: store)
-        let data = try! repository.createShipment(forOrder: UUID(), address: address, items: [])
+        let repository = ShipmentsRepository(with: store)
+        let data = try! repository.createShipment(for: UUID(), address: address, items: [])
         // creation and updated timestamps should be the same during creation
         XCTAssertEqual(data.createdOn, data.updatedAt)
         XCTAssertNotNil(repository.shipments[data.id])  // valid shipment ID
@@ -39,11 +39,11 @@ class TestShipmentsRepository: XCTestCase {
     // Updating shipment should change the timestamp and call the store.
     func testShipmentUpdate() {
         let store = TestStore()
-        let repository = ShipmentsRepository(withStore: store)
-        var data = try! repository.createShipment(forOrder: UUID(), address: address, items: [])
+        let repository = ShipmentsRepository(with: store)
+        var data = try! repository.createShipment(for: UUID(), address: address, items: [])
         XCTAssertEqual(data.createdOn, data.updatedAt)
         data.status = .pickup
-        let updatedData = try! repository.updateShipment(data: data)
+        let updatedData = try! repository.updateShipment(with: data)
         XCTAssertTrue(updatedData.createdOn != updatedData.updatedAt)   // date has been changed
         XCTAssertTrue(store.updateCalled)   // update called on store
     }
@@ -52,13 +52,13 @@ class TestShipmentsRepository: XCTestCase {
     // it should get from the store and cache it. Re-getting the item shouldn't call the store.
     func testStoreCalls() {
         let store = TestStore()
-        let repository = ShipmentsRepository(withStore: store)
-        let data = try! repository.createShipment(forOrder: UUID(), address: address, items: [])
+        let repository = ShipmentsRepository(with: store)
+        let data = try! repository.createShipment(for: UUID(), address: address, items: [])
         repository.shipments = [:]      // clear the repository
-        let _ = try! repository.getShipment(id: data.id)
+        let _ = try! repository.getShipment(for: data.id)
         XCTAssertTrue(store.getCalled)  // this should've called the store
         store.getCalled = false         // now, pretend that we never called the store
-        let _ = try! repository.getShipment(id: data.id)
+        let _ = try! repository.getShipment(for: data.id)
         // store shouldn't be called because it was recently fetched by the repository
         XCTAssertFalse(store.getCalled)
     }
