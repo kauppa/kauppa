@@ -14,6 +14,7 @@ XCTMain([
     testCase(TestAccountsService.allTests),
     testCase(TestAccountsRepository.allTests),
     testCase(TestArraySet.allTests),
+    testCase(TestCache.allTests),
     testCase(TestAccountTypes.allTests),
     testCase(TestMailService.allTests),
     testCase(TestRouting.allTests),
