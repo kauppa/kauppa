@@ -19,6 +19,12 @@ public struct RegionData: Mappable {
     /// Type of this region.
     public let kind: RegionKind
 
+    /// Initialize this instance with region name, kind and tax rate.
+    ///
+    /// - Parameters:
+    ///   - name: Name of this region.
+    ///   - taxRate: `TaxRate` data for this region.
+    ///   - kind: The type of this region.
     public init(name: String, taxRate: TaxRate, kind: RegionKind) {
         self.name = name
         self.taxRate = taxRate
@@ -45,6 +51,12 @@ public struct Region: Mappable {
 
     /// Initializes this object with a name, tax rate and parent country's ID.
     /// Creation and last updated timestamps will be equal.
+    ///
+    /// - Parameters:
+    ///   - name: Name of this region.
+    ///   - taxRate: `TaxRate` data for this region.
+    ///   - kind: The type of this region.
+    ///   - country: The `UUID` of the country to which this region belongs to.
     public init(name: String, taxRate: TaxRate, kind: RegionKind, country: UUID) {
         countryId = country
         let date = Date()

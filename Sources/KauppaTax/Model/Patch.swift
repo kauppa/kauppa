@@ -8,8 +8,6 @@ import KauppaCore
 public struct CountryPatch: Mappable {
     public var name: String? = nil
     public var taxRate: TaxRate? = nil
-
-    public init() {}
 }
 
 /// This has the mutable fields from `Region`, but everything's optional.
@@ -20,6 +18,4 @@ public struct RegionPatch: Mappable {
     public var taxRate: TaxRate? = nil
     public var kind: RegionKind? = nil
     public var countryId: UUID? = nil
-
-    public init() {}
 }

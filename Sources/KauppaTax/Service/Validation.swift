@@ -10,6 +10,8 @@ struct TaxConfiguration {
 
 extension TaxRate {
     /// Validate tax rate using the tax service configuration.
+    ///
+    /// - Throws: `TaxError` for invalid data.
     public func validate() throws {
         if general < TaxConfiguration.minTaxRatePercent
            || general > TaxConfiguration.maxTaxRatePercent
@@ -28,7 +30,9 @@ extension TaxRate {
 }
 
 extension Country {
-    /// Validate country data.
+    /// Validate country data (name and tax rate).
+    ///
+    /// - Throws: `TaxError` for invalid data.
     public func validate() throws {
         if name.isEmpty {
             throw TaxError.invalidCountryName
@@ -39,7 +43,9 @@ extension Country {
 }
 
 extension Region {
-    /// Validate region's data.
+    /// Validate region's data (name and tax rate).
+    ///
+    /// - Throws: `TaxError` for invalid data.
     public func validate() throws {
         if name.isEmpty {
             throw TaxError.invalidRegionName

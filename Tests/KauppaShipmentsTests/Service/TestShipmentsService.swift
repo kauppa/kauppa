@@ -39,7 +39,7 @@ class TestShipmentsService: XCTestCase {
         let id = UUID()
         ordersService.order.id = id
         ordersService.order.shippingAddress = Address()
-        ordersService.order.products = [OrderUnit(product: UUID(), quantity: 10)]
+        ordersService.order.products = [OrderUnit(for: UUID(), with: 10)]
         let data = try! service.createShipment(for: id)
         XCTAssertEqual(data.createdOn, data.updatedAt)      // created and updated timestamps are equal
         XCTAssertEqual(data.orderId, id)    // shipment is bound to this order ID.
@@ -65,7 +65,7 @@ class TestShipmentsService: XCTestCase {
         ordersService.order.id = UUID()
         ordersService.order.shippingAddress = Address()
         let productId = UUID()
-        ordersService.order.products = [OrderUnit(product: productId, quantity: 10)]
+        ordersService.order.products = [OrderUnit(for: productId, with: 10)]
         var data = try! service.createShipment(for: ordersService.order.id)
         do {    // cannot complete pickup if it's 'shipping'
             let _ = try service.completePickup(for: data.id)
@@ -75,7 +75,7 @@ class TestShipmentsService: XCTestCase {
         }
 
         var pickupData = PickupItems()
-        pickupData.items = [CartUnit(product: productId, quantity: 5)]
+        pickupData.items = [CartUnit(for: productId, with: 5)]
         data = try! service.schedulePickup(for: ordersService.order.id, with: pickupData)
         let orderNotified = expectation(description: "orders service notified of pickup completion")
         ordersService.callback = { any in
@@ -104,7 +104,7 @@ class TestShipmentsService: XCTestCase {
         ordersService.order.id = UUID()
         ordersService.order.shippingAddress = Address()
         let productId = UUID()
-        ordersService.order.products = [OrderUnit(product: productId, quantity: 5)]
+        ordersService.order.products = [OrderUnit(for: productId, with: 5)]
         let data = try! service.createShipment(for: ordersService.order.id)
         do {    // by default, status is "shipping" (it hasn't "shipped", so it cannot be delivered)
             let _ = try service.notifyDelivery(for: data.id)
@@ -142,7 +142,7 @@ class TestShipmentsService: XCTestCase {
         ordersService.order.id = UUID()
         ordersService.order.shippingAddress = Address()
         let productId = UUID()
-        ordersService.order.products = [OrderUnit(product: productId, quantity: 2)]
+        ordersService.order.products = [OrderUnit(for: productId, with: 2)]
         var data = try! service.createShipment(for: ordersService.order.id)
 
         let orderNotified = expectation(description: "orders service notified of shipment")

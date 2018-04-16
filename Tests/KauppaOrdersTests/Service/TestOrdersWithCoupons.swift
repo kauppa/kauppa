@@ -1,13 +1,13 @@
 import Foundation
 import XCTest
 
-import KauppaAccountsModel
-import KauppaProductsModel
-import KauppaCouponModel
 @testable import KauppaCore
+@testable import KauppaAccountsModel
+@testable import KauppaCouponModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
 @testable import KauppaOrdersService
+@testable import KauppaProductsModel
 
 class TestOrdersWithCoupons: XCTestCase {
     let productsService = TestProductsService()
@@ -69,7 +69,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let unit = OrderUnit(product: product.id, quantity: 3)
+        let unit = OrderUnit(for: product.id, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
 
@@ -99,7 +99,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let unit = OrderUnit(product: product.id, quantity: 3)
+        let unit = OrderUnit(for: product.id, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
                                   placedBy: account.id, products: [unit])
 

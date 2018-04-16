@@ -15,6 +15,7 @@ public struct MailRequest: Mappable {
     /// Body of this mail.
     public var text: String
 
+    /// Initialize an instance with all the fields (`cc` and `bcc` being optional).
     public init(from: String, subject: String, text: String,
                 to: [String] = [], cc: [String]? = nil,
                 bcc: [String]? = nil)

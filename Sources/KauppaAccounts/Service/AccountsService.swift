@@ -9,8 +9,10 @@ import KauppaAccountsRepository
 public class AccountsService {
     let repository: AccountsRepository
 
-    /// Initializes new `AccountsService` instance with
-    /// a depositing-compliant object.
+    /// Initializes a new instance of `AccountsService` with a repository.
+    ///
+    /// - Parameters:
+    ///   - with: The `AccountsRepository` to be used by the service.
     public init(with repository: AccountsRepository) {
         self.repository = repository
     }

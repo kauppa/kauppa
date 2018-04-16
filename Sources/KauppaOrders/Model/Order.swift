@@ -3,7 +3,7 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 
-/// Order that only has the product IDs and quantity
+/// Order type in which the user, products and coupons are represented with their IDs.
 public typealias Order = GenericOrder<UUID, UUID, OrderUnit>
 
 /// Generic order structure for holding product data.
@@ -46,7 +46,10 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
     public var shippingAddress: Address
 
     /// Creates an order with the given account (generic type). By default,
-    /// the shipping an billing addresses are invalid.
+    /// the shipping and billing addresses are invalid.
+    ///
+    /// - Parameters:
+    ///   - placedBy: The user account which placed the order.
     public init(placedBy account: User) {
         id = UUID()
         let date = Date()
@@ -57,7 +60,11 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
         shippingAddress = Address()
     }
 
-    /// Copy the type-independent values from this type to a mail-specific order.
+    /// Copy the type-independent values from this instance to another instance.
+    /// This is used while sending mail.
+    ///
+    /// - Parameters:
+    ///   - into: The other order type to which the values should be copied.
     public func copyValues<U, G, P>(into data: inout GenericOrder<U, G, P>) {
         data.id = id
         data.createdOn = createdOn
@@ -77,6 +84,8 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
     }
 
     /// Validate this order to check whether it's suitable for refunding.
+    ///
+    /// - Throws: `OrdersError` on failure.
     public func validateForRefund() throws {
         if let _ = cancelledAt {
             throw OrdersError.cancelledOrder
@@ -93,6 +102,8 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
     }
 
     /// Validate this order to check whether it's suitable for returning.
+    ///
+    /// - Throws: `OrdersError` if this order cannot be returned.
     public func validateForReturn() throws {
         if let _ = cancelledAt {
             throw OrdersError.cancelledOrder

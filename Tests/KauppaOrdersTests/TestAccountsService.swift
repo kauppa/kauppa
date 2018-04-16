@@ -11,10 +11,9 @@ public class TestAccountsService: AccountsServiceCallable {
     var markAsVerified = true
 
     public func createAccount(with data: AccountData) throws -> Account {
-        let id = UUID()
-        let date = Date()
-        accounts[id] = Account(id: id, createdOn: date, updatedAt: date, data: data)
-        return accounts[id]!
+        let account = Account(with: data)
+        accounts[account.id] = account
+        return account
     }
 
     public func getAccount(for id: UUID) throws -> Account {

@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaCore
-import KauppaTaxModel
+@testable import KauppaTaxModel
 @testable import KauppaProductsModel
 
 class TestProductTypes: XCTestCase {
@@ -43,7 +43,7 @@ class TestProductTypes: XCTestCase {
     func testProductTaxStrip() {
         var data = ProductData(title: "", subtitle: "", description: "")
         data.tax = UnitTax()
-        data.category = "food"
+        data.taxCategory = "food"
         var rate = TaxRate()
         rate.general = 10.0
         data.price.value = 10.0
@@ -53,7 +53,7 @@ class TestProductTypes: XCTestCase {
         XCTAssertNil(data.tax)      // Tax data is reset
         XCTAssertTrue(data.price.value > 9.090909 && data.price.value < 9.09091)
 
-        // tax category matches with product category, hence this should be chosen
+        // tax category matches with product tax category, hence this should be chosen
         rate.categories["food"] = 12.0
         data.price.value = 5.0
         data.taxInclusive = true
@@ -73,13 +73,13 @@ class TestProductTypes: XCTestCase {
         var rate = TaxRate()
         rate.general = 10.0
         data.price.value = 10.0
-        data.category = "some unknown category"
+        data.taxCategory = "some unknown category"
         data.setTax(using: rate)
         XCTAssertEqual(data.tax!.rate, 10.0)
         XCTAssertNil(data.tax!.category)        // unknown category is ignored
         XCTAssertEqual(data.tax!.total.value, 1.0)
 
-        data.category = "drink"
+        data.taxCategory = "drink"
         rate.categories["drink"] = 8.0
         data.setTax(using: rate)
         XCTAssertEqual(data.tax!.rate, 8.0)

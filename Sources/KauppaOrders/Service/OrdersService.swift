@@ -26,6 +26,14 @@ public class OrdersService {
 
     /// Initialize this service with its repository, along with
     /// instances of clients to account and product services.
+    ///
+    /// - Parameters:
+    ///   - with: `OrdersRepository`
+    ///   - accountsService: Anything that implements `AccountsServiceCallable`
+    ///   - productsService: Anything that implements `ProductsServiceCallable`
+    ///   - shippingService: Anything that implements `ShipmentsServiceCallable`
+    ///   - couponService: Anything that implements `CouponServiceCallable`
+    ///   - taxService: Anything that implements `TaxServiceCallable`
     public init(with repository: OrdersRepository,
                 accountsService: AccountsServiceCallable,
                 productsService: ProductsServiceCallable,

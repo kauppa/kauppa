@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaAccountsModel
-import KauppaTaxModel
+@testable import KauppaTaxModel
 @testable import KauppaCore
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository
@@ -51,33 +51,16 @@ class TestProductsService: XCTestCase {
     func testProductCreationInclusiveTax() {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
-        var rate = TaxRate()
-        rate.general = 10.0
-        rate.categories["food"] = 8.0
-        taxService.rate = rate
+        taxService.rate = nil
         let service = ProductsService(with: repository, taxService: taxService)
         var data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
         data.taxInclusive = true
         data.price.value = 10.0
 
-        var product = try! service.createProduct(with: data, from: Address())
-        XCTAssertFalse(product.data.taxInclusive)
-        var price = product.data.price.value
-        XCTAssertTrue(price > 9.090909 && price < 9.09091)
-        XCTAssertNil(product.data.tax!.category)
-        XCTAssertEqual(product.data.tax!.rate, 10.0)
-        var tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 0.9090909 && tax < 0.909091)
-
-        data.category = "food"      // matching category - applies associated tax rate
-        product = try! service.createProduct(with: data, from: Address())
-        XCTAssertFalse(product.data.taxInclusive)
-        price = product.data.price.value
-        XCTAssertTrue(price > 9.259259 && price < 9.25926)
-        XCTAssertEqual(product.data.tax!.category!, "food")
-        XCTAssertEqual(product.data.tax!.rate, 8.0)
-        tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 0.7407407 && tax < 0.7407408)
+        let product = try! service.createProduct(with: data, from: nil)
+        XCTAssertTrue(product.data.taxInclusive)
+        XCTAssertEqual(product.data.price.value, 10)
+        XCTAssertNil(product.data.tax)
     }
 
     // Service supports product deletion
@@ -111,13 +94,13 @@ class TestProductsService: XCTestCase {
             ("title", "\"Foobar\""),
             ("subtitle", "\"Baz\""),
             ("description", "\"Foo Bar Baz\""),
-            ("size", "{\"length\": {\"value\": 10.0, \"unit\": \"cm\"}}"),
-            ("size", "{\"height\": {\"value\": 1.0, \"unit\": \"m\"}}"),
-            ("size", "{\"width\": {\"value\": 0.5, \"unit\": \"mm\"}}"),
+            ("dimensions", "{\"length\": {\"value\": 10.0, \"unit\": \"cm\"}}"),
+            ("dimensions", "{\"height\": {\"value\": 1.0, \"unit\": \"m\"}}"),
+            ("dimensions", "{\"width\": {\"value\": 0.5, \"unit\": \"mm\"}}"),
             ("weight", "{\"value\": 500.0, \"unit\": \"g\"}"),
             ("color", "\"blue\""),
             ("inventory", 20),
-            ("category", "\"electronics\""),
+            ("taxCategory", "\"electronics\""),
             ("images", ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"]),
             ("price", "{\"value\": 30.0, \"unit\": \"USD\"}"),
             ("variantId", "\"\(anotherId)\""),
@@ -154,12 +137,12 @@ class TestProductsService: XCTestCase {
         XCTAssertEqual(updatedProduct.data.title, "Foobar")
         XCTAssertEqual(updatedProduct.data.subtitle, "Baz")
         XCTAssertEqual(updatedProduct.data.description, "Foo Bar Baz")
-        XCTAssert(updatedProduct.data.size!.length!.value == 10.0)
-        XCTAssert(updatedProduct.data.size!.length!.unit == .centimeter)
-        XCTAssert(updatedProduct.data.size!.width!.value == 0.5)
-        XCTAssert(updatedProduct.data.size!.width!.unit == .millimeter)
-        XCTAssert(updatedProduct.data.size!.height!.value == 1.0)
-        XCTAssert(updatedProduct.data.size!.height!.unit == .meter)
+        XCTAssert(updatedProduct.data.dimensions!.length!.value == 10.0)
+        XCTAssert(updatedProduct.data.dimensions!.length!.unit == .centimeter)
+        XCTAssert(updatedProduct.data.dimensions!.width!.value == 0.5)
+        XCTAssert(updatedProduct.data.dimensions!.width!.unit == .millimeter)
+        XCTAssert(updatedProduct.data.dimensions!.height!.value == 1.0)
+        XCTAssert(updatedProduct.data.dimensions!.height!.unit == .meter)
         XCTAssert(updatedProduct.data.weight!.value == 500.0)
         XCTAssert(updatedProduct.data.weight!.unit == .gram)
         XCTAssertEqual(updatedProduct.data.color, "blue")
@@ -168,7 +151,7 @@ class TestProductsService: XCTestCase {
                        ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
         XCTAssertEqual(updatedProduct.data.price.value, 30.0)
         XCTAssertEqual(updatedProduct.data.price.unit, .usd)
-        XCTAssertEqual(updatedProduct.data.category, "electronics")
+        XCTAssertEqual(updatedProduct.data.taxCategory, "electronics")
         XCTAssert(updatedProduct.createdOn < updatedProduct.updatedAt)
         XCTAssertEqual(updatedProduct.data.variantId, anotherId)
 
@@ -185,28 +168,29 @@ class TestProductsService: XCTestCase {
         rate.categories["food"] = 12.0
         taxService.rate = rate
         let service = ProductsService(with: repository, taxService: taxService)
-        let data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var data = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        data.price = UnitMeasurement(value: 10.0, unit: .usd)
+
         var product = try! service.createProduct(with: data, from: Address())
+        XCTAssertNotNil(product.data.tax)
+        XCTAssertEqual(product.data.tax!.rate, 18.0)
+        let tax = product.data.tax!.total.value
+        XCTAssertTrue(tax > 1.79999999999 && tax < 1.80000000001)
+        XCTAssertNil(product.data.tax!.category)
+        XCTAssertFalse(product.data.taxInclusive)
 
         var patch = ProductPatch()
-        patch.price = UnitMeasurement(value: 10.0, unit: .usd)
-        patch.taxInclusive = true
+        patch.taxCategory = "food"
         product = try! service.updateProduct(for: product.id, with: patch, from: Address())
-        var price = product.data.price.value
-        XCTAssertTrue(price > 8.47457627 && price < 8.47457628)
-        XCTAssertNil(product.data.tax!.category)
-        XCTAssertEqual(product.data.tax!.rate, 18.0)
-        var tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 1.525423728 && tax < 1.525423729)
-
-        patch.category = "food"
-        product = try! service.updateProduct(for: product.id, with: patch, from: Address())
-        price = product.data.price.value
-        XCTAssertTrue(price > 8.92857142 && price < 8.92857143)
+        XCTAssertNotNil(product.data.tax)
         XCTAssertEqual(product.data.tax!.category!, "food")
         XCTAssertEqual(product.data.tax!.rate, 12.0)
-        tax = product.data.tax!.total.value
-        XCTAssertTrue(tax > 1.071428571 && tax < 1.071428572)
+        XCTAssertEqual(product.data.tax!.total.value, 1.2)
+
+        patch.taxInclusive = true
+        product = try! service.updateProduct(for: product.id, with: patch, from: Address())
+        XCTAssertTrue(product.data.taxInclusive)
+        XCTAssertNil(product.data.tax)
     }
 
     // Service supports adding items to collection properties.
@@ -236,24 +220,24 @@ class TestProductsService: XCTestCase {
         product.images.inner = ["data:image/png;base64,bar", "data:image/png;base64,baz"]
         product.color = "#000"
         product.weight = UnitMeasurement(value: 50.0, unit: .gram)
-        var size = Size()
-        size.length = UnitMeasurement(value: 10.0, unit: .centimeter)
-        product.size = size
-        product.category = "food"
+        var dimensions = Dimensions()
+        dimensions.length = UnitMeasurement(value: 10.0, unit: .centimeter)
+        product.dimensions = dimensions
+        product.taxCategory = "food"
         // variant is checked in `TestProductVariants`
         let data = try! service.createProduct(with: product, from: Address())
 
         var patch = ProductPropertyDeletionPatch()
-        patch.removeCategory = true
+        patch.removeTaxCategory = true
         patch.removeColor = true
-        patch.removeSize = true
+        patch.removeDimensions = true
         patch.removeWeight = true
         patch.removeImageAt = 0     // remove image at zero'th index
         let updatedProduct = try! service.deleteProductProperty(for: data.id, with: patch,
                                                                 from: Address())
         XCTAssertEqual(updatedProduct.data.images.inner, ["data:image/png;base64,baz"])
-        XCTAssertNil(updatedProduct.data.size)
-        XCTAssertNil(updatedProduct.data.category)
+        XCTAssertNil(updatedProduct.data.dimensions)
+        XCTAssertNil(updatedProduct.data.taxCategory)
         XCTAssertNil(updatedProduct.data.color)
         XCTAssertNil(updatedProduct.data.weight)
     }

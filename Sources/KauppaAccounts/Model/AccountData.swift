@@ -13,7 +13,10 @@ public struct AccountData: Mappable {
     /// A list of user's addresses
     public var address = ArraySet<Address>()
 
-    /// Try some basic validations on the data.
+    /// Try some basic validations on the data. It checks that the name and emails aren't empty,
+    /// evaluates the emails against a regex and validates addresses (if specified).
+    ///
+    /// - Throws: `AccountsError` if any of the underlying data fails during validation.
     public func validate() throws {
         if name.isEmpty {
             throw AccountsError.invalidName
@@ -41,9 +44,9 @@ public struct AccountData: Mappable {
         }
     }
 
-    public init() {}
-
     /// Get the list of verified emails associated with this account.
+    ///
+    /// - Returns: An array of verified emails from this account.
     public func getVerifiedEmails() -> [String] {
         var list = [String]()
         for email in emails {

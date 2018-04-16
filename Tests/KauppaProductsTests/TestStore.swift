@@ -6,16 +6,21 @@ import Foundation
 public class TestStore: ProductsStorable {
     public var products = [UUID: Product]()
     public var collections = [UUID: ProductCollection]()
+    public var attributes = [UUID: Attribute]()
 
     // Variables to indicate the count of function calls
     public var createCalled = false
     public var getCalled = false
     public var deleteCalled = false
     public var updateCalled = false
+
     public var collectionCreateCalled = false
     public var collectionUpdateCalled = false
     public var collectionGetCalled = false
     public var collectionDeleteCalled = false
+
+    public var attributeCreationCalled = false
+    public var attributeGetCalled = false
 
     public func createNewProduct(with data: Product) throws -> () {
         createCalled = true
@@ -71,5 +76,19 @@ public class TestStore: ProductsStorable {
         } else {
             throw ProductsError.invalidCollection
         }
+    }
+
+    public func createAttribute(with data: Attribute) throws -> () {
+        attributeCreationCalled = true
+        attributes[data.id] = data
+    }
+
+    public func getAttribute(for id: UUID) throws -> Attribute {
+        attributeGetCalled = true
+        guard let attribute = attributes[id] else {
+            throw ProductsError.invalidAttribute
+        }
+
+        return attribute
     }
 }

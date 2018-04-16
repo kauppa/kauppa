@@ -3,22 +3,32 @@ import RandomKit
 
 extension String {
     /// Generate a random upper-case alpha-numeric string of given length.
-    public static func randomAlphaNumeric(len: Int) -> String {
+    ///
+    /// - Parameters:
+    ///   - ofLength: The length of the string to be generated.
+    /// - Returns: The generated string.
+    public static func randomAlphaNumeric(ofLength length: Int) -> String {
         return Xoroshiro.withThreadLocal({ (prng: inout Xoroshiro) -> String in
             // In alphanumeric strings, alphabets constitute ~72% of the string
-            let alphaLen = Int(0.72 * Float(len))
+            let alphaLen = Int(0.72 * Float(length))
             let alpha = String.random(ofLength: alphaLen, in: "A"..."Z", using: &prng)
-            let num = String.random(ofLength: len - alphaLen, in: "0"..."9", using: &prng)
+            let num = String.random(ofLength: length - alphaLen, in: "0"..."9", using: &prng)
             return (alpha + num).shuffled(using: &prng)
         })
     }
 
     /// Checks if the given string is alphanumeric.
+    ///
+    /// - Returns `true` if it's alphanumeric, or `false` if it isn't.
     public func isAlphaNumeric() -> Bool {
         return !isEmpty && range(of: "[^a-zA-Z0-9]", options: .regularExpression) == nil
     }
 
     /// Checks whether a string matches the given regex pattern.
+    ///
+    /// - Parameters:
+    ///   - regex: The regex pattern used for matching the string.
+    /// - Returns: `true` if it matches the pattern or `false` if it doesn't.
     public func isMatching(regex: String) -> Bool {
         do {
             let regex = try NSRegularExpression(pattern: regex)

@@ -18,6 +18,7 @@ public struct ArraySet<Element>: Mappable
         return self.inner.count
     }
 
+    /// Initialize an empty `ArraySet`
     public init() {}
 
     /// Initialize this collection with a sequence of elements.
@@ -43,7 +44,9 @@ public struct ArraySet<Element>: Mappable
 
     /// Insert an element into this collection.
     ///
-    /// Returns `true` if the element existed before, and `false` if it didn't.
+    /// - Parameters:
+    ///   - The element to be inserted.
+    /// - Returns: `true` if the element existed before, and `false` if it didn't.
     @discardableResult public mutating func insert(_ element: Element) -> Bool {
         if self.inner.contains(element) {
             return true
@@ -53,19 +56,38 @@ public struct ArraySet<Element>: Mappable
         return false
     }
 
-    /// Index the array inside this `ArraySet`
+    /// Index the array inside this `ArraySet` - this simply calls the `get` method.
+    ///
+    /// - Returns: The element (if it exists) or `nil`
     public subscript(i: Int) -> Element? {
         get {
             return get(from: i)
         }
     }
 
-    /// Index this collection (i.e., get the element if it exists at the index)
+    /// Checks whether an element exists in this collection.
+    ///
+    /// - Parameters:
+    ///   - The element to be searched.
+    /// - Returns: `true` if the element exists and `false` if it doesn't.
+    public func contains(_ element: Element) -> Bool {
+        return self.inner.contains(element)
+    }
+
+    /// Index this collection (i.e., get the element if it exists at the index).
+    ///
+    /// - Parameters:
+    ///   - from: The index of the element.
+    /// - Returns: The element (if it exists) or `nil`
     public func get(from index: Int) -> Element? {
         return (index < self.inner.count) ? self.inner[index] : nil
     }
 
-    /// Get the item matching the given predicate
+    /// Get the item matching the given predicate.
+    ///
+    /// - Parameters:
+    ///   - matching: The predicate function used for matching the element.
+    /// - Returns: The element (if it exists) or `nil`
     public func get(matching: (Element) -> Bool) -> Element? {
         for e in inner {
             if matching(e) {
@@ -77,6 +99,11 @@ public struct ArraySet<Element>: Mappable
     }
 
     /// Mutate the first element matching the given predicate.
+    ///
+    /// - Parameters:
+    ///   - matching: The predicate function used for matching an element.
+    ///   - with: The function to which the mutable element is provided.
+    ///   - defaultValue: Optional default value if the element doesn't exist.
     ///
     /// If no element is matched and `defaultValue` is given,
     /// then that value is appended to this collection.
@@ -90,23 +117,28 @@ public struct ArraySet<Element>: Mappable
             }
         }
 
+        // No match has occurred, or the collection is empty. Append the default
+        // value and call it.
         if let value = defaultValue {
             inner.append(value)
+            call(&inner[inner.count - 1])
         }
     }
 
     /// Remove and return the element (if it exists) at the given index.
+    ///
+    /// - Parameters:
+    ///   - at: The index to be removed.
+    /// - Returns: The removed element (if it exists) or `nil`
     @discardableResult public mutating func remove(at index: Int) -> Element? {
-        if index < self.inner.count {
-            return self.inner.remove(at: index)
-        } else {
-            return nil
-        }
+        return (index < self.inner.count) ? self.inner.remove(at: index) : nil
     }
 
     /// Remove the element (if it exists) in the collection.
     ///
-    /// Returns `true` if it has been removed, and `false` if it doesn't exist.
+    /// - Parameters:
+    ///   - The element to be removed.
+    /// - Returns: `true` if it has been removed, and `false` if it doesn't exist.
     @discardableResult public mutating func remove(_ element: Element) -> Bool {
         guard let index = self.inner.index(of: element) else {
             return false

@@ -9,5 +9,6 @@ public struct UnitTax: Mappable {
     /// Tax for this item i.e., `quantity` times `taxRate` (set by service).
     public var total = UnitMeasurement(value: 0.0, unit: Currency.usd)
 
+    /// Initialize an instance with `nil` category and tax rate set to "0"
     public init() {}
 }

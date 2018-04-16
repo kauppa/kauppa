@@ -8,6 +8,4 @@ public struct PickupData: Mappable {
     public var pickupAll: Bool? = nil
     /// Pickup specified units in an order.
     public var units: [CartUnit]? = nil
-
-    public init() {}
 }

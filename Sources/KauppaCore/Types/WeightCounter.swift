@@ -1,10 +1,14 @@
 /// A counter for adding weights
 public class WeightCounter {
-    var weight = UnitMeasurement(value: 0.0, unit: Weight.gram)
+    private var weight = UnitMeasurement(value: 0.0, unit: Weight.gram)
 
+    /// Initialize an empty counter.
     public init() {}
 
     /// Add weight to this counter.
+    ///
+    /// - Parameters:
+    ///   - The weight to be added.
     public func add(_ other: UnitMeasurement<Weight>) {
         switch other.unit {
             case .milligram:
@@ -18,7 +22,8 @@ public class WeightCounter {
         }
     }
 
-    /// Simplifies the final weight to an acceptable format
+    /// Simplifies the final weight to an acceptable format. This should be called
+    /// after adding all weights to get the result.
     public func sum() -> UnitMeasurement<Weight> {
         if weight.value > 100.0 {
             weight.value /= 1000.0

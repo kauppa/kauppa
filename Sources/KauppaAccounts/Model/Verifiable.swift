@@ -31,6 +31,7 @@ public struct VerifiableType<T>: Mappable, Hashable
     /// Flag to indicate whether this type has been verified.
     public var isVerified = false
 
+    /// Initialize a value for this type.
     public init(_ value: T) {
         self.value = value
     }

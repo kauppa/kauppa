@@ -17,12 +17,22 @@ public class MailClient {
     let sender: String
     let service: MailServiceCallable
 
+    /// Initialize the mail client with a mail service.
+    ///
+    /// - Parameters:
+    ///   - service: Anything that implements `MailServiceCallable`
+    ///   - mailsFrom: Sender for mails.
     public init(with service: MailServiceCallable, mailsFrom: String) {
         self.sender = mailsFrom
         self.service = service
     }
 
     /// Send mail with a `MailFormattable` object.
+    ///
+    /// - Parameters:
+    ///   - to: The list of recipients to whom the mail is to be sent.
+    ///   - with: The object implementing `MailFormattable` which decides the content of the mail.
+    ///   - callback: The (optional) callback which is called with the `MailResult` from the service.
     public func sendMail(to recipients: [String], with object: MailFormattable,
                          callback: PostSendCallback? = nil)
     {

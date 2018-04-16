@@ -12,8 +12,11 @@ public struct Product: Mappable {
     /// Product's data supplied by the user.
     public var data: ProductData
 
-    /// Initialize with the gicen `ProductData`
-    public init(data: ProductData) {
+    /// Initialize with the given product data.
+    ///
+    /// - Parameters:
+    ///   - with: The `ProductData` object.
+    public init(with data: ProductData) {
         let date = Date()
         self.createdOn = date
         self.updatedAt = date
@@ -21,7 +24,7 @@ public struct Product: Mappable {
     }
 
     /// Initialize an empty version of this type (for tests).
-    public init() {
-        self.init(data: ProductData(title: "", subtitle: "", description: ""))
+    init() {
+        self.init(with: ProductData(title: "", subtitle: "", description: ""))
     }
 }
