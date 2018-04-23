@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 import KauppaAccountsModel
 import KauppaProductsClient
@@ -16,16 +18,43 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
 
     /// Overridden routes for products service.
     public override func initializeRoutes() {
-        add(route: ProductsRoutes.createProduct) { request, response in
-            let address = Address()     // TODO: Get address from request
+        // TODO: Figure out how to use address for tax service.
 
-            do {
-                let data: ProductData = try request.getJSON()
-                let product = try self.service.createProduct(with: data, from: address)
-                response.respond(with: product, code: .ok)
-            } catch {
-                // log error and respond back to stream
+        add(route: ProductsRoutes.createProduct) { request, response in
+            guard let data: ProductData = request.getJSON() else {
+                throw ServiceError.clientHTTPData
             }
+
+            let product = try self.service.createProduct(with: data, from: nil)
+            response.respondJSON(with: product, code: .ok)
+        }
+
+        add(route: ProductsRoutes.getProduct) { request, response in
+            let id: UUID = request.getParameter(for: "id")!
+            let product = try self.service.getProduct(for: id, from: nil)
+            response.respondJSON(with: product, code: .ok)
+        }
+
+        add(route: ProductsRoutes.deleteProduct) { request, response in
+            let id: UUID = request.getParameter(for: "id")!
+            try self.service.deleteProduct(for: id)
+            response.respondJSON(with: ServiceStatusMessage(), code: .ok)
+        }
+
+        add(route: ProductsRoutes.updateProduct) { request, response in
+            guard let data: ProductPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let id: UUID = request.getParameter(for: "id")!
+            let product = try self.service.updateProduct(for: id, with: data, from: nil)
+            response.respondJSON(with: product, code: .ok)
+        }
+
+        add(route: ProductsRoutes.getAllProducts) { request, response in
+            let products = try self.service.getProducts()
+            let data = MappableArray(for: products)
+            response.respondJSON(with: data, code: .ok)
         }
     }
 }

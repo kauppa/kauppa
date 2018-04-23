@@ -32,7 +32,7 @@ class ReturnsFactory {
     ///   - for: The actual `Order` associated with this pickup.
     ///   - using: Anything that implements `ShipmentsServiceCallable`
     /// - Throws:
-    ///   - `ProductsError` if the product doesn't exist.
+    ///   - `ServiceError` if the product doesn't exist.
     ///   - `OrdersError` if the specified item(s) cannot be returned.
     ///   - `ShipmentsError` if there was an error in scheduling the pickup.
     func initiatePickup(for order: inout Order,

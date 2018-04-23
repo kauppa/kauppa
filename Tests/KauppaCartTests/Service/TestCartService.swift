@@ -271,7 +271,7 @@ class TestCartService: XCTestCase {
             let _ = try service.addCartItem(for: account.id, with: cartUnit, from: Address())
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidProductId)
         }
     }
 

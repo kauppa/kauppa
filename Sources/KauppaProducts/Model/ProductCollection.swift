@@ -45,14 +45,14 @@ public struct ProductCollectionData: Mappable {
     /// Validate this instance for possible errors. Currently, it checks the name
     /// and description.
     ///
-    /// - Throws: `ProductsError` for invalid data.
+    /// - Throws: `ServiceError` for invalid data.
     public func validate() throws {
         if name.isEmpty {
-            throw ProductsError.invalidCollectionName
+            throw ServiceError.invalidCollectionName
         }
 
         if description.isEmpty {
-            throw ProductsError.invalidCollectionDescription
+            throw ServiceError.invalidCollectionDescription
         }
     }
 }

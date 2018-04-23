@@ -9,10 +9,13 @@ public class ProductsRepository {
     // least recently used items every now and then.
     var products = [UUID: Product]()
     var collections = [UUID: ProductCollection]()
+
     var attributes = [UUID: Attribute]()
 
-    // Categories can't go beyond say, 100 - so, we're safe here
-    var categories = Set<String>()
+    // Categories can't go beyond say, 100 - so, we're safe here.
+    var categories = [UUID: Category]()
+    var categoryNames = [String: UUID]()
+
     // Tags can't go beyond say, 1000 - so, we're safe (again).
     var tags = Set<String>()
 
@@ -31,22 +34,30 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - with: `ProductData`
     /// - Returns: `Product` initialized with the given data.
-    /// - Throws: `ProductsError` on failure.
-    public func createProduct(with data: Product) throws -> Product {
-        try self.store.createNewProduct(with: data)
-        products[data.id] = data
-        updateCategoriesAndTags(using: data)
-        return data
+    /// - Throws: `ServiceError` on failure.
+    public func createProduct(with product: Product) throws -> Product {
+        try self.store.createNewProduct(with: product)
+        products[product.id] = product
+
+        // Update in-memory tags
+        tags.formUnion(product.data.tags)
+
+        return product
     }
 
     /// Delete the product corresponding to an ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func deleteProduct(for id: UUID) throws -> () {
         products.removeValue(forKey: id)
         return try store.deleteProduct(for: id)
+    }
+
+    // FIXME: Stub for service. Remove/change this.
+    public func getProducts() throws -> [Product] {
+        return Array(products.values)
     }
 
     /// Get the product data corresponding to an ID.
@@ -54,7 +65,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product.
     /// - Returns: `ProductData` for that product (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getProductData(for id: UUID) throws -> ProductData {
         let product = try getProduct(for: id)
         return product.data
@@ -65,13 +76,17 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product.
     /// - Returns: Updated `Product` object (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func updateProduct(for id: UUID, with data: ProductData) throws -> Product {
         var product = try getProduct(for: id)
         product.updatedAt = Date()
         product.data = data
         products[id] = product
         try store.updateProduct(with: product)
+
+        // Update in-memory tags
+        tags.formUnion(product.data.tags)
+
         return product
     }
 
@@ -80,7 +95,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product.
     /// - Returns: `Product` object (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getProduct(for id: UUID) throws -> Product {
         var product = products[id]
         if product == nil {
@@ -88,8 +103,64 @@ public class ProductsRepository {
             products[id] = product
         }
 
-        updateCategoriesAndTags(using: product!)
         return product!
+    }
+
+    /// Create a category using the given data.
+    ///
+    /// NOTE: This assumes that the name has been validated by the service
+    /// and that it exists.
+    ///
+    /// - Parameters:
+    ///   - with: `Category` object from the service.
+    /// - Returns: The created `Category` object.
+    /// - Throws: `ServiceError` on failure.
+    public func createCategory(with data: Category) throws -> Category {
+        var category = data
+        let id = UUID()
+        let name = category.name!.lowercased()
+        category.id = id
+        category.name = name
+
+        categories[id] = category
+        categoryNames[name] = id
+
+        try store.createCategory(with: category)
+        return category
+    }
+
+    /// Get the category for the given ID.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the category.
+    /// - Returns: `Category` (if it exists).
+    /// - Throws: `ServiceError` on failure.
+    public func getCategory(for id: UUID) throws -> Category {
+        guard let category = categories[id] else {
+            let category = try store.getCategory(for: id)
+            categoryNames[category.name!] = id
+            categories[id] = category
+            return category
+        }
+
+        return category
+    }
+
+    /// Get the category for the given name.
+    ///
+    /// - Parameters:
+    ///   - for: The name of the category as a string.
+    /// - Returns: `Category` (if it exists).
+    /// - Throws: `ServiceError` on failure.
+    public func getCategory(for name: String) throws -> Category {
+        guard let id = categoryNames[name] else {
+            let category = try store.getCategory(for: name)
+            categoryNames[category.name!] = category.id!
+            categories[category.id!] = category
+            return category
+        }
+
+        return try getCategory(for: id)
     }
 
     /// Create an attribute with the given name and type.
@@ -99,13 +170,13 @@ public class ProductsRepository {
     ///   - and: The `BaseType` of the attribute.
     ///   - variants: (Optional) list of variants (if it's an enum).
     /// - Returns: `Attribute` with the given data.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createAttribute(with name: String, and type: BaseType,
                                 variants: ArraySet<String>? = nil) throws -> Attribute
     {
         var attribute = Attribute(with: name.lowercased(), and: type)
         if let variants = variants {
-            attribute.variants = variants
+            attribute.variants = variants.map() { $0.lowercased() }
         }
 
         attributes[attribute.id] = attribute
@@ -118,7 +189,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the attribute.
     /// - Returns: `Attribute` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getAttribute(for id: UUID) throws -> Attribute {
         guard let attribute = attributes[id] else {
             let attribute = try store.getAttribute(for: id)
@@ -134,7 +205,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
     /// - Returns: `ProductCollection`
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createCollection(with data: ProductCollectionData) throws
                                 -> ProductCollection
     {
@@ -149,7 +220,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
     /// - Returns: `ProductCollection` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getCollection(for id: UUID) throws -> ProductCollection {
         guard let collection = collections[id] else {
             let collection = try store.getCollection(for: id)
@@ -165,7 +236,7 @@ public class ProductsRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
     /// - Returns: `ProductCollectionData` (if it exists).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getCollectionData(for id: UUID) throws -> ProductCollectionData {
         let collection = try getCollection(for: id)
         return collection.data
@@ -177,7 +248,7 @@ public class ProductsRepository {
     ///   - for: The `UUID` of the product collection.
     ///   - with: `ProductCollectionData`
     /// - Returns: Updated `ProductCollection` (if it exists)
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func updateCollection(for id: UUID, with data: ProductCollectionData) throws
                                 -> ProductCollection
     {
@@ -194,18 +265,9 @@ public class ProductsRepository {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the product collection.
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func deleteCollection(for id: UUID) throws -> () {
         collections.removeValue(forKey: id)
         return try store.deleteCollection(for: id)
-    }
-
-    /// Update the in-memory tags and collections using the product data.
-    private func updateCategoriesAndTags(using product: Product) {
-        // TODO: Update this when categories come into play.
-
-        for tag in product.data.tags {
-            tags.insert(tag)
-        }
     }
 }

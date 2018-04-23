@@ -5,10 +5,9 @@ import KauppaCore
 public enum ProductsRoutes: UInt8 {
     case createProduct
     case getProduct
+    case getAllProducts
     case deleteProduct
     case updateProduct
-    case addProductProperty
-    case deleteProductProperty
 }
 
 extension ProductsRoutes: RouteRepresentable {
@@ -22,10 +21,10 @@ extension ProductsRoutes: RouteRepresentable {
                 return Route(url: "/products/:id",  method: .delete)
             case .updateProduct:
                 return Route(url: "/products/:id",  method: .put)
-            case .addProductProperty:
-                return Route(url: "/products/:id",  method: .post)
-            case .deleteProductProperty:
-                return Route(url: "/products/:id",  method: .put)
+
+            // FIXME: No, no, no! This shouldn't be here! Remove this ASAP
+            case .getAllProducts:
+                return Route(url: "/products",      method: .get)
         }
     }
 }

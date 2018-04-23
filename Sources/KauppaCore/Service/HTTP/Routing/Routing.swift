@@ -7,5 +7,9 @@ public protocol Routing {
     associatedtype Response: ServiceResponse
 
     /// Add a route to this router with the given handler.
-    func add<R: RouteRepresentable>(route repr: R, _ handler: @escaping (Request, Response) -> Void)
+    ///
+    /// - Parameters:
+    ///   - route: A `RouteRepresentable` object.
+    ///   - The closure which gets the associated request and response object from the service call.
+    func add<R: RouteRepresentable>(route repr: R, _ handler: @escaping (Request, Response) throws -> Void)
 }

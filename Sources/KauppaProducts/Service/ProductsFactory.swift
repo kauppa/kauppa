@@ -35,9 +35,10 @@ class ProductsFactory {
     /// - Parameters:
     ///   - using: Anything that implements `TaxServiceCallable`
     /// - Returns: `Product` (if it was successfully created).
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createProduct(using taxService: TaxServiceCallable) throws -> Product {
         try data.validate()
+        try validateCategories()
         try validateCustomAttributes()
 
         var variant: Product? = nil
@@ -73,7 +74,7 @@ class ProductsFactory {
     ///   - for: The `UUID` of the product to be updated.
     ///   - with: The `ProductPatch` data used for updating the product.
     ///   - using: Anything that implements `TaxServiceCallable`
-    /// - Throws: `ProductsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateProduct(for id: UUID, with patch: ProductPatch, using taxService: TaxServiceCallable) throws {
         if let title = patch.title {
             data.title = title
@@ -85,6 +86,19 @@ class ProductsFactory {
 
         if let description = patch.description {
             data.description = description
+        }
+
+        if let overview = patch.overview {
+            data.overview = overview
+        }
+
+        if let categories = patch.categories {
+            data.categories = categories
+            try validateCategories()
+        }
+
+        if let tags = patch.tags {
+            data.tags = tags
         }
 
         if let dimensions = patch.dimensions {
@@ -156,6 +170,43 @@ class ProductsFactory {
         }
 
         let _ = try repository.updateProduct(for: id, with: data)
+    }
+
+    private func validateCategories() throws {
+        var categories = [Category]()
+
+        for category in data.categories {
+            var category = category
+
+            if let id = category.id {
+                // Product data has category ID - Ensure that it exists in store.
+                category = try repository.getCategory(for: id)
+            } else if var name = category.name {
+                // Category has been addressed with name.
+                name = name.lowercased()
+                if name.isEmpty {
+                    continue
+                }
+
+                if let data = try? repository.getCategory(for: name) {
+                    // Category name already exists. Re-use its ID.
+                    category = data
+                } else {
+                    // Category doesn't exist - create it.
+                    category = try repository.createCategory(with: category)
+                }
+            } else {
+                // Invalid category data - ignore.
+                continue
+            }
+
+            // Append only if category doesn't already exist in product data.
+            if categories.first(where: { $0.id != nil && $0.id! == category.id }) == nil {
+                categories.append(category)
+            }
+        }
+
+        data.categories = categories
     }
 
     /// Validate the product's custom attributes (create/update the store data correspondingly).

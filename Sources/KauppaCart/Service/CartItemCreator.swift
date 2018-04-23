@@ -34,7 +34,7 @@ class CartItemCreator {
     ///   - using: Anything that implements `ProductsServiceCallable`
     ///   - with: `Address` of the account.
     /// - Throws:
-    ///   - `ProductsError` if the product doesn't exist.
+    ///   - `ServiceError` if the product doesn't exist.
     ///   - `CartError` when error occurs in adding the product.
     func updateCartData(using productsService: ProductsServiceCallable,
                         with address: Address) throws

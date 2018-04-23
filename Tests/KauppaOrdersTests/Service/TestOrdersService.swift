@@ -223,7 +223,7 @@ class TestOrdersService: XCTestCase {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
         } catch let err {   // random UUID - invalid product
-            XCTAssertEqual(err as! ProductsError, ProductsError.invalidProduct)
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidProductId)
         }
     }
 

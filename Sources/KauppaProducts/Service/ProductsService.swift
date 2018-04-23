@@ -44,6 +44,10 @@ extension ProductsService: ProductsServiceCallable {
         return product
     }
 
+    public func getProducts() throws -> [Product] {
+        return try repository.getProducts()
+    }
+
     public func deleteProduct(for id: UUID) throws -> () {
         return try repository.deleteProduct(for: id)
     }
@@ -75,6 +79,10 @@ extension ProductsService: ProductsServiceCallable {
     {
         var productData = try repository.getProductData(for: id)
 
+        if (data.removeOverview ?? false) {
+            productData.overview = nil
+        }
+
         if (data.removeTaxCategory ?? false) {
             productData.taxCategory = nil
         }
@@ -89,6 +97,14 @@ extension ProductsService: ProductsServiceCallable {
 
         if (data.removeWeight ?? false) {
             productData.weight = nil
+        }
+
+        if let index = data.removeCategoryAt {
+            productData.categories.remove(at: index)
+        }
+
+        if let index = data.removeTagAt {
+            productData.tags.remove(at: index)
         }
 
         if let index = data.removeImageAt {

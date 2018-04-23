@@ -34,7 +34,7 @@ class RefundsFactory {
     ///   - using: `OrdersRepository`
     /// - Throws:
     ///   - `OrdersError` if there were failures in refund creation.
-    ///   - `ProductsError` if there was an error in getting the product.
+    ///   - `ServiceError` if there was an error in getting the product.
     func initiateRefund(for order: inout Order,
                         using repository: OrdersRepository) throws
     {

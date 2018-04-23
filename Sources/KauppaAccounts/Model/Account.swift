@@ -28,12 +28,6 @@ public struct Account: Mappable {
 
     /// Checks whether a verified account has at least one verified email.
     public var isVerified: Bool {
-        for email in data.emails {
-            if email.isVerified {
-                return true
-            }
-        }
-
-        return false
+        return data.emails.get(matching: { $0.isVerified }) != nil
     }
 }

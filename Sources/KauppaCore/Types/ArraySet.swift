@@ -89,13 +89,7 @@ public struct ArraySet<Element>: Mappable
     ///   - matching: The predicate function used for matching the element.
     /// - Returns: The element (if it exists) or `nil`
     public func get(matching: (Element) -> Bool) -> Element? {
-        for e in inner {
-            if matching(e) {
-                return e
-            }
-        }
-
-        return nil
+        return inner.first(where: matching)
     }
 
     /// Mutate the first element matching the given predicate.
@@ -123,6 +117,19 @@ public struct ArraySet<Element>: Mappable
             inner.append(value)
             call(&inner[inner.count - 1])
         }
+    }
+
+    /// Create a new instance with a mapping function applied over all the elements.
+    ///
+    /// - Parameters:
+    ///   - The mapping closure that creates an element using the iterated element.
+    /// - Returns: The mapped `ArraySet`
+    public func map<E>(_ decorator: (Element) -> E) -> ArraySet<E>
+        where E: Hashable
+    {
+        var arraySet = ArraySet<E>()
+        arraySet.inner = self.inner.map(decorator)
+        return arraySet
     }
 
     /// Remove and return the element (if it exists) at the given index.

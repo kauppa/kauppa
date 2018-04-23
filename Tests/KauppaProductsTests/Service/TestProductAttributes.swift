@@ -155,17 +155,17 @@ class TestProductAttributes: XCTestCase {
         attribute.type = BaseType(rawValue: "enum")
         productData.custom.append(attribute)
 
-        let tests: [(String, [String]?, ProductsError)] = [
+        let tests: [(String, [String]?, ServiceError)] = [
             // no variants
-            ("", nil,                       ProductsError.notEnoughVariants),
+            ("", nil,                       ServiceError.notEnoughVariants),
             // empty variant
-            ("", ["", "booya"],             ProductsError.invalidEnumVariant),
+            ("", ["", "booya"],             ServiceError.invalidEnumVariant),
             // single variant
-            ("foo", ["foo"],                ProductsError.notEnoughVariants),
+            ("foo", ["foo"],                ServiceError.notEnoughVariants),
             // single variant after removing duplicates
-            ("foo", ["foo", "fOO", "foO"],  ProductsError.notEnoughVariants),
+            ("foo", ["foo", "fOO", "foO"],  ServiceError.notEnoughVariants),
             // value not in variants
-            ("foo", ["bar", "baz"],         ProductsError.invalidAttributeValue)
+            ("foo", ["bar", "baz"],         ServiceError.invalidAttributeValue)
         ]
 
         for (value, variants, error) in tests {
@@ -178,7 +178,7 @@ class TestProductAttributes: XCTestCase {
                 let _ = try service.createProduct(with: productData, from: Address())
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! ProductsError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
 
