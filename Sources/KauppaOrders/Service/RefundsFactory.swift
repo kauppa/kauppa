@@ -32,16 +32,13 @@ class RefundsFactory {
     /// - Parameters:
     ///   - for: The ID of the order in which this refund should be issued.
     ///   - using: `OrdersRepository`
-    /// - Throws:
-    ///   - `OrdersError` if there were failures in refund creation.
-    ///   - `ServiceError` if there was an error in getting the product.
+    /// - Throws: `ServiceError`
+    ///   - If there were failures in refund creation.
+    ///   - If there was an error in getting the product.
     func initiateRefund(for order: inout Order,
                         using repository: OrdersRepository) throws
     {
-        if data.reason.isEmpty {
-            throw OrdersError.invalidReason
-        }
-
+        try data.validate()
         try order.validateForRefund()
 
         if data.fullRefund ?? false {
@@ -51,7 +48,7 @@ class RefundsFactory {
         }
 
         if refundItems.isEmpty {
-            throw OrdersError.noItemsToProcess
+            throw ServiceError.noItemsToProcess
         }
 
         try setStatus(for: &order)
@@ -97,7 +94,7 @@ class RefundsFactory {
             let refundable = unitStatus.refundableQuantity
 
             if unit.quantity > refundable {
-                throw OrdersError.invalidRefundQuantity(product.id, refundable)
+                throw ServiceError.invalidRefundQuantity
             }
 
             refundItems.append(GenericCartUnit(for: product, with: unit.quantity))
@@ -132,12 +129,12 @@ class RefundsFactory {
     {
         // We can assume that all products in a successfully placed
         // order *will* have the same currency, because the cart checks it.
-        let currency = refundItems[0].product.data.price.unit
+        let currency = refundItems[0].product.price.unit
         var totalPrice = UnitMeasurement(value: 0.0, unit: currency)
         var items = [CartUnit]()
         for item in refundItems {
-            totalPrice.value += item.product.data.price.value * Double(item.quantity)
-            let unit = CartUnit(for: item.product.id, with: item.quantity)
+            totalPrice.value += item.product.price.value * Double(item.quantity)
+            let unit = CartUnit(for: item.product.id!, with: item.quantity)
             items.append(unit)
         }
 

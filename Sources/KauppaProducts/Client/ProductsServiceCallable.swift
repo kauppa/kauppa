@@ -6,16 +6,30 @@ import KauppaProductsModel
 /// General API meant for the products service to be used by both the
 /// service and the client.
 public protocol ProductsServiceCallable {
-    /* Product */
+    /* Generic */
+
+    /// Get all the defined categories from the service.
+    ///
+    /// - Returns: List of `Category` objects.
+    /// - Throws: `ServiceError` on failure.
+    func getCategories() throws -> [Category]
+
+    /// Get all the defined attributes from the service.
+    ///
+    /// - Returns: List of `Attribute` objects.
+    /// - Throws: `ServiceError` on failure.
+    func getAttributes() throws -> [Attribute]
+
+    /* Products */
 
     /// Create product with the given product data.
     ///
     /// - Parameters:
-    ///   - with: The `ProductData` required for creating a product.
+    ///   - with: The `Product` required for creating a product.
     ///   - from: (Optional) `Address` from which this request was originated.
     /// - Returns: `Product`
     /// - Throws: `ServiceError` if there were errors validating the data.
-    func createProduct(with data: ProductData, from address: Address?) throws -> Product
+    func createProduct(with data: Product, from address: Address?) throws -> Product
 
     /// Get product for a given ID.
     ///
@@ -26,7 +40,7 @@ public protocol ProductsServiceCallable {
     /// - Throws: `ServiceError` (if it doesn't).
     func getProduct(for id: UUID, from address: Address?) throws -> Product
 
-    // FIXME: Remove this or change this to support pagination.
+    // FIXME: Support pagination.
     func getProducts() throws -> [Product]
 
     /// Delete product corresponding to a given ID.
@@ -80,6 +94,14 @@ public protocol ProductsServiceCallable {
     /// - Returns: `ProductCollection`
     /// - Throws: `ServiceError` if the product(s) are non-existent or if there were errors.
     func createCollection(with data: ProductCollectionData) throws -> ProductCollection
+
+    /// Get the collection for the given ID.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the `ProductCollection`
+    /// - Returns: `ProductCollection` (if it exists).
+    /// - Throws: `ServiceError` (on failure).
+    func getCollection(for id: UUID) throws -> ProductCollection
 
     /// Update an existing collection with the given patch data.
     ///

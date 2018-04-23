@@ -64,7 +64,7 @@ extension TaxService: TaxServiceCallable {
         try repository.deleteCountry(for: id)
     }
 
-    public func addRegion(to id: UUID, data: RegionData) throws -> Region {
+    public func addRegion(to id: UUID, using data: RegionData) throws -> Region {
         let _ = try repository.getCountry(id: id)
         let region = Region(name: data.name, taxRate: data.taxRate, kind: data.kind, country: id)
         try region.validate()

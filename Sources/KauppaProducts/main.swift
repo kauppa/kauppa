@@ -3,7 +3,6 @@ import Foundation
 import Kitura
 
 import KauppaCore
-import KauppaProductsClient
 import KauppaProductsModel
 import KauppaProductsRepository
 import KauppaProductsService
@@ -56,20 +55,16 @@ class NoOpStore: ProductsStorable {
 
 
 let repository = ProductsRepository(with: NoOpStore())
-let taxClient: TaxServiceClient<SwiftyRestRequest> = TaxServiceClient(for: "http://localhost:8050")!     // Mock
+let taxEndpoint = String.from(environment: "KAUPPA_TAX_ENDPOINT")!
+let taxClient: TaxServiceClient<SwiftyRestRequest> = TaxServiceClient(for: taxEndpoint)!
 let productsService = ProductsService(with: repository, taxService: taxClient)
 
 let router = Router()       // Kitura's router
 let serviceRouter = ProductsRouter(with: router, service: productsService)
 
-var servicePort = 8090
-if let port = ProcessInfo.processInfo.environment["KAUPPA_SERVICE_PORT"] {
-    if let port = Int(port) {
-        servicePort = port
-    }
-}
-
+let servicePort = Int.from(environment: "KAUPPA_SERVICE_PORT") ?? 8090
 print("Listening to requests on port \(servicePort)")
+
 // FIXME: This should be managed by the controller
 Kitura.addHTTPServer(onPort: servicePort, with: router)
 

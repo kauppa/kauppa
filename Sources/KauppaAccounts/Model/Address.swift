@@ -54,32 +54,32 @@ public struct Address: Mappable, Hashable {
     /// in the address are empty.
     public func validate() throws {
         if name.isEmpty {
-            throw AccountsError.invalidAddress(.invalidName)
+            throw ServiceError.invalidAddressName
         }
 
         if line1.isEmpty {
-            throw AccountsError.invalidAddress(.invalidLineData)
+            throw ServiceError.invalidAddressLineData
         }
 
         if city.isEmpty {
-            throw AccountsError.invalidAddress(.invalidCity)
+            throw ServiceError.invalidAddressCity
         }
 
         if province.isEmpty {
-            throw AccountsError.invalidAddress(.invalidProvince)
+            throw ServiceError.invalidAddressProvince
         }
 
         if country.isEmpty {
-            throw AccountsError.invalidAddress(.invalidCountry)
+            throw ServiceError.invalidAddressCountry
         }
 
         if code.isEmpty {
-            throw AccountsError.invalidAddress(.invalidCode)
+            throw ServiceError.invalidAddressCode
         }
 
         if let label = label {
             if label.isEmpty {
-                throw AccountsError.invalidAddress(.invalidLabel)
+                throw ServiceError.invalidAddressLabel
             }
         }
     }

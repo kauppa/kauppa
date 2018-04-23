@@ -9,13 +9,13 @@ public protocol CouponPersisting: Persisting {
     ///
     /// - Parameters:
     ///   - with: The `Coupon` object from repository.
-    /// - Throws: `CouponError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createCoupon(with data: Coupon) throws -> ()
 
     /// Update a coupon with data from the repository.
     ///
     /// - Parameters:
     ///   - with: The `Coupon` object from repository.
-    /// - Throws: `CouponError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateCoupon(with data: Coupon) throws -> ()
 }

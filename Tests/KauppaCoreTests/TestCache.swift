@@ -11,7 +11,7 @@ class TestCache: XCTestCase {
     }
 
     func testDictionaryCache() {
-        var dict = DictionaryCache<Int, Int>(withCapacity: 100)
+        var dict = DictionaryCache<Int, Int>(with: 100)
         for i in 0...110 {      // Insert 10 additional items
             dict[i] = i
         }

@@ -25,10 +25,10 @@ public class OrdersRepository {
     ///
     /// - Parameters:
     ///   - with: The `Order` object.
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createOrder(with data: Order) throws {
         orders[data.id] = data
-        try store.createNewOrder(with: data)
+        try store.createOrder(with: data)
     }
 
     /// Get an order corresponding to an ID.
@@ -36,7 +36,7 @@ public class OrdersRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the order.
     /// - Returns: `Order` object.
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func getOrder(for id: UUID) throws -> Order {
         guard let order = orders[id] else {
             let order = try store.getOrder(for: id)
@@ -57,7 +57,7 @@ public class OrdersRepository {
     /// - Parameters:
     ///   - with: The updated `Order` object.
     /// - Returns: Updated `Order` object.
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func updateOrder(with data: Order, skippingDate: Bool = false) throws -> Order {
         var order = data
         if !skippingDate {
@@ -73,7 +73,7 @@ public class OrdersRepository {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the order.
-    /// - Throws: `OrdersError` if the ID is invalid.
+    /// - Throws: `ServiceError` if the ID is invalid.
     public func deleteOrder(for id: UUID) throws -> () {
         orders.removeValue(forKey: id)
         return try store.deleteOrder(for: id)
@@ -87,7 +87,7 @@ public class OrdersRepository {
     ///   - items: The product items and quantities to be refunded.
     ///   - amount: The amount to be refunded.
     /// - Returns: `Refund` object
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createRefund(for orderId: UUID,
                              with reason: String, items: [CartUnit],
                              amount: UnitMeasurement<Currency>) throws -> Refund

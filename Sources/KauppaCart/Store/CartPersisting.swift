@@ -9,13 +9,13 @@ public protocol CartPersisting: Persisting {
     ///
     /// - Parameters:
     ///   - with: The `Cart` data from the repository.
-    /// - Throws: `CartError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createCart(with data: Cart) throws -> ()
 
     /// Update a cart with data from repository.
     ///
     /// - Parameters:
     ///   - with: Updated `Cart` data from repository.
-    /// - Throws: `CartError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateCart(with data: Cart) throws -> ()
 }

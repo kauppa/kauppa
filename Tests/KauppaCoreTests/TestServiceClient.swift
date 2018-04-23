@@ -12,6 +12,7 @@ class TestServiceClient: XCTestCase {
             ("Test service error in JSON response", testClientServiceError),
             ("Test no data in JSON response", testClientNoData),
             ("Test invalid error code in JSON response", testClientInvalidServiceError),
+            ("Test client URL parameters", testClientURLParameters),
         ]
     }
 
@@ -80,5 +81,22 @@ class TestServiceClient: XCTestCase {
         } catch let err {
             XCTAssertEqual(err as! ServiceError, .unknownError)
         }
+    }
+
+    /// Test that the service client automatically fills URL parameters with the provided values.
+    func testClientURLParameters() {
+        let service = ServiceClient<TestClient, TestRoute>(for: "http://foo.bar")!
+        do {
+            // Should fail because we haven't given any parameters.
+            let _ = try service.createClient(for: TestRoute.boo)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ServiceError, .missingURLParameter)
+        }
+
+        let id = UUID()
+        let params: [String: CustomStringConvertible] = ["id": id, "booya": "yay"]
+        let client = try! service.createClient(for: TestRoute.boo, with: params)
+        XCTAssertEqual(client.url, URL(string: "/\(id)/yay/", relativeTo: URL(string: "http://foo.bar")!))
     }
 }

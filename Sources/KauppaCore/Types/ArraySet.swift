@@ -23,13 +23,10 @@ public struct ArraySet<Element>: Mappable
 
     /// Initialize this collection with a sequence of elements.
     public init<S>(_ sequence: S) where S : Sequence, Element == S.Element {
-        var elements: Set<Element> = []
         for element in sequence {
-            if !elements.contains(element) {
+            if !self.inner.contains(element) {
                 self.inner.append(element)
             }
-
-            elements.insert(element)
         }
     }
 

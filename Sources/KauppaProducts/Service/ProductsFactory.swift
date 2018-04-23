@@ -9,7 +9,7 @@ import KauppaTaxClient
 /// Factory class for creating/updating product. This validates the product data,
 /// checks variants, custom attributes, sets tax and creates/updates product in the repository.
 class ProductsFactory {
-    var data: ProductData
+    var data: Product
     let address: Address?
     let repository: ProductsRepository
 
@@ -17,16 +17,16 @@ class ProductsFactory {
     /// of the account.
     ///
     /// - Parameters:
-    ///   - for: The `ProductData` used by this factory.
+    ///   - for: The `Product` object used by this factory.
     ///   - with: `ProductsRepository`
     ///   - from: (Optional) address from which this product was created.
-    init(for data: ProductData, with repository: ProductsRepository, from address: Address? = nil) {
+    init(for data: Product, with repository: ProductsRepository, from address: Address? = nil) {
         self.data = data
         self.repository = repository
         self.address = address
 
-        // ensure that some properties can't be "set" manually
-        self.data.variants = []
+        // Ensure that some properties can't be "set" manually
+        self.data.variants = nil
         self.data.tax = nil
     }
 
@@ -41,6 +41,13 @@ class ProductsFactory {
         try validateCategories()
         try validateCustomAttributes()
 
+        // Initialize the object.
+        let productId = UUID()
+        let date = Date()
+        data.id = productId
+        data.createdOn = date
+        data.updatedAt = date
+
         var variant: Product? = nil
 
         // Check the variant data (if provided)
@@ -48,24 +55,27 @@ class ProductsFactory {
             do {
                 variant = try repository.getProduct(for: variantId)
                 // also check whether this is another variant (if so, use its parent)
-                if let parentId = variant!.data.variantId {
+                if let parentId = variant!.variantId {
                     variant = try repository.getProduct(for: parentId)
-                    data.variantId = variant!.id
+                    data.variantId = parentId
                 }
             } catch {   // FIXME: check the error kind
                 data.variantId = nil
             }
         }
 
-        let product = Product(with: data)
-        let _ = try repository.createProduct(with: product)
-        if let variant = variant {
-            var variantData = variant.data
-            variantData.variants.insert(product.id)
-            let _ = try repository.updateProduct(for: variant.id, with: variantData)
+        if var variantData = variant {
+            if variantData.variants == nil {
+                variantData.variants = [productId]
+            } else {
+                variantData.variants!.insert(productId)
+            }
+
+            let _ = try repository.updateProduct(with: variantData)
         }
 
-        return product
+        let _ = try repository.createProduct(with: data)
+        return data
     }
 
     /// Method to update the product using the initialized data and the provided patch.
@@ -76,6 +86,8 @@ class ProductsFactory {
     ///   - using: Anything that implements `TaxServiceCallable`
     /// - Throws: `ServiceError` on failure.
     func updateProduct(for id: UUID, with patch: ProductPatch, using taxService: TaxServiceCallable) throws {
+        data.updatedAt = Date()
+
         if let title = patch.title {
             data.title = title
         }
@@ -138,6 +150,10 @@ class ProductsFactory {
             data.images = images
         }
 
+        if let price = patch.actualPrice {
+            data.actualPrice = price
+        }
+
         if let price = patch.price {
             data.price = price
         }
@@ -156,26 +172,33 @@ class ProductsFactory {
             if variantId != id {
                 var variant = try repository.getProduct(for: variantId)
                 // Check if it's a child - if so, use its variantId instead.
-                if let parentId = variant.data.variantId {
+                if let parentId = variant.variantId {
                     variant = try repository.getProduct(for: parentId)
                 }
 
                 data.variantId = variant.id
-                var variantData = variant.data
-                if !variantData.variants.contains(id) {
-                    variantData.variants.insert(id)
-                    let _ = try? repository.updateProduct(for: variant.id, with: variantData)
+                if variant.variants == nil {
+                    variant.variants = [id]
+                } else {
+                    variant.variants!.insert(id)
                 }
+
+                let _ = try repository.updateProduct(with: variant)
             }
         }
 
-        let _ = try repository.updateProduct(for: id, with: data)
+        let _ = try repository.updateProduct(with: data)
     }
 
+    /// Validate the categories in product data and create/update the store correspondingly.
     private func validateCategories() throws {
+        guard let existingCategories = data.categories else {
+            return
+        }
+
         var categories = [Category]()
 
-        for category in data.categories {
+        for category in existingCategories {
             var category = category
 
             if let id = category.id {
@@ -211,7 +234,11 @@ class ProductsFactory {
 
     /// Validate the product's custom attributes (create/update the store data correspondingly).
     private func validateCustomAttributes() throws {
-        for (index, customAttribute) in data.custom.enumerated() {
+        guard var existingAttributes = data.custom else {
+            return
+        }
+
+        for (index, customAttribute) in existingAttributes.enumerated() {
             var customAttribute = customAttribute
 
             if let id = customAttribute.id {
@@ -234,12 +261,14 @@ class ProductsFactory {
             }
 
             // Set ID, value, unit and reset name, type and variants.
-            data.custom[index].id = customAttribute.id
-            data.custom[index].value = customAttribute.value
-            data.custom[index].unit = customAttribute.unit
-            data.custom[index].name = nil
-            data.custom[index].type = nil
-            data.custom[index].variants = nil
+            existingAttributes[index].id = customAttribute.id
+            existingAttributes[index].value = customAttribute.value
+            existingAttributes[index].unit = customAttribute.unit
+            existingAttributes[index].name = nil
+            existingAttributes[index].type = nil
+            existingAttributes[index].variants = nil
         }
+
+        data.custom = existingAttributes
     }
 }

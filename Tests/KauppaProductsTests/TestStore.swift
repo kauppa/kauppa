@@ -29,7 +29,7 @@ public class TestStore: ProductsStorable {
 
     public func createNewProduct(with data: Product) throws -> () {
         createCalled = true
-        products[data.id] = data
+        products[data.id!] = data
     }
 
     public func getProduct(for id: UUID) throws -> Product {
@@ -52,7 +52,7 @@ public class TestStore: ProductsStorable {
 
     public func updateProduct(with data: Product) throws -> () {
         updateCalled = true
-        products[data.id] = data
+        products[data.id!] = data
     }
 
     public func createNewCollection(with data: ProductCollection) throws -> () {

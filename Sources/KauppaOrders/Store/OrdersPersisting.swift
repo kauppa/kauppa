@@ -9,27 +9,27 @@ public protocol OrdersPersisting: Persisting {
     ///
     /// - Parameters:
     ///   - with: The `Order` data object.
-    /// - Throws: `OrdersError` on failure.
-    func createNewOrder(with data: Order) throws -> ()
+    /// - Throws: `ServiceError` on failure.
+    func createOrder(with data: Order) throws -> ()
 
     /// Update an existing order with data from repository.
     ///
     /// - Parameters:
     ///   - with: The `Order` data object.
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateOrder(with data: Order) throws -> ()
 
     /// Delete an order corresponding to an ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the order.
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func deleteOrder(for id: UUID) throws -> ()
 
     /// Create a refund with data from repository.
     ///
     /// - Parameters:
     ///   - with: The `Refund` data object.
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createRefund(with data: Refund) throws -> ()
 }

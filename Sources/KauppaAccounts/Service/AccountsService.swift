@@ -24,7 +24,7 @@ extension AccountsService: AccountsServiceCallable {
         try data.validate()
         for email in data.emails {
             if let _ = try? repository.getAccount(for: email.value) {
-                throw AccountsError.accountExists
+                throw ServiceError.accountExists
             }
         }
 
@@ -98,7 +98,7 @@ extension AccountsService: AccountsServiceCallable {
         if let index = data.removeEmailAt {
             accountData.emails.remove(at: index)
             if accountData.emails.isEmpty {         // if there are no more emails, disallow this
-                throw AccountsError.emailRequired
+                throw ServiceError.accountEmailRequired
             }
         }
 

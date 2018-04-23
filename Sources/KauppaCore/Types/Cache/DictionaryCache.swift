@@ -1,3 +1,4 @@
+
 extension Dictionary {
     /// Extension to index the key-value pairs in a dictionary.
     subscript(i: Int) -> (key: Key, value: Value) {
@@ -15,12 +16,9 @@ public struct DictionaryCache<K: Hashable, V>: CacheStorable {
     public typealias Key = K
     public typealias Value = V
 
-    var inner = [Key: Value]()
-    public var capacity: Int
+    private var inner = [Key: Value]()
 
-    public init(withCapacity count: Int) {
-        capacity = count
-    }
+    public var capacity: Int
 
     public var isEmpty: Bool {
         return inner.isEmpty
@@ -30,22 +28,27 @@ public struct DictionaryCache<K: Hashable, V>: CacheStorable {
         return inner.count
     }
 
+    public init(with capacity: Int) {
+        self.capacity = capacity
+    }
+
     public subscript(key: Key) -> Value? {
         get {
             return inner[key]
         }
 
         set(value) {
-            inner[key] = value
             // Remove a key/value pair whenever we go beyond the specified capacity.
             //
             // Note that this depends on the built-in hasher, type of the value,
             // allocated capacity of this dictionary, etc. So, it may not be consistent
             // and can remove any pair.
-            while inner.count > capacity {
+            while inner.count >= capacity {
                 let (someKey, _) = inner[inner.count / 2]
                 inner.removeValue(forKey: someKey)
             }
+
+            inner[key] = value
         }
     }
 }

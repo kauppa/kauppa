@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersStore
 
@@ -14,7 +15,7 @@ public class TestStore: OrdersStorable {
     public var updateCalled = false
     public var refundCreated = false
 
-    public func createNewOrder(with data: Order) throws -> () {
+    public func createOrder(with data: Order) throws -> () {
         createCalled = true
         orders[data.id] = data
     }
@@ -22,7 +23,7 @@ public class TestStore: OrdersStorable {
     public func getOrder(for id: UUID) throws -> Order {
         getCalled = true
         guard let order = orders[id] else {
-            throw OrdersError.invalidOrder
+            throw ServiceError.invalidOrderId
         }
 
         return order
@@ -36,7 +37,7 @@ public class TestStore: OrdersStorable {
     public func deleteOrder(for id: UUID) throws -> () {
         deleteCalled = true
         if orders.removeValue(forKey: id) == nil {
-            throw OrdersError.invalidOrder
+            throw ServiceError.invalidOrderId
         }
     }
 

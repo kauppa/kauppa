@@ -25,7 +25,7 @@ public class CouponRepository {
     /// - Parameters:
     ///   - with: The `CouponData` object.
     /// - Returns: Instantiated `Coupon` with ID and code.
-    /// - Throws: `CouponError` on failure.
+    /// - Throws: `ServiceError` on failure.
     public func createCoupon(with data: CouponData) throws -> Coupon {
         let coupon = Coupon(with: data)
         coupons[coupon.id] = coupon
@@ -41,7 +41,7 @@ public class CouponRepository {
     /// - Parameters:
     ///   - for: The unique 16-char alphanumeric code of the coupon.
     /// - Returns: `Coupon` from the store (if it exists)
-    /// - Throws: `CouponError` if the code is invalid.
+    /// - Throws: `ServiceError` if the code is invalid.
     public func getCoupon(for code: String) throws -> Coupon {
         guard let id = codes[code] else {
             let coupon = try store.getCoupon(for: code)
@@ -57,7 +57,7 @@ public class CouponRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the coupon.
     /// - Returns: The `Coupon` from the store (if it exists)
-    /// - Throws: `CouponError` if the ID is invalid.
+    /// - Throws: `ServiceError` if the ID is invalid.
     public func getCoupon(for id: UUID) throws -> Coupon {
         guard let coupon = coupons[id] else {
             let coupon = try store.getCoupon(for: id)
@@ -73,7 +73,7 @@ public class CouponRepository {
     /// - Parameters:
     ///   - for: The `UUID` of the coupon.
     /// - Returns: The `CouponData` of the coupon from store (if it exists)
-    /// - Throws: `CouponError` if the ID is invalid.
+    /// - Throws: `ServiceError` if the ID is invalid.
     public func getCouponData(for id: UUID) throws -> CouponData {
         let coupon = try getCoupon(for: id)
         return coupon.data
@@ -85,7 +85,7 @@ public class CouponRepository {
     ///   - for: The `UUID` of the coupon.
     ///   - with: The new `CouponData` object.
     /// - Returns: The `Coupon` from the store (if it exists)
-    /// - Throws: `CouponError` if the ID is invalid.
+    /// - Throws: `ServiceError` if the ID is invalid.
     public func updateCoupon(for id: UUID, with data: CouponData) throws -> Coupon {
         var coupon = try getCoupon(for: id)
         coupon.updatedAt = Date()

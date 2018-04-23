@@ -37,28 +37,27 @@ class TestAccountTypes: XCTestCase {
     func testAddress() {
         let tests = [
             (Address(name: "", line1: "foo", line2: "", city: "baz", province: "blah",
-                     country: "bleh", code: "666", label: nil), "name"),
+                     country: "bleh", code: "666", label: nil), ServiceError.invalidAddressName),
             (Address(name: "foobar", line1: "", line2: "", city: "baz", province: "blah",
-                     country: "bleh", code: "666", label: nil), "line data"),
+                     country: "bleh", code: "666", label: nil), ServiceError.invalidAddressLineData),
             (Address(name: "foobar", line1: "foo", line2: "", city: "", province: "blah",
-                     country: "bleh", code: "666", label: nil), "city"),
+                     country: "bleh", code: "666", label: nil), ServiceError.invalidAddressCity),
             (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "",
-                     country: "bleh", code: "666", label: nil), "state/province"),
+                     country: "bleh", code: "666", label: nil), ServiceError.invalidAddressProvince),
             (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
-                     country: "", code: "666", label: nil), "country"),
+                     country: "", code: "666", label: nil), ServiceError.invalidAddressCountry),
             (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
-                     country: "bleh", code: "", label: nil), "code"),
+                     country: "bleh", code: "", label: nil), ServiceError.invalidAddressCode),
             (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
-                     country: "bleh", code: "666", label: ""), "tag")
+                     country: "bleh", code: "666", label: ""), ServiceError.invalidAddressLabel)
         ]
 
-        for (testCase, source) in tests {
+        for (testCase, error) in tests {
             do {
                 try testCase.validate()
                 XCTFail()
             } catch let err {
-                let e = err as! AccountsError
-                XCTAssertEqual(e.localizedDescription, "Invalid \(source) in address")
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
@@ -66,23 +65,23 @@ class TestAccountTypes: XCTestCase {
     /// Test for possible errors in `AccountData`
     func testAccountData() {
         var data = AccountData()
-        var tests = [(AccountData, AccountsError)]()
+        var tests = [(AccountData, ServiceError)]()
         data.name = ""
-        tests.append((data, AccountsError.invalidName))
+        tests.append((data, ServiceError.invalidAccountName))
         data.name = "foo"
-        tests.append((data, AccountsError.emailRequired))   // empty email list
+        tests.append((data, ServiceError.accountEmailRequired))     // empty email list
         data.emails = ArraySet([Email("bleh")])
-        tests.append((data, AccountsError.invalidEmail))
+        tests.append((data, ServiceError.invalidAccountEmail))
         data.emails = ArraySet([Email("abc@xyz.com")])
         data.phoneNumbers = ArraySet([Phone("")])
-        tests.append((data, AccountsError.invalidPhone))
+        tests.append((data, ServiceError.invalidAccountPhone))
 
         for (testCase, error) in tests {
             do {
                 try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! AccountsError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }

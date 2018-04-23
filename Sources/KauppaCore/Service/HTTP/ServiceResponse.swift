@@ -25,7 +25,7 @@ extension ServiceResponse {
     /// - Parameters:
     ///   - with: The `Mappable` object to be encoded.
     ///   - code: The `HTTPStatusCode` to be set for the response.
-    public func respondJSON<T: Mappable>(with data: T, code: HTTPStatusCode) {
+    public func respondJSON<T: Mappable>(with data: T, code: HTTPStatusCode = .ok) {
         let encoder = JSONEncoder()
         let dateFormatter = DateFormatter()
         // NOTE: This should be same as the one in `ServiceClient` implementation.

@@ -19,6 +19,15 @@ public struct RefundData: Mappable {
     public init(reason: String) {
         self.reason = reason
     }
+
+    /// Validates this object for approriate values in fields.
+    ///
+    /// - Throws: `ServiceError` if there was an error in validation.
+    public func validate() throws {
+        if reason.isEmpty {
+            throw ServiceError.invalidRefundReason
+        }
+    }
 }
 
 /// Refund created for an order (or some units in an order).

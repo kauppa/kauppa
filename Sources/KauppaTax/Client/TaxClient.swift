@@ -28,7 +28,7 @@ public class TaxServiceClient<C: ClientCallable>: ServiceClient<C, TaxRoutes>, T
         let _: ServiceStatusMessage = try requestJSON(with: client)
     }
 
-    public func addRegion(to id: UUID, data: RegionData) throws -> Region {
+    public func addRegion(to id: UUID, using data: RegionData) throws -> Region {
         let client = try createClient(for: .addRegion)
         try client.setJSON(using: data)
         return try requestJSON(with: client)

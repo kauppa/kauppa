@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 import KauppaAccountsModel
 import KauppaTaxModel
 import KauppaTaxStore
@@ -31,13 +32,13 @@ public class TestStore: TaxStorable {
             }
         }
 
-        throw TaxError.noMatchingCountry
+        throw ServiceError.noMatchingCountry
     }
 
     public func getCountry(id: UUID) throws -> Country {
         getCountryCalled = true
         guard let data = countries[id] else {
-            throw TaxError.invalidCountryId
+            throw ServiceError.invalidCountryId
         }
 
         return data
@@ -61,7 +62,7 @@ public class TestStore: TaxStorable {
     public func getRegion(id: UUID) throws -> Region {
         getRegionCalled = true
         guard let data = regions[id] else {
-            throw TaxError.invalidRegionId
+            throw ServiceError.invalidRegionId
         }
 
         return data
@@ -76,7 +77,7 @@ public class TestStore: TaxStorable {
             }
         }
 
-        throw TaxError.noMatchingRegion
+        throw ServiceError.noMatchingRegion
     }
 
     public func updateRegion(with data: Region) throws -> () {

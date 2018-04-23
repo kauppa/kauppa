@@ -16,8 +16,8 @@ class TestProductTypes: XCTestCase {
     }
 
     func testProductData() {
-        var data = ProductData(title: "", subtitle: "", description: "")
-        var tests = [(ProductData, ServiceError)]()
+        var data = Product(title: "", subtitle: "", description: "")
+        var tests = [(Product, ServiceError)]()
         tests.append((data, ServiceError.invalidProductTitle))
         data.title = "foo"
         tests.append((data, ServiceError.invalidProductSubtitle))
@@ -41,7 +41,7 @@ class TestProductTypes: XCTestCase {
 
     /// Test that tax is properly stripped when tax is included along with price.
     func testProductTaxStrip() {
-        var data = ProductData(title: "", subtitle: "", description: "")
+        var data = Product(title: "", subtitle: "", description: "")
         data.tax = UnitTax()
         data.taxCategory = "food"
         var rate = TaxRate()
@@ -49,7 +49,7 @@ class TestProductTypes: XCTestCase {
         data.price.value = 10.0
         data.taxInclusive = true
         data.stripTax(using: rate)
-        XCTAssertFalse(data.taxInclusive)   // flag has been reverted
+        XCTAssertFalse(data.taxInclusive!)  // flag has been reverted
         XCTAssertNil(data.tax)      // Tax data is reset
         XCTAssertTrue(data.price.value > 9.090909 && data.price.value < 9.09091)
 
@@ -68,7 +68,7 @@ class TestProductTypes: XCTestCase {
 
     /// Test applying tax data to the product with a given rate.
     func testProductTaxApply() {
-        var data = ProductData(title: "", subtitle: "", description: "")
+        var data = Product(title: "", subtitle: "", description: "")
         XCTAssertNil(data.tax)
         var rate = TaxRate()
         rate.general = 10.0

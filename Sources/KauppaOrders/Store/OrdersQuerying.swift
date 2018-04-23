@@ -10,6 +10,6 @@ public protocol OrdersQuerying: Querying {
     /// - Parameters:
     ///   - for: The `UUID` of the order.
     /// - Returns: `Order` data object (if it exists).
-    /// - Throws: `OrdersError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func getOrder(for id: UUID) throws -> Order
 }

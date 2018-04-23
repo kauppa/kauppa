@@ -9,13 +9,13 @@ public protocol ShipmentsPersisting: Persisting {
     ///
     /// - Parameters:
     ///   - with: `Shipment` object.
-    /// - Throws: `ShipmentsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func createShipment(with data: Shipment) throws -> ()
 
     /// Update a shipment with data from the repository.
     ///
     /// - Parameters:
     ///   - with: Updated `Shipment` object.
-    /// - Throws: `ShipmentsError` on failure.
+    /// - Throws: `ServiceError` on failure.
     func updateShipment(with data: Shipment) throws -> ()
 }

@@ -32,7 +32,7 @@ class TestProductAttributes: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var productData = Product(title: "foo", subtitle: "bar", description: "foobar")
         let baseProduct = try! service.createProduct(with: productData, from: Address())
 
         let validTests: [(String?, String?, String, String?)] = [
@@ -73,7 +73,7 @@ class TestProductAttributes: XCTestCase {
 
             var patch = ProductPatch()
             patch.custom = [attribute]
-            let result2 = try? service.updateProduct(for: baseProduct.id, with: patch, from: Address())
+            let result2 = try? service.updateProduct(for: baseProduct.id!, with: patch, from: Address())
 
             if i < validTests.count {
                 XCTAssertNotNil(result1)
@@ -90,7 +90,8 @@ class TestProductAttributes: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var productData = Product(title: "foo", subtitle: "bar", description: "foobar")
+        productData.custom = []
 
         let initialValues = [
             ("price", "currency", "3.75", "USD"),
@@ -105,15 +106,15 @@ class TestProductAttributes: XCTestCase {
             attribute.name = name
             attribute.type = BaseType(rawValue: type)
             attribute.unit = unit
-            productData.custom.append(attribute)
+            productData.custom!.append(attribute)
         }
 
         let baseProduct = try! service.createProduct(with: productData, from: Address())
         for (i, (_, _, value, unit)) in initialValues.enumerated() {
-            XCTAssertNil(baseProduct.data.custom[i].name)
-            XCTAssertNil(baseProduct.data.custom[i].type)
-            XCTAssertEqual(baseProduct.data.custom[i].value, value)
-            XCTAssertEqual(baseProduct.data.custom[i].unit, unit)
+            XCTAssertNil(baseProduct.custom![i].name)
+            XCTAssertNil(baseProduct.custom![i].type)
+            XCTAssertEqual(baseProduct.custom![i].value, value)
+            XCTAssertEqual(baseProduct.custom![i].unit, unit)
         }
 
         let finalValues = [
@@ -125,7 +126,7 @@ class TestProductAttributes: XCTestCase {
         ]
 
         var attributes = [CustomAttribute]()
-        for (oldAttr, (value, unit)) in zip(baseProduct.data.custom, finalValues) {
+        for (oldAttr, (value, unit)) in zip(baseProduct.custom!, finalValues) {
             var attribute = CustomAttribute(with: value)
             attribute.unit = unit
             attribute.id = oldAttr.id
@@ -134,12 +135,12 @@ class TestProductAttributes: XCTestCase {
 
         var patch = ProductPatch()
         patch.custom = attributes
-        let updatedProduct = try! service.updateProduct(for: baseProduct.id, with: patch, from: Address())
+        let updatedProduct = try! service.updateProduct(for: baseProduct.id!, with: patch, from: Address())
 
         for (i, (value, unit)) in finalValues.enumerated() {
-            XCTAssertEqual(updatedProduct.data.custom[i].id, baseProduct.data.custom[i].id)
-            XCTAssertEqual(updatedProduct.data.custom[i].value, value)
-            XCTAssertEqual(updatedProduct.data.custom[i].unit, unit)
+            XCTAssertEqual(updatedProduct.custom![i].id, baseProduct.custom![i].id)
+            XCTAssertEqual(updatedProduct.custom![i].value, value)
+            XCTAssertEqual(updatedProduct.custom![i].unit, unit)
         }
     }
 
@@ -148,12 +149,12 @@ class TestProductAttributes: XCTestCase {
         let store = TestStore()
         let repository = ProductsRepository(with: store)
         let service = ProductsService(with: repository, taxService: taxService)
-        var productData = ProductData(title: "foo", subtitle: "bar", description: "foobar")
+        var productData = Product(title: "foo", subtitle: "bar", description: "foobar")
 
         var attribute = CustomAttribute(with: "bar")
         attribute.name = "foobar"
         attribute.type = BaseType(rawValue: "enum")
-        productData.custom.append(attribute)
+        productData.custom = [attribute]
 
         let tests: [(String, [String]?, ServiceError)] = [
             // no variants
@@ -169,9 +170,9 @@ class TestProductAttributes: XCTestCase {
         ]
 
         for (value, variants, error) in tests {
-            productData.custom[0].value = value
+            productData.custom![0].value = value
             if let variants = variants {
-                productData.custom[0].variants = ArraySet(variants)
+                productData.custom![0].variants = ArraySet(variants)
             }
 
             do {
@@ -182,10 +183,10 @@ class TestProductAttributes: XCTestCase {
             }
         }
 
-        productData.custom[0].variants = ArraySet(["foo", "bar", "baz"])
-        productData.custom[0].value = "Foo"
+        productData.custom![0].variants = ArraySet(["foo", "bar", "baz"])
+        productData.custom![0].value = "Foo"
         let product = try! service.createProduct(with: productData, from: Address())
-        XCTAssertNotNil(product.data.custom[0].id)
-        XCTAssertEqual(product.data.custom[0].value, "foo")
+        XCTAssertNotNil(product.custom![0].id)
+        XCTAssertEqual(product.custom![0].value, "foo")
     }
 }

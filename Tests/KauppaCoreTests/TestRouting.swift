@@ -9,17 +9,17 @@ struct DateResponse: Mappable {
     let date = Date()
 }
 
-class TestServiceRouter<R: Routing>: ServiceRouter<R> {
+class TestServiceRouter<R: Routing>: ServiceRouter<R, TestRoute> {
     override func initializeRoutes() {
-        add(route: TestRoute.foo) { req, resp in
+        add(route: .foo) { req, resp in
             resp.respondJSON(with: DateResponse(), code: .ok)
         }
 
-        add(route: TestRoute.bar) { req, resp in
+        add(route: .bar) { req, resp in
             throw ServiceError.clientHTTPData
         }
 
-        add(route: TestRoute.baz) { req, resp in
+        add(route: .baz) { req, resp in
             throw "boo"     // This should return `unknownError`
         }
     }
@@ -39,13 +39,15 @@ class TestRouting: XCTestCase {
     /// Test that route representable types can be queried for all routes.
     func testRouteRepresentable() {
         let routes = TestRoute.allRoutes
-        XCTAssertEqual(routes.count, 3)
+        XCTAssertEqual(routes.count, 4)
         XCTAssertEqual(routes[0].url, "/foo")
         XCTAssertEqual(routes[0].method, .get)
         XCTAssertEqual(routes[1].url, "/bar")
         XCTAssertEqual(routes[1].method, .post)
         XCTAssertEqual(routes[2].url, "/baz")
         XCTAssertEqual(routes[2].method, .put)
+        XCTAssertEqual(routes[3].url, "/:id/:booya/")
+        XCTAssertEqual(routes[3].method, .delete)
     }
 
     /// Test that initializing a service router adds the initial set of routes.

@@ -8,7 +8,7 @@ public protocol CouponServiceCallable {
     /// - Parameters:
     ///   - with: `CouponData` required for creating a coupon.
     /// - Returns: A `Coupon` with a valid alphanumeric code.
-    /// - Throws: `CouponError`
+    /// - Throws: `ServiceError`
     func createCoupon(with data: CouponData) throws -> Coupon
 
     /// Get the coupon corresponding to an ID.
@@ -16,7 +16,7 @@ public protocol CouponServiceCallable {
     /// - Parameters:
     ///   - for: `UUID` of this coupon.
     /// - Returns: The `Coupon` (if it exists)
-    /// - Throws: `CouponError` (if it's non-existent)
+    /// - Throws: `ServiceError` (if it's non-existent)
     func getCoupon(for id: UUID) throws -> Coupon
 
     /// Get the coupon for the given alphanumeric code (if any).
@@ -24,7 +24,7 @@ public protocol CouponServiceCallable {
     /// - Parameters:
     ///   - for: The unique alphanumeric code of a coupon.
     /// - Returns: The `Coupon` (if it exists)
-    /// - Throws: `CouponError` (if it's non-existent)
+    /// - Throws: `ServiceError` (if it's non-existent)
     func getCoupon(for code: String) throws -> Coupon
 
     /// Update a coupon with the given patch.
@@ -33,6 +33,6 @@ public protocol CouponServiceCallable {
     ///   - for: The `UUID` of the coupon. **This is not the coupon's code!**
     ///   - with: The `CouponPatch` data for updating the corresponding coupon.
     /// - Returns: The `Coupon` (if it's been successfully updated)
-    /// - Throws: `CouponError`
+    /// - Throws: `ServiceError`
     func updateCoupon(for id: UUID, with data: CouponPatch) throws -> Coupon
 }

@@ -12,10 +12,9 @@ public class TestProductsService: ProductsServiceCallable {
     var products = [UUID: Product]()
     var callbacks = [UUID: ProductsCallback]()
 
-    public func createProduct(with data: ProductData, from address: Address?) throws -> Product {
-        let product = Product(with: data)
-        products[product.id] = product
-        return product
+    public func createProduct(with data: Product, from address: Address?) throws -> Product {
+        products[data.id!] = data
+        return data
     }
 
     public func getProduct(for id: UUID, from address: Address?) throws -> Product {
@@ -26,6 +25,17 @@ public class TestProductsService: ProductsServiceCallable {
         return product
     }
 
+    // NOTE: Not meant to be called by orders
+    public func getAttributes() throws -> [Attribute] {
+        return []
+    }
+
+    // NOTE: Not meant to be called by orders
+    public func getCategories() throws -> [Category] {
+        return []
+    }
+
+    // NOTE: Not meant to be called by orders
     public func getProducts() throws -> [Product] {
         return []
     }
@@ -61,6 +71,11 @@ public class TestProductsService: ProductsServiceCallable {
 
     // NOTE: Not meant to be called by orders
     public func createCollection(with data: ProductCollectionData) throws -> ProductCollection {
+        throw ServiceError.invalidCollectionId
+    }
+
+    // NOTE: Not meant to be called by cart
+    public func getCollection(for id: UUID) throws -> ProductCollection {
         throw ServiceError.invalidCollectionId
     }
 

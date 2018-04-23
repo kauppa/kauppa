@@ -6,7 +6,7 @@ import KauppaProductsClient
 import KauppaProductsModel
 
 /// Router specific to the product service.
-public class ProductsRouter<R: Routing>: ServiceRouter<R> {
+public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
     let service: ProductsServiceCallable
 
     /// Initializes this router with a `Routing` object and
@@ -20,41 +20,154 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R> {
     public override func initializeRoutes() {
         // TODO: Figure out how to use address for tax service.
 
-        add(route: ProductsRoutes.createProduct) { request, response in
-            guard let data: ProductData = request.getJSON() else {
+        add(route: .getAttributes) { request, response in
+            let attributes = try self.service.getAttributes()
+            let data = MappableArray(for: attributes)
+            response.respondJSON(with: data)
+        }
+
+        add(route: .getCategories) { request, response in
+            let categories = try self.service.getCategories()
+            let data = MappableArray(for: categories)
+            response.respondJSON(with: data)
+        }
+
+        add(route: .createProduct) { request, response in
+            guard let data: Product = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 
             let product = try self.service.createProduct(with: data, from: nil)
-            response.respondJSON(with: product, code: .ok)
+            response.respondJSON(with: product)
         }
 
-        add(route: ProductsRoutes.getProduct) { request, response in
-            let id: UUID = request.getParameter(for: "id")!
+        add(route: .getProduct) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
             let product = try self.service.getProduct(for: id, from: nil)
-            response.respondJSON(with: product, code: .ok)
+            response.respondJSON(with: product)
         }
 
-        add(route: ProductsRoutes.deleteProduct) { request, response in
-            let id: UUID = request.getParameter(for: "id")!
+        add(route: .deleteProduct) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
             try self.service.deleteProduct(for: id)
-            response.respondJSON(with: ServiceStatusMessage(), code: .ok)
+            response.respondJSON(with: ServiceStatusMessage())
         }
 
-        add(route: ProductsRoutes.updateProduct) { request, response in
+        add(route: .updateProduct) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
             guard let data: ProductPatch = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 
-            let id: UUID = request.getParameter(for: "id")!
             let product = try self.service.updateProduct(for: id, with: data, from: nil)
-            response.respondJSON(with: product, code: .ok)
+            response.respondJSON(with: product)
         }
 
-        add(route: ProductsRoutes.getAllProducts) { request, response in
+        add(route: .getAllProducts) { request, response in
             let products = try self.service.getProducts()
             let data = MappableArray(for: products)
-            response.respondJSON(with: data, code: .ok)
+            response.respondJSON(with: data)
+        }
+
+        add(route: .addProductProperty) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
+            guard let data: ProductPropertyAdditionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let product = try self.service.addProductProperty(for: id, with: data, from: nil)
+            response.respondJSON(with: product)
+        }
+
+        add(route: .deleteProductProperty) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidProductId
+            }
+
+            guard let data: ProductPropertyDeletionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let product = try self.service.deleteProductProperty(for: id, with: data, from: nil)
+            response.respondJSON(with: product)
+        }
+
+        add(route: .createCollection) { request, response in
+            guard let data: ProductCollectionData = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let collection = try self.service.createCollection(with: data)
+            response.respondJSON(with: collection)
+        }
+
+        add(route: .getCollection) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidCollectionId
+            }
+
+            let collection = try self.service.getCollection(for: id)
+            response.respondJSON(with: collection)
+        }
+
+        add(route: .updateCollection) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidCollectionId
+            }
+
+            guard let data: ProductCollectionPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let collection = try self.service.updateCollection(for: id, with: data)
+            response.respondJSON(with: collection)
+        }
+
+        add(route: .deleteCollection) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidCollectionId
+            }
+
+            try self.service.deleteCollection(for: id)
+            response.respondJSON(with: ServiceStatusMessage())
+        }
+
+        add(route: .addCollectionProduct) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidCollectionId
+            }
+
+            guard let data: ProductCollectionItemPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let collection = try self.service.addProduct(to: id, using: data)
+            response.respondJSON(with: collection)
+        }
+
+        add(route: .removeCollectionProduct) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidCollectionId
+            }
+
+            guard let data: ProductCollectionItemPatch = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let collection = try self.service.removeProduct(from: id, using: data)
+            response.respondJSON(with: collection)
         }
     }
 }
