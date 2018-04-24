@@ -59,10 +59,9 @@ class SampleRouter<Req: Mappable>: Routing {
 
     var routes = [Route: (Request, Response) throws -> Void]()
 
-    public func add<R>(route repr: R, _ handler: @escaping (Request, Response) throws -> Void)
-        where R: RouteRepresentable
-    {
-        routes[repr.route] = handler
+    public func add(route url: String, method: HTTPMethod, _ handler: @escaping (Request, Response) throws -> Void) {
+        let route = Route(url: url, method: method)
+        routes[route] = handler
     }
 }
 

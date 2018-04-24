@@ -21,6 +21,8 @@ public class SwiftyRestRequest: ClientCallable {
                 return .patch
             case .delete:
                 return .delete
+            case .options:
+                return .options
         }
     }
 
