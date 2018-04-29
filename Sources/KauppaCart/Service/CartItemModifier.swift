@@ -3,6 +3,7 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 import KauppaCartModel
+import KauppaCouponClient
 import KauppaProductsClient
 import KauppaProductsModel
 
@@ -88,21 +89,46 @@ class CartItemModifier {
         }
     }
 
-    /// Replaces all items in the cart with the given list of items. This resets the
-    /// existing cart, filters duplicate items (for efficiency) and continuously calls
-    /// `addCartItem` to add items to the cart.
+    /// Apply coupon to this cart using the coupon service.
     ///
     /// - Parameters:
-    ///   - with: The list of `CartUnit` objects.
+    ///   - with: The `CartCoupon` object which contains coupon data.
+    ///   - using: Anything that implements `CouponServiceCallable`
+    /// - Throws: `ServiceError` if the coupon doesn't exist or cannot be applied.
+    func applyCoupon(with data: CartCoupon, using couponService: CouponServiceCallable) throws {
+        if cart.items.isEmpty {     // cannot apply coupon when there aren't any items.
+            throw ServiceError.noItemsInCart
+        }
+
+        var coupon = try couponService.getCoupon(for: data.code)
+        var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
+        // This only validates the coupon - because we're passing zero.
+        try coupon.data.deductPrice(from: &zero)
+
+        if cart.coupons == nil {
+            cart.coupons = ArraySet([coupon.id])
+        } else {
+            cart.coupons!.insert(coupon.id)
+        }
+    }
+
+    /// Updates existing cart data with the given cart data. This resets the items and coupons
+    /// in the existing cart, filters duplicates (for efficiency) and continuously calls
+    /// `addCartItem` and `applyCoupon` to mutate the cart.
+    ///
+    /// - Parameters:
+    ///   - with: The new `Cart` object.
     ///   - using: Anything that implements `ProductsServiceCallable`
+    ///   - and: Anything that implements `CouponServiceCallable`
+    ///   - from: The `Address` from which this request originated.
     /// - Throws: `ServiceError`
     ///   - If the product doesn't exist.
     ///   - If there was an error in adding the product (low on inventory or invalid quantity).
-    func replaceItems(with items: [CartUnit], using productsService: ProductsServiceCallable,
-                      from address: Address?) throws
+    func updateCart(with data: Cart, using productsService: ProductsServiceCallable,
+                    and couponService: CouponServiceCallable, from address: Address?) throws
     {
         var newItems = [CartUnit]()
-        items.forEach { item in
+        data.items.forEach { item in
             if let idx = newItems.index(where: { $0.product == item.product }) {
                 newItems[idx].quantity += item.quantity
             } else {
@@ -113,6 +139,16 @@ class CartItemModifier {
         cart.items = []
         try newItems.forEach { item in
             try addCartItem(using: productsService, with: item, from: address)
+        }
+
+        cart.coupons = ArraySet()
+        if let _ = data.coupons {
+            // FIXME: Support updating coupons. Currently, the cart stores UUID of the coupons.
+            // But, the user applies coupons with their secret codes.
+        }
+
+        if cart.coupons!.isEmpty {
+            cart.coupons = nil
         }
     }
 

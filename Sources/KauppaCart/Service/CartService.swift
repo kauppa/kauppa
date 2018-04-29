@@ -71,13 +71,14 @@ extension CartService: CartServiceCallable {
         return try getCart(for: userId, from: address)
     }
 
-    public func updateCart(for userId: UUID, with items: [CartUnit],
+    public func updateCart(for userId: UUID, with data: Cart,
                            from address: Address?) throws -> Cart
     {
         let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(for: userId)
         let modifier = CartItemModifier(for: cart, from: account)
-        try modifier.replaceItems(with: items, using: productsService, from: address)
+        try modifier.updateCart(with: data, using: productsService,
+                                and: couponService, from: address)
         try repository.updateCart(with: modifier.cart)
         return try getCart(for: userId, from: address)
     }
@@ -85,19 +86,11 @@ extension CartService: CartServiceCallable {
     public func applyCoupon(for userId: UUID, using data: CartCoupon,
                             from address: Address?) throws -> Cart
     {
-        let _ = try accountsService.getAccount(for: userId)
-        var cart = try repository.getCart(for: userId)
-        if cart.items.isEmpty {     // cannot apply coupon when there aren't any items.
-            throw ServiceError.noItemsInCart
-        }
-
-        var coupon = try couponService.getCoupon(for: data.code)
-        var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
-        // This only validates the coupon - because we're passing zero.
-        try coupon.data.deductPrice(from: &zero)
-        cart.coupons.insert(coupon.id)
-
-        try repository.updateCart(with: cart)
+        let account = try accountsService.getAccount(for: userId)
+        let cart = try repository.getCart(for: userId)
+        let modifier = CartItemModifier(for: cart, from: account)
+        try modifier.applyCoupon(with: data, using: couponService)
+        try repository.updateCart(with: modifier.cart)
         return try getCart(for: userId, from: address)
     }
 
@@ -137,11 +130,16 @@ extension CartService: CartServiceCallable {
         var orderData = OrderData(shippingAddress: cartData.shippingAddress!,
                                   billingAddress: cartData.billingAddress ?? cartData.shippingAddress!,
                                   placedBy: userId, products: units)
-        orderData.appliedCoupons = cart.coupons
+
+        if let coupons = cart.coupons {
+            orderData.appliedCoupons = coupons
+        }
+
         let order = try ordersService.createOrder(with: orderData)
 
         cart.reset()
         try repository.updateCart(with: cart)
+
         return order
     }
 }

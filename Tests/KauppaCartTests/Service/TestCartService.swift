@@ -229,14 +229,15 @@ class TestCartService: XCTestCase {
                                   ordersService: ordersService,
                                   taxService: taxService)
 
-        var items = [CartUnit(for: product1.id!, with: 2), CartUnit(for: product2.id!, with: 4)]
-        let cart = try! service.updateCart(for: account.id, with: items, from: Address())
+        var newCart = Cart(with: account.id)
+        newCart.items = [CartUnit(for: product1.id!, with: 2), CartUnit(for: product2.id!, with: 4)]
+        let cart = try! service.updateCart(for: account.id, with: newCart, from: Address())
         XCTAssertEqual(cart.items.count, 2)
         XCTAssertEqual(cart.netPrice!.value, 20.0)
         XCTAssertEqual(cart.grossPrice!.value, 21.5)
 
-        items = [CartUnit(for: product1.id!, with: 1), CartUnit(for: product2.id!, with: 2), CartUnit(for: product3.id!, with: 5)]
-        let updatedCart = try! service.updateCart(for: account.id, with: items, from: Address())
+        newCart.items = [CartUnit(for: product1.id!, with: 1), CartUnit(for: product2.id!, with: 2), CartUnit(for: product3.id!, with: 5)]
+        let updatedCart = try! service.updateCart(for: account.id, with: newCart, from: Address())
         XCTAssertEqual(updatedCart.items.count, 3)
         XCTAssertEqual(updatedCart.netPrice!.value, 40)
         XCTAssertEqual(updatedCart.grossPrice!.value, 21.25)
@@ -280,7 +281,7 @@ class TestCartService: XCTestCase {
         let _ = try! service.applyCoupon(for: account.id,
                                          using: CartCoupon(code: coupon.data.code!),
                                          from: Address())
-        XCTAssertEqual(updatedCart.coupons.inner, [coupon.id])
+        XCTAssertEqual(updatedCart.coupons!.inner, [coupon.id])
     }
 
     // Validation for coupons should also happen in the service.

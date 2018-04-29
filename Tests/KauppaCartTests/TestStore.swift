@@ -14,7 +14,7 @@ public class TestStore: CartStorable {
 
     public func createCart(with data: Cart) throws -> () {
         createCalled = true
-        carts[data.id] = data
+        carts[data.id!] = data
     }
 
     public func getCart(for id: UUID) throws -> Cart {
@@ -28,6 +28,6 @@ public class TestStore: CartStorable {
 
     public func updateCart(with data: Cart) throws -> () {
         updateCalled = true
-        carts[data.id] = data
+        carts[data.id!] = data
     }
 }

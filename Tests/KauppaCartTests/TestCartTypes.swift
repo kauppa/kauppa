@@ -60,7 +60,7 @@ class TestCartTypes: XCTestCase {
         cart.reset()
         XCTAssertNil(cart.netPrice)
         XCTAssertNil(cart.grossPrice)
-        XCTAssertTrue(cart.coupons.isEmpty)
+        XCTAssertNil(cart.coupons)
         XCTAssertTrue(cart.items.isEmpty)
     }
 

@@ -52,16 +52,16 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             response.respondJSON(with: cart)
         }
 
-        add(route: .replaceCartItems) { request, response in
+        add(route: .updateCart) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
             }
 
-            guard let data: MappableArray<CartUnit> = request.getJSON() else {
+            guard let data: Cart = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 
-            let cart = try self.service.updateCart(for: id, with: data.inner, from: nil)
+            let cart = try self.service.updateCart(for: id, with: data, from: nil)
             response.respondJSON(with: cart)
         }
 
