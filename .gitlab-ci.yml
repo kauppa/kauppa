@@ -80,10 +80,10 @@ build:container:
         if [ -f "Sources/$service/main.swift" ]; then \
             SERVICE_NAME=$(echo $service | sed 's/\([A-Z]\)/ \1/g' | cut -d' ' -f3 | tr '[:upper:]' '[:lower:]') ; \
             echo 'Building' $CONTAINER_IMAGE-$SERVICE_NAME ; \
-            docker build -t $CONTAINER_IMAGE-$SERVICE_NAME:$CI_BUILD_REF_NAME -f Sources/$service/Dockerfile . ; \
+            docker build -t $CONTAINER_IMAGE:$SERVICE_NAME-$CI_BUILD_REF_NAME -f Sources/$service/Dockerfile . ; \
         fi ; \
       done
-    - docker images | grep $CONTAINER_IMAGE.*$CI_BUILD_REF_NAME | awk -v OFS=':' '{print $1,$2}' | xargs echo 'Pushing'
+    - docker images | grep $CONTAINER_IMAGE.*$CI_BUILD_REF_NAME | awk -v OFS=':' '{print $1,$2}' | xargs docker push
   when: manual
   tags:
     - docker
@@ -106,10 +106,10 @@ tag:container:
         if [ -f "Sources/$service/main.swift" ]; then \
             SERVICE_NAME=$(echo $service | sed 's/\([A-Z]\)/ \1/g' | cut -d' ' -f3 | tr '[:upper:]' '[:lower:]') ; \
             echo 'Building' $CONTAINER_IMAGE-$SERVICE_NAME ; \
-            docker build -t $CONTAINER_IMAGE-$SERVICE_NAME:$CI_BUILD_REF_NAME -f Sources/$service/Dockerfile . ; \
+            docker build -t $CONTAINER_IMAGE:$SERVICE_NAME-$CI_BUILD_REF_NAME -f Sources/$service/Dockerfile . ; \
         fi ; \
       done
-    - docker images | grep $CONTAINER_IMAGE.*$CI_BUILD_REF_NAME | awk -v OFS=':' '{print $1,$2}' | xargs echo 'Pushing'
+    - docker images | grep $CONTAINER_IMAGE.*$CI_BUILD_REF_NAME | awk -v OFS=':' '{print $1,$2}' | xargs docker push
   when: manual
   tags:
     - docker
@@ -128,15 +128,14 @@ nightly:container:
     - docker build --pull -t $CONTAINER_TEST_IMAGE -f Dockerfile .
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_IMAGE:nightly
     - docker push $CONTAINER_IMAGE:nightly
-    - make push-containers CONTAINER_URL=$CONTAINER_IMAGE CONTAINER_VERSION=nightly
     - ls Sources | while read service; do \
         if [ -f "Sources/$service/main.swift" ]; then \
             SERVICE_NAME=$(echo $service | sed 's/\([A-Z]\)/ \1/g' | cut -d' ' -f3 | tr '[:upper:]' '[:lower:]') ; \
             echo 'Building' $CONTAINER_IMAGE-$SERVICE_NAME ; \
-            docker build -t $CONTAINER_IMAGE-$SERVICE_NAME:nightly -f Sources/$service/Dockerfile . ; \
+            docker build -t $CONTAINER_IMAGE:$SERVICE_NAME-nightly -f Sources/$service/Dockerfile . ; \
         fi ; \
       done
-    - docker images | grep $CONTAINER_IMAGE.*nightly | awk -v OFS=':' '{print $1,$2}' | xargs echo 'Pushing'
+    - docker images | grep $CONTAINER_IMAGE.*nightly | awk -v OFS=':' '{print $1,$2}' | xargs docker push
   when: on_success
   tags:
     - docker

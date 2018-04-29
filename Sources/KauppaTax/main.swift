@@ -3,43 +3,11 @@ import Foundation
 import Kitura
 
 import KauppaCore
-import KauppaTaxModel
 import KauppaTaxRepository
 import KauppaTaxService
 import KauppaTaxStore
 
-class NoOpStore: TaxStorable {
-    public func createCountry(with data: Country) throws -> () {}
-
-    public func getCountry(name: String) throws -> Country {
-        throw ServiceError.noMatchingCountry
-    }
-
-    public func getCountry(id: UUID) throws -> Country {
-        throw ServiceError.invalidCountryId
-    }
-
-    public func updateCountry(with data: Country) throws -> () {}
-
-    public func deleteCountry(for id: UUID) throws -> () {}
-
-    public func createRegion(with data: Region) throws -> () {}
-
-    public func getRegion(id: UUID) throws -> Region {
-        throw ServiceError.invalidRegionId
-    }
-
-    public func getRegion(name: String, for countryName: String) throws -> Region {
-        throw ServiceError.noMatchingRegion
-    }
-
-    public func updateRegion(with data: Region) throws -> () {}
-
-    public func deleteRegion(for id: UUID) throws -> () {}
-}
-
-
-let repository = TaxRepository(with: NoOpStore())
+let repository = TaxRepository(with: TaxNoOpStore())
 let taxService = TaxService(with: repository)
 
 let router = Router()       // Kitura's router

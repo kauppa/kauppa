@@ -5,7 +5,7 @@ import KauppaCore
 /// Account structure that exists in repository and store.
 public struct Account: Mappable {
     /// Unique identifier for this account.
-    public let id: UUID
+    public var id: UUID
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp

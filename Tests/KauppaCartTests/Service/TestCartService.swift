@@ -62,9 +62,11 @@ class TestCartService: XCTestCase {
                                   taxService: taxService)
         // Empty cart shouldn't be calculating any taxes.
         let _ = try! service.getCart(for: account.id, from: Address())
+        var checkoutData = CheckoutData()
+        checkoutData.shippingAddress = Address()
 
         do {    // empty cart should fail to place orders
-            let _ = try service.placeOrder(for: account.id, with: CheckoutData())
+            let _ = try service.placeOrder(for: account.id, with: checkoutData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ServiceError, ServiceError.noItemsToProcess)

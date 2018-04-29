@@ -3,7 +3,6 @@ import Foundation
 import Kitura
 
 import KauppaCore
-import KauppaCartModel
 import KauppaCartRepository
 import KauppaCartService
 import KauppaCartStore
@@ -13,18 +12,7 @@ import KauppaOrdersClient
 import KauppaProductsClient
 import KauppaTaxClient
 
-class NoOpStore: CartStorable {
-    public func createCart(with data: Cart) throws -> () {}
-
-    public func getCart(for id: UUID) throws -> Cart {
-        throw ServiceError.cartUnavailable
-    }
-
-    public func updateCart(with data: Cart) throws -> () {}
-}
-
-
-let repository = CartRepository(with: NoOpStore())
+let repository = CartRepository(with: CartNoOpStore())
 
 let accountsEndpoint = String.from(environment: "KAUPPA_ACCOUNTS_ENDPOINT")!
 let couponsEndpoint = String.from(environment: "KAUPPA_COUPONS_ENDPOINT")!

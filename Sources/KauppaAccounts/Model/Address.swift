@@ -5,39 +5,30 @@ import KauppaCore
 /// An object representing an address.
 public struct Address: Mappable, Hashable {
     /// Name of the person (associated with this address)
-    public let name: String
+    public var name: String = ""
     /// Address line 1
-    public let line1: String
+    public var line1: String = ""
     /// Address line 2
-    public let line2: String
+    public var line2: String? = nil
     /// Province
-    public var province: String
+    public var province: String = ""
     /// City
-    public var city: String
+    public var city: String = ""
     /// Country
-    public var country: String
+    public var country: String = ""
     /// Postal/ZIP code
     ///
     /// There's no general regex (unlike email).
     /// See the complications here - https://stackoverflow.com/a/7185241/
-    public let code: String
+    public var code: String = ""
     /// Label for this address.
-    public let label: String?
+    public var label: String? = nil
 
     /// Initialize an empty address (for tests).
-    public init() {
-        name = ""
-        line1 = ""
-        line2 = ""
-        city = ""
-        province = ""
-        country = ""
-        code = ""
-        label = nil
-    }
+    public init() {}
 
     /// Initialize an address with all of its fields.
-    public init(name: String, line1: String, line2: String, city: String,
+    public init(name: String, line1: String, line2: String?, city: String,
                 province: String, country: String, code: String, label: String? = nil)
     {
         self.name = name
@@ -60,6 +51,8 @@ public struct Address: Mappable, Hashable {
         if line1.isEmpty {
             throw ServiceError.invalidAddressLineData
         }
+
+        // Line 2 is optional
 
         if city.isEmpty {
             throw ServiceError.invalidAddressCity
@@ -85,8 +78,13 @@ public struct Address: Mappable, Hashable {
     }
 
     public var hashValue: Int {
-        return name.hashValue ^ line1.hashValue ^ line2.hashValue
-               ^ city.hashValue ^ country.hashValue ^ code.hashValue
+        var hash = name.hashValue ^ line1.hashValue ^ city.hashValue
+                   ^ province.hashValue ^ country.hashValue ^ code.hashValue
+        if let line2 = line2 {
+            hash ^= line2.hashValue
+        }
+
+        return hash
     }
 
     public static func ==(lhs: Address, rhs: Address) -> Bool {
@@ -94,6 +92,7 @@ public struct Address: Mappable, Hashable {
                lhs.line1 == rhs.line1 &&
                lhs.line2 == rhs.line2 &&
                lhs.city == rhs.city &&
+               lhs.province == rhs.province &&
                lhs.country == rhs.country &&
                lhs.code == rhs.code
     }

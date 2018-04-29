@@ -14,7 +14,7 @@ extension ServiceError {
     /// is associated with a status code.
     public var statusCode: HTTPStatusCode {
         switch self {
-            case .jsonSerialization, .unknownError:
+            case .jsonSerialization, .missingURLParameter, .unknownError:
                 return .internalServerError
             default:
                 return .badRequest
