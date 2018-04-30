@@ -4,8 +4,10 @@ import KauppaCore
 
 /// An object representing an address.
 public struct Address: Mappable, Hashable {
-    /// Name of the person (associated with this address)
-    public var name: String = ""
+    /// First name of the person (associated with this address)
+    public var firstName: String = ""
+    /// Last name of the person (associated with this address)
+    public var lastName: String? = nil
     /// Address line 1
     public var line1: String = ""
     /// Address line 2
@@ -28,10 +30,11 @@ public struct Address: Mappable, Hashable {
     public init() {}
 
     /// Initialize an address with all of its fields.
-    public init(name: String, line1: String, line2: String?, city: String,
+    public init(firstName: String, lastName: String?, line1: String, line2: String?, city: String,
                 province: String, country: String, code: String, label: String? = nil)
     {
-        self.name = name
+        self.firstName = firstName
+        self.lastName = lastName
         self.line1 = line1
         self.line2 = line2
         self.city = city
@@ -44,9 +47,11 @@ public struct Address: Mappable, Hashable {
     /// Try some basic validations on the address. This checks if any of the fields
     /// in the address are empty.
     public func validate() throws {
-        if name.isEmpty {
+        if firstName.isEmpty {
             throw ServiceError.invalidAddressName
         }
+
+        // Last name is optional
 
         if line1.isEmpty {
             throw ServiceError.invalidAddressLineData
@@ -78,8 +83,12 @@ public struct Address: Mappable, Hashable {
     }
 
     public var hashValue: Int {
-        var hash = name.hashValue ^ line1.hashValue ^ city.hashValue
+        var hash = firstName.hashValue ^ line1.hashValue ^ city.hashValue
                    ^ province.hashValue ^ country.hashValue ^ code.hashValue
+        if let name = lastName {
+            hash ^= name.hashValue
+        }
+
         if let line2 = line2 {
             hash ^= line2.hashValue
         }
@@ -88,7 +97,8 @@ public struct Address: Mappable, Hashable {
     }
 
     public static func ==(lhs: Address, rhs: Address) -> Bool {
-        return lhs.name == rhs.name &&
+        return lhs.firstName == rhs.firstName &&
+               lhs.lastName == rhs.lastName &&
                lhs.line1 == rhs.line1 &&
                lhs.line2 == rhs.line2 &&
                lhs.city == rhs.city &&
