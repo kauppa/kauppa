@@ -10,7 +10,7 @@ public protocol AccountsServiceCallable {
     /// - Parameters:
     ///   - with: `AccountData` required for creating an account.
     /// - Returns: A validated `Account`
-    /// - Throws: `AccountsError`
+    /// - Throws: `ServiceError`
     func createAccount(with data: AccountData) throws -> Account
 
     /// This notifies the service that an email has been verified.
@@ -19,7 +19,7 @@ public protocol AccountsServiceCallable {
     ///
     /// - Parameters:
     ///   - email: Email to be verified.
-    /// - Throws: `AccountsError` if the email doesn't exist.
+    /// - Throws: `ServiceError` if the email doesn't exist.
     func verifyEmail(_ email: String) throws -> ()
 
     /// Get an account associated with an ID.
@@ -27,14 +27,14 @@ public protocol AccountsServiceCallable {
     /// - Parameters:
     ///   - for: The `UUID` of the account.
     /// - Returns: The `Account` (if it exists)
-    /// - Throws: `AccountsError` (if it's non-existent)
+    /// - Throws: `ServiceError` (if it's non-existent)
     func getAccount(for id: UUID) throws -> Account
 
     /// Delete an account associated with an ID.
     ///
     /// - Parameters:
     ///   - id: The `UUID` of the account.
-    /// - Throws: `AccountsError` (if the account doesn't exist)
+    /// - Throws: `ServiceError` (if the account doesn't exist)
     func deleteAccount(for id: UUID) throws -> ()
 
     /// Update an account with user-supplied patch data.
@@ -43,7 +43,7 @@ public protocol AccountsServiceCallable {
     ///   - for: The `UUID` of the account.
     ///   - with: The `AccountPatch` data required for updating an account.
     /// - Returns: The `Account` (if it's been updated successfully)
-    /// - Throws: `AccountsError`
+    /// - Throws: `ServiceError`
     func updateAccount(for id: UUID, with data: AccountPatch) throws -> Account
 
     /// Adds one or more items to the corresponding collection fields in an user account.
@@ -53,7 +53,7 @@ public protocol AccountsServiceCallable {
     ///   - using: The `AccountPropertyAdditionPatch` data required for adding
     ///     individual properties.
     /// - Returns: The `Account` (if it's been updated successfully)
-    /// - Throws: `AccountsError`
+    /// - Throws: `ServiceError`
     func addAccountProperty(to id: UUID, using data: AccountPropertyAdditionPatch) throws -> Account
 
     /// Reset individual account properties with the given patch.
@@ -63,6 +63,6 @@ public protocol AccountsServiceCallable {
     ///   - using: The `AccountPropertyDeletionPatch` data required for removing
     ///     individual properties.
     /// - Returns: The `Account` (if it's been updated successfully)
-    /// - Throws: `AccountsError`
+    /// - Throws: `ServiceError`
     func deleteAccountProperty(from id: UUID, using data: AccountPropertyDeletionPatch) throws -> Account
 }

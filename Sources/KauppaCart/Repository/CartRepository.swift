@@ -11,11 +11,20 @@ public class CartRepository {
     var carts = [UUID: Cart]()
     var store: CartStorable
 
+    /// Initialize an instance of `CartRepository` with a cart store.
+    ///
+    /// - Parameters:
+    ///   - with: Anything that implements `CartStorable`
     public init(with store: CartStorable) {
         self.store = store
     }
 
     /// Get the cart associated with a customer account.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the cart.
+    /// - Returns: The `Cart` for the given ID.
+    /// - Throws: `ServiceError` if there was an error.
     ///
     /// Since carts are always associated with a customer account,
     /// we make sure that a cart always exists for an account.
@@ -31,7 +40,7 @@ public class CartRepository {
             let cart: Cart
             do {
                 cart = try store.getCart(for: id)
-            } catch CartError.cartUnavailable {
+            } catch ServiceError.cartUnavailable {
                 cart = Cart(with: id)
                 try store.createCart(with: cart)
             } catch let err {
@@ -46,6 +55,10 @@ public class CartRepository {
     }
 
     /// Update the items in a customer's cart.
+    ///
+    /// - Parameters:
+    ///   - with: The updated `Cart` object.
+    /// - Throws: `ServiceError` if there was an error updating the cart.
     public func updateCart(with data: Cart) throws -> () {
         var cart = data
         cart.updatedAt = Date()

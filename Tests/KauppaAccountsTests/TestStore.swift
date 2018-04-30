@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 @testable import KauppaAccountsModel
 @testable import KauppaAccountsStore
 
@@ -25,7 +26,7 @@ public class TestStore: AccountsStorable {
     public func getAccount(for id: UUID) throws -> Account {
         getCalled = true
         guard let account = accounts[id] else {
-            throw AccountsError.invalidAccount
+            throw ServiceError.invalidAccountId
         }
 
         return account
@@ -33,7 +34,7 @@ public class TestStore: AccountsStorable {
 
     public func getAccount(for email: String) throws -> Account {
         guard let id = emails[email] else {
-            throw AccountsError.invalidAccount
+            throw ServiceError.invalidAccountId
         }
 
         return try getAccount(for: id)
@@ -44,7 +45,7 @@ public class TestStore: AccountsStorable {
         if accounts.removeValue(forKey: id) != nil {
             return
         } else {
-            throw AccountsError.invalidAccount
+            throw ServiceError.invalidAccountId
         }
     }
 

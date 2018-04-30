@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 @testable import KauppaShipmentsModel
 @testable import KauppaShipmentsStore
 
@@ -25,7 +26,7 @@ public class TestStore: ShipmentsStorable {
     public func getShipment(for id: UUID) throws -> Shipment {
         getCalled = true
         guard let data = shipments[id] else {
-            throw ShipmentsError.invalidShipment
+            throw ServiceError.invalidShipmentId
         }
 
         return data

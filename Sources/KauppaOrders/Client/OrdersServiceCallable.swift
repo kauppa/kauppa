@@ -11,10 +11,10 @@ public protocol OrdersServiceCallable {
     /// - Parameters:
     ///   - with: The `OrderData` required for placing an order.
     /// - Returns: An `Order`
-    /// - Throws:
-    ///   - `AccountsError` if the account doesn't exist
-    ///   - `ProductsError` if one of the products doesn't exist
-    ///   - `OrdersError` if the order couldn't be placed.
+    /// - Throws: `ServiceError`
+    ///   - If the account doesn't exist
+    ///   - If one of the products doesn't exist
+    ///   - If the order couldn't be placed.
     func createOrder(with data: OrderData) throws -> Order
 
     /// Get an order corresponding to an ID.
@@ -22,7 +22,7 @@ public protocol OrdersServiceCallable {
     /// - Parameters:
     ///   - for: The `UUID` of the `Order`
     /// - Returns: An `Order` (if it exists)
-    /// - Throws: `OrdersError` (if it doesn't)
+    /// - Throws: `ServiceError` (if it doesn't)
     func getOrder(for id: UUID) throws -> Order
 
     /// Cancel an existing order.
@@ -30,7 +30,7 @@ public protocol OrdersServiceCallable {
     /// - Parameters:
     ///   - for: The `UUID` of the `Order`
     /// - Returns: An `Order` (if it exists)
-    /// - Throws: `OrdersError` (if it doesn't)
+    /// - Throws: `ServiceError` (if it doesn't)
     func cancelOrder(for id: UUID) throws -> Order
 
     /// Initiate return for a fulfilled order.
@@ -39,7 +39,7 @@ public protocol OrdersServiceCallable {
     ///   - for: The `UUID` of the `Order`
     ///   - with: The `PickupData` containing the items for pickup.
     /// - Returns: `Order` with pickup items set
-    /// - Throws: `OrdersError` if there were errors while checking the data.
+    /// - Throws: `ServiceError` if there were errors while checking the data.
     func returnOrder(for id: UUID, with data: PickupData) throws -> Order
 
     /// Update shipment for an order.
@@ -47,7 +47,7 @@ public protocol OrdersServiceCallable {
     /// - Parameters:
     ///   - for: The `UUID` of the `Order`
     ///   - with: The `Shipment` notification data to update the order.
-    /// - Throws: `OrdersError` if the order doesn't exist, or if there were errors.
+    /// - Throws: `ServiceError` if the order doesn't exist, or if there were errors.
     func updateShipment(for id: UUID, with data: Shipment) throws -> ()
 
     /// Initiate refund for an order with the given data.
@@ -56,13 +56,13 @@ public protocol OrdersServiceCallable {
     ///   - for: The `UUID` of the `Order`
     ///   - with: `RefundData` required for initiating the refund.
     /// - Returns: `Order` with the refund data.
-    /// - Throws: `OrdersError` if the order doesn't exist or if there were errors.
+    /// - Throws: `ServiceError` if the order doesn't exist or if there were errors.
     func initiateRefund(for id: UUID, with data: RefundData) throws -> Order
 
     /// Delete an order corresponding to a given ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the `Order`
-    /// - Throws: `OrdersError` if the order doesn't exist.
+    /// - Throws: `ServiceError` if the order doesn't exist.
     func deleteOrder(for id: UUID) throws -> ()
 }

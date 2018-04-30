@@ -18,18 +18,32 @@ public class OrdersService {
     let repository: OrdersRepository
     let accountsService: AccountsServiceCallable
     let productsService: ProductsServiceCallable
-    let shippingService: ShipmentsServiceCallable
     let couponService: CouponServiceCallable
     let taxService: TaxServiceCallable
 
-    var mailService: MailClient? = nil
+    /// NOTE: Even though this definition says that the shipping service is optional,
+    /// it's not. The orders service "needs" the shipments service. It's optional
+    /// only because both the services cyclically depend on each other and we needed
+    /// a way to instantiate both the services properly.
+    public var shippingService: ShipmentsServiceCallable? = nil
+
+    /// `MailClient` for sending mails.
+    public var mailService: MailClient? = nil
 
     /// Initialize this service with its repository, along with
     /// instances of clients to account and product services.
+    ///
+    /// - Parameters:
+    ///   - with: `OrdersRepository`
+    ///   - accountsService: Anything that implements `AccountsServiceCallable`
+    ///   - productsService: Anything that implements `ProductsServiceCallable`
+    ///   - shippingService: Anything that implements `ShipmentsServiceCallable`
+    ///   - couponService: Anything that implements `CouponServiceCallable`
+    ///   - taxService: Anything that implements `TaxServiceCallable`
     public init(with repository: OrdersRepository,
                 accountsService: AccountsServiceCallable,
                 productsService: ProductsServiceCallable,
-                shippingService: ShipmentsServiceCallable,
+                shippingService: ShipmentsServiceCallable?,
                 couponService: CouponServiceCallable,
                 taxService: TaxServiceCallable)
     {
@@ -47,11 +61,11 @@ extension OrdersService: OrdersServiceCallable {
     public func createOrder(with data: OrderData) throws -> Order {
         let account = try accountsService.getAccount(for: data.placedBy)
         if !account.isVerified {
-            throw OrdersError.unverifiedAccount
+            throw ServiceError.unverifiedAccount
         }
 
         let factory = OrdersFactory(with: data, from: account, using: productsService)
-        try factory.createOrder(with: shippingService, using: couponService,
+        try factory.createOrder(with: shippingService!, using: couponService,
                                 calculatingWith: taxService)
         let detailedOrder = factory.createOrder()
 
@@ -86,13 +100,13 @@ extension OrdersService: OrdersServiceCallable {
     public func returnOrder(for id: UUID, with data: PickupData) throws -> Order {
         var order = try repository.getOrder(for: id)
         let factory = ReturnsFactory(with: data, using: productsService)
-        try factory.initiatePickup(for: &order, with: shippingService)
+        try factory.initiatePickup(for: &order, with: shippingService!)
         return try repository.updateOrder(with: order)
     }
 
     public func updateShipment(for id: UUID, with data: Shipment) throws -> () {
         if data.items.isEmpty {
-            throw OrdersError.noItemsToProcess
+            throw ServiceError.noItemsToProcess
         }
 
         var order = try repository.getOrder(for: id)

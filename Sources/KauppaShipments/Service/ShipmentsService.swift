@@ -13,8 +13,12 @@ public class ShipmentsService {
     let repository: ShipmentsRepository
     let ordersService: OrdersServiceCallable
 
-    /// Initializes a new `ShipmentsService` instance with a
-    /// repository and orders service client.
+    /// Initializes a new `ShipmentsService` instance with a repository and
+    /// orders service client.
+    ///
+    /// - Parameters:
+    ///   - with: `ShipmentsRepository`
+    ///   - ordersService: Anything that implements `OrdersServiceCallable`
     public init(with repository: ShipmentsRepository,
                 ordersService: OrdersServiceCallable)
     {
@@ -25,17 +29,17 @@ public class ShipmentsService {
 
 // NOTE: See the actual protocol in `KauppaShipmentsClient` for exact usage.
 extension ShipmentsService: ShipmentsServiceCallable {
-    public func createShipment(for id: UUID) throws -> Shipment {
-        let order = try ordersService.getOrder(for: id)
+    public func createShipment(for orderId: UUID) throws -> Shipment {
+        let order = try ordersService.getOrder(for: orderId)
         let address = order.shippingAddress
         let items = order.products.map { $0.item }
-        return try repository.createShipment(for: id, address: address, items: items)
+        return try repository.createShipment(for: orderId, with: items, to: address)
     }
 
     public func notifyShipping(for id: UUID) throws -> Shipment {
         var data = try repository.getShipment(for: id)
         if data.status != .shipping {
-            throw ShipmentsError.notQueuedForShipping
+            throw ServiceError.notQueuedForShipping
         }
 
         data.status = .shipped
@@ -46,7 +50,7 @@ extension ShipmentsService: ShipmentsServiceCallable {
     public func notifyDelivery(for id: UUID) throws -> Shipment {
         var data = try repository.getShipment(for: id)
         if data.status != .shipped {
-            throw ShipmentsError.notBeingShipped
+            throw ServiceError.notBeingShipped
         }
 
         data.status = .delivered
@@ -54,17 +58,17 @@ extension ShipmentsService: ShipmentsServiceCallable {
         return try repository.updateShipment(with: data)
     }
 
-    public func schedulePickup(for id: UUID, with data: PickupItems) throws -> Shipment {
-        let order = try ordersService.getOrder(for: id)
+    public func schedulePickup(for orderId: UUID, with data: PickupItems) throws -> Shipment {
+        let order = try ordersService.getOrder(for: orderId)
         let address = order.shippingAddress
-        return try repository.createShipment(for: id, address: address,
-                                             items: data.items, status: .pickup)
+        return try repository.createShipment(for: orderId, with: data.items,
+                                             to: address, status: .pickup)
     }
 
     public func completePickup(for id: UUID) throws -> Shipment {
         var data = try repository.getShipment(for: id)
         if data.status != .pickup {
-            throw ShipmentsError.notScheduledForPickup
+            throw ServiceError.notScheduledForPickup
         }
 
         data.status = .returned

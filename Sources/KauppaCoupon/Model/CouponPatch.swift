@@ -15,5 +15,6 @@ public struct CouponPatch: Mappable {
     /// Add a note for the coupon.
     public var note: String? = nil
 
+    /// Initialize this object with `nil` values.
     public init() {}
 }

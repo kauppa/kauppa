@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 @testable import KauppaCouponModel
 @testable import KauppaCouponStore
 
@@ -21,7 +22,7 @@ public class TestStore: CouponStorable {
     public func getCoupon(for code: String) throws -> Coupon {
         codeGetCalled = true
         guard let id = codes[code] else {
-            throw CouponError.invalidCode
+            throw ServiceError.invalidCouponCode
         }
 
         return try getCoupon(for: id)
@@ -30,7 +31,7 @@ public class TestStore: CouponStorable {
     public func getCoupon(for id: UUID) throws -> Coupon {
         getCalled = true
         guard let coupon = coupons[id] else {
-            throw CouponError.invalidCouponId
+            throw ServiceError.invalidCouponId
         }
 
         return coupon

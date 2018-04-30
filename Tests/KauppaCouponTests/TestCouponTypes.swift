@@ -13,17 +13,17 @@ class TestCouponTypes: XCTestCase {
     }
 
     func testCouponData() {
-        var tests = [(CouponData, CouponError)]()
+        var tests = [(CouponData, ServiceError)]()
         var data = CouponData()
         data.code = "abcde"     // less than 16 chars
-        tests.append((data, CouponError.invalidCode))
+        tests.append((data, ServiceError.invalidCouponCode))
         data.code = "ABCDEFACECEFZANDALDA"  // greater than 16 chars
-        tests.append((data, CouponError.invalidCode))
+        tests.append((data, ServiceError.invalidCouponCode))
         data.code = "ABCDEFGHIJKL@123"      // should be alphanumeric
-        tests.append((data, CouponError.invalidCode))
+        tests.append((data, ServiceError.invalidCouponCode))
         data.code = nil
         data.expiresOn = Date()     // date should be at least 1-day higher
-        tests.append((data, CouponError.invalidExpiryDate))
+        tests.append((data, ServiceError.invalidCouponExpiryDate))
 
         for (testCase, error) in tests {
             do {
@@ -31,19 +31,19 @@ class TestCouponTypes: XCTestCase {
                 try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! CouponError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
 
     func testCouponDeductions() {
-        var tests = [(CouponData, CouponError)]()
+        var tests = [(CouponData, ServiceError)]()
         var data = CouponData()
         try! data.validate()
         tests.append((data, .noBalance))
         data.balance.value = 100.0
         data.balance.unit = .euro
-        tests.append((data, .mismatchingCurrencies))
+        tests.append((data, .ambiguousCurrencies))
         data.disabledOn = Date()
         tests.append((data, .couponDisabled))
         data.expiresOn = Date()
@@ -56,7 +56,7 @@ class TestCouponTypes: XCTestCase {
                 try coupon.deductPrice(from: &price)
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! CouponError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
 

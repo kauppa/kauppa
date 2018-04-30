@@ -13,26 +13,32 @@ public struct AccountData: Mappable {
     /// A list of user's addresses
     public var address = ArraySet<Address>()
 
-    /// Try some basic validations on the data.
+    // FIXME: Remove this
+    public init() {}
+
+    /// Try some basic validations on the data. It checks that the name and emails aren't empty,
+    /// evaluates the emails against a regex and validates addresses (if specified).
+    ///
+    /// - Throws: `ServiceError` if any of the underlying data fails during validation.
     public func validate() throws {
         if name.isEmpty {
-            throw AccountsError.invalidName
+            throw ServiceError.invalidAccountName
         }
 
         if emails.isEmpty {
-            throw AccountsError.emailRequired
+            throw ServiceError.accountEmailRequired
         }
 
         for email in emails {
             /// A popular regex pattern that matches a wide range of cases.
             if !email.value.isMatching(regex: "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)") {
-                throw AccountsError.invalidEmail
+                throw ServiceError.invalidAccountEmail
             }
         }
 
         for number in phoneNumbers {
             if number.value.isEmpty {
-                throw AccountsError.invalidPhone
+                throw ServiceError.invalidAccountPhone
             }
         }
 
@@ -41,9 +47,9 @@ public struct AccountData: Mappable {
         }
     }
 
-    public init() {}
-
     /// Get the list of verified emails associated with this account.
+    ///
+    /// - Returns: An array of verified emails from this account.
     public func getVerifiedEmails() -> [String] {
         var list = [String]()
         for email in emails {

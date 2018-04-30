@@ -4,12 +4,16 @@ import KauppaCore
 
 /// Input country data.
 public struct CountryData: Mappable {
-    /// Name of the country
+    /// Name of the country.
     public let name: String
-    /// Tax rate for this country
+    /// Tax rate for this country.
     public let taxRate: TaxRate
 
-    /// Initialize this data struct with name and tax rate.
+    /// Initialize this data with name and tax rate.
+    ///
+    /// - Parameters:
+    ///   - name: Name of the country.
+    ///   - taxRate: `TaxRate` data for this country.
     public init(name: String, taxRate: TaxRate) {
         self.name = name
         self.taxRate = taxRate
@@ -31,6 +35,10 @@ public struct Country: Mappable {
 
     /// Initailize this object with a name and tax rate. Creation and last updated
     /// timestamps will be equal.
+    ///
+    /// - Parameters:
+    ///   - name: Name of the country.
+    ///   - taxRate: `TaxRate` data for this country.
     public init(name: String, taxRate: TaxRate) {
         let date = Date()
         createdOn = date

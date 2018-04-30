@@ -10,7 +10,7 @@ let modelTargets: [Target] = [
     ),
     .target(
         name: "KauppaCartModel",
-        dependencies: ["KauppaCore", "KauppaTaxModel"],
+        dependencies: ["KauppaCore", "KauppaAccountsModel", "KauppaTaxModel"],
         path: "Sources/KauppaCart/Model"
     ),
     .target(
@@ -269,6 +269,18 @@ let clientTargets: [Target] = [
 
 let daemonTargets: [Target] = [
     .target(
+        name: "Kauppa",
+        dependencies: [
+            "KauppaAccounts",
+            "KauppaCart",
+            "KauppaCoupon",
+            "KauppaOrders",
+            "KauppaProducts",
+            "KauppaShipments",
+            "KauppaTax"
+        ]
+    ),
+    .target(
         name: "KauppaAccounts",
         dependencies: [
             "KauppaAccountsClient",
@@ -465,7 +477,7 @@ let testTargets: [Target] = [
 var targets: [Target] = [
     .target(
         name: "KauppaCore",
-        dependencies: ["Kitura", "RandomKit"]
+        dependencies: ["Kitura", "RandomKit", "SwiftyRequest"]
     )
 ]
 
@@ -480,6 +492,10 @@ targets.append(contentsOf: testTargets)
 let package = Package(
     name: "Kauppa",
     products: [
+        .executable(
+            name: "Kauppa",
+            targets: ["Kauppa"]
+        ),
         .executable(
             name: "KauppaAccounts",
             targets: ["KauppaAccounts"]
@@ -516,6 +532,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/nvzqz/RandomKit.git", from: "5.0.0"),
         .package(url: "https://github.com/IBM-Swift/Kitura", from: "2.2.0"),
+        .package(url: "https://github.com/IBM-Swift/SwiftyRequest.git", from: "1.0.0"),
     ],
     targets: targets
 )

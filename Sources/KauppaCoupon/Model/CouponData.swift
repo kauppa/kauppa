@@ -26,24 +26,24 @@ public struct CouponData: Mappable {
     /// Date on which this coupon was disabled.
     public var disabledOn: Date? = nil
 
-    public init() {}
-
     /// Validate this coupon data and modify as required.
+    ///
+    /// - Throws: `ServiceError` if an error was encountered.
     public mutating func validate() throws {
         if let code = code {
             if code.count != 16 || !code.isAlphaNumeric() {
-                throw CouponError.invalidCode
+                throw ServiceError.invalidCouponCode
             }
 
             self.code = code.uppercased()
         } else {
-            self.code = String.randomAlphaNumeric(len: 16)
+            self.code = String.randomAlphaNumeric(ofLength: 16)
         }
 
         if let date = expiresOn {
             let interval = date.timeIntervalSinceNow / (60 * 60 * 24)
             if interval < 1 {   // should be at least one day
-                throw CouponError.invalidExpiryDate
+                throw ServiceError.invalidCouponExpiryDate
             }
         }
     }
@@ -52,25 +52,29 @@ public struct CouponData: Mappable {
     /// validity before making any changes. If the coupon is valid, then it deducts
     /// the amount from the coupon and the given price. This only mutates the `balance`
     /// property of a `Coupon`
+    ///
+    /// - Parameters:
+    ///   - from: The price to which the change should be made.
+    /// - Throws: `ServiceError` if there was an error in changing the price.
     public mutating func deductPrice(from price: inout UnitMeasurement<Currency>) throws {
         if let date = expiresOn {
             if date < Date() {
-                throw CouponError.couponExpired
+                throw ServiceError.couponExpired
             }
         }
 
         if let date = disabledOn {
             if date < Date() {
-                throw CouponError.couponDisabled
+                throw ServiceError.couponDisabled
             }
         }
 
         if balance.value == 0 {
-            throw CouponError.noBalance
+            throw ServiceError.noBalance
         }
 
         if price.unit != balance.unit {
-            throw CouponError.mismatchingCurrencies
+            throw ServiceError.ambiguousCurrencies
         }
 
         if price.value > balance.value {

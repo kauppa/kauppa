@@ -6,6 +6,11 @@ public protocol Routing {
     /// The response object provided by this router.
     associatedtype Response: ServiceResponse
 
-    /// Add a route to this router with the given handler.
-    func add<R: RouteRepresentable>(route repr: R, _ handler: @escaping (Request, Response) -> Void)
+    /// Add a handler for the given URL and method.
+    ///
+    /// - Parameters:
+    ///   - route: The route URL to be handled.
+    ///   - method: The method for this route.
+    ///   - The closure which gets the associated request and response object from the service call.
+    func add(route url: String, method: HTTPMethod, _ handler: @escaping (Request, Response) throws -> Void)
 }

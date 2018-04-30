@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 
 extension String: Error {}
@@ -20,45 +22,54 @@ struct TestRequest<J: Mappable>: ServiceRequest {
         return nil
     }
 
-    public func getJSON<T: Mappable>() throws -> T {
+    public func getJSON<T: Mappable>() -> T? {
         if let value = json {
-            return value as! T
+            return value as? T
+        } else {
+            return nil
         }
-
-        throw "No JSON in request"
     }
 }
 
-typealias ResponseCallback<T> = (T, HTTPStatusCode) -> Void
+typealias ResponseCallback = (Data, HTTPStatusCode) -> Void
+typealias HeaderCallback = (String, String) -> Void
 
 /// Response object conforming to `ServiceResponse` used throughout testing
-struct TestResponse<J: Mappable>: ServiceResponse {
-    var callback: ResponseCallback<J>? = nil
+struct TestResponse: ServiceResponse {
+    var callback: ResponseCallback? = nil
+    var headerCallback: HeaderCallback? = nil
 
-    public func respond<T: Mappable>(with data: T, code: HTTPStatusCode) {
+    public func setHeader(key: String, value: String) {
+        if let callback = headerCallback {
+            callback(key, value)
+        }
+    }
+
+    public func respond(with data: Data, code: HTTPStatusCode) {
         if let callback = callback {
-            callback(data as! J, code)
+            callback(data, code)
         }
     }
 }
 
 /// Router object conforming to `Routing` used throughout testing
-class SampleRouter<Req: Mappable, Resp: Mappable>: Routing {
+class SampleRouter<Req: Mappable>: Routing {
     typealias Request = TestRequest<Req>
-    typealias Response = TestResponse<Resp>
+    typealias Response = TestResponse
 
-    var routes = [Route: (Request, Response) -> Void]()
+    var routes = [Route: (Request, Response) throws -> Void]()
 
-    public func add<R>(route repr: R, _ handler: @escaping (Request, Response) -> Void)
-        where R: RouteRepresentable
-    {
-        routes[repr.route] = handler
+    public func add(route url: String, method: HTTPMethod, _ handler: @escaping (Request, Response) throws -> Void) {
+        let route = Route(url: url, method: method)
+        routes[route] = handler
     }
 }
 
 enum TestRoute: UInt8 {
     case foo
     case bar
+    case baz
+    case boo
 }
 
 extension TestRoute: RouteRepresentable {
@@ -68,6 +79,10 @@ extension TestRoute: RouteRepresentable {
                 return Route(url: "/foo", method: .get)
             case .bar:
                 return Route(url: "/bar", method: .post)
+            case .baz:
+                return Route(url: "/baz", method: .put)
+            case .boo:
+                return Route(url: "/:id/:booya/", method: .delete)
         }
     }
 }

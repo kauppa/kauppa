@@ -1,6 +1,8 @@
 import KauppaCore
 import KauppaNaamioModel
 
+// FIXME: Revisit this.
+
 /// Bridging service for registering and communicating with Naamio.
 ///
 /// The `Routing` protocol is implemented for a third-party router. The bridge (being a proxy),
@@ -15,7 +17,7 @@ public class NaamioClientBridge<R: Routing>: Routing {
     private let router: R
 
     /// Collection of routes that have been initialized in this bridge so far.
-    public private(set) var routes = [Route: (ActualRequest, ActualResponse) -> Void]()
+    public private(set) var routes = [Route: (ActualRequest, ActualResponse) throws -> Void]()
 
     public init(for router: R) {
         self.router = router
@@ -26,17 +28,16 @@ public class NaamioClientBridge<R: Routing>: Routing {
     /// it translates Naamio's data into something that's understandable by the services.
     /// For an outgoing response, this translates the JSON data into Naamio-understandable
     /// context. This is taken care of by `BridgeRequest` and `BridgeResponse` wrapper objects.
-    public func add<R>(route repr: R, _ handler: @escaping (Request, Response) -> Void)
-        where R: RouteRepresentable
-    {
-        let new_handler: (ActualRequest, ActualResponse) -> Void = { req, resp in
+    public func add(route url: String, method: HTTPMethod, _ handler: @escaping (Request, Response) throws -> Void) {
+        let new_handler: (ActualRequest, ActualResponse) throws -> Void = { req, resp in
             let request = BridgeRequest(with: req)
             let response = BridgeResponse(with: resp)
-            handler(request, response)
+            try handler(request, response)
         }
 
-        self.routes[repr.route] = new_handler
-        self.router.add(route: repr, new_handler)
+        let route = Route(url: url, method: method)
+        self.routes[route] = new_handler
+        self.router.add(route: route.url, method: method, new_handler)
     }
 
     /* MARK: Naamio-specific methods */

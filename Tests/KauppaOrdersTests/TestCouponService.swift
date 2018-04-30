@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 
+import KauppaCore
 import KauppaCouponClient
 import KauppaCouponModel
 
@@ -18,7 +19,7 @@ public class TestCouponService: CouponServiceCallable {
 
     public func getCoupon(for id: UUID) throws -> Coupon {
         guard let coupon = coupons[id] else {
-            throw CouponError.invalidCouponId
+            throw ServiceError.invalidCouponId
         }
 
         return coupon
@@ -26,7 +27,7 @@ public class TestCouponService: CouponServiceCallable {
 
     // NOTE: Not meant to be called by orders
     public func getCoupon(for code: String) throws -> Coupon {
-        throw CouponError.invalidCouponCode
+        throw ServiceError.invalidCouponCode
     }
 
     public func updateCoupon(for id: UUID, with data: CouponPatch) throws -> Coupon {

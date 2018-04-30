@@ -9,12 +9,6 @@ public enum FulfillmentStatus: String, Mappable {
 
     /// Check the equality of this type.
     public static func ==(lhs: FulfillmentStatus, rhs: FulfillmentStatus) -> Bool {
-        switch (lhs, rhs) {
-            case (.fulfilled, .fulfilled),
-                 (.partial, .partial):
-                return true
-            default:
-                return false
-        }
+        return lhs.rawValue == rhs.rawValue
     }
 }

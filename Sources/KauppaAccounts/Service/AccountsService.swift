@@ -9,8 +9,10 @@ import KauppaAccountsRepository
 public class AccountsService {
     let repository: AccountsRepository
 
-    /// Initializes new `AccountsService` instance with
-    /// a depositing-compliant object.
+    /// Initializes a new instance of `AccountsService` with a repository.
+    ///
+    /// - Parameters:
+    ///   - with: The `AccountsRepository` to be used by the service.
     public init(with repository: AccountsRepository) {
         self.repository = repository
     }
@@ -22,7 +24,7 @@ extension AccountsService: AccountsServiceCallable {
         try data.validate()
         for email in data.emails {
             if let _ = try? repository.getAccount(for: email.value) {
-                throw AccountsError.accountExists
+                throw ServiceError.accountExists
             }
         }
 
@@ -96,7 +98,7 @@ extension AccountsService: AccountsServiceCallable {
         if let index = data.removeEmailAt {
             accountData.emails.remove(at: index)
             if accountData.emails.isEmpty {         // if there are no more emails, disallow this
-                throw AccountsError.emailRequired
+                throw ServiceError.accountEmailRequired
             }
         }
 

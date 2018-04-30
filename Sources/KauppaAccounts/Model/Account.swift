@@ -5,7 +5,7 @@ import KauppaCore
 /// Account structure that exists in repository and store.
 public struct Account: Mappable {
     /// Unique identifier for this account.
-    public let id: UUID
+    public var id: UUID
     /// Creation timestamp
     public let createdOn: Date
     /// Last updated timestamp
@@ -13,21 +13,21 @@ public struct Account: Mappable {
     /// User-supplied data
     public var data: AccountData
 
-    public init(id: UUID, createdOn: Date, updatedAt: Date, data: AccountData) {
-        self.id = id
-        self.createdOn = createdOn
-        self.updatedAt = updatedAt
+    /// Initialize this `Account` with account data. This sets the ID to a random UUID
+    /// and creation and updated timestamps to "now".
+    ///
+    /// - Parameters:
+    ///   - with: The `AccountData` for this account
+    public init(with data: AccountData) {
+        let date = Date()
+        self.id = UUID()
+        self.createdOn = date
+        self.updatedAt = date
         self.data = data
     }
 
-    /// A verified account has at least one verified email.
+    /// Checks whether a verified account has at least one verified email.
     public var isVerified: Bool {
-        for email in data.emails {
-            if email.isVerified {
-                return true
-            }
-        }
-
-        return false
+        return data.emails.get(matching: { $0.isVerified }) != nil
     }
 }

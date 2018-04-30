@@ -1,9 +1,10 @@
 import Foundation
 import XCTest
 
+import KauppaCore
 import KauppaAccountsModel
 import KauppaTaxClient
-import KauppaTaxModel
+@testable import KauppaTaxModel
 
 class TestTaxService: TaxServiceCallable {
     var rate: TaxRate? = nil
@@ -14,31 +15,31 @@ class TestTaxService: TaxServiceCallable {
 
     // NOTE: Not meant to be called by cart
     public func createCountry(with data: CountryData) throws -> Country {
-        throw TaxError.invalidCountryId
+        throw ServiceError.invalidCountryId
     }
 
     // NOTE: Not meant to be called by cart
-    public func updateCountry(id: UUID, with data: CountryPatch) throws -> Country {
-        throw TaxError.invalidCountryId
+    public func updateCountry(for id: UUID, with data: CountryPatch) throws -> Country {
+        throw ServiceError.invalidCountryId
     }
 
     // NOTE: Not meant to be called by cart
-    public func deleteCountry(id: UUID) throws -> () {
-        throw TaxError.invalidCountryId
+    public func deleteCountry(for id: UUID) throws -> () {
+        throw ServiceError.invalidCountryId
     }
 
     // NOTE: Not meant to be called by cart
-    public func addRegion(to id: UUID, data: RegionData) throws -> Region {
-        throw TaxError.invalidRegionId
+    public func addRegion(to id: UUID, using data: RegionData) throws -> Region {
+        throw ServiceError.invalidRegionId
     }
 
     // NOTE: Not meant to be called by cart
-    public func updateRegion(id: UUID, with data: RegionPatch) throws -> Region {
-        throw TaxError.invalidRegionId
+    public func updateRegion(for id: UUID, with data: RegionPatch) throws -> Region {
+        throw ServiceError.invalidRegionId
     }
 
     // NOTE: Not meant to be called by cart
-    public func deleteRegion(id: UUID) throws -> () {
-        throw TaxError.invalidRegionId
+    public func deleteRegion(for id: UUID) throws -> () {
+        throw ServiceError.invalidRegionId
     }
 }

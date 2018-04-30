@@ -6,31 +6,48 @@ import KauppaProductsModel
 /// General API meant for the products service to be used by both the
 /// service and the client.
 public protocol ProductsServiceCallable {
-    /* Product */
+    /* Generic */
+
+    /// Get all the defined categories from the service.
+    ///
+    /// - Returns: List of `Category` objects.
+    /// - Throws: `ServiceError` on failure.
+    func getCategories() throws -> [Category]
+
+    /// Get all the defined attributes from the service.
+    ///
+    /// - Returns: List of `Attribute` objects.
+    /// - Throws: `ServiceError` on failure.
+    func getAttributes() throws -> [Attribute]
+
+    /* Products */
 
     /// Create product with the given product data.
     ///
     /// - Parameters:
-    ///   - with: The `ProductData` required for creating a product.
-    ///   - from: The `Address` from which this request was originated.
+    ///   - with: The `Product` required for creating a product.
+    ///   - from: (Optional) `Address` from which this request was originated.
     /// - Returns: `Product`
-    /// - Throws: `ProductsError` if there were errors validating the data.
-    func createProduct(with data: ProductData, from address: Address) throws -> Product
+    /// - Throws: `ServiceError` if there were errors validating the data.
+    func createProduct(with data: Product, from address: Address?) throws -> Product
 
     /// Get product for a given ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the `Product`
-    ///   - from: The `Address` from which this request was originated.
-    /// - Returns: `Product` (if it exists)
-    /// - Throws: `ProductsError` (if it doesn't).
-    func getProduct(for id: UUID, from address: Address) throws -> Product
+    ///   - from: (Optional) `Address` from which this request was originated.
+    /// - Returns: `Product` (if it exists).
+    /// - Throws: `ServiceError` (if it doesn't).
+    func getProduct(for id: UUID, from address: Address?) throws -> Product
+
+    // FIXME: Support pagination.
+    func getProducts() throws -> [Product]
 
     /// Delete product corresponding to a given ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the `Product`
-    /// - Throws: `ProductsError` if the product doesn't exist.
+    /// - Throws: `ServiceError` if the product doesn't exist.
     func deleteProduct(for id: UUID) throws -> ()
 
     /// Update the product corresponding to a given ID.
@@ -38,11 +55,11 @@ public protocol ProductsServiceCallable {
     /// - Parameters:
     ///   - for: The `UUID` of the `Product`
     ///   - with: The `ProductPatch` data required for updating a product.
-    ///   - from: The `Address` from which this request was originated.
+    ///   - from: (Optional) `Address` from which this request was originated.
     /// - Returns: The updated `Product`
-    /// - Throws: `ProductsError` if the product doesn't exist or if there were errors.
+    /// - Throws: `ServiceError` if the product doesn't exist or if there were errors.
     func updateProduct(for id: UUID, with data: ProductPatch,
-                       from address: Address) throws -> Product
+                       from address: Address?) throws -> Product
 
     /// Adds one or more items to the corresponding collection fields in a product.
     ///
@@ -50,11 +67,11 @@ public protocol ProductsServiceCallable {
     ///   - for: The `UUID` of the `Product`
     ///   - with: The `ProductPropertyAdditionPatch` data required for adding
     ///     individual properties.
-    ///   - from: The `Address` from which this request was originated.
+    ///   - from: (Optional) `Address` from which this request was originated.
     /// - Returns: The updated `Product` (if it's been updated successfully)
-    /// - Throws: `ProductsError` if the product doesn't exist or if there were errors.
+    /// - Throws: `ServiceError` if the product doesn't exist or if there were errors.
     func addProductProperty(for id: UUID, with data: ProductPropertyAdditionPatch,
-                            from address: Address) throws -> Product
+                            from address: Address?) throws -> Product
 
     /// Reset individual product properties with the given patch.
     ///
@@ -62,11 +79,11 @@ public protocol ProductsServiceCallable {
     ///   - for: The `UUID` of the `Product`
     ///   - with: The `ProductPropertyDeletionPatch` data required for removing
     ///     individual properties.
-    ///   - from: The `Address` from which this request was originated.
+    ///   - from: (Optional) `Address` from which this request was originated.
     /// - Returns: The updated `Product` (if it's been updated successfully)
-    /// - Throws: `ProductsError` if the product doesn't exist or if there were errors.
+    /// - Throws: `ServiceError` if the product doesn't exist or if there were errors.
     func deleteProductProperty(for id: UUID, with data: ProductPropertyDeletionPatch,
-                               from address: Address) throws -> Product
+                               from address: Address?) throws -> Product
 
     /* Product collection */
 
@@ -75,8 +92,16 @@ public protocol ProductsServiceCallable {
     /// - Parameters:
     ///   - with: The `ProductCollectionData` required for creating a product collection.
     /// - Returns: `ProductCollection`
-    /// - Throws: `ProductsError` if the product(s) are non-existent or if there were errors.
+    /// - Throws: `ServiceError` if the product(s) are non-existent or if there were errors.
     func createCollection(with data: ProductCollectionData) throws -> ProductCollection
+
+    /// Get the collection for the given ID.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the `ProductCollection`
+    /// - Returns: `ProductCollection` (if it exists).
+    /// - Throws: `ServiceError` (on failure).
+    func getCollection(for id: UUID) throws -> ProductCollection
 
     /// Update an existing collection with the given patch data.
     ///
@@ -84,14 +109,14 @@ public protocol ProductsServiceCallable {
     ///   - for: The `UUID` of the `ProductCollection`
     ///   - with: The `ProductCollectionPatch` data required for updating a collection.
     /// - Returns: Updated `ProductCollection`
-    /// - Throws: `ProductsError`
+    /// - Throws: `ServiceError`
     func updateCollection(for id: UUID, with data: ProductCollectionPatch) throws -> ProductCollection
 
     /// Delete a collection corresponding to the given ID.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the `ProductCollection`
-    /// - Throws: `ProductsError` if the collection doesn't exist
+    /// - Throws: `ServiceError` if the collection doesn't exist
     func deleteCollection(for id: UUID) throws -> ()
 
     /// Add product(s) to an existing collection.
@@ -100,7 +125,7 @@ public protocol ProductsServiceCallable {
     ///   - to: The `UUID` of the `ProductCollection`
     ///   - using: The `ProductCollectionItemPatch` required for adding product(s).
     /// - Returns: Updated `ProductCollection`
-    /// - Throws: `ProductsError` if the collection doesn't exist, or if there were errors.
+    /// - Throws: `ServiceError` if the collection doesn't exist, or if there were errors.
     func addProduct(to id: UUID, using data: ProductCollectionItemPatch) throws -> ProductCollection
 
     /// Remove product(s) from an existing collection.
@@ -109,6 +134,6 @@ public protocol ProductsServiceCallable {
     ///   - from: The `UUID` of the `ProductCollection`
     ///   - using: The `ProductCollectionItemPatch` required for removing product(s).
     /// - Returns: Updated `ProductCollection`
-    /// - Throws: `ProductsError` if the collection doesn't exist, or if there were errors.
+    /// - Throws: `ServiceError` if the collection doesn't exist, or if there were errors.
     func removeProduct(from id: UUID, using data: ProductCollectionItemPatch) throws -> ProductCollection
 }

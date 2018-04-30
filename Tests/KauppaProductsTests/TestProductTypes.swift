@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaCore
-import KauppaTaxModel
+@testable import KauppaTaxModel
 @testable import KauppaProductsModel
 
 class TestProductTypes: XCTestCase {
@@ -16,44 +16,44 @@ class TestProductTypes: XCTestCase {
     }
 
     func testProductData() {
-        var data = ProductData(title: "", subtitle: "", description: "")
-        var tests = [(ProductData, ProductsError)]()
-        tests.append((data, ProductsError.invalidTitle))
+        var data = Product(title: "", subtitle: "", description: "")
+        var tests = [(Product, ServiceError)]()
+        tests.append((data, ServiceError.invalidProductTitle))
         data.title = "foo"
-        tests.append((data, ProductsError.invalidSubtitle))
+        tests.append((data, ServiceError.invalidProductSubtitle))
         data.subtitle = "bar"
-        tests.append((data, ProductsError.invalidDescription))
+        tests.append((data, ServiceError.invalidProductDescription))
         data.description = "foobar"
         data.color = "#sadaddad"
-        tests.append((data, ProductsError.invalidColor))
+        tests.append((data, ServiceError.invalidProductColor))
         data.color = "#"
-        tests.append((data, ProductsError.invalidColor))
+        tests.append((data, ServiceError.invalidProductColor))
 
         for (testCase, error) in tests {
             do {
                 try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! ProductsError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
 
     /// Test that tax is properly stripped when tax is included along with price.
     func testProductTaxStrip() {
-        var data = ProductData(title: "", subtitle: "", description: "")
+        var data = Product(title: "", subtitle: "", description: "")
         data.tax = UnitTax()
-        data.category = "food"
+        data.taxCategory = "food"
         var rate = TaxRate()
         rate.general = 10.0
         data.price.value = 10.0
         data.taxInclusive = true
         data.stripTax(using: rate)
-        XCTAssertFalse(data.taxInclusive)   // flag has been reverted
+        XCTAssertFalse(data.taxInclusive!)  // flag has been reverted
         XCTAssertNil(data.tax)      // Tax data is reset
         XCTAssertTrue(data.price.value > 9.090909 && data.price.value < 9.09091)
 
-        // tax category matches with product category, hence this should be chosen
+        // tax category matches with product tax category, hence this should be chosen
         rate.categories["food"] = 12.0
         data.price.value = 5.0
         data.taxInclusive = true
@@ -68,18 +68,18 @@ class TestProductTypes: XCTestCase {
 
     /// Test applying tax data to the product with a given rate.
     func testProductTaxApply() {
-        var data = ProductData(title: "", subtitle: "", description: "")
+        var data = Product(title: "", subtitle: "", description: "")
         XCTAssertNil(data.tax)
         var rate = TaxRate()
         rate.general = 10.0
         data.price.value = 10.0
-        data.category = "some unknown category"
+        data.taxCategory = "some unknown category"
         data.setTax(using: rate)
         XCTAssertEqual(data.tax!.rate, 10.0)
         XCTAssertNil(data.tax!.category)        // unknown category is ignored
         XCTAssertEqual(data.tax!.total.value, 1.0)
 
-        data.category = "drink"
+        data.taxCategory = "drink"
         rate.categories["drink"] = 8.0
         data.setTax(using: rate)
         XCTAssertEqual(data.tax!.rate, 8.0)
@@ -89,17 +89,17 @@ class TestProductTypes: XCTestCase {
 
     func testCollectionData() {
         var data = ProductCollectionData(name: "", description: "", products: [])
-        var tests = [(ProductCollectionData, ProductsError)]()
-        tests.append((data, ProductsError.invalidCollectionName))
+        var tests = [(ProductCollectionData, ServiceError)]()
+        tests.append((data, ServiceError.invalidCollectionName))
         data.name = "foo"
-        tests.append((data, ProductsError.invalidCollectionDescription))
+        tests.append((data, ServiceError.invalidCollectionDescription))
 
         for (testCase, error) in tests {
             do {
                 try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! ProductsError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }

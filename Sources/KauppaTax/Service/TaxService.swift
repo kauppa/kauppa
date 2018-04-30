@@ -10,6 +10,9 @@ public class TaxService {
     let repository: TaxRepository
 
     /// Initializes a new `TaxService` instance with a repository.
+    ///
+    /// - Parameters:
+    ///   - with: `TaxRepository`
     public init(with repository: TaxRepository) {
         self.repository = repository
     }
@@ -42,7 +45,7 @@ extension TaxService: TaxServiceCallable {
         return country
     }
 
-    public func updateCountry(id: UUID, with data: CountryPatch) throws -> Country {
+    public func updateCountry(for id: UUID, with data: CountryPatch) throws -> Country {
         var country = try repository.getCountry(id: id)
 
         if let name = data.name {
@@ -57,11 +60,11 @@ extension TaxService: TaxServiceCallable {
         return try repository.updateCountry(with: country)
     }
 
-    public func deleteCountry(id: UUID) throws -> () {
-        try repository.deleteCountry(id: id)
+    public func deleteCountry(for id: UUID) throws -> () {
+        try repository.deleteCountry(for: id)
     }
 
-    public func addRegion(to id: UUID, data: RegionData) throws -> Region {
+    public func addRegion(to id: UUID, using data: RegionData) throws -> Region {
         let _ = try repository.getCountry(id: id)
         let region = Region(name: data.name, taxRate: data.taxRate, kind: data.kind, country: id)
         try region.validate()
@@ -69,8 +72,8 @@ extension TaxService: TaxServiceCallable {
         return region
     }
 
-    public func updateRegion(id: UUID, with data: RegionPatch) throws -> Region {
-        var region = try repository.getRegion(id: id)
+    public func updateRegion(for id: UUID, with data: RegionPatch) throws -> Region {
+        var region = try repository.getRegion(for: id)
 
         if let name = data.name {
             region.name = name
@@ -93,7 +96,7 @@ extension TaxService: TaxServiceCallable {
         return try repository.updateRegion(with: region)
     }
 
-    public func deleteRegion(id: UUID) throws -> () {
-        return try repository.deleteRegion(id: id)
+    public func deleteRegion(for id: UUID) throws -> () {
+        return try repository.deleteRegion(for: id)
     }
 }

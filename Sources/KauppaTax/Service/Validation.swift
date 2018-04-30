@@ -1,3 +1,4 @@
+import KauppaCore
 import KauppaTaxModel
 
 /// Configuration object for the tax service.
@@ -10,28 +11,32 @@ struct TaxConfiguration {
 
 extension TaxRate {
     /// Validate tax rate using the tax service configuration.
+    ///
+    /// - Throws: `ServiceError` for invalid data.
     public func validate() throws {
         if general < TaxConfiguration.minTaxRatePercent
            || general > TaxConfiguration.maxTaxRatePercent
         {
-            throw TaxError.invalidTaxRate
+            throw ServiceError.invalidTaxRate
         }
 
-        for (category, rate) in categories {
+        for (_, rate) in categories {
             if rate < TaxConfiguration.minTaxRatePercent
                || rate > TaxConfiguration.maxTaxRatePercent
             {
-                throw TaxError.invalidCategoryTaxRate(category)
+                throw ServiceError.invalidCategoryTaxRate
             }
         }
     }
 }
 
 extension Country {
-    /// Validate country data.
+    /// Validate country data (name and tax rate).
+    ///
+    /// - Throws: `ServiceError` for invalid data.
     public func validate() throws {
         if name.isEmpty {
-            throw TaxError.invalidCountryName
+            throw ServiceError.invalidCountryName
         }
 
         try taxRate.validate()
@@ -39,10 +44,12 @@ extension Country {
 }
 
 extension Region {
-    /// Validate region's data.
+    /// Validate region's data (name and tax rate).
+    ///
+    /// - Throws: `ServiceError` for invalid data.
     public func validate() throws {
         if name.isEmpty {
-            throw TaxError.invalidRegionName
+            throw ServiceError.invalidRegionName
         }
 
         try taxRate.validate()

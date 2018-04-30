@@ -16,8 +16,12 @@ public struct GenericOrderUnit<P: Mappable>: Mappable {
     public var status: OrderUnitStatus? = nil
 
     /// Initialize this unit with a product and quantity.
-    public init(product: P, quantity: UInt8) {
-        item = GenericCartUnit(product: product, quantity: quantity)
+    ///
+    /// - Parameters:
+    ///   - for: The product represented by this unit.
+    ///   - with: The quantity of the product item.
+    public init(for product: P, with quantity: UInt8) {
+        item = GenericCartUnit(for: product, with: quantity)
     }
 
     /// `nil` indicates that none of the items in this unit

@@ -23,6 +23,14 @@ public class CartService {
 
     /// Initializes a new `CartService` instance with a repository,
     /// accounts, products, coupon, orders and tax service.
+    ///
+    /// - Parameters:
+    ///   - with: `CartRepository`
+    ///   - productsService: Anything that implements `ProductsServiceCallable`
+    ///   - accountsService: Anything that implements `AccountsServiceCallable`
+    ///   - couponService: Anything that implements `CouponServiceCallable`
+    ///   - ordersService: Anything that implements `OrdersServiceCallable`
+    ///   - taxService: Anything that implements `TaxServiceCallable`
     public init(with repository: CartRepository,
                 productsService: ProductsServiceCallable,
                 accountsService: AccountsServiceCallable,
@@ -42,26 +50,48 @@ public class CartService {
 // NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
     public func addCartItem(for userId: UUID, with unit: CartUnit,
-                            from address: Address) throws -> Cart
+                            from address: Address?) throws -> Cart
     {
         let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(for: userId)
-        let itemCreator = CartItemCreator(from: account, forCart: cart, with: unit)
-        try itemCreator.updateCartData(using: productsService, with: address)
-        try repository.updateCart(with: itemCreator.cart)
+        let modifier = CartItemModifier(for: cart, from: account)
+        try modifier.addCartItem(using: productsService, with: unit, from: address)
+        try repository.updateCart(with: modifier.cart)
         return try getCart(for: userId, from: address)
     }
 
-    public func applyCoupon(for userId: UUID, using code: String,
-                            from address: Address) throws -> Cart
+    public func removeCartItem(for userId: UUID, with itemId: UUID,
+                               from address: Address?) throws -> Cart
+    {
+        let account = try accountsService.getAccount(for: userId)
+        let cart = try repository.getCart(for: userId)
+        let modifier = CartItemModifier(for: cart, from: account)
+        try modifier.removeCartItem(using: productsService, with: itemId, from: address)
+        try repository.updateCart(with: modifier.cart)
+        return try getCart(for: userId, from: address)
+    }
+
+    public func updateCart(for userId: UUID, with items: [CartUnit],
+                           from address: Address?) throws -> Cart
+    {
+        let account = try accountsService.getAccount(for: userId)
+        let cart = try repository.getCart(for: userId)
+        let modifier = CartItemModifier(for: cart, from: account)
+        try modifier.replaceItems(with: items, using: productsService, from: address)
+        try repository.updateCart(with: modifier.cart)
+        return try getCart(for: userId, from: address)
+    }
+
+    public func applyCoupon(for userId: UUID, using data: CartCoupon,
+                            from address: Address?) throws -> Cart
     {
         let _ = try accountsService.getAccount(for: userId)
         var cart = try repository.getCart(for: userId)
         if cart.items.isEmpty {     // cannot apply coupon when there aren't any items.
-            throw CartError.noItemsInCart
+            throw ServiceError.noItemsInCart
         }
 
-        var coupon = try couponService.getCoupon(for: code)
+        var coupon = try couponService.getCoupon(for: data.code)
         var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
         // This only validates the coupon - because we're passing zero.
         try coupon.data.deductPrice(from: &zero)
@@ -71,7 +101,7 @@ extension CartService: CartServiceCallable {
         return try getCart(for: userId, from: address)
     }
 
-    public func getCart(for userId: UUID, from address: Address) throws -> Cart {
+    public func getCart(for userId: UUID, from address: Address?) throws -> Cart {
         let _ = try accountsService.getAccount(for: userId)
         // FIXME: Make sure that product items are available
 
@@ -79,9 +109,11 @@ extension CartService: CartServiceCallable {
         // from the tax service, applies those rates to the cart items and
         // returns the mutated data upon request.
         var cart = try repository.getCart(for: userId)
-        if !cart.items.isEmpty {
-            let taxRate = try taxService.getTaxRate(for: address)
-            cart.setPrices(using: taxRate)
+        if let address = address {
+            if !cart.items.isEmpty {
+                let taxRate = try taxService.getTaxRate(for: address)
+                cart.setPrices(using: taxRate)
+            }
         }
 
         return cart
@@ -89,30 +121,21 @@ extension CartService: CartServiceCallable {
 
     public func placeOrder(for userId: UUID, with data: CheckoutData) throws -> Order {
         let account = try accountsService.getAccount(for: userId)
+        var cartData = data
+        try cartData.validate(using: account.data)
+
         var cart = try repository.getCart(for: userId)
         if cart.items.isEmpty {
-            throw CartError.noItemsToProcess
-        }
-
-        guard let shippingAddress = account.data.address.get(from: data.shippingAddressAt) else {
-            throw CartError.invalidAddress
-        }
-
-        var billingAddress: Address? = nil
-        if let idx = data.billingAddressAt {
-            guard let address = account.data.address.get(from: idx) else {
-                throw CartError.invalidAddress
-            }
-
-            billingAddress = address
+            throw ServiceError.noItemsToProcess
         }
 
         var units = [OrderUnit]()
         for unit in cart.items {
-            units.append(OrderUnit(product: unit.product, quantity: unit.quantity))
+            units.append(OrderUnit(for: unit.product, with: unit.quantity))
         }
 
-        var orderData = OrderData(shippingAddress: shippingAddress, billingAddress: billingAddress,
+        var orderData = OrderData(shippingAddress: cartData.shippingAddress!,
+                                  billingAddress: cartData.billingAddress ?? cartData.shippingAddress!,
                                   placedBy: userId, products: units)
         orderData.appliedCoupons = cart.coupons
         let order = try ordersService.createOrder(with: orderData)

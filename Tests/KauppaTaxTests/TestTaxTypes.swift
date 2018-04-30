@@ -1,6 +1,7 @@
 import XCTest
 
-import KauppaTaxModel
+import KauppaCore
+@testable import KauppaTaxModel
 
 class TestTaxTypes: XCTestCase {
     static var allTests: [(String, (TestTaxTypes) -> () throws -> Void)] {
@@ -11,7 +12,7 @@ class TestTaxTypes: XCTestCase {
     }
 
     func testCountry() {
-        var cases = [(Country, TaxError)]()
+        var cases = [(Country, ServiceError)]()
         var rate = TaxRate()
         cases.append((Country(name: "", taxRate: rate), .invalidCountryName))
         rate.general = -0.1
@@ -20,22 +21,22 @@ class TestTaxTypes: XCTestCase {
         cases.append((Country(name: "foo", taxRate: rate), .invalidTaxRate))
         rate.general = 5.0
         rate.categories["food"] = -0.1
-        cases.append((Country(name: "foo", taxRate: rate), .invalidCategoryTaxRate("food")))
+        cases.append((Country(name: "foo", taxRate: rate), .invalidCategoryTaxRate))
         rate.categories["food"] = 1000.1
-        cases.append((Country(name: "foo", taxRate: rate), .invalidCategoryTaxRate("food")))
+        cases.append((Country(name: "foo", taxRate: rate), .invalidCategoryTaxRate))
 
         for (testCase, error) in cases {
             do {
                 let _ = try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! TaxError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }
 
     func testRegion() {
-        var cases = [(Region, TaxError)]()
+        var cases = [(Region, ServiceError)]()
         var rate = TaxRate()
         cases.append((Region(name: "", taxRate: rate, kind: .province, country: UUID()),
                       .invalidRegionName))
@@ -48,17 +49,17 @@ class TestTaxTypes: XCTestCase {
         rate.general = 5.0
         rate.categories["food"] = -0.1
         cases.append((Region(name: "foo", taxRate: rate, kind: .city, country: UUID()),
-                      .invalidCategoryTaxRate("food")))
+                      .invalidCategoryTaxRate))
         rate.categories["food"] = 1000.1
         cases.append((Region(name: "foo", taxRate: rate, kind: .city, country: UUID()),
-                      .invalidCategoryTaxRate("food")))
+                      .invalidCategoryTaxRate))
 
         for (testCase, error) in cases {
             do {
                 let _ = try testCase.validate()
                 XCTFail()
             } catch let err {
-                XCTAssertEqual(err as! TaxError, error)
+                XCTAssertEqual(err as! ServiceError, error)
             }
         }
     }

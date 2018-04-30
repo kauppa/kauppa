@@ -2,6 +2,12 @@ CONTAINER_VERSION = 0.2
 CONTAINER_NAME = kauppa
 CONTAINER_URL = naamio/$(CONTAINER_NAME)
 
+KAUPPA_SERVICE_PORT = 8090
+KAUPPA_PRODUCTS_PORT = 8000
+KAUPPA_ACCOUNTS_PORT = 8020
+KAUPPA_TAX_PORT = 8070
+KAUPPA_CART_PORT = 8025
+
 clean:
 	if	[ -d ".build" ]; then \
 		rm -rf .build ; \
@@ -31,19 +37,36 @@ build-container: clean-container build-release
 
 	docker build -t $(CONTAINER_URL):$(CONTAINER_VERSION) .
 
-build-containers: build-release
+build-containers: clean-containers build-release
 	ls Sources | while read service; do \
 		if [ -f "Sources/$$service/main.swift" ]; then \
 			SERVICE_NAME=$$(echo $$service | sed 's/\([A-Z]\)/ \1/g' | cut -d' ' -f3 | tr '[:upper:]' '[:lower:]') ; \
 			echo 'Building' $(CONTAINER_URL)-$$SERVICE_NAME ; \
-			docker build -t $(CONTAINER_URL)-$$SERVICE_NAME:$(CONTAINER_VERSION) -f Sources/$$service/Dockerfile . ; \
+			docker build -t $(CONTAINER_URL):$$SERVICE_NAME-$(CONTAINER_VERSION) -f Sources/$$service/Dockerfile . ; \
 		fi ; \
 	done
 
-remove-containers:
-	docker images | grep $(CONTAINER_URL).*$(CONTAINER_VERSION) | awk -v OFS=':' '{print $$1,$$2}' | xargs docker rmi
+run-containers: build-containers
+	docker run -itd --name=kauppa-accounts -p $(KAUPPA_ACCOUNTS_PORT):$(KAUPPA_SERVICE_PORT) naamio/kauppa:accounts-$(CONTAINER_VERSION) ; \
+	KAUPPA_ACCOUNTS=$$(docker inspect kauppa-accounts | grep IPAddress | tail -1 | awk -F '"' '{print $$4}') ; \
+	docker run -itd --name=kauppa-tax -p $(KAUPPA_TAX_PORT):$(KAUPPA_SERVICE_PORT) naamio/kauppa:tax-$(CONTAINER_VERSION) ; \
+	KAUPPA_TAX=$$(docker inspect kauppa-tax | grep IPAddress | tail -1 | awk -F '"' '{print $$4}') ; \
+	docker run -itd --name=kauppa-products \
+		-e KAUPPA_TAX_ENDPOINT=http://$$KAUPPA_TAX:$(KAUPPA_SERVICE_PORT) \
+		-p $(KAUPPA_PRODUCTS_PORT):$(KAUPPA_SERVICE_PORT) naamio/kauppa:products-$(CONTAINER_VERSION) ; \
+	KAUPPA_PRODUCTS=$$(docker inspect kauppa-products | grep IPAddress | tail -1 | awk -F '"' '{print $$4}') ; \
+	docker run -itd --name=kauppa-cart \
+		-e KAUPPA_TAX_ENDPOINT=http://$$KAUPPA_TAX:$(KAUPPA_SERVICE_PORT) \
+		-e KAUPPA_ACCOUNTS_ENDPOINT=http://$$KAUPPA_ACCOUNTS:$(KAUPPA_SERVICE_PORT) \
+		-e KAUPPA_PRODUCTS_ENDPOINT=http://$$KAUPPA_PRODUCTS:$(KAUPPA_SERVICE_PORT) \
+		-e KAUPPA_COUPONS_ENDPOINT=127.0.0.1 \
+		-e KAUPPA_ORDERS_ENDPOINT=127.0.0.1 \
+		-p $(KAUPPA_CART_PORT):$(KAUPPA_SERVICE_PORT) naamio/kauppa:cart-$(CONTAINER_VERSION)
+
+clean-containers:
+	-docker images | grep $(CONTAINER_URL).*$(CONTAINER_VERSION) | awk -v OFS=':' '{print $$1,$$2}' | xargs docker rmi
 
 push-containers: build-containers
-	docker images | grep $(CONTAINER_URL).*$(CONTAINER_VERSION) | awk -v OFS=':' '{print $$1,$$2}' | xargs echo 'Pushing'
+	docker images | grep $(CONTAINER_URL).*$(CONTAINER_VERSION) | awk -v OFS=':' '{print $$1,$$2}' | xargs docker push
 
 .PHONY: clean build test run
