@@ -24,6 +24,7 @@ class TestCartService: XCTestCase {
             ("Test item addition to cart", testCartItemAddition),
             ("Test item removal from cart", testCartItemRemoval),
             ("Test updating cart items", testCartUpdateItems),
+            ("Test getting outdated cart", testOutdatedCart),
             ("Test applying coupon", testCouponApply),
             ("Test invalid coupon applies", testInvalidCoupons),
             ("Test invalid product", testInvalidProduct),
@@ -189,6 +190,11 @@ class TestCartService: XCTestCase {
         } catch let err {
             XCTAssertEqual(err as! ServiceError, ServiceError.invalidItemId)
         }
+
+        let emptyCart = try! service.removeCartItem(for: account.id, with: anotherProduct.id!, from: Address())
+        XCTAssertEqual(emptyCart.items.count, 0)
+        XCTAssertNil(emptyCart.netPrice)
+        XCTAssertNil(emptyCart.grossPrice)
     }
 
     // Service should support replacing all cart items in one go.
@@ -239,8 +245,63 @@ class TestCartService: XCTestCase {
         newCart.items = [CartUnit(for: product1.id!, with: 1), CartUnit(for: product2.id!, with: 2), CartUnit(for: product3.id!, with: 5)]
         let updatedCart = try! service.updateCart(for: account.id, with: newCart, from: Address())
         XCTAssertEqual(updatedCart.items.count, 3)
-        XCTAssertEqual(updatedCart.netPrice!.value, 40)
+        XCTAssertEqual(updatedCart.netPrice!.value, 20)
         XCTAssertEqual(updatedCart.grossPrice!.value, 21.25)
+    }
+
+    // Service should update the cart when the corresponding products are unavailable.
+    func testOutdatedCart() {
+        let store = TestStore()
+        let repository = CartRepository(with: store)
+
+        var productData1 = Product(title: "", subtitle: "", description: "")
+        productData1.inventory = 10
+        productData1.price.value = 5.0
+        let product1 = try! productsService.createProduct(with: productData1, from: Address())
+
+        var productData2 = Product(title: "", subtitle: "", description: "")
+        productData2.inventory = 10
+        productData2.price.value = 2.5
+        let product2 = try! productsService.createProduct(with: productData2, from: Address())
+
+        var productData3 = Product(title: "", subtitle: "", description: "")
+        productData3.inventory = 10
+        productData3.price.value = 2
+        let product3 = try! productsService.createProduct(with: productData3, from: Address())
+
+        let accountData = AccountData()
+        let account = try! accountsService.createAccount(with: accountData)
+
+        let service = CartService(with: repository,
+                                  productsService: productsService,
+                                  accountsService: accountsService,
+                                  couponService: couponService,
+                                  ordersService: ordersService,
+                                  taxService: taxService)
+
+        var newCart = Cart(with: account.id)
+        newCart.items = [CartUnit(for: product1.id!, with: 1), CartUnit(for: product2.id!, with: 2), CartUnit(for: product3.id!, with: 5)]
+        let cart = try! service.updateCart(for: account.id, with: newCart, from: Address())
+        XCTAssertEqual(cart.items.count, 3)
+        XCTAssertEqual(cart.items[2].quantity, 5)
+
+        // Remove first product from service.
+        productsService.products.removeValue(forKey: product1.id!)
+        // Set next product's inventory to zero.
+        productsService.products[product2.id!]!.inventory = 0
+        // Reduce inventory of last product.
+        productsService.products[product3.id!]!.inventory = 1
+
+        let updatedCart = try! service.getCart(for: account.id, from: Address())
+        XCTAssertEqual(updatedCart.items.count, 1)
+        XCTAssertEqual(updatedCart.items[0].quantity, 1)
+
+        do {    // Try increasing the quantity of the last product
+            let _ = try service.addCartItem(for: account.id, with: updatedCart.items[0], from: Address())
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ServiceError, .productUnavailable)
+        }
     }
 
     // Service should support adding coupons only if the cart is non-empty.

@@ -55,7 +55,7 @@ extension CartService: CartServiceCallable {
         let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(for: userId)
         let modifier = CartItemModifier(for: cart, from: account)
-        try modifier.addCartItem(using: productsService, with: unit, from: address)
+        try modifier.addCartItem(using: productsService, with: unit)
         try repository.updateCart(with: modifier.cart)
         return try getCart(for: userId, from: address)
     }
@@ -66,7 +66,7 @@ extension CartService: CartServiceCallable {
         let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(for: userId)
         let modifier = CartItemModifier(for: cart, from: account)
-        try modifier.removeCartItem(using: productsService, with: itemId, from: address)
+        try modifier.removeCartItem(using: productsService, with: itemId)
         try repository.updateCart(with: modifier.cart)
         return try getCart(for: userId, from: address)
     }
@@ -77,8 +77,7 @@ extension CartService: CartServiceCallable {
         let account = try accountsService.getAccount(for: userId)
         let cart = try repository.getCart(for: userId)
         let modifier = CartItemModifier(for: cart, from: account)
-        try modifier.updateCart(with: data, using: productsService,
-                                and: couponService, from: address)
+        try modifier.updateCart(with: data, using: productsService, and: couponService)
         try repository.updateCart(with: modifier.cart)
         return try getCart(for: userId, from: address)
     }
@@ -95,13 +94,21 @@ extension CartService: CartServiceCallable {
     }
 
     public func getCart(for userId: UUID, from address: Address?) throws -> Cart {
-        let _ = try accountsService.getAccount(for: userId)
-        // FIXME: Make sure that product items are available
+        let account = try accountsService.getAccount(for: userId)
+        var cart = try repository.getCart(for: userId)
+        let modifier = CartItemModifier(for: cart, from: account)
+        let isModified = modifier.checkItemsAndSetPrices(using: productsService)
+
+        cart = modifier.cart    // new cart has all the price data
+
+        // Update the repository only if the items/quantities change. Prices change all the time.
+        if isModified {
+            try repository.updateCart(with: cart)
+        }
 
         // Cart (by itself) doesn't store tax information. It gets the tax data
         // from the tax service, applies those rates to the cart items and
         // returns the mutated data upon request.
-        var cart = try repository.getCart(for: userId)
         if let address = address {
             if !cart.items.isEmpty {
                 let taxRate = try taxService.getTaxRate(for: address)

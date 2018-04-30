@@ -6,6 +6,7 @@ import KauppaCartModel
 import KauppaCouponClient
 import KauppaProductsClient
 import KauppaProductsModel
+import KauppaTaxClient
 
 /// Factory class for adding a new item to the cart. This gets the item from the products
 /// service and updates the quantity of the item in the cart.
@@ -31,33 +32,23 @@ class CartItemModifier {
     /// - Parameters:
     ///   - using: Anything that implements `ProductsServiceCallable`
     ///   - with: The `CartUnit` added by the account.
-    ///   - from: (Optional) `Address` of the account.
     /// - Throws: `ServiceError`
     ///   - If the product doesn't exist.
     ///   - If there was an error in adding the product (low on inventory or invalid quantity).
     func addCartItem(using productsService: ProductsServiceCallable,
-                     with unit: CartUnit, from address: Address?) throws
+                     with unit: CartUnit) throws
     {
-        var unit = unit
-        unit.resetInternalProperties()
         if unit.quantity == 0 {
             throw ServiceError.noItemsToProcess
         }
 
-        let product = try productsService.getProduct(for: unit.product, from: address)
-        // set product category (for calculating tax later)
-        unit.setTax(using: product.taxCategory)
-
+        let product = try productsService.getProduct(for: unit.product, from: nil)
         if unit.quantity > product.inventory {
             throw ServiceError.productUnavailable      // precheck inventory
         }
 
-        let netPrice = Double(unit.quantity) * product.price.value
-        unit.netPrice = UnitMeasurement(value: netPrice, unit: product.price.unit)
         try checkPrice(for: product)
         let itemExists = try updateExistingItem(for: product, with: unit)
-
-        cart.netPrice!.value += unit.netPrice!.value
         if !itemExists {
             cart.items.append(unit)
         }
@@ -69,10 +60,9 @@ class CartItemModifier {
     /// - Parameters:
     ///   - using: Anything that implements `ProductsServiceCallable`
     ///   - with: The `UUID` of the item to be removed.
-    ///   - from: (Optional) `Address` of the account.
     /// - Throws: `ServiceError` if the item doesn't exist in the cart.
     func removeCartItem(using productsService: ProductsServiceCallable,
-                        with itemId: UUID, from address: Address?) throws
+                        with itemId: UUID) throws
     {
         var itemIndex: Int? = nil
         for (i, item) in cart.items.enumerated() {
@@ -82,8 +72,7 @@ class CartItemModifier {
         }
 
         if let idx = itemIndex {
-            let unit = cart.items.remove(at: idx)
-            cart.netPrice!.value -= unit.netPrice!.value
+            cart.items.remove(at: idx)
         } else {
             throw ServiceError.invalidItemId
         }
@@ -120,12 +109,11 @@ class CartItemModifier {
     ///   - with: The new `Cart` object.
     ///   - using: Anything that implements `ProductsServiceCallable`
     ///   - and: Anything that implements `CouponServiceCallable`
-    ///   - from: The `Address` from which this request originated.
     /// - Throws: `ServiceError`
     ///   - If the product doesn't exist.
     ///   - If there was an error in adding the product (low on inventory or invalid quantity).
     func updateCart(with data: Cart, using productsService: ProductsServiceCallable,
-                    and couponService: CouponServiceCallable, from address: Address?) throws
+                    and couponService: CouponServiceCallable) throws
     {
         var newItems = [CartUnit]()
         data.items.forEach { item in
@@ -138,7 +126,7 @@ class CartItemModifier {
 
         cart.items = []
         try newItems.forEach { item in
-            try addCartItem(using: productsService, with: item, from: address)
+            try addCartItem(using: productsService, with: item)
         }
 
         cart.coupons = ArraySet()
@@ -150,6 +138,64 @@ class CartItemModifier {
         if cart.coupons!.isEmpty {
             cart.coupons = nil
         }
+    }
+
+    /// Checks that the cart items exist in inventory. This resets the items, sets the tax categories,
+    /// net prices (of individual items and cart itself), removes invalid products and changes
+    /// quantities based on the data of individual items. This must be called before returning the
+    /// cart data from service.
+    ///
+    /// - Parameters:
+    ///   - using: Anything that implements `ProductsServiceCallable`
+    /// - Returns: `true` if the cart items have been modified (i.e., whether it
+    /// should be updated in the repository) and `false` if it's not.
+    func checkItemsAndSetPrices(using productsService: ProductsServiceCallable) -> Bool {
+        // Reset both the cart prices
+        cart.netPrice = nil
+        cart.grossPrice = nil
+
+        var isModified = false
+        // Check that the products still exist and have enough units in inventory.
+        var checkedItems = [CartUnit]()
+
+        cart.items.forEach { unit in
+            // Reset individual unit prices by creating a new instance
+            var unit = unit
+            unit.resetInternalProperties()
+
+            guard let product = try? productsService.getProduct(for: unit.product, from: nil) else {
+                isModified = true
+                return
+            }
+
+            // If the quantity is higher than what's available in the inventory, then clamp it.
+            if unit.quantity > product.inventory {
+                isModified = true
+                unit.quantity = UInt8(product.inventory)
+            }
+
+            if unit.quantity == 0 {
+                return
+            }
+
+            // Set product category (for calculating tax later)
+            unit.setTax(using: product.taxCategory)
+
+            let netPrice = Double(unit.quantity) * product.price.value
+            unit.netPrice = UnitMeasurement(value: netPrice, unit: product.price.unit)
+
+            if cart.netPrice == nil {
+                cart.netPrice = UnitMeasurement(value: 0, unit: product.price.unit)
+            }
+
+            cart.netPrice!.value += unit.netPrice!.value
+            // Since we've added items using `addCartItem` which already checks for duplicates,
+            // we can assume that all items in cart are unique.
+            checkedItems.append(unit)
+        }
+
+        cart.items = checkedItems
+        return isModified
     }
 
     /// Function to make sure that the cart maintains its currency unit.
@@ -173,8 +219,6 @@ class CartItemModifier {
 
             itemExists = true
             cart.items[i].quantity += unit.quantity
-            let netPrice = Double(cart.items[i].quantity) * product.price.value
-            cart.items[i].netPrice!.value = netPrice
 
             // This is just for notifying the customer. Orders service
             // will verify this before placing the order anyway.
