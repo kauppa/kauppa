@@ -6,7 +6,8 @@ import KauppaCore
 /// It's used for an update request, where one or more of these properties
 /// could be updated for an account.
 public struct AccountPatch: Mappable {
-    public var name: String? = nil
+    public var firstName: String? = nil
+    public var lastName: String? = nil
     public var emails: ArraySet<Email>? = nil
     public var phoneNumbers: ArraySet<Phone>? = nil
     public var address: [Address]? = nil

@@ -59,8 +59,12 @@ extension AccountsService: AccountsServiceCallable {
     public func updateAccount(for id: UUID, with data: AccountPatch) throws -> Account {
         var accountData = try repository.getAccount(for: id)
 
-        if let name = data.name {
-            accountData.name = name
+        if let name = data.firstName {
+            accountData.firstName = name
+        }
+
+        if let name = data.lastName {
+            accountData.lastName = name
         }
 
         if let numbers = data.phoneNumbers {

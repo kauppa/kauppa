@@ -9,7 +9,8 @@ import KauppaAccountsService
 import KauppaAccountsStore
 
 var accountData = Account()
-accountData.name = "Richard Hendricks"
+accountData.firstName = "Richard"
+accountData.lastName = "Hendricks"
 var email = Email("richard.hendricks@piedpiper.com")
 email.isVerified = true
 accountData.emails.insert(email)

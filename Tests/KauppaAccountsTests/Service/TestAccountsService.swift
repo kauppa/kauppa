@@ -35,9 +35,12 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(with: store)
         let service = AccountsService(with: repository)
         var accountData = Account()
-        accountData.name = "bobby"
+        accountData.firstName = "trevor"
+        accountData.lastName = "philips"
         accountData.emails.insert(Email("abc@xyz.com"))
         let account = try! service.createAccount(with: accountData)
+        XCTAssertEqual(accountData.firstName, "trevor")
+        XCTAssertEqual(accountData.lastName!, "philips")
         XCTAssertFalse(account.emails[0]!.isVerified)
         XCTAssertFalse(account.isVerified)
     }
@@ -48,7 +51,7 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(with: store)
         let service = AccountsService(with: repository)
         var accountData = Account()
-        accountData.name = "bobby"
+        accountData.firstName = "bobby"
         accountData.emails.insert(Email("abc@xyz.com"))
         let _ = try! service.createAccount(with: accountData)
 
@@ -66,7 +69,7 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(with: store)
         let service = AccountsService(with: repository)
         var accountData = Account()
-        accountData.name = "bobby"
+        accountData.firstName = "bobby"
         accountData.emails.insert(Email("f/oo@xyz.com"))    // invalid email
         do {
             let _ = try service.createAccount(with: accountData)
@@ -105,7 +108,7 @@ class TestAccountsService: XCTestCase {
         let service = AccountsService(with: repository)
         var accountData = Account()
         accountData.emails.insert(Email("abc@xyz.com"))
-        accountData.name = "bobby"
+        accountData.firstName = "bobby"
         let data = try! service.createAccount(with: accountData)
         try! service.deleteAccount(for: data.id!)
     }
@@ -117,7 +120,7 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(with: store)
         let service = AccountsService(with: repository)
         var accountData = Account()
-        accountData.name = "bobby"
+        accountData.firstName = "bobby"
         accountData.emails = ArraySet([Email("abc@xyz.com"), Email("def@xyz.com")])
         accountData.phoneNumbers = ArraySet([Phone("<something>")])
         let address = Address(firstName: "burn", lastName: nil, line1: "foo", line2: "bar", city: "baz",
@@ -156,7 +159,7 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(with: store)
         let service = AccountsService(with: repository)
         var accountData = Account()
-        accountData.name = "bobby"
+        accountData.firstName = "bobby"
         accountData.emails.insert(Email("abc@xyz.com"))
         let account = try! service.createAccount(with: accountData)
         XCTAssertNil(account.address)   // no addresses
@@ -189,13 +192,13 @@ class TestAccountsService: XCTestCase {
         let repository = AccountsRepository(with: store)
         let service = AccountsService(with: repository)
         var accountData = Account()
-        accountData.name = "bobby"
+        accountData.firstName = "bobby"
         accountData.emails.insert(Email("abc@xyz.com"))
         let address = Address(firstName: "squishy", lastName: nil, line1: "foo", line2: "bar", city: "baz",
                               province: "blah", country: "bleh", code: "666", label: "home")
         accountData.address = [address]
         let account = try! service.createAccount(with: accountData)
-        XCTAssertEqual(account.name, "bobby")
+        XCTAssertEqual(account.firstName, "bobby")
         XCTAssertEqual(account.emails.inner, [Email("abc@xyz.com")])
         XCTAssertEqual(account.phoneNumbers!.inner, [])
         XCTAssertEqual(account.createdOn, account.updatedAt)
@@ -203,9 +206,11 @@ class TestAccountsService: XCTestCase {
         XCTAssertEqual(account.address!.count, 1)
 
         var patch = AccountPatch()
-        patch.name = "shelby"
+        patch.firstName = "andy"
+        patch.lastName = "dufresne"
         let update1 = try! service.updateAccount(for: account.id!, with: patch)
-        XCTAssertEqual(update1.name, "shelby")      // name change
+        XCTAssertEqual(update1.firstName, "andy")       // name change
+        XCTAssertEqual(update1.lastName!, "dufresne")
         XCTAssertTrue(update1.createdOn != update1.updatedAt)   // times have changed
 
         patch.phoneNumbers = ArraySet([Phone("12345")])
@@ -224,7 +229,7 @@ class TestAccountsService: XCTestCase {
             XCTAssertEqual(err as! ServiceError, .accountEmailRequired)
         }
 
-        patch.name = ""
+        patch.firstName = ""
         do {
             let _ = try service.updateAccount(for: account.id!, with: patch)
             XCTFail()

@@ -10,8 +10,10 @@ public struct Account: Mappable {
     public var createdOn: Date?
     /// Last updated timestamp
     public var updatedAt: Date?
-    /// Name of the user
-    public var name: String = ""
+    /// First name of the user
+    public var firstName: String = ""
+    /// Last name of the user
+    public var lastName: String? = nil
     /// User's emails
     public var emails = ArraySet<Email>()
     /// User's phone number
@@ -38,7 +40,7 @@ public struct Account: Mappable {
     ///
     /// - Throws: `ServiceError` if any of the underlying data fails during validation.
     public func validate() throws {
-        if name.isEmpty {
+        if firstName.isEmpty {
             throw ServiceError.invalidAccountName
         }
 

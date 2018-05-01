@@ -60,10 +60,10 @@ class TestAccountsRepository: XCTestCase {
         var accountData = Account()
         let data = try! repository.createAccount(with: accountData)
         XCTAssertEqual(data.createdOn, data.updatedAt)
-        accountData.name = "FooBar"
+        accountData.firstName = "Foo"
         let updatedAccount = try! repository.updateAccount(for: data.id!, with: accountData)
         // We're just testing the function calls (extensive testing is done in service)
-        XCTAssertEqual(updatedAccount.name, "FooBar")
+        XCTAssertEqual(updatedAccount.firstName, "Foo")
         XCTAssertTrue(store.updateCalled)
     }
 

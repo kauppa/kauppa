@@ -66,9 +66,9 @@ class TestAccountTypes: XCTestCase {
     func testAccountData() {
         var data = Account()
         var tests = [(Account, ServiceError)]()
-        data.name = ""
+        data.firstName = ""
         tests.append((data, ServiceError.invalidAccountName))
-        data.name = "foo"
+        data.firstName = "foo"
         tests.append((data, ServiceError.accountEmailRequired))     // empty email list
         data.emails = ArraySet([Email("bleh")])
         tests.append((data, ServiceError.invalidAccountEmail))
