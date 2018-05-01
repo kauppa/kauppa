@@ -121,8 +121,8 @@ extension CartService: CartServiceCallable {
 
     public func placeOrder(for userId: UUID, with data: CheckoutData) throws -> Order {
         let account = try accountsService.getAccount(for: userId)
-        var cartData = data
-        try cartData.validate(using: account.data)
+        var checkoutData = data
+        try checkoutData.validate(using: account)
 
         var cart = try repository.getCart(for: userId)
         if cart.items.isEmpty {
@@ -134,8 +134,8 @@ extension CartService: CartServiceCallable {
             units.append(OrderUnit(for: unit.product, with: unit.quantity))
         }
 
-        var orderData = OrderData(shippingAddress: cartData.shippingAddress!,
-                                  billingAddress: cartData.billingAddress ?? cartData.shippingAddress!,
+        var orderData = OrderData(shippingAddress: checkoutData.shippingAddress!,
+                                  billingAddress: checkoutData.billingAddress ?? checkoutData.shippingAddress!,
                                   placedBy: userId, products: units)
 
         if let coupons = cart.coupons {

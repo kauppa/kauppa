@@ -17,23 +17,27 @@ public struct CheckoutData: Mappable {
     /// account. The addresses supersede the address indices. If
     ///
     /// - Parameters:
-    ///   - using: The `AccountData` provided.
+    ///   - using: The `Account` provided.
     /// - Throws: `ServiceError` if the address data is insufficient.
-    public mutating func validate(using data: AccountData) throws {
+    public mutating func validate(using data: Account) throws {
+        let addressList = data.address ?? []
+
         if shippingAddress == nil && shippingAddressAt != nil {
-            guard let address = data.address.get(from: shippingAddressAt!) else {
+            let index = shippingAddressAt!
+            if index >= addressList.count {
                 throw ServiceError.invalidAddress
             }
 
-            shippingAddress = address
+            shippingAddress = addressList[index]
         }
 
         if billingAddress == nil && billingAddressAt != nil {
-            guard let address = data.address.get(from: shippingAddressAt!) else {
+            let index = billingAddressAt!
+            if index >= addressList.count {
                 throw ServiceError.invalidAddress
             }
 
-            billingAddress = address
+            billingAddress = addressList[index]
         }
 
         if shippingAddress == nil {

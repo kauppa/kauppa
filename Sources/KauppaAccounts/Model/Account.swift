@@ -5,29 +5,69 @@ import KauppaCore
 /// Account structure that exists in repository and store.
 public struct Account: Mappable {
     /// Unique identifier for this account.
-    public var id: UUID
+    public var id: UUID?
     /// Creation timestamp
-    public let createdOn: Date
+    public var createdOn: Date?
     /// Last updated timestamp
-    public var updatedAt: Date
-    /// User-supplied data
-    public var data: AccountData
+    public var updatedAt: Date?
+    /// Name of the user
+    public var name: String = ""
+    /// User's emails
+    public var emails = ArraySet<Email>()
+    /// User's phone number
+    public var phoneNumbers: ArraySet<Phone>? = ArraySet()
+    /// A list of user's addresses
+    public var address: [Address]? = nil
 
-    /// Initialize this `Account` with account data. This sets the ID to a random UUID
-    /// and creation and updated timestamps to "now".
-    ///
-    /// - Parameters:
-    ///   - with: The `AccountData` for this account
-    public init(with data: AccountData) {
-        let date = Date()
-        self.id = UUID()
-        self.createdOn = date
-        self.updatedAt = date
-        self.data = data
+    /// Checks whether the account has at least one verified email.
+    public var isVerified: Bool {
+        return emails.get(matching: { $0.isVerified }) != nil
     }
 
-    /// Checks whether a verified account has at least one verified email.
-    public var isVerified: Bool {
-        return data.emails.get(matching: { $0.isVerified }) != nil
+    /// Initialize this `Account` (for tests).
+    // FIXME: Remove 'public' modifier.
+    public init() {
+        self.id = UUID()
+        let date = Date()
+        self.createdOn = date
+        self.updatedAt = date
+    }
+
+    /// Try some basic validations on the data. It checks that the name and emails aren't empty,
+    /// evaluates the emails against a regex and validates addresses (if specified).
+    ///
+    /// - Throws: `ServiceError` if any of the underlying data fails during validation.
+    public func validate() throws {
+        if name.isEmpty {
+            throw ServiceError.invalidAccountName
+        }
+
+        if emails.isEmpty {
+            throw ServiceError.accountEmailRequired
+        }
+
+        for email in emails {
+            /// A popular regex pattern that matches a wide range of cases.
+            if !email.value.isMatching(regex: "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)") {
+                throw ServiceError.invalidAccountEmail
+            }
+        }
+
+        for number in phoneNumbers ?? ArraySet() {
+            if number.value.isEmpty {
+                throw ServiceError.invalidAccountPhone
+            }
+        }
+
+        for addr in address ?? [] {
+            try addr.validate()
+        }
+    }
+
+    /// Get the list of verified emails associated with this account.
+    ///
+    /// - Returns: An array of verified emails from this account.
+    public func getVerifiedEmails() -> [String] {
+        return Array(emails.filter { $0.isVerified }).map { $0.value }
     }
 }

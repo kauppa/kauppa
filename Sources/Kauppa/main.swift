@@ -3,6 +3,7 @@ import Foundation
 import Kitura
 
 import KauppaCore
+import KauppaAccountsModel
 import KauppaAccountsRepository
 import KauppaAccountsService
 import KauppaAccountsStore
@@ -25,8 +26,16 @@ import KauppaTaxRepository
 import KauppaTaxService
 import KauppaTaxStore
 
+var accountData = Account()
+accountData.name = "Richard Hendricks"
+var email = Email("richard.hendricks@piedpiper.com")
+email.isVerified = true
+accountData.emails.insert(email)
+accountData.id = "BAADA555-0B16-B00B-CAFE-BABE8BADF00D".parse()!
+
 let accountsRepository = AccountsRepository(with: AccountsNoOpStore())
 let accountsService = AccountsService(with: accountsRepository)
+let _ = try! accountsRepository.createAccount(with: accountData)
 
 let taxRepository = TaxRepository(with: TaxNoOpStore())
 let taxService = TaxService(with: taxRepository)

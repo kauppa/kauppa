@@ -18,7 +18,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
     /// Overridden routes for accounts service.
     public override func initializeRoutes() {
         add(route: .createAccount) { request, response in
-            guard let data: AccountData = request.getJSON() else {
+            guard let data: Account = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 

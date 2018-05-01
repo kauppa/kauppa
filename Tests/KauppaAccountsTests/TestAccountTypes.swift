@@ -64,8 +64,8 @@ class TestAccountTypes: XCTestCase {
 
     /// Test for possible errors in `AccountData`
     func testAccountData() {
-        var data = AccountData()
-        var tests = [(AccountData, ServiceError)]()
+        var data = Account()
+        var tests = [(Account, ServiceError)]()
         data.name = ""
         tests.append((data, ServiceError.invalidAccountName))
         data.name = "foo"

@@ -72,7 +72,7 @@ extension OrdersService: OrdersServiceCallable {
         try repository.createOrder(with: factory.order)
         let mailOrder = MailOrder(from: detailedOrder)
         if let mailer = mailService {
-            mailer.sendMail(to: account.data.getVerifiedEmails(), with: mailOrder)
+            mailer.sendMail(to: account.getVerifiedEmails(), with: mailOrder)
         }
 
         return factory.order

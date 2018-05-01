@@ -8,10 +8,9 @@ import KauppaAccountsModel
 public class TestAccountsService: AccountsServiceCallable {
     var accounts = [UUID: Account]()
 
-    public func createAccount(with data: AccountData) throws -> Account {
-        let account = Account(with: data)
-        accounts[account.id] = account
-        return account
+    public func createAccount(with data: Account) throws -> Account {
+        accounts[data.id!] = data
+        return data
     }
 
     public func getAccount(for id: UUID) throws -> Account {

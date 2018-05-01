@@ -5,7 +5,7 @@ import KauppaAccountsModel
 
 /// HTTP client for the accounts service.
 public class AccountsServiceClient<C: ClientCallable>: ServiceClient<C, AccountsRoutes>, AccountsServiceCallable {
-    public func createAccount(with data: AccountData) throws -> Account {
+    public func createAccount(with data: Account) throws -> Account {
         let client = try createClient(for: .createAccount)
         try client.setJSON(using: data)
         return try requestJSON(with: client)

@@ -66,7 +66,7 @@ class TestOrdersService: XCTestCase {
         anotherProductData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let anotherProduct = try! productsService.createProduct(with: anotherProductData, from: Address())
 
-        var accountData = AccountData()
+        var accountData = Account()
         // Two emails in customer account data.
         var emails = [Email("foo@bar.com"), Email("baz@bar.com")]
         emails[0].isVerified = true     // the first one is verified
@@ -111,7 +111,7 @@ class TestOrdersService: XCTestCase {
         unit.status = OrderUnitStatus(for: 5)      // try to set fulfilled quantity
         let nextUnit = OrderUnit(for: anotherProduct.id!, with: 1)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
-                                  placedBy: account.id, products: [unit, nextUnit])
+                                  placedBy: account.id!, products: [unit, nextUnit])
         let order = try! ordersService.createOrder(with: orderData)
         // Make sure that the quantity is tracked while summing up values
         XCTAssertEqual(order.totalItems, 4)
@@ -138,7 +138,7 @@ class TestOrdersService: XCTestCase {
         productData.price = UnitMeasurement(value: 3.0, unit: .usd)
         let product = try! productsService.createProduct(with: productData, from: Address())
 
-        var accountData = AccountData()
+        var accountData = Account()
         accountsService.markAsVerified = false      // disable auto-enabling verification
         accountData.emails = ArraySet([Email("foo@bar.com")])
         let account = try! accountsService.createAccount(with: accountData)
@@ -152,7 +152,7 @@ class TestOrdersService: XCTestCase {
 
         let unit = OrderUnit(for: product.id!, with: 3)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
-                                  placedBy: account.id, products: [unit])
+                                  placedBy: account.id!, products: [unit])
         do {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
@@ -166,8 +166,7 @@ class TestOrdersService: XCTestCase {
         let store = TestStore()
         let repository = OrdersRepository(with: store)
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -176,7 +175,7 @@ class TestOrdersService: XCTestCase {
                                           couponService: couponService,
                                           taxService: taxService)
         let orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
-                                  placedBy: account.id, products: [])
+                                  placedBy: account.id!, products: [])
         do {
             let _ = try ordersService.createOrder(with: orderData)
             XCTFail()
@@ -211,8 +210,7 @@ class TestOrdersService: XCTestCase {
         let store = TestStore()
         let repository = OrdersRepository(with: store)
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -221,7 +219,7 @@ class TestOrdersService: XCTestCase {
                                           couponService: couponService,
                                           taxService: taxService)
 
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: UUID(), with: 3)])
         do {
             let _ = try ordersService.createOrder(with: orderData)
@@ -239,8 +237,7 @@ class TestOrdersService: XCTestCase {
         // By default, inventory has zero items
         let product = try! productsService.createProduct(with: productData, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
@@ -248,7 +245,7 @@ class TestOrdersService: XCTestCase {
                                           couponService: couponService,
                                           taxService: taxService)
 
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product.id!, with: 3)])
         do {
             let _ = try ordersService.createOrder(with: orderData)
@@ -268,8 +265,7 @@ class TestOrdersService: XCTestCase {
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(with: productData, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -279,7 +275,7 @@ class TestOrdersService: XCTestCase {
                                           taxService: taxService)
         // Products with zero quantity will be skipped - in this case, that's the
         // only product, and hence it fails
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product.id!, with: 0)])
         do {
             let _ = try ordersService.createOrder(with: orderData)
@@ -300,8 +296,7 @@ class TestOrdersService: XCTestCase {
         let firstProduct = try! productsService.createProduct(with: productData, from: Address())
         let secondProduct = try! productsService.createProduct(with: anotherProductData,
                                                                from: Address())
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -309,7 +304,7 @@ class TestOrdersService: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: firstProduct.id!, with: 3),
                                              OrderUnit(for: secondProduct.id!, with: 0)])
         let order = try! ordersService.createOrder(with: orderData)
@@ -327,8 +322,7 @@ class TestOrdersService: XCTestCase {
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(with: productData, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -343,7 +337,7 @@ class TestOrdersService: XCTestCase {
             inventoryUpdated.fulfill()
         }
         // Multiple quantities of the same product
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product.id!, with: 3),
                                              OrderUnit(for: product.id!, with: 3)])
         let order = try! ordersService.createOrder(with: orderData)
@@ -371,15 +365,14 @@ class TestOrdersService: XCTestCase {
         anotherData.inventory = 10
         let secondProduct = try! productsService.createProduct(with: anotherData, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: firstProduct.id!, with: 3),
                                              OrderUnit(for: secondProduct.id!, with: 3)])
         do {
@@ -398,8 +391,7 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 5
         let product = try! productsService.createProduct(with: productData, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -407,7 +399,7 @@ class TestOrdersService: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product.id!, with: 3)])
         let order = try! ordersService.createOrder(with: orderData)
         XCTAssertNil(order.cancelledAt)
@@ -424,8 +416,7 @@ class TestOrdersService: XCTestCase {
         productData.inventory = 5
         let product = try! productsService.createProduct(with: productData, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -433,7 +424,7 @@ class TestOrdersService: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product.id!, with: 3)])
         let order = try! ordersService.createOrder(with: orderData)
         let _ = try! ordersService.deleteOrder(for: order.id)

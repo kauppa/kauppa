@@ -9,7 +9,7 @@ public struct AccountPatch: Mappable {
     public var name: String? = nil
     public var emails: ArraySet<Email>? = nil
     public var phoneNumbers: ArraySet<Phone>? = nil
-    public var address: ArraySet<Address>? = nil
+    public var address: [Address]? = nil
 }
 
 /// This adds individual items to the collections residing in `AccountData`
