@@ -65,8 +65,8 @@ class TestCartService: XCTestCase {
         var checkoutData = CheckoutData()
         checkoutData.shippingAddress = Address()
 
-        do {    // empty cart should fail to place orders
-            let _ = try service.placeOrder(for: account.id!, with: checkoutData)
+        do {    // empty cart should fail to checkout
+            let _ = try service.createCheckout(for: account.id!, with: checkoutData)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ServiceError, ServiceError.noItemsToProcess)
@@ -544,6 +544,7 @@ class TestCartService: XCTestCase {
         let _ = try! service.addCartItem(for: account.id!, with: cartUnit, from: address)
         let _ = try! service.applyCoupon(for: account.id!,
                                          using: CartCoupon(code: coupon.data.code!), from: address)
+        let _ = try! service.createCheckout(for: account.id!, with: CheckoutData())
 
         let orderPlaced = expectation(description: "order has been placed")
         ordersService.callback = { data in  // make sure that orders service gets the right data
@@ -557,7 +558,7 @@ class TestCartService: XCTestCase {
             orderPlaced.fulfill()
         }
 
-        let _ = try! service.placeOrder(for: account.id!, with: CheckoutData())
+        let _ = try! service.placeOrder(for: account.id!)
         // Check that items have been flushed. This also ensures that tax isn't calculated
         // because the cart has been reset, and so the prices don't exist.
         let cart = try! service.getCart(for: account.id!, from: address)
@@ -592,9 +593,10 @@ class TestCartService: XCTestCase {
                                   taxService: taxService)
         let cartUnit = CartUnit(for: product.id!, with: 5)
         let _ = try! service.addCartItem(for: account.id!, with: cartUnit, from: Address())
+        let _ = try! service.createCheckout(for: account.id!, with: CheckoutData())
 
         do {    // errors from orders service should be propagated
-            let _ = try service.placeOrder(for: account.id!, with: CheckoutData())
+            let _ = try service.placeOrder(for: account.id!)
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ServiceError, ServiceError.productUnavailable)
@@ -608,7 +610,7 @@ class TestCartService: XCTestCase {
         let _ = try! service.addCartItem(for: account.id!, with: cartUnit, from: Address())
 
         do {    // checking out requires a valid shipping address (user doesn't have any)
-            let _ = try service.placeOrder(for: account.id!, with: CheckoutData())
+            let _ = try service.createCheckout(for: account.id!, with: CheckoutData())
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ServiceError, ServiceError.invalidAddress)

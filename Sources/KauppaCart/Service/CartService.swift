@@ -109,22 +109,44 @@ extension CartService: CartServiceCallable {
         // Cart (by itself) doesn't store tax information. It gets the tax data
         // from the tax service, applies those rates to the cart items and
         // returns the mutated data upon request.
-        if let address = address {
-            if !cart.items.isEmpty {
-                let taxRate = try taxService.getTaxRate(for: address)
-                cart.setPrices(using: taxRate)
-            }
+        var taxAddress = address
+        if let data = cart.checkoutData {
+            // If checkout data has been provided, then use shipping address for tax.
+            taxAddress = data.shippingAddress!
+        }
+
+        if !cart.items.isEmpty && taxAddress != nil {
+            let taxRate = try taxService.getTaxRate(for: taxAddress!)
+            cart.setPrices(using: taxRate)
         }
 
         return cart
     }
 
-    public func placeOrder(for userId: UUID, with data: CheckoutData) throws -> Order {
+    public func createCheckout(for userId: UUID, with data: CheckoutData) throws -> Cart {
         let account = try accountsService.getAccount(for: userId)
+        var cart = try repository.getCart(for: userId)
+
+        if cart.items.isEmpty {
+            throw ServiceError.noItemsToProcess
+        }
+
         var checkoutData = data
         try checkoutData.validate(using: account)
 
+        cart.checkoutData = checkoutData
+        try repository.updateCart(with: cart)
+        return try getCart(for: userId, from: nil)
+    }
+
+    public func placeOrder(for userId: UUID) throws -> Order {
+        let _ = try accountsService.getAccount(for: userId)
         var cart = try repository.getCart(for: userId)
+
+        guard let checkoutData = cart.checkoutData else {
+            throw ServiceError.invalidCheckoutData
+        }
+
         if cart.items.isEmpty {
             throw ServiceError.noItemsToProcess
         }

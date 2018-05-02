@@ -124,6 +124,14 @@ class CartItemModifier {
             }
         }
 
+        // If checkout data is provided, validate and set it - otherwise, reset it.
+        if var checkoutData = data.checkoutData {
+            try checkoutData.validate(using: account)
+            cart.checkoutData = checkoutData
+        } else {
+            cart.checkoutData = nil
+        }
+
         cart.items = []
         try newItems.forEach { item in
             try addCartItem(using: productsService, with: item)

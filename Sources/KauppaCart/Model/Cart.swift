@@ -17,6 +17,9 @@ public struct Cart: Mappable {
     public var grossPrice: UnitMeasurement<Currency>? = nil
     /// Coupons applied in this cart.
     public var coupons: ArraySet<UUID>? = nil
+    /// Checkout data for this cart. This should be set before
+    /// placing the order.
+    public var checkoutData: CheckoutData? = nil
 
     /// Initialize this cart with an ID.
     ///
@@ -33,6 +36,7 @@ public struct Cart: Mappable {
         netPrice = nil
         grossPrice = nil
         coupons = nil
+        checkoutData = nil
     }
 
     /// Set tax rate for items in the cart using the given `TaxRate`

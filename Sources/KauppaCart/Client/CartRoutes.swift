@@ -8,6 +8,7 @@ public enum CartRoutes: UInt8 {
     case getCart
     case updateCart
     case applyCoupon
+    case createCheckout
     case placeOrder
 }
 
@@ -24,8 +25,10 @@ extension CartRoutes: RouteRepresentable {
                 return Route(url: "/cart/:id",              method: .put)
             case .applyCoupon:
                 return Route(url: "/cart/:id/coupons",      method: .post)
-            case .placeOrder:
+            case .createCheckout:
                 return Route(url: "/cart/:id/checkout",     method: .post)
+            case .placeOrder:
+                return Route(url: "/cart/:id/checkout",     method: .put)
         }
     }
 }

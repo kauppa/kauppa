@@ -67,17 +67,30 @@ public protocol CartServiceCallable {
     /// - Throws: `ServiceError` (if the account doesn't exist).
     func getCart(for userId: UUID, from address: Address?) throws -> Cart
 
+    /// Create checkout for the user's cart with the given checkout data. This is required
+    /// for placing the order. This calculates the tax (and hence, gross price) for the user's
+    /// cart for the provided shipping address.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the account maintaining this cart.
+    ///   - with: The `CheckoutData` for this cart.
+    /// - Returns: The `Cart` data with checkout.
+    /// - Throws: `ServiceError`
+    ///   - If the account doesn't exist.
+    ///   - If the data is invalid.
+    ///   - If the cart is empty.
+    func createCheckout(for userId: UUID, with data: CheckoutData) throws -> Cart
+
     /// Checkout the cart and place an order with the items in the cart.
     ///
     /// On successful placement of the order, the items in the cart will be cleared.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account maintaining this cart.
-    ///   - with: The `CheckoutData` required for placing an order.
     /// - Returns: An `Order` containing the items in the cart.
     /// - Throws: `ServiceError`
     ///   - If the account doesn't exist.
     ///   - If the cart doesn't have items or if the data is invalid.
     ///   - If the order couldn't be placed.
-    func placeOrder(for userId: UUID, with data: CheckoutData) throws -> Order
+    func placeOrder(for userId: UUID) throws -> Order
 }

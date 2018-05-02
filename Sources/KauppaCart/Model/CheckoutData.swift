@@ -41,7 +41,7 @@ public struct CheckoutData: Mappable {
         }
 
         if shippingAddress == nil {
-            throw ServiceError.invalidAddress
+            throw ServiceError.invalidCheckoutData
         }
 
         shippingAddressAt = nil
