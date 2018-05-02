@@ -78,6 +78,19 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             try response.respondJSON(with: cart)
         }
 
+        add(route: .createCheckout) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidAccountId
+            }
+
+            guard let data: CheckoutData = request.getJSON() else {
+                throw ServiceError.clientHTTPData
+            }
+
+            let cart = try self.service.createCheckout(for: id, with: data)
+            try response.respondJSON(with: cart)
+        }
+
         add(route: .placeOrder) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId

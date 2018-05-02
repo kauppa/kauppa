@@ -31,6 +31,7 @@ class TestCartService: XCTestCase {
             ("Test invalid acccount", testInvalidAccount),
             ("Test unavailable item", testUnavailableItem),
             ("Test currency ambiguity", testCurrency),
+            ("Test cart checkout", testCheckout),
             ("Test placing order", testPlacingOrder),
             ("Test orders failure", testOrdersFail),
         ]
@@ -508,7 +509,100 @@ class TestCartService: XCTestCase {
         }
     }
 
-    // Cart service should place the order during a checkout and it should pass the items,
+    /// Test for possible checkout cases in cart.
+    func testCheckout() {
+        let store = TestStore()
+        let repository = CartRepository(with: store)
+
+        var productData1 = Product(title: "", subtitle: "", description: "")
+        productData1.inventory = 10
+        productData1.price.value = 5.0
+        productData1.taxCategory = "unknown category"       // defaults to general
+        let product1 = try! productsService.createProduct(with: productData1, from: nil)
+
+        var productData2 = Product(title: "", subtitle: "", description: "")
+        productData2.inventory = 10
+        productData2.price.value = 2.5
+        productData2.taxCategory = "drink"
+        let product2 = try! productsService.createProduct(with: productData2, from: Address())
+
+        var accountData = Account()
+        let address = Address(firstName: "foobar", lastName: nil, line1: "foo", line2: "bar", city: "baz",
+                              province: "blah", country: "bleh", code: "666", label: nil)
+        accountData.address = [address]
+        let account = try! accountsService.createAccount(with: accountData)
+
+        var rate = TaxRate()
+        rate.general = 10.0
+        rate.categories["drink"] = 5.0
+        taxService.rate = rate
+
+        let service = CartService(with: repository,
+                                  productsService: productsService,
+                                  accountsService: accountsService,
+                                  couponService: couponService,
+                                  ordersService: ordersService,
+                                  taxService: taxService)
+
+        let cartUnit = CartUnit(for: product1.id!, with: 5)
+        let oldCart = try! service.addCartItem(for: account.id!, with: cartUnit, from: nil)
+        XCTAssertNotNil(oldCart.netPrice)
+        XCTAssertNil(oldCart.grossPrice)    // Address wasn't provided, so no tax.
+        XCTAssertNil(oldCart.checkoutData)
+
+        // Test invalid checkout
+
+        var checkoutData = CheckoutData()
+        checkoutData.shippingAddressAt = nil    // no address in data
+        do {
+            let _ = try service.createCheckout(for: account.id!, with: checkoutData)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidCheckoutData)
+        }
+
+        // Test checkout creation
+
+        let checkedOutCart = try! service.createCheckout(for: account.id!, with: CheckoutData())
+        // Checkout data has shipping address. So, that's used for calculating tax.
+        XCTAssertNotNil(checkedOutCart.grossPrice)
+        XCTAssertEqual(checkedOutCart.netPrice!.value, 25)
+        XCTAssertEqual(checkedOutCart.grossPrice!.value, 27.5)
+        XCTAssertNotNil(checkedOutCart.checkoutData)
+
+        // Test cart update with null checkout
+
+        var newCart = Cart(with: account.id!)
+        newCart.items = [CartUnit(for: product1.id!, with: 3), CartUnit(for: product2.id!, with: 2)]
+        let updatedCart = try! service.updateCart(for: account.id!, with: newCart, from: nil)
+        XCTAssertNil(updatedCart.grossPrice)    // No address, so no tax.
+        XCTAssertNotNil(updatedCart.netPrice)
+        XCTAssertEqual(updatedCart.netPrice!.value, 20)
+        XCTAssertNil(updatedCart.checkoutData)      // Checkout data has been reset.
+
+        checkoutData.shippingAddressAt = nil
+        newCart.checkoutData = checkoutData
+
+        do {
+            let _ = try service.updateCart(for: account.id!, with: newCart, from: nil)
+            XCTFail()
+        } catch let err {
+            XCTAssertEqual(err as! ServiceError, ServiceError.invalidCheckoutData)
+        }
+
+        // Test cart update with proper checkout
+
+        checkoutData.shippingAddressAt = 0
+        newCart.checkoutData = checkoutData
+        let finalCart = try! service.updateCart(for: account.id!, with: newCart, from: nil)
+        XCTAssertNotNil(finalCart.grossPrice)
+        print(finalCart)
+        XCTAssertEqual(finalCart.netPrice!.value, 20)
+        XCTAssertEqual(finalCart.grossPrice!.value, 21.75)
+        XCTAssertNotNil(finalCart.checkoutData)
+    }
+
+    // Cart service should place the order after checkout and it should pass the items,
     // applied coupons and the required addresses through order data.
     func testPlacingOrder() {
         let store = TestStore()

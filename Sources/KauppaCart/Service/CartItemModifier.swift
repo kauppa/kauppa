@@ -132,9 +132,17 @@ class CartItemModifier {
             cart.checkoutData = nil
         }
 
+        let existingItems = cart.items
         cart.items = []
-        try newItems.forEach { item in
-            try addCartItem(using: productsService, with: item)
+
+        do {
+            try newItems.forEach { item in
+                try addCartItem(using: productsService, with: item)
+            }
+        } catch let err {
+            // Reset cart items on error
+            cart.items = existingItems
+            throw err
         }
 
         cart.coupons = ArraySet()

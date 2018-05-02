@@ -22,6 +22,14 @@ public struct CheckoutData: Mappable {
     public mutating func validate(using data: Account) throws {
         let addressList = data.address ?? []
 
+        if let address = shippingAddress {
+            try address.validate()
+        }
+
+        if let address = billingAddress {
+            try address.validate()
+        }
+
         if shippingAddress == nil && shippingAddressAt != nil {
             let index = shippingAddressAt!
             if index >= addressList.count {
