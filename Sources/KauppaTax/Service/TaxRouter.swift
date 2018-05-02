@@ -24,7 +24,7 @@ public class TaxRouter<R: Routing>: ServiceRouter<R, TaxRoutes> {
             }
 
             let rate = try self.service.getTaxRate(for: data)
-            response.respondJSON(with: rate)
+            try response.respondJSON(with: rate)
         }
 
         add(route: .createCountry) { request, response in
@@ -33,7 +33,7 @@ public class TaxRouter<R: Routing>: ServiceRouter<R, TaxRoutes> {
             }
 
             let country = try self.service.createCountry(with: data)
-            response.respondJSON(with: country)
+            try response.respondJSON(with: country)
         }
 
         add(route: .updateCountry) { request, response in
@@ -46,7 +46,7 @@ public class TaxRouter<R: Routing>: ServiceRouter<R, TaxRoutes> {
             }
 
             let country = try self.service.updateCountry(for: id, with: data)
-            response.respondJSON(with: country)
+            try response.respondJSON(with: country)
         }
 
         add(route: .deleteCountry) { request, response in
@@ -55,7 +55,7 @@ public class TaxRouter<R: Routing>: ServiceRouter<R, TaxRoutes> {
             }
 
             try self.service.deleteCountry(for: id)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
 
         add(route: .addRegion) { request, response in
@@ -68,7 +68,7 @@ public class TaxRouter<R: Routing>: ServiceRouter<R, TaxRoutes> {
             }
 
             let region = try self.service.addRegion(to: id, using: data)
-            response.respondJSON(with: region)
+            try response.respondJSON(with: region)
         }
 
         add(route: .updateRegion) { request, response in
@@ -81,7 +81,7 @@ public class TaxRouter<R: Routing>: ServiceRouter<R, TaxRoutes> {
             }
 
             let region = try self.service.updateRegion(for: id, with: data)
-            response.respondJSON(with: region)
+            try response.respondJSON(with: region)
         }
 
         add(route: .deleteRegion) { request, response in
@@ -90,7 +90,7 @@ public class TaxRouter<R: Routing>: ServiceRouter<R, TaxRoutes> {
             }
 
             try self.service.deleteRegion(for: id)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
     }
 }

@@ -12,7 +12,7 @@ struct DateResponse: Mappable {
 class TestServiceRouter<R: Routing>: ServiceRouter<R, TestRoute> {
     override func initializeRoutes() {
         add(route: .foo) { req, resp in
-            resp.respondJSON(with: DateResponse(), code: .ok)
+            try resp.respondJSON(with: DateResponse(), code: .ok)
         }
 
         add(route: .bar) { req, resp in
@@ -30,6 +30,7 @@ class TestRouting: XCTestCase {
         return [
             ("Test route representable object", testRouteRepresentable),
             ("Test route initialization in service router", testServiceRouterInit),
+            ("Test request date JSON encoding", testRequestDateEncoding),
             ("Test response date JSON encoding", testResponseDateEncoding),
             ("Test response service error", testResponseHandlerServiceError),
             ("Test response unhandled error", testResponseHandlerUnhandledError),
@@ -52,7 +53,7 @@ class TestRouting: XCTestCase {
 
     /// Test that initializing a service router adds the initial set of routes.
     func testServiceRouterInit() {
-        let router = SampleRouter<String>()
+        let router = SampleRouter()
         let _ = TestServiceRouter(with: router)
         // "3" for our routes, "3" for the same routes mounted for handling `OPTIONS` method.
         XCTAssertEqual(router.routes.count, 3 + 3)
@@ -61,10 +62,10 @@ class TestRouting: XCTestCase {
     /// Test that date can be properly encoded in the expected format and content type
     /// has been set in header.
     func testResponseDateEncoding() {
-        let rawRouter = SampleRouter<String>()
+        let rawRouter = SampleRouter()
         let _ = TestServiceRouter(with: rawRouter)
 
-        let req = TestRequest<String>()
+        let req = TestRequest()
         var resp = TestResponse()
         var headers = [String: String]()
 
@@ -94,12 +95,26 @@ class TestRouting: XCTestCase {
         XCTAssertEqual(headers["Content-Type"]!, "application/json")
     }
 
+    /// Test that date is properly decoded when decoding JSON data from service request.
+    func testRequestDateEncoding() {
+        let encoder = JSONEncoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = DateResponse.dateFormat
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+
+        var req = TestRequest()
+        req.data = try! encoder.encode(DateResponse())
+
+        let data: DateResponse? = req.getJSON()
+        XCTAssertNotNil(data)
+    }
+
     /// Test that the error thrown by the service is responded as a status message with an error code.
     func testResponseHandlerServiceError() {
-        let rawRouter = SampleRouter<String>()
+        let rawRouter = SampleRouter()
         let _ = TestServiceRouter(with: rawRouter)
 
-        let req = TestRequest<String>()
+        let req = TestRequest()
         var resp = TestResponse()
         var headers = [String: String]()
 
@@ -127,10 +142,10 @@ class TestRouting: XCTestCase {
 
     /// Test that any unhandled error is caught and returned as an unknown error from the service.
     func testResponseHandlerUnhandledError() {
-        let rawRouter = SampleRouter<String>()
+        let rawRouter = SampleRouter()
         let _ = TestServiceRouter(with: rawRouter)
 
-        let req = TestRequest<String>()
+        let req = TestRequest()
         var resp = TestResponse()
         var headers = [String: String]()
 
