@@ -28,23 +28,15 @@ build-release: clean
 	docker run -v $$(pwd):/tmp/kauppa -w /tmp/kauppa -it ibmcom/swift-ubuntu:4.0 swift build -c release -Xcc -fblocks -Xlinker -L/usr/local/lib
 
 clean-container:
-
 	-docker stop $(CONTAINER_NAME)
 	-docker rm $(CONTAINER_NAME)
 	-docker rmi $(CONTAINER_URL):$(CONTAINER_VERSION)
 
 build-container: clean-container build-release
-
 	docker build -t $(CONTAINER_URL):$(CONTAINER_VERSION) .
 
 build-containers: clean-containers build-release
-	ls Sources | while read service; do \
-		if [ -f "Sources/$$service/main.swift" ]; then \
-			SERVICE_NAME=$$(echo $$service | sed 's/\([A-Z]\)/ \1/g' | cut -d' ' -f3 | tr '[:upper:]' '[:lower:]') ; \
-			echo 'Building' $(CONTAINER_URL)-$$SERVICE_NAME ; \
-			docker build -t $(CONTAINER_URL):$$SERVICE_NAME-$(CONTAINER_VERSION) -f Sources/$$service/Dockerfile . ; \
-		fi ; \
-	done
+	CONTAINER_IMAGE=$(CONTAINER_URL) VERSION=$(CONTAINER_VERSION) ./scripts/build-images.sh
 
 run-containers: build-containers
 	docker run -itd --name=kauppa-accounts -p $(KAUPPA_ACCOUNTS_PORT):$(KAUPPA_SERVICE_PORT) naamio/kauppa:accounts-$(CONTAINER_VERSION) ; \
