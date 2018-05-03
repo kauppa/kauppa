@@ -2,7 +2,8 @@ import Foundation
 import XCTest
 
 import KauppaCore
-import KauppaCartModel
+import KauppaAccountsModel
+@testable import KauppaCartModel
 @testable import KauppaTaxModel
 
 class TestCartTypes: XCTestCase {
@@ -11,7 +12,8 @@ class TestCartTypes: XCTestCase {
             ("Test cart reset", testCartReset),
             ("Test cart price setting", testCartSetPrices),
             ("Test cart unit reset", testCartUnitReset),
-            ("Test cart unit price setting", testCartUnitSetPrices)
+            ("Test cart unit price setting", testCartUnitSetPrices),
+            ("Test cart checkout data validation", testCheckoutValidation),
         ]
     }
 
@@ -60,7 +62,7 @@ class TestCartTypes: XCTestCase {
         cart.reset()
         XCTAssertNil(cart.netPrice)
         XCTAssertNil(cart.grossPrice)
-        XCTAssertTrue(cart.coupons.isEmpty)
+        XCTAssertNil(cart.coupons)
         XCTAssertTrue(cart.items.isEmpty)
     }
 
@@ -90,5 +92,54 @@ class TestCartTypes: XCTestCase {
         XCTAssertEqual(cart.items[1].tax!.total.value, 1.5)
         XCTAssertEqual(cart.items[1].grossPrice!.value, 16.5)
         XCTAssertEqual(cart.grossPrice!.value, 27.7)
+    }
+
+    /// Test that the checkout object properly validates the address passed to it.
+    func testCheckoutValidation() {
+        var accountData = Account()
+        let address = Address(firstName: "foobar", lastName: nil, line1: "foo", line2: "bar", city: "baz",
+                              province: "blah", country: "bleh", code: "666", label: nil)
+        accountData.address = [address]
+
+        var data = CheckoutData()
+        data.shippingAddressAt = 0
+        XCTAssertNil(data.shippingAddress)
+        XCTAssertNil(data.billingAddress)
+        try! data.validate(using: accountData)
+        XCTAssertNil(data.shippingAddressAt)
+        XCTAssertNotNil(data.shippingAddress)
+        XCTAssertNil(data.billingAddress)
+
+        data.billingAddressAt = 0
+        try! data.validate(using: accountData)
+        XCTAssertNotNil(data.billingAddress)
+        XCTAssertNil(data.billingAddressAt)
+
+        var tests = [(CheckoutData, ServiceError)]()
+        data = CheckoutData()
+        data.shippingAddressAt = 1
+        tests.append((data, .invalidAddress))
+        data.billingAddressAt = 1
+        tests.append((data, .invalidAddress))
+
+        data = CheckoutData()
+        data.shippingAddressAt = nil
+        tests.append((data, .invalidCheckoutData))
+
+        data.shippingAddress = Address()
+        tests.append((data, .invalidAddressName))
+
+        data = CheckoutData()
+        data.billingAddress = Address()
+        tests.append((data, .invalidAddressName))
+
+        for (data, error) in tests {
+            do {
+                var data = data
+                try data.validate(using: accountData)
+            } catch let err {
+                XCTAssertEqual(err as! ServiceError, error)
+            }
+        }
     }
 }

@@ -52,8 +52,7 @@ class TestShipmentUpdates: XCTestCase {
         productData2.price = UnitMeasurement(value: 10.0, unit: .usd)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -61,7 +60,7 @@ class TestShipmentUpdates: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2)])
         var order = try! ordersService.createOrder(with: orderData)
@@ -138,8 +137,7 @@ class TestShipmentUpdates: XCTestCase {
         productData2.price = UnitMeasurement(value: 10.0, unit: .usd)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -147,7 +145,7 @@ class TestShipmentUpdates: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2)])
         var order = try! ordersService.createOrder(with: orderData)

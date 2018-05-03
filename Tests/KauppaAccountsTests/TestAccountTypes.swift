@@ -36,19 +36,19 @@ class TestAccountTypes: XCTestCase {
     /// Test for proper errors from `Address` object when during validation.
     func testAddress() {
         let tests = [
-            (Address(name: "", line1: "foo", line2: "", city: "baz", province: "blah",
+            (Address(firstName: "", lastName: nil, line1: "foo", line2: "", city: "baz", province: "blah",
                      country: "bleh", code: "666", label: nil), ServiceError.invalidAddressName),
-            (Address(name: "foobar", line1: "", line2: "", city: "baz", province: "blah",
+            (Address(firstName: "foobar", lastName: nil, line1: "", line2: "", city: "baz", province: "blah",
                      country: "bleh", code: "666", label: nil), ServiceError.invalidAddressLineData),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "", province: "blah",
+            (Address(firstName: "foobar", lastName: nil, line1: "foo", line2: "", city: "", province: "blah",
                      country: "bleh", code: "666", label: nil), ServiceError.invalidAddressCity),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "",
+            (Address(firstName: "foobar", lastName: nil, line1: "foo", line2: "", city: "baz", province: "",
                      country: "bleh", code: "666", label: nil), ServiceError.invalidAddressProvince),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
+            (Address(firstName: "foobar", lastName: nil, line1: "foo", line2: "", city: "baz", province: "blah",
                      country: "", code: "666", label: nil), ServiceError.invalidAddressCountry),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
+            (Address(firstName: "foobar", lastName: nil, line1: "foo", line2: "", city: "baz", province: "blah",
                      country: "bleh", code: "", label: nil), ServiceError.invalidAddressCode),
-            (Address(name: "foobar", line1: "foo", line2: "", city: "baz", province: "blah",
+            (Address(firstName: "foobar", lastName: nil, line1: "foo", line2: "", city: "baz", province: "blah",
                      country: "bleh", code: "666", label: ""), ServiceError.invalidAddressLabel)
         ]
 
@@ -64,11 +64,11 @@ class TestAccountTypes: XCTestCase {
 
     /// Test for possible errors in `AccountData`
     func testAccountData() {
-        var data = AccountData()
-        var tests = [(AccountData, ServiceError)]()
-        data.name = ""
+        var data = Account()
+        var tests = [(Account, ServiceError)]()
+        data.firstName = ""
         tests.append((data, ServiceError.invalidAccountName))
-        data.name = "foo"
+        data.firstName = "foo"
         tests.append((data, ServiceError.accountEmailRequired))     // empty email list
         data.emails = ArraySet([Email("bleh")])
         tests.append((data, ServiceError.invalidAccountEmail))

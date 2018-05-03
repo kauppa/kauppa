@@ -45,7 +45,7 @@ class OrdersFactory {
         self.productsService = productsService
         self.data = data
         self.account = account
-        order = Order(placedBy: account.id)
+        order = Order(placedBy: account.id!)
     }
 
     /// Method to create an order using the provided data (entrypoint for factory production).
@@ -69,7 +69,7 @@ class OrdersFactory {
 
         try updateProductInventory()
 
-        order.placedBy = account.id
+        order.placedBy = account.id!
         order.shippingAddress = data.shippingAddress
         order.billingAddress = data.billingAddress
         order.totalTax = UnitMeasurement(value: totalTax, unit: priceUnit!)

@@ -60,8 +60,7 @@ class TestOrdersWithCoupons: XCTestCase {
             XCTAssertEqual(patch.balance!.value, 15.0)  // and the second coupon
         }
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -71,7 +70,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           taxService: taxService)
         let unit = OrderUnit(for: product.id!, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
-                                  placedBy: account.id, products: [unit])
+                                  placedBy: account.id!, products: [unit])
 
         // Add two coupons to this order.
         orderData.appliedCoupons.inner = [coupon1.id, coupon2.id]
@@ -90,8 +89,7 @@ class TestOrdersWithCoupons: XCTestCase {
         productData.inventory = 5
         productData.price = UnitMeasurement(value: 5.0, unit: .usd)
         let product = try! productsService.createProduct(with: productData, from: Address())
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -101,7 +99,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           taxService: taxService)
         let unit = OrderUnit(for: product.id!, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
-                                  placedBy: account.id, products: [unit])
+                                  placedBy: account.id!, products: [unit])
 
         var cases = [(UUID, ServiceError)]()          // random ID
         cases.append((UUID(), .invalidCouponId))

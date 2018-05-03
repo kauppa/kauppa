@@ -11,10 +11,9 @@ public class TestAccountsService: AccountsServiceCallable {
     // have any verified mails. Change this flag to mimic it.
     var markAsVerified = true
 
-    public func createAccount(with data: AccountData) throws -> Account {
-        let account = Account(with: data)
-        accounts[account.id] = account
-        return account
+    public func createAccount(with data: Account) throws -> Account {
+        accounts[data.id!] = data
+        return data
     }
 
     public func getAccount(for id: UUID) throws -> Account {
@@ -25,7 +24,7 @@ public class TestAccountsService: AccountsServiceCallable {
         if markAsVerified {
             var email = Email("foo@bar.com")
             email.isVerified = true
-            account.data.emails.insert(email)
+            account.emails.insert(email)
         }
 
         return account

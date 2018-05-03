@@ -23,13 +23,13 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
         add(route: .getAttributes) { request, response in
             let attributes = try self.service.getAttributes()
             let data = MappableArray(for: attributes)
-            response.respondJSON(with: data)
+            try response.respondJSON(with: data)
         }
 
         add(route: .getCategories) { request, response in
             let categories = try self.service.getCategories()
             let data = MappableArray(for: categories)
-            response.respondJSON(with: data)
+            try response.respondJSON(with: data)
         }
 
         add(route: .createProduct) { request, response in
@@ -38,7 +38,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let product = try self.service.createProduct(with: data, from: nil)
-            response.respondJSON(with: product)
+            try response.respondJSON(with: product)
         }
 
         add(route: .getProduct) { request, response in
@@ -47,7 +47,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let product = try self.service.getProduct(for: id, from: nil)
-            response.respondJSON(with: product)
+            try response.respondJSON(with: product)
         }
 
         add(route: .deleteProduct) { request, response in
@@ -56,7 +56,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             try self.service.deleteProduct(for: id)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
 
         add(route: .updateProduct) { request, response in
@@ -69,13 +69,13 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let product = try self.service.updateProduct(for: id, with: data, from: nil)
-            response.respondJSON(with: product)
+            try response.respondJSON(with: product)
         }
 
         add(route: .getAllProducts) { request, response in
             let products = try self.service.getProducts()
             let data = MappableArray(for: products)
-            response.respondJSON(with: data)
+            try response.respondJSON(with: data)
         }
 
         add(route: .addProductProperty) { request, response in
@@ -88,7 +88,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let product = try self.service.addProductProperty(for: id, with: data, from: nil)
-            response.respondJSON(with: product)
+            try response.respondJSON(with: product)
         }
 
         add(route: .deleteProductProperty) { request, response in
@@ -101,7 +101,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let product = try self.service.deleteProductProperty(for: id, with: data, from: nil)
-            response.respondJSON(with: product)
+            try response.respondJSON(with: product)
         }
 
         add(route: .createCollection) { request, response in
@@ -110,7 +110,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let collection = try self.service.createCollection(with: data)
-            response.respondJSON(with: collection)
+            try response.respondJSON(with: collection)
         }
 
         add(route: .getCollection) { request, response in
@@ -119,7 +119,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let collection = try self.service.getCollection(for: id)
-            response.respondJSON(with: collection)
+            try response.respondJSON(with: collection)
         }
 
         add(route: .updateCollection) { request, response in
@@ -132,7 +132,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let collection = try self.service.updateCollection(for: id, with: data)
-            response.respondJSON(with: collection)
+            try response.respondJSON(with: collection)
         }
 
         add(route: .deleteCollection) { request, response in
@@ -141,7 +141,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             try self.service.deleteCollection(for: id)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
 
         add(route: .addCollectionProduct) { request, response in
@@ -154,7 +154,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let collection = try self.service.addProduct(to: id, using: data)
-            response.respondJSON(with: collection)
+            try response.respondJSON(with: collection)
         }
 
         add(route: .removeCollectionProduct) { request, response in
@@ -167,7 +167,7 @@ public class ProductsRouter<R: Routing>: ServiceRouter<R, ProductsRoutes> {
             }
 
             let collection = try self.service.removeProduct(from: id, using: data)
-            response.respondJSON(with: collection)
+            try response.respondJSON(with: collection)
         }
     }
 }

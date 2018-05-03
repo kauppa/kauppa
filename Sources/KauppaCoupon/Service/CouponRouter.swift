@@ -23,7 +23,7 @@ public class CouponRouter<R: Routing>: ServiceRouter<R, CouponRoutes> {
             }
 
             let coupon = try self.service.createCoupon(with: data)
-            response.respondJSON(with: coupon)
+            try response.respondJSON(with: coupon)
         }
 
         add(route: .getCoupon) { request, response in
@@ -33,12 +33,12 @@ public class CouponRouter<R: Routing>: ServiceRouter<R, CouponRoutes> {
                 }
 
                 let coupon = try self.service.getCoupon(for: code)
-                response.respondJSON(with: coupon)
+                try response.respondJSON(with: coupon)
                 return
             }
 
             let coupon = try self.service.getCoupon(for: couponId)
-            response.respondJSON(with: coupon)
+            try response.respondJSON(with: coupon)
         }
 
         add(route: .updateCoupon) { request, response in
@@ -51,7 +51,7 @@ public class CouponRouter<R: Routing>: ServiceRouter<R, CouponRoutes> {
             }
 
             let coupon = try self.service.updateCoupon(for: id, with: data)
-            response.respondJSON(with: coupon)
+            try response.respondJSON(with: coupon)
         }
     }
 }

@@ -54,8 +54,7 @@ class TestReturns: XCTestCase {
         productData2.price = UnitMeasurement(value: 10.0, unit: .usd)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -63,7 +62,7 @@ class TestReturns: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2)])
         var initial = try! ordersService.createOrder(with: orderData)   // create an order
@@ -121,8 +120,7 @@ class TestReturns: XCTestCase {
         productData3.price = UnitMeasurement(value: 5.0, unit: .usd)
         let product3 = try! productsService.createProduct(with: productData3, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -130,7 +128,7 @@ class TestReturns: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2),
                                              OrderUnit(for: product3.id!, with: 1)])
@@ -213,15 +211,16 @@ class TestReturns: XCTestCase {
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
         let product = try! productsService.createProduct(with: productData, from: Address())
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+
+        let account = try! accountsService.createAccount(with: Account())
+
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product.id!, with: 3)])
         let order = try! ordersService.createOrder(with: orderData)
         let _ = try! ordersService.cancelOrder(for: order.id)
@@ -248,8 +247,7 @@ class TestReturns: XCTestCase {
         productData2.price = UnitMeasurement(value: 10.0, unit: .usd)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -257,7 +255,7 @@ class TestReturns: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2)])
         var initial = try! ordersService.createOrder(with: orderData)

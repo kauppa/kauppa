@@ -1,3 +1,5 @@
+import Foundation
+
 import KauppaCore
 
 /// Wrapper object around the request responsible for getting the necessary data
@@ -17,7 +19,7 @@ public struct BridgeRequest<R: ServiceRequest>: ServiceRequest {
         return self.getParameter(for: key)
     }
 
-    public func getJSON<T: Mappable>() -> T? {
-        return self.getJSON()
+    public func getData() -> Data? {
+        return self.getData()
     }
 }

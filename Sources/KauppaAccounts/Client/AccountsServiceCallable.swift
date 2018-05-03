@@ -8,10 +8,10 @@ public protocol AccountsServiceCallable {
     /// Create an account with user-supplied information.
     ///
     /// - Parameters:
-    ///   - with: `AccountData` required for creating an account.
+    ///   - with: `Account` object required for creating an account.
     /// - Returns: A validated `Account`
     /// - Throws: `ServiceError`
-    func createAccount(with data: AccountData) throws -> Account
+    func createAccount(with data: Account) throws -> Account
 
     /// This notifies the service that an email has been verified.
     /// It gets the associated account, sets the `isVerified` flag

@@ -52,7 +52,12 @@ extension ClientCallable {
     /// - Throws: `ServiceError` on failure to encode.
     public func setJSON<D: Mappable>(using data: D) throws {
         do {
-            let jsonData = try JSONEncoder().encode(data)
+            let encoder = JSONEncoder()
+            let dateFormatter = DateFormatter()
+            // NOTE: This should be same as the one in `ServiceClient`, `ServiceRequest` and `ServiceResponse` implementation.
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+            encoder.dateEncodingStrategy = .formatted(dateFormatter)
+            let jsonData = try encoder.encode(data)
             self.setBody(using: jsonData)
             self.setHeader(key: "Content-Type", value: "application/json")
         } catch {

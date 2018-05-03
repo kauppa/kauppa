@@ -5,10 +5,10 @@ import KauppaCore
 extension String: Error {}
 
 /// Request object conforming to `ServiceRequest` used throughout testing
-struct TestRequest<J: Mappable>: ServiceRequest {
+struct TestRequest: ServiceRequest {
     var headers = [String: String]()
     var parameters = [String: String]()
-    var json: J? = nil
+    var data: Data? = nil
 
     public func getHeader(for key: String) -> String? {
         return headers[key]
@@ -22,12 +22,8 @@ struct TestRequest<J: Mappable>: ServiceRequest {
         return nil
     }
 
-    public func getJSON<T: Mappable>() -> T? {
-        if let value = json {
-            return value as? T
-        } else {
-            return nil
-        }
+    public func getData() -> Data? {
+        return data
     }
 }
 
@@ -53,8 +49,8 @@ struct TestResponse: ServiceResponse {
 }
 
 /// Router object conforming to `Routing` used throughout testing
-class SampleRouter<Req: Mappable>: Routing {
-    typealias Request = TestRequest<Req>
+class SampleRouter: Routing {
+    typealias Request = TestRequest
     typealias Response = TestResponse
 
     var routes = [Route: (Request, Response) throws -> Void]()

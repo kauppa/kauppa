@@ -25,18 +25,23 @@ extension ServiceResponse {
     /// - Parameters:
     ///   - with: The `Mappable` object to be encoded.
     ///   - code: The `HTTPStatusCode` to be set for the response.
-    public func respondJSON<T: Mappable>(with data: T, code: HTTPStatusCode = .ok) {
+    public func respondJSON<T: Mappable>(with data: T, code: HTTPStatusCode = .ok) throws {
         let encoder = JSONEncoder()
         let dateFormatter = DateFormatter()
-        // NOTE: This should be same as the one in `ServiceClient` implementation.
+        // NOTE: This should be same as the one in `ClientCallable`, `ServiceClient` and `ServiceRequest` implementation.
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        let encoded = try! encoder.encode(data)
 
         // FIXME: Remove this!
         self.setHeader(key: "Access-Control-Allow-Origin", value: "*")
 
         self.setHeader(key: "Content-Type", value: "application/json")
-        self.respond(with: encoded, code: code)
+
+        do {
+            let encoded = try encoder.encode(data)
+            self.respond(with: encoded, code: code)
+        } catch {
+            throw ServiceError.jsonSerialization
+        }
     }
 }

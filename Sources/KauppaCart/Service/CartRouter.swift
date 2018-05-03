@@ -27,7 +27,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.addCartItem(for: id, with: unit, from: nil)
-            response.respondJSON(with: cart)
+            try response.respondJSON(with: cart)
         }
 
         add(route: .removeItemFromCart) { request, response in
@@ -40,7 +40,7 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.removeCartItem(for: userId, with: itemId, from: nil)
-            response.respondJSON(with: cart)
+            try response.respondJSON(with: cart)
         }
 
         add(route: .getCart) { request, response in
@@ -49,20 +49,20 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.getCart(for: id, from: nil)
-            response.respondJSON(with: cart)
+            try response.respondJSON(with: cart)
         }
 
-        add(route: .replaceCartItems) { request, response in
+        add(route: .updateCart) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
             }
 
-            guard let data: MappableArray<CartUnit> = request.getJSON() else {
+            guard let data: Cart = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 
-            let cart = try self.service.updateCart(for: id, with: data.inner, from: nil)
-            response.respondJSON(with: cart)
+            let cart = try self.service.updateCart(for: id, with: data, from: nil)
+            try response.respondJSON(with: cart)
         }
 
         add(route: .applyCoupon) { request, response in
@@ -75,10 +75,10 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
             }
 
             let cart = try self.service.applyCoupon(for: id, using: data, from: nil)
-            response.respondJSON(with: cart)
+            try response.respondJSON(with: cart)
         }
 
-        add(route: .placeOrder) { request, response in
+        add(route: .createCheckout) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidAccountId
             }
@@ -87,8 +87,17 @@ public class CartRouter<R: Routing>: ServiceRouter<R, CartRoutes> {
                 throw ServiceError.clientHTTPData
             }
 
-            let cart = try self.service.placeOrder(for: id, with: data)
-            response.respondJSON(with: cart)
+            let cart = try self.service.createCheckout(for: id, with: data)
+            try response.respondJSON(with: cart)
+        }
+
+        add(route: .placeOrder) { request, response in
+            guard let id: UUID = request.getParameter(for: "id") else {
+                throw ServiceError.invalidAccountId
+            }
+
+            let cart = try self.service.placeOrder(for: id)
+            try response.respondJSON(with: cart)
         }
     }
 }

@@ -6,9 +6,9 @@ import KauppaTaxModel
 /// Cart that exists in repository and store.
 public struct Cart: Mappable {
     /// Unique identifier for this cart.
-    public let id: UUID
+    public var id: UUID?
     /// Last updated timestamp
-    public var updatedAt = Date()
+    public var updatedAt: Date? = Date()
     /// Stuff in the cart
     public var items: [CartUnit] = []
     /// Net price of all items in this cart.
@@ -16,7 +16,10 @@ public struct Cart: Mappable {
     /// Gross price (net price + tax) of items in this cart.
     public var grossPrice: UnitMeasurement<Currency>? = nil
     /// Coupons applied in this cart.
-    public var coupons = ArraySet<UUID>()
+    public var coupons: ArraySet<UUID>? = nil
+    /// Checkout data for this cart. This should be set before
+    /// placing the order.
+    public var checkoutData: CheckoutData? = nil
 
     /// Initialize this cart with an ID.
     ///
@@ -28,10 +31,12 @@ public struct Cart: Mappable {
 
     /// Reset this cart (called to clear the items once the cart has been checked out).
     public mutating func reset() {
+        updatedAt = Date()
         items = []
         netPrice = nil
         grossPrice = nil
-        coupons = ArraySet()
+        coupons = nil
+        checkoutData = nil
     }
 
     /// Set tax rate for items in the cart using the given `TaxRate`

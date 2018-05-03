@@ -8,17 +8,17 @@ import KauppaAccountsRepository
 import KauppaAccountsService
 import KauppaAccountsStore
 
-var accountData = AccountData()
-accountData.name = "Richard Hendricks"
+var accountData = Account()
+accountData.firstName = "Richard"
+accountData.lastName = "Hendricks"
 var email = Email("richard.hendricks@piedpiper.com")
 email.isVerified = true
 accountData.emails.insert(email)
-var account = Account(with: accountData)
-account.id = "BAADA555-0B16-B00B-CAFE-BABE8BADF00D".parse()!
+accountData.id = "BAADA555-0B16-B00B-CAFE-BABE8BADF00D".parse()!
 
 let repository = AccountsRepository(with: AccountsNoOpStore())
+let _ = try! repository.createAccount(with: accountData)
 let accountsService = AccountsService(with: repository)
-let _ = try! accountsService.createAccount(with: accountData)
 
 let router = Router()
 let serviceRouter = AccountsRouter(with: router, service: accountsService)

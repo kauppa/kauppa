@@ -18,9 +18,8 @@ public class CartServiceClient<C: ClientCallable>: ServiceClient<C, CartRoutes>,
         return try requestJSON(with: client)
     }
 
-    public func updateCart(for userId: UUID, with items: [CartUnit], from address: Address?) throws -> Cart {
-        let client = try createClient(for: .replaceCartItems, with: ["id": userId])
-        let data = MappableArray(for: items)
+    public func updateCart(for userId: UUID, with data: Cart, from address: Address?) throws -> Cart {
+        let client = try createClient(for: .updateCart, with: ["id": userId])
         try client.setJSON(using: data)
         return try requestJSON(with: client)
     }
@@ -36,9 +35,14 @@ public class CartServiceClient<C: ClientCallable>: ServiceClient<C, CartRoutes>,
         return try requestJSON(with: client)
     }
 
-    public func placeOrder(for userId: UUID, with data: CheckoutData) throws -> Order {
-        let client = try createClient(for: .placeOrder, with: ["id": userId])
+    public func createCheckout(for userId: UUID, with data: CheckoutData) throws -> Cart {
+        let client = try createClient(for: .createCheckout, with: ["id": userId])
         try client.setJSON(using: data)
+        return try requestJSON(with: client)
+    }
+
+    public func placeOrder(for userId: UUID) throws -> Order {
+        let client = try createClient(for: .placeOrder, with: ["id": userId])
         return try requestJSON(with: client)
     }
 }

@@ -62,7 +62,7 @@ public class CartRepository {
     public func updateCart(with data: Cart) throws -> () {
         var cart = data
         cart.updatedAt = Date()
-        carts[cart.id] = cart
+        carts[cart.id!] = cart
         try store.updateCart(with: cart)
     }
 }
