@@ -197,7 +197,7 @@ class TestReturns: XCTestCase {
         // pickup quantities have been updated
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 3)
         XCTAssertEqual(updatedOrder.products[1].status!.pickupQuantity, 1)
-        XCTAssertEqual(updatedOrder.shipments.count, 3)
+        XCTAssertEqual(updatedOrder.shipments.count, 2)
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)

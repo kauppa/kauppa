@@ -3,6 +3,7 @@ import XCTest
 
 import KauppaCore
 import KauppaAccountsModel
+import KauppaCartModel
 import KauppaOrdersModel
 import KauppaShipmentsClient
 import KauppaShipmentsModel
@@ -11,11 +12,7 @@ public class TestShipmentsService: ShipmentsServiceCallable {
     public var shipment: Shipment? = Shipment(for: UUID(), with: Address())
     public var callback: ((Any) -> Void)? = nil
 
-    public func createShipment(for id: UUID) throws -> Shipment {
-        if let callback = callback {
-            callback(id as Any)
-        }
-
+    public func createShipment(for id: UUID, with items: [CartUnit]?) throws -> Shipment {
         guard let data = shipment else {
             throw ServiceError.invalidShipmentId
         }

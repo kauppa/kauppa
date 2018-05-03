@@ -51,15 +51,13 @@ class OrdersFactory {
     /// Method to create an order using the provided data (entrypoint for factory production).
     ///
     /// - Parameters:
-    ///   - with: Anything that implements `ShipmentsServiceCallable`
     ///   - using: Anything that implements `CouponServiceCallable`
     ///   - calculatingWith: Anything that implements `TaxServiceCallable`
     /// - Throws: `ServiceError`
     ///   - If there were no items
     ///   - If there was an error validating the coupons.
     ///   - If there was an error in queueing shipment.
-    func createOrder(with shippingService: ShipmentsServiceCallable,
-                     using couponService: CouponServiceCallable,
+    func createOrder(using couponService: CouponServiceCallable,
                      calculatingWith taxService: TaxServiceCallable) throws
     {
         taxRate = try taxService.getTaxRate(for: data.shippingAddress)
@@ -78,9 +76,6 @@ class OrdersFactory {
         order.grossPrice = try applyCouponsOnPrice(using: couponService)
 
         try updateCoupons(using: couponService)
-
-        let shipment = try shippingService.createShipment(for: order.id)
-        order.shipments[shipment.id] = shipment.status
     }
 
     /// Method to create detailed order for mail service.
