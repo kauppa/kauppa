@@ -51,6 +51,10 @@ extension CouponService: CouponServiceCallable {
             couponData.balance = value
         }
 
+        if let currency = data.currency {
+            couponData.currency = currency
+        }
+
         if let date = data.expiresOn {
             couponData.expiresOn = date
         }

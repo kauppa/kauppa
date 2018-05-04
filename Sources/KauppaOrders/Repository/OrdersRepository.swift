@@ -90,7 +90,7 @@ public class OrdersRepository {
     /// - Throws: `ServiceError` on failure.
     public func createRefund(for orderId: UUID,
                              with reason: String, items: [CartUnit],
-                             amount: UnitMeasurement<Currency>) throws -> Refund
+                             amount: Price) throws -> Refund
     {
         var refund = Refund(for: orderId, with: reason, amount: amount)
         refund.items = items

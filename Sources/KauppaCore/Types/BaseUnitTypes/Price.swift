@@ -6,6 +6,11 @@ public class Price: Mappable {
 
     public private(set) var value: Float
 
+    /// Initialize an empty value of this type.
+    public init() {
+        self.value = Float()
+    }
+
     /// Initialize an instance from a `Float` value.
     public init(_ value: Float) {
         self.value = value

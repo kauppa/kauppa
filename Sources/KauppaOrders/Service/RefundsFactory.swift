@@ -127,13 +127,10 @@ class RefundsFactory {
     private func createRefund(for id: UUID,
                               using repository: OrdersRepository) throws -> Refund
     {
-        // We can assume that all products in a successfully placed
-        // order *will* have the same currency, because the cart checks it.
-        let currency = refundItems[0].product.price.unit
-        var totalPrice = UnitMeasurement(value: 0.0, unit: currency)
+        var totalPrice = Price()
         var items = [CartUnit]()
         for item in refundItems {
-            totalPrice.value += item.product.price.value * Double(item.quantity)
+            totalPrice += Price(item.product.price.value * Float(item.quantity))
             let unit = CartUnit(for: item.product.id!, with: item.quantity)
             items.append(unit)
         }

@@ -23,11 +23,11 @@ class OrdersFactory {
     private(set) var order: Order
 
     // Initial values required for keeping track of order properties during creation.
-    private var productPrice = 0.0
+    private var productPrice = Price()
     private var priceUnit: Currency? = nil
     private var taxRate: TaxRate? = nil
-    private var totalPrice = 0.0
-    private var totalTax = 0.0
+    private var totalPrice = Price()
+    private var totalTax = Price()
     private let weightCounter = WeightCounter()
     private var units = [DetailedUnit]()
     private var inventoryUpdates = [UUID: UInt32]()
@@ -70,8 +70,8 @@ class OrdersFactory {
         order.placedBy = account.id!
         order.shippingAddress = data.shippingAddress
         order.billingAddress = data.billingAddress
-        order.totalTax = UnitMeasurement(value: totalTax, unit: priceUnit!)
-        order.netPrice = UnitMeasurement(value: totalPrice, unit: priceUnit!)
+        order.totalTax = totalTax
+        order.netPrice = totalPrice
         order.totalWeight = weightCounter.sum()
         order.grossPrice = try applyCouponsOnPrice(using: couponService)
 
@@ -94,13 +94,13 @@ class OrdersFactory {
     /// Step 1: Check that the product currency matches with other items' currencies.
     /// (This sets the current unit's price and the currency unit used throughout the order)
     private func checkCurrency(for product: Product) throws {
-        productPrice = product.price.value
+        productPrice = product.price
         if let unit = priceUnit {
-            if unit != product.price.unit {
+            if unit != product.currency {
                 throw ServiceError.ambiguousCurrencies
             }
         } else {
-            priceUnit = product.price.unit
+            priceUnit = product.currency
         }
     }
 
@@ -122,15 +122,14 @@ class OrdersFactory {
     /// Step 3: Calculate tax and prices for a given order unit. This sets the tax rate,
     /// tax, net price and gross price for a give unit (meant to be called by `feed`).
     private func calculateUnitPrices(for unit: inout OrderUnit) {
-        let netPrice = Double(unit.item.quantity) * productPrice
-        unit.item.netPrice = UnitMeasurement(value: netPrice, unit: priceUnit!)
+        unit.item.netPrice = Price(Float(unit.item.quantity)) * productPrice
         unit.item.setPrices(using: taxRate!)
     }
 
     /// Final step: Update the counters which track the sum of values.
     private func updateCounters(for unit: OrderUnit, with product: Product) {
-        totalPrice += unit.item.netPrice!.value
-        totalTax += unit.item.tax!.total.value
+        totalPrice += unit.item.netPrice!
+        totalTax += unit.item.tax!.total
         var weight = product.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
         weight.value *= Double(unit.item.quantity)
         weightCounter.add(weight)
@@ -177,13 +176,11 @@ class OrdersFactory {
     /// Apply the user-provided coupons to this order. This affects the `finalPrice`
     ///
     /// NOTE: This should be called only after `feed`ing all items.
-    private func applyCouponsOnPrice(using couponService: CouponServiceCallable) throws
-                                    -> UnitMeasurement<Currency>
-    {
-        var finalPrice = UnitMeasurement(value: totalPrice + totalTax, unit: priceUnit!)
+    private func applyCouponsOnPrice(using couponService: CouponServiceCallable) throws -> Price {
+        var finalPrice = totalPrice + totalTax
         for id in data.appliedCoupons {
             var coupon = try couponService.getCoupon(for: id)
-            try coupon.data.deductPrice(from: &finalPrice)
+            try coupon.data.deductPrice(from: &finalPrice, with: priceUnit!)
             appliedCoupons.append(coupon)
         }
 

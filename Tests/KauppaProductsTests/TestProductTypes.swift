@@ -39,33 +39,6 @@ class TestProductTypes: XCTestCase {
         }
     }
 
-    /// Test that tax is properly stripped when tax is included along with price.
-    func testProductTaxStrip() {
-        var data = Product(title: "", subtitle: "", description: "")
-        data.tax = UnitTax()
-        data.taxCategory = "food"
-        var rate = TaxRate()
-        rate.general = 10.0
-        data.price.value = 10.0
-        data.taxInclusive = true
-        data.stripTax(using: rate)
-        XCTAssertFalse(data.taxInclusive!)  // flag has been reverted
-        XCTAssertNil(data.tax)      // Tax data is reset
-        XCTAssertTrue(data.price.value > 9.090909 && data.price.value < 9.09091)
-
-        // tax category matches with product tax category, hence this should be chosen
-        rate.categories["food"] = 12.0
-        data.price.value = 5.0
-        data.taxInclusive = true
-        data.stripTax(using: rate)
-        XCTAssertTrue(data.price.value > 4.46428571 && data.price.value < 4.46428572)
-
-        data.taxInclusive = false
-        data.price.value = 10.0
-        data.stripTax(using: rate)
-        XCTAssertEqual(data.price.value, 10.0)
-    }
-
     /// Test applying tax data to the product with a given rate.
     func testProductTaxApply() {
         var data = Product(title: "", subtitle: "", description: "")
