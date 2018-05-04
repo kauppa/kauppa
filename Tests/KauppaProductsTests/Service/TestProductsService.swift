@@ -108,6 +108,7 @@ class TestProductsService: XCTestCase {
             ("taxCategory", "\"electronics\""),
             ("images", ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"]),
             ("price", 30.0),
+            ("price", "\"30.0\""),
             ("currency", "\"USD\""),
             ("actualPrice", 25),
             ("variantId", "\"\(anotherId)\""),

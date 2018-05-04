@@ -28,6 +28,8 @@ public enum BaseType: String, Codable {
                 return value
             case .boolean:
                 return Bool(value)
+            case .currency:
+                return Price(value)
             case .number:
                 return UInt32(value)
             default:

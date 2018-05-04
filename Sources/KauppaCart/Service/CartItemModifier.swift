@@ -166,9 +166,10 @@ class CartItemModifier {
     /// - Returns: `true` if the cart items have been modified (i.e., whether it
     /// should be updated in the repository) and `false` if it's not.
     func checkItemsAndSetPrices(using productsService: ProductsServiceCallable) -> Bool {
-        // Reset both the cart prices
+        // Reset the currency and prices.
         cart.netPrice = nil
         cart.grossPrice = nil
+        cart.currency = nil
 
         var isModified = false
         // Check that the products still exist and have enough units in inventory.
@@ -196,7 +197,7 @@ class CartItemModifier {
 
             // Set product category (for calculating tax later)
             unit.setTax(using: product.taxCategory)
-
+            cart.currency = product.currency
             unit.netPrice = Price(Float(unit.quantity)) * product.price
 
             if cart.netPrice == nil {

@@ -72,6 +72,7 @@ public struct GenericOrder<User: Mappable, Coupon: Mappable, Item: Mappable>: Ma
         data.createdOn = createdOn
         data.updatedAt = updatedAt
         data.totalItems = totalItems
+        data.currency = currency
         data.netPrice = netPrice
         data.totalTax = totalTax
         data.grossPrice = grossPrice

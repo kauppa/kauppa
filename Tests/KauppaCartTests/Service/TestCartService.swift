@@ -193,6 +193,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(emptyCart.items.count, 0)
         XCTAssertNil(emptyCart.netPrice)
         XCTAssertNil(emptyCart.grossPrice)
+        XCTAssertNil(emptyCart.currency)
     }
 
     // Service should support replacing all cart items in one go.
