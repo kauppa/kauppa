@@ -101,12 +101,6 @@ class TestOrdersService: XCTestCase {
             inventoryUpdated.fulfill()
         }
 
-        let shipmentInitiated = expectation(description: "shipment has been notified")
-        shippingService.callback = { (id: Any) in
-            let _ = id as! UUID
-            shipmentInitiated.fulfill()
-        }
-
         var unit = OrderUnit(for: product.id!, with: 3)
         unit.status = OrderUnitStatus(for: 5)      // try to set fulfilled quantity
         let nextUnit = OrderUnit(for: anotherProduct.id!, with: 1)

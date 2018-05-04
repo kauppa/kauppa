@@ -34,8 +34,6 @@ public struct OrderUnitStatus: Mappable {
     ///
     /// - Parameters:
     ///   - for: The quantity of the associated item.
-    /// - Returns:
-    /// - Throws:
     public init(for quantity: UInt8) {
         fulfilledQuantity = quantity
     }

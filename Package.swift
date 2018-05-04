@@ -209,6 +209,7 @@ let serviceTargets: [Target] = [
         dependencies: [
             "KauppaCore",
             "KauppaAccountsModel",
+            "KauppaCartModel",
             "KauppaOrdersClient",
             "KauppaShipmentsClient",
             "KauppaShipmentsRepository",

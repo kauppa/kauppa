@@ -65,8 +65,7 @@ extension OrdersService: OrdersServiceCallable {
         }
 
         let factory = OrdersFactory(with: data, from: account, using: productsService)
-        try factory.createOrder(with: shippingService!, using: couponService,
-                                calculatingWith: taxService)
+        try factory.createOrder(using: couponService, calculatingWith: taxService)
         let detailedOrder = factory.createOrder()
 
         try repository.createOrder(with: factory.order)
