@@ -21,10 +21,10 @@ public struct CouponData: Mappable {
     public var note: String? = nil
 
     /// Currency of this coupon.
-    public var currency: Currency
+    public var currency = Currency.usd
 
     /// Available balance on this coupon.
-    public var balance: Price
+    public var balance = Price()
 
     /// Date on which this coupon was disabled.
     public var disabledOn: Date? = nil

@@ -55,14 +55,14 @@ class TestOrdersService: XCTestCase {
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
         productData.taxCategory = "food"
-        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData.price = Price(3)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(with: productData, from: Address())
 
         var anotherProductData = Product(title: "", subtitle: "", description: "")
         anotherProductData.inventory = 5
         anotherProductData.taxCategory = "drink"   // create another product with a different category
-        anotherProductData.price = UnitMeasurement(value: 4.0, unit: .usd)
+        anotherProductData.price = Price(4)
         anotherProductData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let anotherProduct = try! productsService.createProduct(with: anotherProductData, from: Address())
 
@@ -129,7 +129,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData.price = Price(3)
         let product = try! productsService.createProduct(with: productData, from: Address())
 
         var accountData = Account()
@@ -255,7 +255,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData.price = Price(3)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(with: productData, from: Address())
 
@@ -312,7 +312,7 @@ class TestOrdersService: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData.price = Price(3)
         productData.weight = UnitMeasurement(value: 5.0, unit: .gram)
         let product = try! productsService.createProduct(with: productData, from: Address())
 
@@ -350,12 +350,13 @@ class TestOrdersService: XCTestCase {
         let store = TestStore()
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
-        productData.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData.price = Price(3)
         productData.inventory = 10
         let firstProduct = try! productsService.createProduct(with: productData, from: Address())
 
         var anotherData = Product(title: "", subtitle: "", description: "")
-        anotherData.price = UnitMeasurement(value: 3.0, unit: .euro)
+        anotherData.price = Price(3)
+        anotherData.currency = .euro
         anotherData.inventory = 10
         let secondProduct = try! productsService.createProduct(with: anotherData, from: Address())
 

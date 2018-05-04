@@ -372,7 +372,7 @@ let daemonTargets: [Target] = [
 let testTargets: [Target] = [
     .testTarget(
         name: "KauppaAccountsTests",
-        dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore"]
+        dependencies: ["KauppaAccountsService", "KauppaAccountsModel", "KauppaCore", "TestTypes"]
     ),
     .testTarget(
         name: "KauppaCoreTests",
@@ -397,7 +397,8 @@ let testTargets: [Target] = [
             "KauppaTaxModel",
             "KauppaCartModel",
             "KauppaCartRepository",
-            "KauppaCartService"
+            "KauppaCartService",
+            "TestTypes"
         ]
     ),
     .testTarget(
@@ -407,7 +408,8 @@ let testTargets: [Target] = [
             "KauppaCouponClient",
             "KauppaCouponModel",
             "KauppaCouponRepository",
-            "KauppaCouponService"
+            "KauppaCouponService",
+            "TestTypes"
         ]
     ),
     .testTarget(
@@ -416,7 +418,7 @@ let testTargets: [Target] = [
             "KauppaCore",
             "KauppaNaamioModel",
             "KauppaNaamioService",
-            "TestTypes",
+            "TestTypes"
         ]
     ),
     .testTarget(
@@ -436,6 +438,7 @@ let testTargets: [Target] = [
             "KauppaOrdersStore",
             "KauppaTaxModel",
             "KauppaTaxClient",
+            "TestTypes"
         ]
     ),
     .testTarget(
@@ -447,7 +450,8 @@ let testTargets: [Target] = [
             "KauppaProductsService",
             "KauppaTaxClient",
             "KauppaTaxModel",
-            "KauppaCore"
+            "KauppaCore",
+            "TestTypes"
         ]
     ),
     .testTarget(
@@ -460,7 +464,8 @@ let testTargets: [Target] = [
             "KauppaShipmentsModel",
             "KauppaShipmentsRepository",
             "KauppaShipmentsService",
-            "KauppaCore"
+            "KauppaCore",
+            "TestTypes"
         ]
     ),
     .testTarget(
@@ -470,7 +475,8 @@ let testTargets: [Target] = [
             "KauppaTaxClient",
             "KauppaTaxModel",
             "KauppaTaxRepository",
-            "KauppaTaxService"
+            "KauppaTaxService",
+            "TestTypes"
         ]
     )
 ]

@@ -7,6 +7,7 @@ import KauppaAccountsModel
 @testable import KauppaProductsModel
 @testable import KauppaProductsRepository
 @testable import KauppaProductsService
+@testable import TestTypes
 
 class TestProductsService: XCTestCase {
     var taxService = TestTaxService()
@@ -56,7 +57,7 @@ class TestProductsService: XCTestCase {
         let service = ProductsService(with: repository, taxService: taxService)
         var data = Product(title: "foo", subtitle: "bar", description: "foobar")
         data.taxInclusive = true
-        data.price.value = 10.0
+        data.price = Price(10)
 
         let product = try! service.createProduct(with: data, from: nil)
         XCTAssertTrue(product.taxInclusive!)
@@ -106,7 +107,8 @@ class TestProductsService: XCTestCase {
             ("taxInclusive", "true"),
             ("taxCategory", "\"electronics\""),
             ("images", ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"]),
-            ("price", "{\"value\": 30.0, \"unit\": \"USD\"}"),
+            ("price", 30.0),
+            ("currency", "\"USD\""),
             ("actualPrice", 25),
             ("variantId", "\"\(anotherId)\""),
             ("variantId", "\"\(productId)\""),      // Self ID (shouldn't update)
@@ -155,11 +157,11 @@ class TestProductsService: XCTestCase {
         XCTAssertEqual(updatedProduct.color!, "blue")
         XCTAssertEqual(updatedProduct.inventory, 20)
         XCTAssertTrue(updatedProduct.taxInclusive!)
-        XCTAssertEqual(updatedProduct.actualPrice!, 25)
+        XCTAssertEqual(updatedProduct.actualPrice!.value, 25)
         XCTAssertEqual(updatedProduct.images!.inner,
                        ["data:image/gif;base64,foobar", "data:image/gif;base64,foo"])
         XCTAssertEqual(updatedProduct.price.value, 30.0)
-        XCTAssertEqual(updatedProduct.price.unit, .usd)
+        XCTAssertEqual(updatedProduct.currency, .usd)
         XCTAssertEqual(updatedProduct.taxCategory!, "electronics")
         XCTAssert(updatedProduct.createdOn! < updatedProduct.updatedAt!)
         XCTAssertEqual(updatedProduct.variantId!, anotherId)
@@ -179,13 +181,12 @@ class TestProductsService: XCTestCase {
         taxService.rate = rate
         let service = ProductsService(with: repository, taxService: taxService)
         var data = Product(title: "foo", subtitle: "bar", description: "foobar")
-        data.price = UnitMeasurement(value: 10.0, unit: .usd)
+        data.price = Price(10.0)
 
         var product = try! service.createProduct(with: data, from: Address())
         XCTAssertNotNil(product.tax)
         XCTAssertEqual(product.tax!.rate, 18.0)
-        let tax = product.tax!.total.value
-        XCTAssertTrue(tax > 1.79999999999 && tax < 1.80000000001)
+        TestApproxEqual(product.tax!.total.value, 1.8)
         XCTAssertNil(product.tax!.category)
         XCTAssertFalse(product.taxInclusive!)
 
@@ -195,7 +196,7 @@ class TestProductsService: XCTestCase {
         XCTAssertNotNil(product.tax)
         XCTAssertEqual(product.tax!.category!, "food")
         XCTAssertEqual(product.tax!.rate, 12.0)
-        XCTAssertEqual(product.tax!.total.value, 1.2)
+        TestApproxEqual(product.tax!.total.value, 1.2)
 
         patch.taxInclusive = true
         product = try! service.updateProduct(for: product.id!, with: patch, from: Address())

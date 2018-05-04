@@ -101,3 +101,9 @@ extension Price {
         lhs.value -= rhs.value
     }
 }
+
+extension Price: Equatable {
+    public static func ==(lhs: Price, rhs: Price) -> Bool {
+        return lhs.value == rhs.value
+    }
+}

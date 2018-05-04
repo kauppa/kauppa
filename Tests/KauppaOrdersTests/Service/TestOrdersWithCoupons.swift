@@ -44,12 +44,12 @@ class TestOrdersWithCoupons: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = UnitMeasurement(value: 5.0, unit: .usd)
+        productData.price = Price(5.0)
         let product = try! productsService.createProduct(with: productData, from: Address())
         var couponData = CouponData()
-        couponData.balance.value = 10.0
+        couponData.balance = Price(10.0)
         let coupon1 = try! couponService.createCoupon(with: couponData)
-        couponData.balance.value = 20.0
+        couponData.balance = Price(20.0)
         let coupon2 = try! couponService.createCoupon(with: couponData)
 
         couponService.callbacks[coupon1.id] = { patch in
@@ -87,7 +87,7 @@ class TestOrdersWithCoupons: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = UnitMeasurement(value: 5.0, unit: .usd)
+        productData.price = Price(5.0)
         let product = try! productsService.createProduct(with: productData, from: Address())
         let account = try! accountsService.createAccount(with: Account())
 
@@ -108,8 +108,8 @@ class TestOrdersWithCoupons: XCTestCase {
         var coupon = try! couponService.createCoupon(with: couponData)
         cases.append((coupon.id, .noBalance))
 
-        couponData.balance.value = 10.0
-        couponData.balance.unit = .euro       // product price is in USD
+        couponData.balance = Price(10.0)
+        couponData.currency = .euro     // product price is in USD
         coupon = try! couponService.createCoupon(with: couponData)
         cases.append((coupon.id, .ambiguousCurrencies))
 

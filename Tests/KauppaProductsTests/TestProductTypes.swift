@@ -4,13 +4,13 @@ import XCTest
 import KauppaCore
 @testable import KauppaTaxModel
 @testable import KauppaProductsModel
+@testable import TestTypes
 
 class TestProductTypes: XCTestCase {
     static var allTests: [(String, (TestProductTypes) -> () throws -> Void)] {
         return [
             ("Test product data", testProductData),
             ("Test collection data", testCollectionData),
-            ("Test product tax stripping", testProductTaxStrip),
             ("Test product tax apply", testProductTaxApply),
         ]
     }
@@ -45,19 +45,19 @@ class TestProductTypes: XCTestCase {
         XCTAssertNil(data.tax)
         var rate = TaxRate()
         rate.general = 10.0
-        data.price.value = 10.0
+        data.price = Price(10)
         data.taxCategory = "some unknown category"
         data.setTax(using: rate)
         XCTAssertEqual(data.tax!.rate, 10.0)
         XCTAssertNil(data.tax!.category)        // unknown category is ignored
-        XCTAssertEqual(data.tax!.total.value, 1.0)
+        TestApproxEqual(data.tax!.total.value, 1.0)
 
         data.taxCategory = "drink"
         rate.categories["drink"] = 8.0
         data.setTax(using: rate)
         XCTAssertEqual(data.tax!.rate, 8.0)
         XCTAssertEqual(data.tax!.category, "drink")     // matching category is applied
-        XCTAssertEqual(data.tax!.total.value, 0.8)
+        TestApproxEqual(data.tax!.total.value, 0.8)
     }
 
     func testCollectionData() {
