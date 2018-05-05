@@ -15,9 +15,9 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
     /// Tax data for this cart unit (set by service).
     public var tax: UnitTax? = nil
     /// The price of this unit without tax (set by service).
-    public var netPrice: UnitMeasurement<Currency>? = nil
+    public var netPrice: Price? = nil
     /// The price of this unit with tax (set by service).
-    public var grossPrice: UnitMeasurement<Currency>? = nil
+    public var grossPrice: Price? = nil
 
     /// This ensures that the service-settable properties are null.
     public mutating func resetInternalProperties() {
@@ -47,7 +47,6 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
     /// NOTE: This requires the `tax` and `netPrice` to be set for this unit.
     /// If this item belongs to a category, then it should be set in the `tax` property.
     public mutating func setPrices(using taxRate: TaxRate) {
-        let currency = netPrice!.unit
         var rate = taxRate.general
         if let category = tax!.category {
             if let r = taxRate.categories[category] {
@@ -57,9 +56,9 @@ public struct GenericCartUnit<P: Mappable>: Mappable {
 
         tax!.rate = rate
         let unitTax = rate * 0.01 * netPrice!.value
-        tax!.total = UnitMeasurement(value: unitTax, unit: currency)
+        tax!.total = Price(unitTax)
         let unitGross = netPrice!.value + unitTax
-        grossPrice = UnitMeasurement(value: unitGross, unit: currency)
+        grossPrice = Price(unitGross)
     }
 
     /// Initialize this `CartUnit` with a product and the quantity of items.

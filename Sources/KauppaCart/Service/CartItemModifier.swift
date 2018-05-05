@@ -90,9 +90,9 @@ class CartItemModifier {
         }
 
         var coupon = try couponService.getCoupon(for: data.code)
-        var zero = UnitMeasurement(value: 0.0, unit: cart.netPrice!.unit)
+        var zero = Price()
         // This only validates the coupon - because we're passing zero.
-        try coupon.data.deductPrice(from: &zero)
+        try coupon.data.deductPrice(from: &zero, with: cart.currency!)
 
         if cart.coupons == nil {
             cart.coupons = ArraySet([coupon.id])
@@ -166,9 +166,10 @@ class CartItemModifier {
     /// - Returns: `true` if the cart items have been modified (i.e., whether it
     /// should be updated in the repository) and `false` if it's not.
     func checkItemsAndSetPrices(using productsService: ProductsServiceCallable) -> Bool {
-        // Reset both the cart prices
+        // Reset the currency and prices.
         cart.netPrice = nil
         cart.grossPrice = nil
+        cart.currency = nil
 
         var isModified = false
         // Check that the products still exist and have enough units in inventory.
@@ -196,15 +197,14 @@ class CartItemModifier {
 
             // Set product category (for calculating tax later)
             unit.setTax(using: product.taxCategory)
-
-            let netPrice = Double(unit.quantity) * product.price.value
-            unit.netPrice = UnitMeasurement(value: netPrice, unit: product.price.unit)
+            cart.currency = product.currency
+            unit.netPrice = Price(Float(unit.quantity)) * product.price
 
             if cart.netPrice == nil {
-                cart.netPrice = UnitMeasurement(value: 0, unit: product.price.unit)
+                cart.netPrice = Price()
             }
 
-            cart.netPrice!.value += unit.netPrice!.value
+            cart.netPrice! += unit.netPrice!
             // Since we've added items using `addCartItem` which already checks for duplicates,
             // we can assume that all items in cart are unique.
             checkedItems.append(unit)
@@ -216,12 +216,12 @@ class CartItemModifier {
 
     /// Function to make sure that the cart maintains its currency unit.
     private func checkPrice(for product: Product) throws {
-        if let price = cart.netPrice {
-            if price.unit != product.price.unit {
+        if let currency = cart.currency {
+            if currency != product.currency {
                 throw ServiceError.ambiguousCurrencies
             }
         } else {    // initialize price if it's not been done already
-            cart.netPrice = UnitMeasurement(value: 0.0, unit: product.price.unit)
+            cart.currency = product.currency
         }
     }
 

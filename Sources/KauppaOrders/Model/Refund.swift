@@ -43,7 +43,7 @@ public struct Refund: Mappable {
     /// Items associated with this refund.
     public var items = [CartUnit]()
     /// Refund amount.
-    public let amount: UnitMeasurement<Currency>
+    public let amount: Price
 
     /// Initialize this object with the given data.
     ///
@@ -51,7 +51,7 @@ public struct Refund: Mappable {
     ///   - for: The ID of the order to which this refund belongs to.
     ///   - with: The reason for initiating this refund.
     ///   - amount: Refund amount.
-    public init(for orderId: UUID, with reason: String, amount: UnitMeasurement<Currency>) {
+    public init(for orderId: UUID, with reason: String, amount: Price) {
         self.orderId = orderId
         self.reason = reason
         self.amount = amount

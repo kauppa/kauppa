@@ -20,8 +20,11 @@ public struct CouponData: Mappable {
     /// Custom note for this coupon.
     public var note: String? = nil
 
+    /// Currency of this coupon.
+    public var currency = Currency.usd
+
     /// Available balance on this coupon.
-    public var balance: UnitMeasurement<Currency> = UnitMeasurement(value: 0.0, unit: .usd)
+    public var balance = Price()
 
     /// Date on which this coupon was disabled.
     public var disabledOn: Date? = nil
@@ -55,8 +58,9 @@ public struct CouponData: Mappable {
     ///
     /// - Parameters:
     ///   - from: The price to which the change should be made.
+    ///   - with: The currency used in transaction.
     /// - Throws: `ServiceError` if there was an error in changing the price.
-    public mutating func deductPrice(from price: inout UnitMeasurement<Currency>) throws {
+    public mutating func deductPrice(from price: inout Price, with currency: Currency) throws {
         if let date = expiresOn {
             if date < Date() {
                 throw ServiceError.couponExpired
@@ -73,16 +77,16 @@ public struct CouponData: Mappable {
             throw ServiceError.noBalance
         }
 
-        if price.unit != balance.unit {
+        if currency != self.currency {
             throw ServiceError.ambiguousCurrencies
         }
 
-        if price.value > balance.value {
-            price.value -= balance.value
-            balance.value = 0.0
+        if price > balance {
+            price -= balance
+            balance = Price()
         } else {
-            balance.value -= price.value
-            price.value = 0.0
+            balance -= price
+            price = Price()
         }
     }
 

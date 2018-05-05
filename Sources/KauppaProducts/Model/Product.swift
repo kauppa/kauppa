@@ -33,11 +33,12 @@ public struct Product: Mappable {
     public var inventory: UInt32 = 0
     /// Base64-encoded images (or) Image URLs.
     public var images: ArraySet<String>? = ArraySet()
-    /// Retail price of the product in some chosen currency
-    // FIXME: Avoid `Double` to avoid floating point disasters.
-    public var price = UnitMeasurement(value: 0, unit: Currency.usd)
-    /// Wholesale price of the product (currency is same as the one in retail price)..
-    public var actualPrice: Double? = nil
+    /// Retail price of the product.
+    public var price = Price()
+    /// Currency used in this product.
+    public var currency = Currency.usd
+    /// Wholesale price of the product (currency is same as the one in retail price).
+    public var actualPrice: Price? = nil
     /// Specify whether this price is inclusive of taxes.
     ///
     /// If this is `true` while creating the product, then the tax is deducted
@@ -68,25 +69,6 @@ public struct Product: Mappable {
         self.description = description
     }
 
-    /// Strip tax from price using the given `TaxRate` if it's inclusive of tax.
-    ///
-    /// - Parameters:
-    ///   - using: The `TaxRate` to be used for calculation.
-    public mutating func stripTax(using taxRate: TaxRate) {
-        tax = nil
-        var rate = taxRate.general
-        if let category = self.taxCategory {
-            if let r = taxRate.categories[category] {
-                rate = r
-            }
-        }
-
-        if taxInclusive ?? false {  // revert the flag and set the actual product price.
-            taxInclusive = false
-            price.value /= (1 + 0.01 * rate)
-        }
-    }
-
     /// Set the tax-related properties using the given `TaxRate`
     ///
     /// NOTE: The `price` should be exclusive of tax.
@@ -105,8 +87,7 @@ public struct Product: Mappable {
         }
 
         tax!.rate = rate
-        let unitTax = rate * 0.01 * price.value
-        tax!.total = UnitMeasurement(value: unitTax, unit: price.unit)
+        tax!.total = Price(rate * 0.01 * price.value)
     }
 
     /// Perform basic validation on product data. Currently, this checks the

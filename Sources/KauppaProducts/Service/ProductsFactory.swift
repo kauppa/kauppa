@@ -158,6 +158,10 @@ class ProductsFactory {
             data.price = price
         }
 
+        if let currency = patch.currency {
+            data.currency = currency
+        }
+
         if let category = patch.taxCategory {
             data.taxCategory = category
         }

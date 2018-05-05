@@ -41,8 +41,8 @@ class TestCouponTypes: XCTestCase {
         var data = CouponData()
         try! data.validate()
         tests.append((data, .noBalance))
-        data.balance.value = 100.0
-        data.balance.unit = .euro
+        data.balance = Price(100)
+        data.currency = .euro
         tests.append((data, .ambiguousCurrencies))
         data.disabledOn = Date()
         tests.append((data, .couponDisabled))
@@ -52,22 +52,22 @@ class TestCouponTypes: XCTestCase {
         for (testCase, error) in tests {
             do {
                 var coupon = testCase
-                var price = UnitMeasurement(value: 120.0, unit: Currency.usd)
-                try coupon.deductPrice(from: &price)
+                var price = Price(120)
+                try coupon.deductPrice(from: &price, with: .usd)
                 XCTFail()
             } catch let err {
                 XCTAssertEqual(err as! ServiceError, error)
             }
         }
 
-        var price = UnitMeasurement(value: 120.0, unit: Currency.usd)
+        var price = Price(120.0)
         data = CouponData()
-        data.balance.value = 100.0
-        try! data.deductPrice(from: &price)
+        data.balance = Price(100)
+        try! data.deductPrice(from: &price, with: .usd)
         XCTAssertEqual(data.balance.value, 0)
         XCTAssertEqual(price.value, 20.0)
-        data.balance.value = 50.0
-        try! data.deductPrice(from: &price)
+        data.balance = Price(50)
+        try! data.deductPrice(from: &price, with: .usd)
         XCTAssertEqual(data.balance.value, 30.0)
         XCTAssertEqual(price.value, 0)
     }

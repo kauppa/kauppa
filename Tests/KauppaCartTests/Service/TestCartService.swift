@@ -10,6 +10,7 @@ import KauppaOrdersModel
 @testable import KauppaCartService
 @testable import KauppaProductsModel
 @testable import KauppaTaxModel
+@testable import TestTypes
 
 class TestCartService: XCTestCase {
     let productsService = TestProductsService()
@@ -80,13 +81,13 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        productData.price.value = 7.0       // default is USD
+        productData.price = Price(7)        // default is USD
         productData.taxCategory = "some unknown category"       // tax should default to general
         let product = try! productsService.createProduct(with: productData, from: Address())
 
         var anotherProductData = Product(title: "", subtitle: "", description: "")
         anotherProductData.inventory = 10
-        anotherProductData.price.value = 13.0
+        anotherProductData.price = Price(13.0)
         anotherProductData.taxCategory = "food"
         let anotherProduct = try! productsService.createProduct(with: anotherProductData, from: Address())
 
@@ -110,8 +111,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(cart.items[0].netPrice!.value, 28.0)
         XCTAssertEqual(cart.items[0].tax!.category!, "some unknown category")
         XCTAssertEqual(cart.items[0].tax!.rate, 14.0)
-        let taxValue = cart.items[0].tax!.total.value
-        XCTAssert(taxValue > 3.919999999999 && taxValue < 3.920000000001)   // FIXME: Floating point mystery
+        TestApproxEqual(cart.items[0].tax!.total.value, 3.92)
         XCTAssertEqual(cart.items[0].grossPrice!.value, 31.92)
         XCTAssertEqual(cart.netPrice!.value, 28.0)
         XCTAssertEqual(cart.grossPrice!.value, 31.92)
@@ -133,7 +133,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(updatedCart.items[1].netPrice!.value, 65.0)
         XCTAssertEqual(updatedCart.items[1].tax!.category!, "food")
         XCTAssertEqual(updatedCart.items[1].tax!.rate, 10.0)
-        XCTAssertEqual(updatedCart.items[1].tax!.total.value, 6.5)
+        TestApproxEqual(updatedCart.items[1].tax!.total.value, 6.5)
         XCTAssertEqual(updatedCart.items[1].grossPrice!.value, 71.5)
         XCTAssertEqual(updatedCart.netPrice!.value, 114.0)
         XCTAssertEqual(updatedCart.grossPrice!.value, 127.36)
@@ -145,12 +145,12 @@ class TestCartService: XCTestCase {
         let repository = CartRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 10
-        productData.price.value = 7.0
+        productData.price = Price(7.0)
         productData.taxCategory = "unknown category"    // defaults to general
         let product = try! productsService.createProduct(with: productData, from: Address())
         var anotherProductData = Product(title: "", subtitle: "", description: "")
         anotherProductData.inventory = 10
-        anotherProductData.price.value = 13.0
+        anotherProductData.price = Price(13.0)
         anotherProductData.taxCategory = "food"
         let anotherProduct = try! productsService.createProduct(with: anotherProductData, from: Address())
 
@@ -193,6 +193,7 @@ class TestCartService: XCTestCase {
         XCTAssertEqual(emptyCart.items.count, 0)
         XCTAssertNil(emptyCart.netPrice)
         XCTAssertNil(emptyCart.grossPrice)
+        XCTAssertNil(emptyCart.currency)
     }
 
     // Service should support replacing all cart items in one go.
@@ -202,19 +203,19 @@ class TestCartService: XCTestCase {
 
         var productData1 = Product(title: "", subtitle: "", description: "")
         productData1.inventory = 10
-        productData1.price.value = 5.0
+        productData1.price = Price(5.0)
         productData1.taxCategory = "unknown category"       // defaults to general
         let product1 = try! productsService.createProduct(with: productData1, from: Address())
 
         var productData2 = Product(title: "", subtitle: "", description: "")
         productData2.inventory = 10
-        productData2.price.value = 2.5
+        productData2.price = Price(2.5)
         productData2.taxCategory = "drink"
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
         var productData3 = Product(title: "", subtitle: "", description: "")
         productData3.inventory = 10
-        productData3.price.value = 2
+        productData3.price = Price(2)
         productData3.taxCategory = "drink"
         let product3 = try! productsService.createProduct(with: productData3, from: Address())
 
@@ -253,17 +254,17 @@ class TestCartService: XCTestCase {
 
         var productData1 = Product(title: "", subtitle: "", description: "")
         productData1.inventory = 10
-        productData1.price.value = 5.0
+        productData1.price = Price(5.0)
         let product1 = try! productsService.createProduct(with: productData1, from: Address())
 
         var productData2 = Product(title: "", subtitle: "", description: "")
         productData2.inventory = 10
-        productData2.price.value = 2.5
+        productData2.price = Price(2.5)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
         var productData3 = Product(title: "", subtitle: "", description: "")
         productData3.inventory = 10
-        productData3.price.value = 2
+        productData3.price = Price(2)
         let product3 = try! productsService.createProduct(with: productData3, from: Address())
 
         let account = try! accountsService.createAccount(with: Account())
@@ -324,7 +325,7 @@ class TestCartService: XCTestCase {
         }
 
         var couponData = CouponData()       // create coupon
-        couponData.balance.value = 10.0
+        couponData.balance = Price(10.0)
         try! couponData.validate()
         let coupon = try! couponService.createCoupon(with: couponData)
 
@@ -371,8 +372,8 @@ class TestCartService: XCTestCase {
                 //
             }, .noBalance),
             ({ coupon in
-                coupon.data.balance.value = 10.0
-                coupon.data.balance.unit = .euro
+                coupon.data.balance = Price(10.0)
+                coupon.data.currency = .euro
             }, .ambiguousCurrencies),
             ({ coupon in
                 coupon.data.disabledOn = Date()
@@ -488,7 +489,7 @@ class TestCartService: XCTestCase {
         let productUsd = try! productsService.createProduct(with: productUsdData, from: Address())
         var productEuroData = Product(title: "", subtitle: "", description: "")
         productEuroData.inventory = 10
-        productEuroData.price.unit = .euro
+        productEuroData.currency = .euro
         let productEuro = try! productsService.createProduct(with: productEuroData, from: Address())
         let account = try! accountsService.createAccount(with: Account())
 
@@ -516,13 +517,13 @@ class TestCartService: XCTestCase {
 
         var productData1 = Product(title: "", subtitle: "", description: "")
         productData1.inventory = 10
-        productData1.price.value = 5.0
+        productData1.price = Price(5.0)
         productData1.taxCategory = "unknown category"       // defaults to general
         let product1 = try! productsService.createProduct(with: productData1, from: nil)
 
         var productData2 = Product(title: "", subtitle: "", description: "")
         productData2.inventory = 10
-        productData2.price.value = 2.5
+        productData2.price = Price(2.5)
         productData2.taxCategory = "drink"
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
@@ -596,7 +597,6 @@ class TestCartService: XCTestCase {
         newCart.checkoutData = checkoutData
         let finalCart = try! service.updateCart(for: account.id!, with: newCart, from: nil)
         XCTAssertNotNil(finalCart.grossPrice)
-        print(finalCart)
         XCTAssertEqual(finalCart.netPrice!.value, 20)
         XCTAssertEqual(finalCart.grossPrice!.value, 21.75)
         XCTAssertNotNil(finalCart.checkoutData)
@@ -621,7 +621,7 @@ class TestCartService: XCTestCase {
         let account = try! accountsService.createAccount(with: accountData)
 
         var couponData = CouponData()       // create coupon
-        couponData.balance.value = 10.0
+        couponData.balance = Price(10.0)
         try! couponData.validate()
         let coupon = try! couponService.createCoupon(with: couponData)
 
