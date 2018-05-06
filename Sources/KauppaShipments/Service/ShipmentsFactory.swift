@@ -1,7 +1,6 @@
 import Foundation
 
 import KauppaCore
-import KauppaCartModel
 import KauppaOrdersModel
 import KauppaShipmentsModel
 import KauppaShipmentsRepository
@@ -9,22 +8,22 @@ import KauppaShipmentsRepository
 /// Factory class for creating shipments for order items.
 class ShipmentsFactory {
     let order: Order
-    let items: [CartUnit]?
+    let items: [OrderUnit]?
 
     private var orderItems = [UUID: UInt8]()
-    private var shipmentItems = [CartUnit]()
+    private var shipmentItems = [OrderUnit]()
 
     /// Initialize this factory with an order and (optional) list of items.
     ///
     /// - Parameters:
     ///   - for: The `Order` associated with this shipment.
-    ///   - with: The list of `CartUnit` objects with item IDs and quantities.
-    init(for order: Order, with items: [CartUnit]?) {
+    ///   - with: The list of `OrderUnit` objects with item IDs and quantities.
+    init(for order: Order, with items: [OrderUnit]?) {
         self.order = order
         self.items = items
 
         order.products.forEach { unit in
-            orderItems[unit.item.product] = unit.item.quantity
+            orderItems[unit.product] = unit.quantity
         }
     }
 
@@ -38,7 +37,7 @@ class ShipmentsFactory {
         if items != nil && !items!.isEmpty {
             try processItems()
         } else {
-            shipmentItems = order.products.map { $0.item }
+            shipmentItems = order.products
         }
 
         if shipmentItems.isEmpty {
@@ -76,7 +75,7 @@ class ShipmentsFactory {
         }
 
         for (item, quantity) in itemQuantities {
-            shipmentItems.append(CartUnit(for: item, with: quantity))
+            shipmentItems.append(OrderUnit(for: item, with: quantity))
         }
     }
 }

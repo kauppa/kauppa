@@ -46,7 +46,7 @@ class TestShipmentsService: XCTestCase {
         ordersService.callback = { any in
             let (_, notifyData) = any as! (UUID, Shipment)
             XCTAssertEqual(notifyData.items.count, 1)
-            XCTAssertEqual(notifyData.items[0].product, self.ordersService.order.products[0].item.product)
+            XCTAssertEqual(notifyData.items[0].product, self.ordersService.order.products[0].product)
             orderNotified.fulfill()
         }
 
@@ -54,7 +54,7 @@ class TestShipmentsService: XCTestCase {
         XCTAssertEqual(data.createdOn, data.updatedAt)      // created and updated timestamps are equal
         XCTAssertEqual(data.orderId, id)    // shipment is bound to this order ID.
         XCTAssertEqual(data.items.count, 1)     // order unit is obtained from orders service.
-        XCTAssertEqual(data.items[0].product, ordersService.order.products[0].item.product)
+        XCTAssertEqual(data.items[0].product, ordersService.order.products[0].product)
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
@@ -82,7 +82,7 @@ class TestShipmentsService: XCTestCase {
         let product2 = UUID()
 
         ordersService.order.products = [OrderUnit(for: product1, with: 10), OrderUnit(for: product2, with: 3)]
-        var items = [CartUnit(for: UUID(), with: 21), CartUnit(for: product2, with: 0)]
+        var items = [OrderUnit(for: UUID(), with: 21), OrderUnit(for: product2, with: 0)]
 
         do {
             let _ = try service.createShipment(for: id, with: items)
@@ -92,7 +92,7 @@ class TestShipmentsService: XCTestCase {
         }
 
         items[0].product = product1
-        items.append(CartUnit(for: product1, with: 5))      // duplicate
+        items.append(OrderUnit(for: product1, with: 5))      // duplicate
 
         let shipment = try! service.createShipment(for: id, with: items)
         XCTAssertEqual(shipment.items.count, 1)
@@ -128,7 +128,7 @@ class TestShipmentsService: XCTestCase {
         }
 
         var pickupData = PickupItems()
-        pickupData.items = [CartUnit(for: productId, with: 5)]
+        pickupData.items = [OrderUnit(for: productId, with: 5)]
         data = try! service.schedulePickup(for: ordersService.order.id, with: pickupData)
         let orderNotified = expectation(description: "orders service notified of pickup completion")
         ordersService.callback = { any in

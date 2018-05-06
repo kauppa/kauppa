@@ -40,9 +40,6 @@ public struct Product: Mappable {
     /// Wholesale price of the product (currency is same as the one in retail price).
     public var actualPrice: Price? = nil
     /// Specify whether this price is inclusive of taxes.
-    ///
-    /// If this is `true` while creating the product, then the tax is deducted
-    /// from the price, this flag is changed, and the base price is stored.
     public var taxInclusive: Bool? = false
     /// Tax data for this product.
     public var tax: UnitTax? = nil
@@ -88,6 +85,7 @@ public struct Product: Mappable {
 
         tax!.rate = rate
         tax!.total = Price(rate * 0.01 * price.value)
+        tax!.inclusive = taxInclusive ?? false
     }
 
     /// Perform basic validation on product data. Currently, this checks the

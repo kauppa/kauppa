@@ -1,7 +1,7 @@
 import Foundation
 
 import KauppaCore
-import KauppaCartModel
+import KauppaOrdersModel
 import KauppaShipmentsModel
 import KauppaShipmentsClient
 
@@ -23,8 +23,8 @@ public class ShipmentsRouter<R: Routing>: ServiceRouter<R, ShipmentsRoutes> {
                 throw ServiceError.invalidOrderId
             }
 
-            var items: [CartUnit]? = nil
-            if let list: MappableArray<CartUnit> = request.getJSON() {
+            var items: [OrderUnit]? = nil
+            if let list: MappableArray<OrderUnit> = request.getJSON() {
                 items = list.inner
             }
 

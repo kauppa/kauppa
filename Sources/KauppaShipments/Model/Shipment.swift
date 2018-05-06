@@ -2,7 +2,6 @@ import Foundation
 
 import KauppaCore
 import KauppaAccountsModel
-import KauppaCartModel
 import KauppaOrdersModel
 
 /// Shipment data that exists in repository and store.
@@ -18,7 +17,7 @@ public struct Shipment: Mappable {
     /// Shipping address for the order.
     public let address: Address
     /// Items from the order.
-    public var items = [CartUnit]()
+    public var items = [OrderUnit]()
     /// Status of this shipment.
     public var status = ShipmentStatus.shipping
 

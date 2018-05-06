@@ -20,7 +20,7 @@ extension OrdersService {
                                       expectFulfillment: Bool = true) throws -> Int
     {
         for (idx, unit) in order.products.enumerated() {
-            if id != unit.item.product {
+            if id != unit.product {
                 continue
             }
 

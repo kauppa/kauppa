@@ -7,7 +7,7 @@ import KauppaOrdersModel
 
 /// HTTP client for the cart service.
 public class CartServiceClient<C: ClientCallable>: ServiceClient<C, CartRoutes>, CartServiceCallable {
-    public func addCartItem(for userId: UUID, with unit: CartUnit, from address: Address?) throws -> Cart {
+    public func addCartItem(for userId: UUID, with unit: OrderUnit, from address: Address?) throws -> Cart {
         let client = try createClient(for: .addItemToCart, with: ["id": userId])
         try client.setJSON(using: unit)
         return try requestJSON(with: client)

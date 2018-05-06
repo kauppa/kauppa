@@ -67,6 +67,7 @@ class OrdersFactory {
 
         try updateProductInventory()
 
+        order.currency = priceUnit!
         order.placedBy = account.id!
         order.shippingAddress = data.shippingAddress
         order.billingAddress = data.billingAddress
@@ -111,29 +112,32 @@ class OrdersFactory {
     {
         // Let's also check for duplicated product (if it exists in our dict)
         let available = inventoryUpdates[product.id!] ?? product.inventory
-        if available < unit.item.quantity {
+        if available < unit.quantity {
             throw ServiceError.productUnavailable
         }
 
-        let leftover = available - UInt32(unit.item.quantity)
+        let leftover = available - UInt32(unit.quantity)
         inventoryUpdates[product.id!] = leftover
     }
 
     /// Step 3: Calculate tax and prices for a given order unit. This sets the tax rate,
     /// tax, net price and gross price for a give unit (meant to be called by `feed`).
     private func calculateUnitPrices(for unit: inout OrderUnit) {
-        unit.item.netPrice = Price(Float(unit.item.quantity)) * productPrice
-        unit.item.setPrices(using: taxRate!)
+        unit.netPrice = Price(Float(unit.quantity)) * productPrice
+        unit.setPrices(using: taxRate!)
     }
 
     /// Final step: Update the counters which track the sum of values.
     private func updateCounters(for unit: OrderUnit, with product: Product) {
-        totalPrice += unit.item.netPrice!
-        totalTax += unit.item.tax!.total
+        totalPrice += unit.netPrice!
+        if !unit.tax!.inclusive {   // Add tax only if product's tax is not inclusive
+            totalTax += unit.tax!.total
+        }
+
         var weight = product.weight ?? UnitMeasurement(value: 0.0, unit: .gram)
-        weight.value *= Double(unit.item.quantity)
+        weight.value *= Double(unit.quantity)
         weightCounter.add(weight)
-        order.totalItems += UInt16(unit.item.quantity)
+        order.totalItems += UInt16(unit.quantity)
     }
 
     /// Feed an order unit to this factory. This checks each product, tracks inventory,
@@ -142,19 +146,20 @@ class OrdersFactory {
     private func feed(_ unit: OrderUnit) throws {
         var unit = unit
         unit.resetInternalProperties()      // reset this unit
-        if unit.item.quantity == 0 {        // skip zero'ed items
+        if unit.quantity == 0 {        // skip zero'ed items
             return
         }
 
-        let product = try productsService.getProduct(for: unit.item.product,
+        let product = try productsService.getProduct(for: unit.product,
                                                      from: data.shippingAddress)
         try checkCurrency(for: product)
         try updateConsumedInventory(for: product, with: unit)
-        unit.item.setTax(using: product.taxCategory)    // set the category for taxes
+        unit.setTax(using: product.taxCategory)    // set the category for taxes
+        unit.tax!.inclusive = product.taxInclusive ?? false
         calculateUnitPrices(for: &unit)
 
         order.products.append(unit)
-        units.append(GenericOrderUnit(for: product, with: unit.item.quantity))
+        units.append(GenericOrderUnit(for: product, with: unit.quantity))
         updateCounters(for: unit, with: product)
     }
 

@@ -3,14 +3,14 @@ import Foundation
 import KauppaCore
 import KauppaAccountsModel
 import KauppaAccountsClient
+import KauppaCartClient
+import KauppaCartModel
+import KauppaCartRepository
 import KauppaCouponClient
 import KauppaOrdersClient
 import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaTaxClient
-import KauppaCartClient
-import KauppaCartModel
-import KauppaCartRepository
 
 /// Public API for the cart belonging to a customer account.
 public class CartService {
@@ -49,7 +49,7 @@ public class CartService {
 
 // NOTE: See the actual protocol in `KauppaCartClient` for exact usage.
 extension CartService: CartServiceCallable {
-    public func addCartItem(for userId: UUID, with unit: CartUnit,
+    public func addCartItem(for userId: UUID, with unit: OrderUnit,
                             from address: Address?) throws -> Cart
     {
         let account = try accountsService.getAccount(for: userId)

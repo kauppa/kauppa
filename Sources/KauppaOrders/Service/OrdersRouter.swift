@@ -36,6 +36,12 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             try response.respondJSON(with: order)
         }
 
+        add(route: .getAllOrders) { request, response in
+            let orders = try self.service.getOrders()
+            let data = MappableArray(for: orders)
+            try response.respondJSON(with: data)
+        }
+
         add(route: .cancelOrder) { request, response in
             guard let id: UUID = request.getParameter(for: "id") else {
                 throw ServiceError.invalidOrderId

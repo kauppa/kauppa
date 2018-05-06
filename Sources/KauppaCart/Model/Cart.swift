@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaOrdersModel
 import KauppaTaxModel
 
 /// Cart that exists in repository and store.
@@ -10,7 +11,7 @@ public struct Cart: Mappable {
     /// Last updated timestamp
     public var updatedAt: Date? = Date()
     /// Stuff in the cart
-    public var items: [CartUnit] = []
+    public var items: [OrderUnit] = []
     /// Currency used in this cart.
     public var currency: Currency? = nil
     /// Net price of all items in this cart.

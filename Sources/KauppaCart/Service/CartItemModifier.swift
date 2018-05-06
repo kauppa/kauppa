@@ -4,6 +4,7 @@ import KauppaCore
 import KauppaAccountsModel
 import KauppaCartModel
 import KauppaCouponClient
+import KauppaOrdersModel
 import KauppaProductsClient
 import KauppaProductsModel
 import KauppaTaxClient
@@ -31,13 +32,16 @@ class CartItemModifier {
     ///
     /// - Parameters:
     ///   - using: Anything that implements `ProductsServiceCallable`
-    ///   - with: The `CartUnit` added by the account.
+    ///   - with: The `OrderUnit` added by the account.
     /// - Throws: `ServiceError`
     ///   - If the product doesn't exist.
     ///   - If there was an error in adding the product (low on inventory or invalid quantity).
     func addCartItem(using productsService: ProductsServiceCallable,
-                     with unit: CartUnit) throws
+                     with unit: OrderUnit) throws
     {
+        var unit = unit
+        unit.resetInternalProperties()
+
         if unit.quantity == 0 {
             throw ServiceError.noItemsToProcess
         }
@@ -115,7 +119,7 @@ class CartItemModifier {
     func updateCart(with data: Cart, using productsService: ProductsServiceCallable,
                     and couponService: CouponServiceCallable) throws
     {
-        var newItems = [CartUnit]()
+        var newItems = [OrderUnit]()
         data.items.forEach { item in
             if let idx = newItems.index(where: { $0.product == item.product }) {
                 newItems[idx].quantity += item.quantity
@@ -173,7 +177,7 @@ class CartItemModifier {
 
         var isModified = false
         // Check that the products still exist and have enough units in inventory.
-        var checkedItems = [CartUnit]()
+        var checkedItems = [OrderUnit]()
 
         cart.items.forEach { unit in
             // Reset individual unit prices by creating a new instance
@@ -197,6 +201,7 @@ class CartItemModifier {
 
             // Set product category (for calculating tax later)
             unit.setTax(using: product.taxCategory)
+            unit.tax!.inclusive = product.taxInclusive ?? false
             cart.currency = product.currency
             unit.netPrice = Price(Float(unit.quantity)) * product.price
 
@@ -226,7 +231,7 @@ class CartItemModifier {
     }
 
     /// Check if the product already exists (if it does, mutate the corresponding unit)
-    private func updateExistingItem(for product: Product, with unit: CartUnit) throws -> Bool {
+    private func updateExistingItem(for product: Product, with unit: OrderUnit) throws -> Bool {
         var itemExists = false
         for (i, item) in cart.items.enumerated() {
             if item.product != product.id {
