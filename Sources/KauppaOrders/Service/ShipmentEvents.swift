@@ -14,7 +14,7 @@ extension OrdersService {
         for unit in data.items {
             let i = try OrdersService.findEnumeratedProduct(in: order, for: unit.product,
                                                             expectFulfillment: false)
-            let expectedQuantity = order.products[i].item.quantity
+            let expectedQuantity = order.products[i].quantity
             if unit.quantity > expectedQuantity {
                 throw ServiceError.invalidDeliveryQuantity
             }

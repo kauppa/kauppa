@@ -61,6 +61,8 @@ public enum ServiceError: UInt16, Error {
     case noItemsInCart
     /// One or more products are unavailable in the inventory.
     case productUnavailable
+    /// Checkout data missing for placing order.
+    case invalidCheckoutData
 
     /* Coupon service errors */
 

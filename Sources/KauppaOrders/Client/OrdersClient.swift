@@ -17,6 +17,13 @@ public class OrdersServiceClient<C: ClientCallable>: ServiceClient<C, OrdersRout
         return try requestJSON(with: client)
     }
 
+    // FIXME: Remove this!
+    public func getOrders() throws -> [Order] {
+        let client = try createClient(for: .getAllOrders)
+        let data: MappableArray<Order> = try requestJSON(with: client)
+        return data.inner
+    }
+
     public func cancelOrder(for id: UUID) throws -> Order {
         let client = try createClient(for: .cancelOrder, with: ["id": id])
         return try requestJSON(with: client)

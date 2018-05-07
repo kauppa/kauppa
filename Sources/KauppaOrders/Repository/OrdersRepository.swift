@@ -1,7 +1,6 @@
 import Foundation
 
 import KauppaCore
-import KauppaCartModel
 import KauppaOrdersModel
 import KauppaOrdersStore
 
@@ -47,6 +46,11 @@ public class OrdersRepository {
         return order
     }
 
+    // FIXME: Stub for service. Support pagination.
+    public func getOrders() throws -> [Order] {
+        return Array(orders.values)
+    }
+
     /// Update an order with the given data from the service.
     ///
     /// It takes an optional parameter `skipDate` for skipping
@@ -89,8 +93,8 @@ public class OrdersRepository {
     /// - Returns: `Refund` object
     /// - Throws: `ServiceError` on failure.
     public func createRefund(for orderId: UUID,
-                             with reason: String, items: [CartUnit],
-                             amount: UnitMeasurement<Currency>) throws -> Refund
+                             with reason: String, items: [OrderUnit],
+                             amount: Price) throws -> Refund
     {
         var refund = Refund(for: orderId, with: reason, amount: amount)
         refund.items = items

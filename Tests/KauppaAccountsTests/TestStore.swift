@@ -16,11 +16,11 @@ public class TestStore: AccountsStorable {
 
     public func createAccount(with data: Account) throws -> () {
         createCalled = true
-        for email in data.data.emails {
+        for email in data.emails {
             emails[email.value] = data.id
         }
 
-        accounts[data.id] = data
+        accounts[data.id!] = data
     }
 
     public func getAccount(for id: UUID) throws -> Account {
@@ -51,6 +51,6 @@ public class TestStore: AccountsStorable {
 
     public func updateAccount(with data: Account) throws -> () {
         updateCalled = true
-        accounts[data.id] = data
+        accounts[data.id!] = data
     }
 }

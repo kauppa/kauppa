@@ -13,13 +13,13 @@ public protocol CartServiceCallable {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account maintaining this cart.
-    ///   - with: The `CartUnit` that needs to be added to the cart.
+    ///   - with: The `OrderUnit` that needs to be added to the cart.
     ///   - from: The (optional) `Address` from which this request was originated.
     /// - Returns: The `Cart` data (with all the items contained inside).
     /// - Throws: `ServiceError`
     ///   - If the account doesn't exist.
     ///   - If the item couldn't be added to the cart.
-    func addCartItem(for userId: UUID, with unit: CartUnit, from address: Address?) throws -> Cart
+    func addCartItem(for userId: UUID, with unit: OrderUnit, from address: Address?) throws -> Cart
 
     /// Remove a product item from the cart associated with an account.
     ///
@@ -38,13 +38,13 @@ public protocol CartServiceCallable {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account maintaining this cart.
-    ///   - with: The list of `CartUnit` objects.
+    ///   - with: The new `Cart` object.
     ///   - from: The (optional) `Address` from which this request was originated.
     /// - Returns: Updated `Cart` data (with all the items contained inside).
     /// - Throws: `ServiceError`
     ///   - If the account doesn't exist.
     ///   - If the item couldn't be added to the cart.
-    func updateCart(for userId: UUID, with items: [CartUnit], from address: Address?) throws -> Cart
+    func updateCart(for userId: UUID, with data: Cart, from address: Address?) throws -> Cart
 
     /// Apply a coupon to this cart.
     ///
@@ -67,17 +67,30 @@ public protocol CartServiceCallable {
     /// - Throws: `ServiceError` (if the account doesn't exist).
     func getCart(for userId: UUID, from address: Address?) throws -> Cart
 
+    /// Create checkout for the user's cart with the given checkout data. This is required
+    /// for placing the order. This calculates the tax (and hence, gross price) for the user's
+    /// cart for the provided shipping address.
+    ///
+    /// - Parameters:
+    ///   - for: The `UUID` of the account maintaining this cart.
+    ///   - with: The `CheckoutData` for this cart.
+    /// - Returns: The `Cart` data with checkout.
+    /// - Throws: `ServiceError`
+    ///   - If the account doesn't exist.
+    ///   - If the data is invalid.
+    ///   - If the cart is empty.
+    func createCheckout(for userId: UUID, with data: CheckoutData) throws -> Cart
+
     /// Checkout the cart and place an order with the items in the cart.
     ///
     /// On successful placement of the order, the items in the cart will be cleared.
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account maintaining this cart.
-    ///   - with: The `CheckoutData` required for placing an order.
     /// - Returns: An `Order` containing the items in the cart.
     /// - Throws: `ServiceError`
     ///   - If the account doesn't exist.
     ///   - If the cart doesn't have items or if the data is invalid.
     ///   - If the order couldn't be placed.
-    func placeOrder(for userId: UUID, with data: CheckoutData) throws -> Order
+    func placeOrder(for userId: UUID) throws -> Order
 }

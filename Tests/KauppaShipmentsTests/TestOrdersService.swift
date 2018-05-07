@@ -36,6 +36,11 @@ public class TestOrdersService: OrdersServiceCallable {
     }
 
     // NOTE: Not meant to be called by shipments
+    public func getOrders() throws -> [Order] {
+        return []
+    }
+
+    // NOTE: Not meant to be called by shipments
     public func returnOrder(for id: UUID, with data: PickupData) throws -> Order {
         throw ServiceError.invalidOrderId
     }

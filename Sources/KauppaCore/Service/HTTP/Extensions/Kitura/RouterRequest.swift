@@ -1,3 +1,5 @@
+import Foundation
+
 import Kitura
 
 extension RouterRequest: ServiceRequest {
@@ -13,7 +15,9 @@ extension RouterRequest: ServiceRequest {
         return value.parse()
     }
 
-    public func getJSON<T: Mappable>() -> T? {
-        return try? self.read(as: T.self)
+    public func getData() -> Data? {
+        var data = Data()
+        let result = try? self.read(into: &data)
+        return result != nil ? data : nil
     }
 }

@@ -8,8 +8,10 @@ import KauppaCore
 public struct CouponPatch: Mappable {
     /// Disable the coupon.
     public var disable: Bool? = nil
+    /// Change the currency of the coupon.
+    public var currency: Currency? = nil
     /// New balance for the coupon.
-    public var balance: UnitMeasurement<Currency>? = nil
+    public var balance: Price? = nil
     /// Set the expiry date for the coupon.
     public var expiresOn: Date? = nil
     /// Add a note for the coupon.

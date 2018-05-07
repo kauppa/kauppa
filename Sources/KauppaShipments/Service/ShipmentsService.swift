@@ -29,11 +29,12 @@ public class ShipmentsService {
 
 // NOTE: See the actual protocol in `KauppaShipmentsClient` for exact usage.
 extension ShipmentsService: ShipmentsServiceCallable {
-    public func createShipment(for orderId: UUID) throws -> Shipment {
+    public func createShipment(for orderId: UUID, with items: [OrderUnit]?) throws -> Shipment {
         let order = try ordersService.getOrder(for: orderId)
-        let address = order.shippingAddress
-        let items = order.products.map { $0.item }
-        return try repository.createShipment(for: orderId, with: items, to: address)
+        let factory = ShipmentsFactory(for: order, with: items)
+        let shipment = try factory.createShipment(using: repository)
+        try ordersService.updateShipment(for: orderId, with: shipment)
+        return shipment
     }
 
     public func notifyShipping(for id: UUID) throws -> Shipment {

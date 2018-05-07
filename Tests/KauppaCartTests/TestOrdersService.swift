@@ -28,6 +28,11 @@ public class TestOrdersService: OrdersServiceCallable {
     }
 
     // NOTE: Not meant to be called by cart
+    public func getOrders() throws -> [Order] {
+        return []
+    }
+
+    // NOTE: Not meant to be called by cart
     public func deleteOrder(for id: UUID) throws -> () {
         throw ServiceError.invalidOrderId
     }

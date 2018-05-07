@@ -44,12 +44,12 @@ class TestOrdersWithCoupons: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = UnitMeasurement(value: 5.0, unit: .usd)
+        productData.price = Price(5.0)
         let product = try! productsService.createProduct(with: productData, from: Address())
         var couponData = CouponData()
-        couponData.balance.value = 10.0
+        couponData.balance = Price(10.0)
         let coupon1 = try! couponService.createCoupon(with: couponData)
-        couponData.balance.value = 20.0
+        couponData.balance = Price(20.0)
         let coupon2 = try! couponService.createCoupon(with: couponData)
 
         couponService.callbacks[coupon1.id] = { patch in
@@ -60,8 +60,7 @@ class TestOrdersWithCoupons: XCTestCase {
             XCTAssertEqual(patch.balance!.value, 15.0)  // and the second coupon
         }
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -71,7 +70,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           taxService: taxService)
         let unit = OrderUnit(for: product.id!, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
-                                  placedBy: account.id, products: [unit])
+                                  placedBy: account.id!, products: [unit])
 
         // Add two coupons to this order.
         orderData.appliedCoupons.inner = [coupon1.id, coupon2.id]
@@ -88,10 +87,9 @@ class TestOrdersWithCoupons: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
-        productData.price = UnitMeasurement(value: 5.0, unit: .usd)
+        productData.price = Price(5.0)
         let product = try! productsService.createProduct(with: productData, from: Address())
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -101,7 +99,7 @@ class TestOrdersWithCoupons: XCTestCase {
                                           taxService: taxService)
         let unit = OrderUnit(for: product.id!, with: 3)
         var orderData = OrderData(shippingAddress: Address(), billingAddress: nil,
-                                  placedBy: account.id, products: [unit])
+                                  placedBy: account.id!, products: [unit])
 
         var cases = [(UUID, ServiceError)]()          // random ID
         cases.append((UUID(), .invalidCouponId))
@@ -110,8 +108,8 @@ class TestOrdersWithCoupons: XCTestCase {
         var coupon = try! couponService.createCoupon(with: couponData)
         cases.append((coupon.id, .noBalance))
 
-        couponData.balance.value = 10.0
-        couponData.balance.unit = .euro       // product price is in USD
+        couponData.balance = Price(10.0)
+        couponData.currency = .euro     // product price is in USD
         coupon = try! couponService.createCoupon(with: couponData)
         cases.append((coupon.id, .ambiguousCurrencies))
 

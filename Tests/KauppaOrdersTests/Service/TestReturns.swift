@@ -2,7 +2,6 @@ import Foundation
 import XCTest
 
 import KauppaCore
-import KauppaCartModel
 @testable import KauppaAccountsModel
 @testable import KauppaOrdersModel
 @testable import KauppaOrdersRepository
@@ -46,16 +45,15 @@ class TestReturns: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData1 = Product(title: "", subtitle: "", description: "")
         productData1.inventory = 5
-        productData1.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData1.price = Price(3)
         let product1 = try! productsService.createProduct(with: productData1, from: Address())
 
         var productData2 = Product(title: "", subtitle: "", description: "")
         productData2.inventory = 5
-        productData2.price = UnitMeasurement(value: 10.0, unit: .usd)
+        productData2.price = Price(10)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -63,7 +61,7 @@ class TestReturns: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2)])
         var initial = try! ordersService.createOrder(with: orderData)   // create an order
@@ -108,21 +106,20 @@ class TestReturns: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData1 = Product(title: "", subtitle: "", description: "")
         productData1.inventory = 5
-        productData1.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData1.price = Price(3.0)
         let product1 = try! productsService.createProduct(with: productData1, from: Address())
 
         var productData2 = Product(title: "", subtitle: "", description: "")
         productData2.inventory = 5
-        productData2.price = UnitMeasurement(value: 10.0, unit: .usd)
+        productData2.price = Price(10.0)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
         var productData3 = Product(title: "", subtitle: "", description: "")
         productData3.inventory = 5
-        productData3.price = UnitMeasurement(value: 5.0, unit: .usd)
+        productData3.price = Price(5.0)
         let product3 = try! productsService.createProduct(with: productData3, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -130,7 +127,7 @@ class TestReturns: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2),
                                              OrderUnit(for: product3.id!, with: 1)])
@@ -159,8 +156,8 @@ class TestReturns: XCTestCase {
         }
 
         var pickupData = PickupData()   // first partial return
-        pickupData.units = [CartUnit(for: product1.id!, with: 1),
-                            CartUnit(for: product3.id!, with: 1)]
+        pickupData.units = [OrderUnit(for: product1.id!, with: 1),
+                            OrderUnit(for: product3.id!, with: 1)]
         var updatedOrder = try! ordersService.returnOrder(for: order.id, with: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 1)
@@ -191,15 +188,15 @@ class TestReturns: XCTestCase {
             pickup2Scheduled.fulfill()
         }
 
-        pickupData.units = [CartUnit(for: product1.id!, with: 2),
-                            CartUnit(for: product2.id!, with: 1)]
+        pickupData.units = [OrderUnit(for: product1.id!, with: 2),
+                            OrderUnit(for: product2.id!, with: 1)]
         updatedOrder = try! ordersService.returnOrder(for: order.id, with: pickupData)
         XCTAssertEqual(updatedOrder.products[0].status!.fulfilledQuantity, 3)
         XCTAssertEqual(updatedOrder.products[1].status!.fulfilledQuantity, 2)
         // pickup quantities have been updated
         XCTAssertEqual(updatedOrder.products[0].status!.pickupQuantity, 3)
         XCTAssertEqual(updatedOrder.products[1].status!.pickupQuantity, 1)
-        XCTAssertEqual(updatedOrder.shipments.count, 3)
+        XCTAssertEqual(updatedOrder.shipments.count, 2)
 
         waitForExpectations(timeout: 1) { error in
             XCTAssertNil(error)
@@ -213,15 +210,16 @@ class TestReturns: XCTestCase {
         var productData = Product(title: "", subtitle: "", description: "")
         productData.inventory = 5
         let product = try! productsService.createProduct(with: productData, from: Address())
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+
+        let account = try! accountsService.createAccount(with: Account())
+
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
                                           productsService: productsService,
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product.id!, with: 3)])
         let order = try! ordersService.createOrder(with: orderData)
         let _ = try! ordersService.cancelOrder(for: order.id)
@@ -240,16 +238,15 @@ class TestReturns: XCTestCase {
         let repository = OrdersRepository(with: store)
         var productData1 = Product(title: "", subtitle: "", description: "")
         productData1.inventory = 5
-        productData1.price = UnitMeasurement(value: 3.0, unit: .usd)
+        productData1.price = Price(3.0)
         let product1 = try! productsService.createProduct(with: productData1, from: Address())
 
         var productData2 = Product(title: "", subtitle: "", description: "")
         productData2.inventory = 5
-        productData2.price = UnitMeasurement(value: 10.0, unit: .usd)
+        productData2.price = Price(10.0)
         let product2 = try! productsService.createProduct(with: productData2, from: Address())
 
-        let accountData = AccountData()
-        let account = try! accountsService.createAccount(with: accountData)
+        let account = try! accountsService.createAccount(with: Account())
 
         let ordersService = OrdersService(with: repository,
                                           accountsService: accountsService,
@@ -257,7 +254,7 @@ class TestReturns: XCTestCase {
                                           shippingService: shippingService,
                                           couponService: couponService,
                                           taxService: taxService)
-        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id,
+        let orderData = OrderData(shippingAddress: Address(), billingAddress: nil, placedBy: account.id!,
                                   products: [OrderUnit(for: product1.id!, with: 3),
                                              OrderUnit(for: product2.id!, with: 2)])
         var initial = try! ordersService.createOrder(with: orderData)
@@ -267,7 +264,7 @@ class TestReturns: XCTestCase {
         let order = try! repository.updateOrder(with: initial)
 
         var pickupData = PickupData()
-        pickupData.units = [CartUnit(for: UUID(), with: 2)]
+        pickupData.units = [OrderUnit(for: UUID(), with: 2)]
         do {    // Test invalid product
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
@@ -275,7 +272,7 @@ class TestReturns: XCTestCase {
             XCTAssertEqual(err as! ServiceError, .invalidItemId)
         }
 
-        pickupData.units = [CartUnit(for: product2.id!, with: 2)]
+        pickupData.units = [OrderUnit(for: product2.id!, with: 2)]
         do {    // Test unfulfilled item
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()
@@ -283,7 +280,7 @@ class TestReturns: XCTestCase {
             XCTAssertEqual(err as! ServiceError, .unfulfilledItem)
         }
 
-        pickupData.units = [CartUnit(for: product1.id!, with: 5)]
+        pickupData.units = [OrderUnit(for: product1.id!, with: 5)]
         do {    // Test invalid quantity for fulfilled item
             let _ = try ordersService.returnOrder(for: order.id, with: pickupData)
             XCTFail()

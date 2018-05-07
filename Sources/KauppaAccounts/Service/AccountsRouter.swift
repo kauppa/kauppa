@@ -18,12 +18,12 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
     /// Overridden routes for accounts service.
     public override func initializeRoutes() {
         add(route: .createAccount) { request, response in
-            guard let data: AccountData = request.getJSON() else {
+            guard let data: Account = request.getJSON() else {
                 throw ServiceError.clientHTTPData
             }
 
             let account = try self.service.createAccount(with: data)
-            response.respondJSON(with: account)
+            try response.respondJSON(with: account)
         }
 
         add(route: .verifyEmail) { request, response in
@@ -36,7 +36,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
             }
 
             try self.service.verifyEmail(email.value)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
 
         add(route: .getAccount) { request, response in
@@ -45,7 +45,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
             }
 
             let account = try self.service.getAccount(for: id)
-            response.respondJSON(with: account)
+            try response.respondJSON(with: account)
         }
 
         add(route: .deleteAccount) { request, response in
@@ -54,7 +54,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
             }
 
             try self.service.deleteAccount(for: id)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
 
         add(route: .updateAccount) { request, response in
@@ -67,7 +67,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
             }
 
             let account = try self.service.updateAccount(for: id, with: data)
-            response.respondJSON(with: account)
+            try response.respondJSON(with: account)
         }
 
         add(route: .addAccountProperty) { request, response in
@@ -80,7 +80,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
             }
 
             let account = try self.service.addAccountProperty(to: id, using: data)
-            response.respondJSON(with: account)
+            try response.respondJSON(with: account)
         }
 
         add(route: .deleteAccountProperty) { request, response in
@@ -93,7 +93,7 @@ public class AccountsRouter<R: Routing>: ServiceRouter<R, AccountsRoutes> {
             }
 
             let account = try self.service.deleteAccountProperty(from: id, using: data)
-            response.respondJSON(with: account)
+            try response.respondJSON(with: account)
         }
     }
 }

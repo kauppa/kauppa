@@ -9,6 +9,7 @@ class TestServiceClient: XCTestCase {
     static var allTests: [(String, (TestServiceClient) -> () throws -> Void)] {
         return [
             ("Test service client JSON response", testClientResponse),
+            ("Test service client JSON request", testClientRequest),
             ("Test service error in JSON response", testClientServiceError),
             ("Test no data in JSON response", testClientNoData),
             ("Test invalid error code in JSON response", testClientInvalidServiceError),
@@ -16,7 +17,7 @@ class TestServiceClient: XCTestCase {
         ]
     }
 
-    /// Test that valid JSON response is returned in sync
+    /// Test that valid JSON response is returned from the client (with proper date encoding)
     func testClientResponse() {
         var response = TestClientResponse()
         response.code = .ok
@@ -32,6 +33,28 @@ class TestServiceClient: XCTestCase {
         XCTAssertEqual(client.method.rawValue, HTTPMethod.get.rawValue)
         client.response = response
         let _: DateResponse = try! service.requestJSON(with: client)
+    }
+
+    /// Test that JSON with date is properly encoded in the client request.
+    func testClientRequest() {
+        let encoder = JSONEncoder()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = DateResponse.dateFormat
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        let data = try! encoder.encode(DateResponse())
+
+        let dateDecoded = expectation(description: "date JSON decoded properly")
+        var client = TestClient(with: .post, on: URL(string: "http://foo.bar")!)
+        client.dataCallback = { newData in
+            XCTAssertEqual(newData, data)
+            dateDecoded.fulfill()
+        }
+
+        try! client.setJSON(using: DateResponse())
+
+        waitForExpectations(timeout: 1) { error in
+            XCTAssertNil(error)
+        }
     }
 
     /// If the response is of non-2xx code, then the error should be decoded and thrown.

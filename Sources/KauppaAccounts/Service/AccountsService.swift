@@ -20,15 +20,22 @@ public class AccountsService {
 
 // NOTE: See the actual protocol in `KauppaAccountsClient` for exact usage.
 extension AccountsService: AccountsServiceCallable {
-    public func createAccount(with data: AccountData) throws -> Account {
-        try data.validate()
-        for email in data.emails {
+    public func createAccount(with data: Account) throws -> Account {
+        var account = data
+        try account.validate()
+
+        for email in account.emails {
             if let _ = try? repository.getAccount(for: email.value) {
                 throw ServiceError.accountExists
             }
         }
 
-        return try repository.createAccount(with: data)
+        let date = Date()
+        account.id = UUID()
+        account.createdOn = date
+        account.updatedAt = date
+
+        return try repository.createAccount(with: account)
     }
 
     public func getAccount(for id: UUID) throws -> Account {
@@ -40,21 +47,24 @@ extension AccountsService: AccountsServiceCallable {
     }
 
     public func verifyEmail(_ email: String) throws {
-        let account = try repository.getAccount(for: email)
-        var accountData = account.data
+        var account = try repository.getAccount(for: email)
 
-        accountData.emails.mutateOnce(matching: { $0.value == email }, with: { email in
+        account.emails.mutateOnce(matching: { $0.value == email }, with: { email in
             email.isVerified = true
         })
 
-        let _ = try repository.updateAccount(for: account.id, with: accountData)
+        let _ = try repository.updateAccount(for: account.id!, with: account)
     }
 
     public func updateAccount(for id: UUID, with data: AccountPatch) throws -> Account {
-        var accountData = try repository.getAccountData(for: id)
+        var accountData = try repository.getAccount(for: id)
 
-        if let name = data.name {
-            accountData.name = name
+        if let name = data.firstName {
+            accountData.firstName = name
+        }
+
+        if let name = data.lastName {
+            accountData.lastName = name
         }
 
         if let numbers = data.phoneNumbers {
@@ -74,14 +84,22 @@ extension AccountsService: AccountsServiceCallable {
     }
 
     public func addAccountProperty(to id: UUID, using data: AccountPropertyAdditionPatch) throws -> Account {
-        var accountData = try repository.getAccountData(for: id)
+        var accountData = try repository.getAccount(for: id)
 
         if let address = data.address {
-            accountData.address.insert(address)
+            if accountData.address == nil {
+                accountData.address = []
+            }
+
+            accountData.address!.append(address)
         }
 
         if let number = data.phone {
-            accountData.phoneNumbers.insert(number)
+            if accountData.phoneNumbers == nil {
+                accountData.phoneNumbers = ArraySet()
+            }
+
+            accountData.phoneNumbers!.insert(number)
         }
 
         if let email = data.email {
@@ -93,21 +111,27 @@ extension AccountsService: AccountsServiceCallable {
     }
 
     public func deleteAccountProperty(from id: UUID, using data: AccountPropertyDeletionPatch) throws -> Account {
-        var accountData = try repository.getAccountData(for: id)
+        var accountData = try repository.getAccount(for: id)
 
         if let index = data.removeEmailAt {
-            accountData.emails.remove(at: index)
-            if accountData.emails.isEmpty {         // if there are no more emails, disallow this
+            // If this is the last email, then disallow this operation.
+            if accountData.emails.count == 1 {
                 throw ServiceError.accountEmailRequired
             }
+
+            accountData.emails.remove(at: index)
         }
 
         if let index = data.removePhoneAt {
-            accountData.phoneNumbers.remove(at: index)
+            if accountData.phoneNumbers != nil {
+                accountData.phoneNumbers!.remove(at: index)
+            }
         }
 
         if let index = data.removeAddressAt {
-            accountData.address.remove(at: index)
+            if accountData.address != nil && accountData.address!.count > 0 {
+                accountData.address!.remove(at: index)
+            }
         }
 
         return try repository.updateAccount(for: id, with: accountData)

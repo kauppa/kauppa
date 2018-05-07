@@ -65,14 +65,13 @@ extension OrdersService: OrdersServiceCallable {
         }
 
         let factory = OrdersFactory(with: data, from: account, using: productsService)
-        try factory.createOrder(with: shippingService!, using: couponService,
-                                calculatingWith: taxService)
+        try factory.createOrder(using: couponService, calculatingWith: taxService)
         let detailedOrder = factory.createOrder()
 
         try repository.createOrder(with: factory.order)
         let mailOrder = MailOrder(from: detailedOrder)
         if let mailer = mailService {
-            mailer.sendMail(to: account.data.getVerifiedEmails(), with: mailOrder)
+            mailer.sendMail(to: account.getVerifiedEmails(), with: mailOrder)
         }
 
         return factory.order
@@ -80,6 +79,11 @@ extension OrdersService: OrdersServiceCallable {
 
     public func getOrder(for id: UUID) throws -> Order {
         return try repository.getOrder(for: id)
+    }
+
+    // FIXME: Remove this!
+    public func getOrders() throws -> [Order] {
+        return try repository.getOrders()
     }
 
     public func cancelOrder(for id: UUID) throws -> Order {

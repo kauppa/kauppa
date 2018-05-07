@@ -10,6 +10,7 @@ public enum OrdersRoutes: UInt8 {
     case updateShipment
     case initiateRefund
     case deleteOrder
+    case getAllOrders
 }
 
 extension OrdersRoutes: RouteRepresentable {
@@ -29,6 +30,10 @@ extension OrdersRoutes: RouteRepresentable {
                 return Route(url: "/orders/:id/refunds",    method: .post)
             case .deleteOrder:
                 return Route(url: "/orders/:id",            method: .delete)
+
+            // FIXME: This shouldn't be here! Remove this ASAP
+            case .getAllOrders:
+                return Route(url: "/orders",                method: .get)
         }
     }
 }

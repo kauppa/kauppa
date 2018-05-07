@@ -24,7 +24,7 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             }
 
             let order = try self.service.createOrder(with: data)
-            response.respondJSON(with: order)
+            try response.respondJSON(with: order)
         }
 
         add(route: .getOrder) { request, response in
@@ -33,7 +33,13 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             }
 
             let order = try self.service.getOrder(for: id)
-            response.respondJSON(with: order)
+            try response.respondJSON(with: order)
+        }
+
+        add(route: .getAllOrders) { request, response in
+            let orders = try self.service.getOrders()
+            let data = MappableArray(for: orders)
+            try response.respondJSON(with: data)
         }
 
         add(route: .cancelOrder) { request, response in
@@ -42,7 +48,7 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             }
 
             let order = try self.service.getOrder(for: id)
-            response.respondJSON(with: order)
+            try response.respondJSON(with: order)
         }
 
         add(route: .returnOrder) { request, response in
@@ -55,7 +61,7 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             }
 
             let order = try self.service.returnOrder(for: id, with: data)
-            response.respondJSON(with: order)
+            try response.respondJSON(with: order)
         }
 
         add(route: .updateShipment) { request, response in
@@ -68,7 +74,7 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             }
 
             try self.service.updateShipment(for: id, with: data)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
 
         add(route: .initiateRefund) { request, response in
@@ -81,7 +87,7 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             }
 
             let order = try self.service.initiateRefund(for: id, with: data)
-            response.respondJSON(with: order)
+            try response.respondJSON(with: order)
         }
 
         add(route: .deleteOrder) { request, response in
@@ -90,7 +96,7 @@ public class OrdersRouter<R: Routing>: ServiceRouter<R, OrdersRoutes> {
             }
 
             try self.service.deleteOrder(for: id)
-            response.respondJSON(with: ServiceStatusMessage())
+            try response.respondJSON(with: ServiceStatusMessage())
         }
     }
 }

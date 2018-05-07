@@ -25,6 +25,9 @@ public protocol OrdersServiceCallable {
     /// - Throws: `ServiceError` (if it doesn't)
     func getOrder(for id: UUID) throws -> Order
 
+    // FIXME: Remove this!
+    func getOrders() throws -> [Order]
+
     /// Cancel an existing order.
     ///
     /// - Parameters:

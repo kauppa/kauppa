@@ -31,8 +31,8 @@ class TestCouponService: XCTestCase {
         let repository = CouponRepository(with: store)
         let service = CouponService(with: repository)
         var data = CouponData()
-        data.balance.unit = .rupee
-        data.balance.value = 100.0
+        data.currency = .rupee
+        data.balance = Price(100)
 
         XCTAssertNil(data.code)
         let coupon = try! service.createCoupon(with: data)
@@ -97,7 +97,7 @@ class TestCouponService: XCTestCase {
 
         var patch = CouponPatch()     // test valid patch
         patch.note = "foobar"
-        patch.balance = UnitMeasurement(value: 100.0, unit: .usd)
+        patch.balance = Price(100.0)
         let currentDate = Date()
         patch.disable = true
         patch.expiresOn = Date(timeIntervalSinceNow: 87000)

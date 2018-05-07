@@ -1,22 +1,28 @@
 import Foundation
 
 import KauppaCore
+import KauppaOrdersModel
 import KauppaTaxModel
 
 /// Cart that exists in repository and store.
 public struct Cart: Mappable {
     /// Unique identifier for this cart.
-    public let id: UUID
+    public var id: UUID?
     /// Last updated timestamp
-    public var updatedAt = Date()
+    public var updatedAt: Date? = Date()
     /// Stuff in the cart
-    public var items: [CartUnit] = []
+    public var items: [OrderUnit] = []
+    /// Currency used in this cart.
+    public var currency: Currency? = nil
     /// Net price of all items in this cart.
-    public var netPrice: UnitMeasurement<Currency>? = nil
+    public var netPrice: Price? = nil
     /// Gross price (net price + tax) of items in this cart.
-    public var grossPrice: UnitMeasurement<Currency>? = nil
+    public var grossPrice: Price? = nil
     /// Coupons applied in this cart.
-    public var coupons = ArraySet<UUID>()
+    public var coupons: ArraySet<UUID>? = nil
+    /// Checkout data for this cart. This should be set before
+    /// placing the order.
+    public var checkoutData: CheckoutData? = nil
 
     /// Initialize this cart with an ID.
     ///
@@ -28,10 +34,13 @@ public struct Cart: Mappable {
 
     /// Reset this cart (called to clear the items once the cart has been checked out).
     public mutating func reset() {
+        updatedAt = Date()
         items = []
+        currency = nil
         netPrice = nil
         grossPrice = nil
-        coupons = ArraySet()
+        coupons = nil
+        checkoutData = nil
     }
 
     /// Set tax rate for items in the cart using the given `TaxRate`
@@ -44,13 +53,12 @@ public struct Cart: Mappable {
     /// If an item belongs to a category, then the category should be set in its `tax` property.
     /// The `tax` property of the items should've also been initialized at this point.
     public mutating func setPrices(using taxRate: TaxRate) {
-        var gross = 0.0
-        let currency = netPrice!.unit
+        var gross = Price()
         for (i, _) in items.enumerated() {
             items[i].setPrices(using: taxRate)
-            gross += items[i].grossPrice!.value
+            gross += items[i].grossPrice!
         }
 
-        grossPrice = UnitMeasurement(value: gross, unit: currency)
+        grossPrice = gross
     }
 }

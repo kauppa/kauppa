@@ -1,12 +1,14 @@
 import Foundation
 
 import KauppaCore
+import KauppaOrdersModel
 import KauppaShipmentsModel
 
 /// HTTP client for the Shipments service.
 public class ShipmentsServiceClient<C: ClientCallable>: ServiceClient<C, ShipmentsRoutes>, ShipmentsServiceCallable {
-    public func createShipment(for orderId: UUID) throws -> Shipment {
+    public func createShipment(for orderId: UUID, with items: [OrderUnit]?) throws -> Shipment {
         let client = try createClient(for: .createShipment, with: ["order": orderId])
+        try client.setJSON(using: MappableArray(for: items ?? []))
         return try requestJSON(with: client)
     }
 

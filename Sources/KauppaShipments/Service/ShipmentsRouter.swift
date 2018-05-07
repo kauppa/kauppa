@@ -1,6 +1,7 @@
 import Foundation
 
 import KauppaCore
+import KauppaOrdersModel
 import KauppaShipmentsModel
 import KauppaShipmentsClient
 
@@ -22,8 +23,13 @@ public class ShipmentsRouter<R: Routing>: ServiceRouter<R, ShipmentsRoutes> {
                 throw ServiceError.invalidOrderId
             }
 
-            let shipment = try self.service.createShipment(for: id)
-            response.respondJSON(with: shipment)
+            var items: [OrderUnit]? = nil
+            if let list: MappableArray<OrderUnit> = request.getJSON() {
+                items = list.inner
+            }
+
+            let shipment = try self.service.createShipment(for: id, with: items)
+            try response.respondJSON(with: shipment)
         }
 
         add(route: .notifyShipping) { request, response in
@@ -32,7 +38,7 @@ public class ShipmentsRouter<R: Routing>: ServiceRouter<R, ShipmentsRoutes> {
             }
 
             let shipment = try self.service.notifyShipping(for: id)
-            response.respondJSON(with: shipment)
+            try response.respondJSON(with: shipment)
         }
 
         add(route: .notifyDelivery) { request, response in
@@ -41,7 +47,7 @@ public class ShipmentsRouter<R: Routing>: ServiceRouter<R, ShipmentsRoutes> {
             }
 
             let shipment = try self.service.notifyDelivery(for: id)
-            response.respondJSON(with: shipment)
+            try response.respondJSON(with: shipment)
         }
 
         add(route: .schedulePickup) { request, response in
@@ -54,7 +60,7 @@ public class ShipmentsRouter<R: Routing>: ServiceRouter<R, ShipmentsRoutes> {
             }
 
             let shipment = try self.service.schedulePickup(for: id, with: data)
-            response.respondJSON(with: shipment)
+            try response.respondJSON(with: shipment)
         }
 
         add(route: .completePickup) { request, response in
@@ -63,7 +69,7 @@ public class ShipmentsRouter<R: Routing>: ServiceRouter<R, ShipmentsRoutes> {
             }
 
             let shipment = try self.service.completePickup(for: id)
-            response.respondJSON(with: shipment)
+            try response.respondJSON(with: shipment)
         }
     }
 }

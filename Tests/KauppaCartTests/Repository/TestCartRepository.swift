@@ -32,8 +32,9 @@ class TestCartRepository: XCTestCase {
         XCTAssertTrue(store.getCalled)  // store has been queried
         XCTAssertTrue(store.createCalled)   // new cart has been created in store
         XCTAssertTrue(data.items.isEmpty)   // no items initially
-        XCTAssertEqual(data.id, randomId)   // cart ID is the same as account ID
-        XCTAssertNotNil(repository.carts[data.id])      // repository has the cart
+        XCTAssertNotNil(data.id)            // cart ID exists
+        XCTAssertEqual(data.id!, randomId)  // cart ID is the same as account ID
+        XCTAssertNotNil(repository.carts[data.id!])     // repository has the cart
     }
 
     // Test for updating repository which should also update the store.
@@ -44,7 +45,8 @@ class TestCartRepository: XCTestCase {
         let now = Date()
         let data = try! repository.getCart(for: randomId)
         let _ = try! repository.updateCart(with: data)
-        XCTAssertTrue(repository.carts[data.id]!.updatedAt > now)   // repository has been updated
+        XCTAssertNotNil(repository.carts[data.id!]!.updatedAt)  // repository has been updated
+        XCTAssertTrue(repository.carts[data.id!]!.updatedAt! > now)
         XCTAssertTrue(store.updateCalled)   // make sure the store is called
     }
 }

@@ -46,39 +46,28 @@ public class AccountsRepository {
     public func getAccount(for email: String) throws -> Account {
         guard let id = emails[email] else {
             let account = try store.getAccount(for: email)
-            emails[email] = account.id
+            emails[email] = account.id!
             return account
         }
 
         return try getAccount(for: id)
     }
 
-    /// Get the account data corresponding to an ID.
+    /// Create an account with data from the service. This assumes that the service
+    /// has already initialized the `Account` object and that it has an ID.
     ///
     /// - Parameters:
-    ///   - for: The `UUID` of the account.
-    /// - Returns: `AccountData` for the `Account` (if it exists) in the repository or store.
-    /// - Throws: `ServiceError` on failure.
-    public func getAccountData(for id: UUID) throws -> AccountData {
-        let account = try getAccount(for: id)
-        return account.data
-    }
-
-    /// Create an account with data from the service.
-    ///
-    /// - Parameters:
-    ///   - with: The `AccountData` for this account
+    ///   - with: `Account` data object for this account
     /// - Returns: The created `Account`
     /// - Throws: `ServiceError` if there were errors.
-    public func createAccount(with data: AccountData) throws -> Account {
-        let account = Account(with: data)
+    public func createAccount(with data: Account) throws -> Account {
         for email in data.emails {
-            emails[email.value] = account.id
+            emails[email.value] = data.id!
         }
 
-        accounts[account.id] = account
-        try store.createAccount(with: account)
-        return account
+        accounts[data.id!] = data
+        try store.createAccount(with: data)
+        return data
     }
 
     /// Delete an account corresponding to an ID.
@@ -95,14 +84,12 @@ public class AccountsRepository {
     ///
     /// - Parameters:
     ///   - for: The `UUID` of the account.
-    ///   - with: The updated `AccountData`
+    ///   - with: The updated `Account`
     /// - Returns: The `Account` containing the updated data.
     /// - Throws: `ServiceError` on failure.
-    public func updateAccount(for id: UUID, with data: AccountData) throws -> Account {
-        var account = try getAccount(for: id)
-        let date = Date()
-        account.updatedAt = date
-        account.data = data
+    public func updateAccount(for id: UUID, with data: Account) throws -> Account {
+        var account = data
+        account.updatedAt = Date()
         accounts[id] = account
         try store.updateAccount(with: account)
         return account
