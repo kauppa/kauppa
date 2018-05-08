@@ -2,11 +2,13 @@ import KauppaCore
 import KauppaTaxModel
 
 /// Configuration object for the tax service.
-struct TaxConfiguration {
+public struct TaxConfiguration {
     /// Minimum allowed value for tax rate in percentage.
-    static var minTaxRatePercent: Float = 0.0
+    public static var minTaxRatePercent: Float = 0.0
     /// Maximum allowed value for tax rate in percentage.
-    static var maxTaxRatePercent: Float = 1000.0    // disallow rates > 1000%
+    public static var maxTaxRatePercent: Float = 1000.0    // disallow rates > 1000%
+    /// Fallback tax rate when no country/region match for the address.
+    public static var fallbackTaxRate = TaxRate()
 }
 
 extension TaxRate {

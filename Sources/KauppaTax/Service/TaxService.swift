@@ -1,5 +1,6 @@
 import Foundation
 
+import KauppaCore
 import KauppaAccountsModel
 import KauppaTaxClient
 import KauppaTaxModel
@@ -21,21 +22,33 @@ public class TaxService {
 // NOTE: See the actual protocol in `KauppaTaxClient` for exact usage.
 extension TaxService: TaxServiceCallable {
     public func getTaxRate(for address: Address) throws -> TaxRate {
-        // FIXME: This could be done efficiently?
+        // FIXME: This could be done efficiently with the store?
         // Get the country first. This should match a valid country in the store.
-        let country = try repository.getCountry(name: address.country)
-        var taxRate = country.taxRate
+        var taxRate: TaxRate? = nil
+        do {
+            let country = try repository.getCountry(name: address.country)
+            taxRate = country.taxRate
+        } catch ServiceError.noMatchingCountry {
+            return TaxConfiguration.fallbackTaxRate
+        }
+
         // Try getting the province. If it matches, override the rates in country with
         // the values from province.
-        if let province = try? repository.getRegion(name: address.province, for: address.country) {
-            taxRate.applyOverrideFrom(province.taxRate)
+        do {
+            let province = try repository.getRegion(name: address.province, for: address.country)
+            taxRate!.applyOverrideFrom(province.taxRate)
+        } catch ServiceError.noMatchingRegion {
+            //
         }
 
-        if let city = try? repository.getRegion(name: address.city, for: address.country) {
-            taxRate.applyOverrideFrom(city.taxRate)
+        do {
+            let city = try repository.getRegion(name: address.city, for: address.country)
+            taxRate!.applyOverrideFrom(city.taxRate)
+        } catch ServiceError.noMatchingRegion {
+            //
         }
 
-        return taxRate
+        return taxRate!
     }
 
     public func createCountry(with data: CountryData) throws -> Country {

@@ -26,6 +26,7 @@ class TestTaxService: XCTestCase {
     }
 
     override func setUp() {
+        TaxConfiguration.fallbackTaxRate = TaxRate()
         super.setUp()
     }
 
@@ -54,21 +55,24 @@ class TestTaxService: XCTestCase {
         let store = TestStore()
         let repository = TaxRepository(with: store)
         let service = TaxService(with: repository)
-        var rate = TaxRate()
-        rate.general = 18.0
-        let data = CountryData(name: "India", taxRate: rate)
+        var taxRate = TaxRate()
+        taxRate.general = 18.0
+        let data = CountryData(name: "India", taxRate: taxRate)
         let _ = try! service.createCountry(with: data)
         var address = Address()
-        do {    // no country - error
-            let _ = try service.getTaxRate(for: address)
-            XCTFail()
-        } catch let err {
-            XCTAssertEqual(err as! ServiceError, .noMatchingCountry)
-        }
+
+        // no country - returns default rate
+        var rate = try! service.getTaxRate(for: address)
+        XCTAssertEqual(rate.general, 0)
+        XCTAssertTrue(rate.categories.isEmpty)
+
+        TaxConfiguration.fallbackTaxRate.general = 12.0
+        rate = try! service.getTaxRate(for: address)
+        XCTAssertEqual(rate.general, 12)
 
         address.country = "India"
-        let taxRate = try! service.getTaxRate(for: address)
-        XCTAssertEqual(taxRate.general, 18.0)
+        rate = try! service.getTaxRate(for: address)
+        XCTAssertEqual(rate.general, 18.0)
     }
 
     /// Ensure that invalid country data is rejected by the service.

@@ -9,6 +9,10 @@ public struct TaxRate: Mappable {
     /// (also called tax classes)
     public var categories = [String: Float]()
 
+    /// Initialize tax rate with no purpose - whose general tax rate is zero and doesn't
+    /// have any categories.
+    public init() {}
+
     /// Apply tax rate overrides from another instance of `TaxRate`
     ///
     /// - Parameters:
