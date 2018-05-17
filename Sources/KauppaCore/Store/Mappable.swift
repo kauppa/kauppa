@@ -7,11 +7,12 @@ public protocol Mappable: Codable {
 
 extension UUID: Mappable {}
 extension String: Mappable {}
+extension Int: Mappable {}
 
 /// While codable structs and class containing arrays can be encoded/decoded, the arrays
 /// themselves cannot be encoded/decoded directly using the standard JSONEncoder/JSONDecoder.
 /// This serves as a wrapper type for doing the same.
-public struct MappableArray<T>: Mappable {
+public struct MappableArray<T: Mappable>: Mappable {
     public let inner: [T]
 
     /// Initialize an instance for an array of `Mappable` objects.
