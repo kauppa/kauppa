@@ -1,6 +1,7 @@
 /// Service error used throughout Kauppa services. The errors have their own error codes.
 public enum ServiceError: UInt16, Error {
     /* Generic errors */
+
     /// The JSON data parsed from the request body is invalid.
     case clientHTTPData
     /// The given regular expression is invalid.
@@ -15,6 +16,17 @@ public enum ServiceError: UInt16, Error {
     case jsonSerialization
     /// Some unhandled/unknown error has propagated from within the service.
     case unknownError
+
+    /* Database errors */
+
+    /// Invalid URL for this database.
+    case invalidDatabaseURL
+    /// Error connecting to the database.
+    case connectionError
+    /// Execute method is unimplemented for this database.
+    case executeUnimplemented
+    /// Query method is unimplemented for this database.
+    case queryUnimplemented
 
     /* Accounts service errors */
 

@@ -481,7 +481,7 @@ let testTargets: [Target] = [
 var targets: [Target] = [
     .target(
         name: "KauppaCore",
-        dependencies: ["Kitura", "NIOOpenSSL", "PostgreSQL", "SwiftyRequest"]
+        dependencies: ["Kitura", "NIO", "NIOOpenSSL", "PostgreSQL", "SwiftyRequest"]
     )
 ]
 
@@ -536,6 +536,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/IBM-Swift/Kitura", .upToNextMajor(from: "2.3.0")),
         .package(url: "https://github.com/IBM-Swift/SwiftyRequest", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/apple/swift-nio", .upToNextMajor(from: "1.7.0")),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", .upToNextMajor(from: "1.1.0")),
         .package(url: "https://github.com/vapor/postgresql", .upToNextMajor(from: "1.0.0-rc.2.2")),
     ],
