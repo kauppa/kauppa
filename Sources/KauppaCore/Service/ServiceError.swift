@@ -19,14 +19,16 @@ public enum ServiceError: UInt16, Error {
 
     /* Database errors */
 
-    /// Invalid URL for this database.
-    case invalidDatabaseURL
     /// Error connecting to the database.
     case connectionError
-    /// Execute method is unimplemented for this database.
-    case executeUnimplemented
     /// Query method is unimplemented for this database.
     case queryUnimplemented
+    /// Getting field value from row is unimplemented.
+    case getValueUnimplemented
+    /// Error decoding value from the database row.
+    case valueDecodingError
+    /// Column not found in the database row.
+    case missingColumn
 
     /* Accounts service errors */
 

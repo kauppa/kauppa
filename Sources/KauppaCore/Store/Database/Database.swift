@@ -1,32 +1,28 @@
 import Foundation
 
-/// Parent class to be used for all database classes.
-open class Database {
+/// A generic database to be implemented by any database client used in the stores
+/// throughout Kauppa services.
+public protocol Database {
+    /// Alias for the protocol used to convert the database types to and fro.
+    associatedtype ValueConvertible
+    /// Alias for the `DatabaseRow` implementor (returned after executing a query).
+    associatedtype Row: DatabaseRow
 
-    let url: String
+    /// Initialize the database with an URL and an optional TLS configuration.
+    ///
+    /// - Parameters:
+    ///   - url: The `URL` for the database service.
+    ///   - tlsConfig: The (optional) `TLSConfig` for the client.
+    /// - Throws: `ServiceError` on failure.
+    init(for url: URL, with tlsConfig: TLSConfig?) throws
 
-    let tlsConfig: TlsConfig?
-
-    public init(for url: String, with tlsConfig: TlsConfig? = nil,
-                async: Bool = true) throws
-    {
-        if URL(string: url) == nil {
-            throw ServiceError.invalidDatabaseURL
-        }
-
-        self.url = url
-        self.tlsConfig = tlsConfig
-
-        do {
-            try self.initDatabase()
-        } catch let err as ServiceError {
-            throw err
-        } catch {
-            throw ServiceError.unknownError
-        }
-    }
-
-    /// Overridable method for databases to initialize their own properties.
-    /// This is called immediately after initializing this class.
-    internal func initDatabase() throws {}
+    /// Execute the given query in the database with parameter values that implement the
+    /// `ValueConvertible` (alias) protocol.
+    ///
+    /// - Parameters:
+    ///   - query: The query string.
+    ///   - with: The list of parameter values used in the query.
+    /// - Returns: List of `Row` (alias. `DatabaseRow`) implementors.
+    /// - Throws: `ServiceError` on failure.
+    @discardableResult func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row]
 }
