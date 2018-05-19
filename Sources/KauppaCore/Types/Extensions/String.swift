@@ -11,24 +11,10 @@ extension String {
         let charCount = Int(letters.count)
 
         var randomString = ""
-
-        #if os(Linux)
-
-        srand(UInt32(time(nil)))
-
         for _ in 0..<length {
-            let randomValue = (random() % charCount) + 1
+            let randomValue = Int(Xoroshiro.defaultGenerator.randomUInt32()) % charCount
             randomString += "\(letters[letters.index(letters.startIndex, offsetBy: randomValue)])"
         }
-
-        #else
-
-        for _ in 0 ..< length {
-            let rand = arc4random_uniform(UInt32(charCount))
-            randomString += "\(letters[letters.index(letters.startIndex, offsetBy: Int(rand))])"
-        }
-
-        #endif
 
         return randomString
     }
