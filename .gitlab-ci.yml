@@ -1,8 +1,8 @@
 variables:
   DOCKER_DRIVER: overlay
-  CONTAINER_IMAGE: naamio/kauppa #$CI_REGISTRY_IMAGE
-  CONTAINER_TEST_IMAGE: $CONTAINER_IMAGE:$CI_BUILD_REF_NAME #$CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
-  CONTAINER_RELEASE_IMAGE: $CONTAINER_IMAGE:latest #$CI_REGISTRY_IMAGE:latest
+  CONTAINER_IMAGE: naamio/kauppa
+  CONTAINER_TEST_IMAGE: $CONTAINER_IMAGE:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: $CONTAINER_IMAGE:latest
 
 stages:
   - test
@@ -10,7 +10,7 @@ stages:
   - deploy
 
 build:linux:
-  image: ibmcom/swift-ubuntu:4.0
+  image: ibmcom/swift-ubuntu:4.1
   stage: build
   before_script:
     # install ssh-agent
@@ -41,7 +41,7 @@ build:linux:
     - release
 
 review:
-  image: ibmcom/swift-ubuntu:4.0
+  image: ibmcom/swift-ubuntu:4.1
   stage: test
   script:
     - echo "Reviewing $CI_PROJECT_NAME"
@@ -53,7 +53,7 @@ review:
     - master
 
 test:
-  image: ibmcom/swift-ubuntu:4.0
+  image: ibmcom/swift-ubuntu:4.1
   stage: test
   script:
     - echo "Testing $CI_PROJECT_NAME"
