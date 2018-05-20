@@ -4,7 +4,7 @@ import Foundation
 /// for which hashing the items may take more time than it takes for addressing
 /// them in an array.
 public struct ArraySet<Element>: Mappable
-    where Element: Hashable
+    where Element: Mappable, Element: Hashable
 {
     var inner = [Element]()
 
@@ -22,7 +22,7 @@ public struct ArraySet<Element>: Mappable
     public init() {}
 
     /// Initialize this collection with a sequence of elements.
-    public init<S>(_ sequence: S) where S : Sequence, Element == S.Element {
+    public init<S>(_ sequence: S) where S: Sequence, Element == S.Element {
         for element in sequence {
             if !self.inner.contains(element) {
                 self.inner.append(element)

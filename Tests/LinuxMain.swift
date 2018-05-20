@@ -18,6 +18,7 @@ XCTMain([
     testCase(TestArraySet.allTests),
     testCase(TestCache.allTests),
     testCase(TestCoreTypes.allTests),
+    testCase(TestDatabase.allTests),
     testCase(TestMailService.allTests),
     testCase(TestRouting.allTests),
     testCase(TestServiceClient.allTests),

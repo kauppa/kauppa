@@ -3,7 +3,7 @@ import XCTest
 
 @testable import KauppaCore
 
-struct TestType: Hashable {
+struct TestType: Hashable, Mappable {
     var id: UUID
     var thing: String
 
