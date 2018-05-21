@@ -29,6 +29,10 @@ public enum ServiceError: UInt16, Error {
     case valueDecodingError
     /// Column not found in the database row.
     case missingColumn
+    /// Error reading the given SQL script file.
+    case errorReadingScript
+    /// Error executing the given SQL query.
+    case errorExecutingQuery
 
     /* Accounts service errors */
 

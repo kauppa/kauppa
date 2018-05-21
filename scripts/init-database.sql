@@ -1,5 +1,6 @@
 /* Create users */
 
+CREATE USER IF NOT EXISTS kauppa;
 CREATE USER IF NOT EXISTS kauppa_accounts;
 CREATE USER IF NOT EXISTS kauppa_cart;
 CREATE USER IF NOT EXISTS kauppa_coupon;
@@ -27,3 +28,4 @@ GRANT CREATE,SELECT,INSERT,UPDATE ON DATABASE kauppa_orders TO kauppa_orders;
 GRANT CREATE,SELECT,INSERT,UPDATE ON DATABASE kauppa_products TO kauppa_products;
 GRANT CREATE,SELECT,INSERT,UPDATE ON DATABASE kauppa_shipments TO kauppa_shipments;
 GRANT CREATE,SELECT,INSERT,UPDATE ON DATABASE kauppa_tax TO kauppa_tax;
+GRANT CREATE,SELECT,INSERT,UPDATE ON DATABASE kauppa_accounts, kauppa_cart, kauppa_coupon, kauppa_orders, kauppa_products, kauppa_shipments, kauppa_tax TO kauppa;

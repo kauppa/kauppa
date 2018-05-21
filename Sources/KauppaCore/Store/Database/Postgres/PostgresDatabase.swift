@@ -39,6 +39,11 @@ public class PostgresDatabase: Database {
             return connection.query(query, parameters)
         }
 
-        return try future.wait()    // drive the future to completion
+        do {
+            return try future.wait()    // drive the future to completion
+        } catch let err {
+            // FIXME: Log error
+            throw ServiceError.errorExecutingQuery
+        }
     }
 }

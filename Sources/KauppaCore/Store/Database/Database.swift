@@ -26,3 +26,35 @@ public protocol Database {
     /// - Throws: `ServiceError` on failure.
     @discardableResult func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row]
 }
+
+extension Database {
+    /// Execute SQL statements from a file. This is useful for pre-deployment scripts.
+    /// Note that this assumes that the individual statements end with a semicolon.
+    ///
+    /// - Parameters:
+    ///   - file: The path of the file to be executed.
+    /// - Throws: `ServiceError` on failure.
+    public func execute(file path: String) throws {
+        var data = ""
+        do {
+            data = try String(contentsOfFile: path, encoding: .utf8)
+        } catch let err {
+            // FIXME: Log error
+            throw ServiceError.errorReadingScript
+        }
+
+        var currentLine = ""
+        for line in data.components(separatedBy: .newlines) {
+            let line = line.trim()
+            if line.isEmpty {   // This is an empty line.
+                continue
+            }
+
+            currentLine += line
+            if line.hasSuffix(";") {
+                try execute(query: currentLine, with: [])
+                currentLine = ""
+            }
+        }
+    }
+}
