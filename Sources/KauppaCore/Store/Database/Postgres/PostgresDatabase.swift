@@ -37,7 +37,8 @@ public class PostgresDatabase: Database {
 
         // Query builder from https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL/blob/337499d196e92b361a24545313a585d4b57a374c/Sources/SwiftKueryPostgreSQL/PostgreSQLConnection.swift
 
-        queryBuilder = QueryBuilder(withDeleteRequiresUsing: true,
+        queryBuilder = QueryBuilder(addNumbersToParameters: true,
+                                    withDeleteRequiresUsing: true,
                                     withUpdateRequiresFrom: true,
                                     createAutoIncrement: PostgresDatabase.createAutoIncrement)
         queryBuilder.updateSubstitutions([
@@ -66,6 +67,7 @@ public class PostgresDatabase: Database {
         }
     }
 
+    /// Auto-increment function to be used for some types.
     private static func createAutoIncrement(_ type: String) -> String {
         switch type {
             case "smallint":
