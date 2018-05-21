@@ -21,6 +21,8 @@ public enum ServiceError: UInt16, Error {
 
     /// Error connecting to the database.
     case connectionError
+    /// Error building query.
+    case invalidQuery
     /// Query method is unimplemented for this database.
     case queryUnimplemented
     /// Getting field value from row is unimplemented.

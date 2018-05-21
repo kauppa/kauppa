@@ -1,5 +1,7 @@
 import Foundation
 
+import SwiftKuery
+
 /// A generic database to be implemented by any database client used in the stores
 /// throughout Kauppa services.
 public protocol Database {
@@ -7,6 +9,9 @@ public protocol Database {
     associatedtype ValueConvertible
     /// Alias for the `DatabaseRow` implementor (returned after executing a query).
     associatedtype Row: DatabaseRow
+
+    /// The query builder instance for this database.
+    var queryBuilder: QueryBuilder { get }
 
     /// Initialize the database with an URL and an optional TLS configuration.
     ///
@@ -28,6 +33,26 @@ public protocol Database {
 }
 
 extension Database {
+    /// Build and execute the given query in the database with parameter values that implement the
+    /// `ValueConvertible` (alias) protocol.
+    ///
+    /// - Parameters:
+    ///   - query: The `Query` to be executed.
+    ///   - with: The list of parameter values used in the query.
+    /// - Returns: List of `Row` (alias. `DatabaseRow`) implementors.
+    /// - Throws: `ServiceError` if the query can't be built or if there was a failure in execution.
+    public func execute(query: Query, with parameters: [ValueConvertible]) throws {
+        var string = ""
+        do {
+            string = try query.build(queryBuilder: queryBuilder)
+        } catch {
+            // FIXME: Log query builder error.
+            throw ServiceError.invalidQuery
+        }
+
+        try execute(query: string, with: parameters)
+    }
+
     /// Execute SQL statements from a file. This is useful for pre-deployment scripts.
     /// Note that this assumes that the individual statements end with a semicolon.
     ///
@@ -38,7 +63,7 @@ extension Database {
         var data = ""
         do {
             data = try String(contentsOfFile: path, encoding: .utf8)
-        } catch let err {
+        } catch {
             // FIXME: Log error
             throw ServiceError.errorReadingScript
         }

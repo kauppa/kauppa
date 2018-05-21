@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 import KauppaCore
+import SwiftKuery
 
 class TestDatabase: XCTestCase {
     static var allTests: [(String, (TestDatabase) -> () throws -> Void)] {
@@ -36,6 +37,8 @@ class TestDatabase: XCTestCase {
             typealias ValueConvertible = Codable
             typealias Row = TestDatabaseRow
 
+            public var queryBuilder = QueryBuilder()
+
             public required init(for url: URL, with tlsConfig: TLSConfig?) throws {}
 
             public func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row] {
@@ -65,6 +68,8 @@ class TestDatabase: XCTestCase {
         class NoOpTestDatabase: Database {
             typealias ValueConvertible = Codable
             typealias Row = TestDatabaseRow
+
+            public var queryBuilder = QueryBuilder()
 
             public required init(for url: URL, with tlsConfig: TLSConfig?) throws {}
 
