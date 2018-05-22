@@ -9,7 +9,7 @@ extension Dictionary: DatabaseRow
     public typealias ValueConvertible = PostgreSQLDataConvertible
 
     /// Override for the default `getValue` implementation.
-    public func getValue<T: ValueConvertible>(for key: String) throws -> T {
+    public func getValue<T: ValueConvertible>(forKey key: String) throws -> T {
         for (field, value) in self {
             if field.name == key {
                 do {

@@ -6,3 +6,13 @@ public class PostgresArray<T: SQLDataType>: SQLDataType {
         return "\(T.create(queryBuilder: queryBuilder))[]"
     }
 }
+
+extension Select {
+    /// Convenience initializer for selecting all fields in a table.
+    ///
+    /// - Parameters:
+    ///   - from: The `Table` to be queried.
+    public init(from table: Table) {
+        self.init(table.columns, from: table)
+    }
+}

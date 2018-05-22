@@ -5,7 +5,7 @@ import KauppaCore
 /// An attribute defined by the user.
 public struct Attribute: Mappable {
     /// Unique ID of this attribute.
-    public let id: UUID
+    public var id: UUID
     /// Lower-case name of this attribute.
     public var name: String
     /// Type of this attribute.
@@ -13,9 +13,18 @@ public struct Attribute: Mappable {
     /// If this were an enum, then the variants of the enum.
     public var variants: ArraySet<String>? = nil
     /// Creation timestamp
-    public let createdOn: Date
+    public var createdOn: Date
     /// Last updated timestamp
-    public let updatedAt: Date
+    public var updatedAt: Date
+
+    /// Initialize an instance with all the properties.
+    public init(id: UUID, name: String, type: BaseType, createdOn: Date, updatedAt: Date) {
+        self.id = id
+        self.createdOn = createdOn
+        self.updatedAt = updatedAt
+        self.name = name
+        self.type = type
+    }
 
     /// Initialize an instance with name and type.
     ///

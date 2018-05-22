@@ -1,3 +1,5 @@
+import SwiftKuery
+
 /// Protocol for the row type returned by the database client after executing a query.
 public protocol DatabaseRow {
     /// Alias for the protocol used to convert the database types to and fro.
@@ -12,10 +14,21 @@ extension DatabaseRow {
     /// method and the stores remain loosely coupled from the database clients.
     ///
     /// - Parameters:
-    ///   - for: The name of the column.
+    ///   - forKey: The name of the column.
+    /// - Returns: The expected value decoded from the returned data.
+    /// - Throws: `ServiceError` if there was no implementation, or if it fails.
+    public func getValue<T>(forKey key: String) throws -> T {
+        throw ServiceError.getValueNotImplemented
+    }
+
+    /// Safe method for getting value for a given column. This implicitly calls
+    /// `getValue` with the column's name.
+    ///
+    /// - Parameters:
+    ///   - forField: The `Column` identifier.
     /// - Returns: The expected value decoded from the returned data.
     /// - Throws: `ServiceError` on failure.
-    public func getValue<T>(for key: String) throws -> T {
-        throw ServiceError.getValueNotImplemented
+    public func getValue<T>(forField column: Column) throws -> T {
+        return try getValue(forKey: column.name)
     }
 }

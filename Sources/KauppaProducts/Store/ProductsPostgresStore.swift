@@ -29,9 +29,9 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
                                   data.color, data.inventory, data.price, data.actualPrice,
                                   data.currency, data.taxInclusive, data.variants, data.variantId]
 
-        let (columns, values, params) = products.createParameters(for: products.allColumns, with: dataValues)
+        let (columns, values, params) = products.createParameters(with: dataValues)
         let insert = Insert(into: products, columns: columns, values: params)
-        try database.execute(query: insert, with: values as! [D.ValueConvertible])
+        try database.execute(query: insert, with: values)
     }
 
     public func getProduct(for id: UUID) throws -> Product {
@@ -54,24 +54,73 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
 
     public func createAttribute(with data: Attribute) throws -> () {
         let attributes = Attributes.table
-        let dataValues: [Any?] = [data.id, data.name, data.type, data.variants, data.createdOn, data.updatedAt]
-        let (columns, values, params) = attributes.createParameters(for: attributes.allColumns, with: dataValues)
+        let dataValues: [Any?] = [data.id, data.name, data.type.rawValue, data.variants, data.createdOn, data.updatedAt]
+        let (columns, values, params) = attributes.createParameters(with: dataValues)
         let insert = Insert(into: attributes, columns: columns, values: params)
-        try database.execute(query: insert, with: values as! [D.ValueConvertible])
+        try database.execute(query: insert, with: values)
     }
 
     public func getAttribute(for id: UUID) throws -> Attribute {
-        throw ServiceError.invalidAttributeId
+        let attributes = Attributes.table
+        let select = Select(from: attributes).where(attributes.id == Parameter())
+        let rows = try database.execute(query: select, with: [id])
+        if rows.isEmpty {
+            throw ServiceError.invalidAttributeId
+        }
+
+        let id: UUID = try rows[0].getValue(forField: attributes.id)
+        let createdOn: Date = try rows[0].getValue(forField: attributes.createdOn)
+        let updatedAt: Date = try rows[0].getValue(forField: attributes.updatedAt)
+        let name: String = try rows[0].getValue(forField: attributes.name)
+        let type: String = try rows[0].getValue(forField: attributes.type)
+        let variants: [String]? = try? rows[0].getValue(forField: attributes.variants)
+
+        var attribute = Attribute(id: id, name: name, type: BaseType(rawValue: type)!,
+                                  createdOn: createdOn, updatedAt: updatedAt)
+        attribute.variants = ArraySet(variants ?? [])
+        return attribute
     }
 
-    public func createCategory(with data: Category) throws -> () {}
+    public func createCategory(with data: Category) throws -> () {
+        let categories = Categories.table
+        let dataValues: [Any?] = [data.id, data.name, data.description]
+        let (columns, values, params) = categories.createParameters(with: dataValues)
+        let insert = Insert(into: categories, columns: columns, values: params)
+        try database.execute(query: insert, with: values)
+    }
 
     public func getCategory(for id: UUID) throws -> Category {
-        throw ServiceError.invalidCategoryId
+        let categories = Categories.table
+        let select = Select(from: categories).where(categories.id == Parameter())
+        let rows = try database.execute(query: select, with: [id])
+        if rows.isEmpty {
+            throw ServiceError.invalidCategoryId
+        }
+
+        let id: UUID = try rows[0].getValue(forField: categories.id)
+        let name: String = try rows[0].getValue(forField: categories.name)
+        let description: String? = try? rows[0].getValue(forField: categories.description)
+        var category = Category(name: name, description: description)
+        category.id = id
+
+        return category
     }
 
     public func getCategory(for name: String) throws -> Category {
-        throw ServiceError.invalidCategoryName
+        let categories = Categories.table
+        let select = Select(from: categories).where(categories.name == Parameter())
+        let rows = try database.execute(query: select, with: [name])
+        if rows.isEmpty {
+            throw ServiceError.invalidCategoryName
+        }
+
+        let id: UUID = try rows[0].getValue(forField: categories.id)
+        let name: String = try rows[0].getValue(forField: categories.name)
+        let description: String? = try? rows[0].getValue(forField: categories.description)
+        var category = Category(name: name, description: description)
+        category.id = id
+
+        return category
     }
 
     public func getCategories() throws -> [Category] {
@@ -83,7 +132,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
 
         // Delete existing values for overwriting them.
         let delete = Delete(from: attributeValues).where(attributeValues.entityId == Parameter())
-        try database.execute(query: delete, with: [entityId] as! [D.ValueConvertible])
+        try database.execute(query: delete, with: [entityId])
 
         if attributes.isEmpty {     // If there aren't any values, then we're done.
             return
@@ -113,6 +162,6 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
         }
 
         let insert = Insert(into: attributeValues, rows: attributeParams)
-        try database.execute(query: insert, with: attributeParams as! [D.ValueConvertible])
+        try database.execute(query: insert, with: attributeParams)
     }
 }

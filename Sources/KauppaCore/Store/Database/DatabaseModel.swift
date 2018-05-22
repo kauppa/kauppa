@@ -11,6 +11,11 @@ open class DatabaseModel: Table {
     /// Creates parameters for columns with the given values. This checks that the values
     /// aren't `nil` and ignores the corresponding columns if they are. It finally returns
     /// the modified columns, values and parameters lists.
+    ///
+    /// - Parameter:
+    ///   - for: The list of `Column` identifiers.
+    ///   - with: The list of optional values.
+    /// - Returns: A tuple containing checked columns, values and parameter placeholders (in that order).
     public func createParameters(for columns: [Column], with values: [Any?]) -> ([Column], [Any], [Parameter]) {
         var cols = [Column]()
         var vals = [Any]()
@@ -27,5 +32,16 @@ open class DatabaseModel: Table {
         }
 
         return (cols, vals, params)
+    }
+
+    /// Creates parameters for all the columns with the given values. This calls the above
+    /// function with `allColumns` property.
+    ///
+    /// - Parameter:
+    ///   - for: The list of `Column` identifiers.
+    ///   - with: The list of optional values.
+    /// - Returns: A tuple containing checked columns, values and parameter placeholders (in that order).
+    public func createParameters(with values: [Any?]) -> ([Column], [Any], [Parameter]) {
+        return createParameters(for: allColumns, with: values)
     }
 }
