@@ -16,6 +16,6 @@ extension DatabaseRow {
     /// - Returns: The expected value decoded from the returned data.
     /// - Throws: `ServiceError` on failure.
     public func getValue<T>(for key: String) throws -> T {
-        throw ServiceError.getValueUnimplemented
+        throw ServiceError.getValueNotImplemented
     }
 }

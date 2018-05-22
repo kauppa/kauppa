@@ -20,6 +20,6 @@ extension Dictionary: DatabaseRow
             }
         }
 
-        throw ServiceError.missingColumn
+        throw ServiceError.missingField
     }
 }

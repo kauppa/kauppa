@@ -46,6 +46,13 @@ extension String {
         return false
     }
 
+    /// Strip off whitespaces from either ends of this string.
+    ///
+    /// - Returns: Trimmed string.
+    public func trim() -> String {
+        return self.trimmingCharacters(in: NSCharacterSet.whitespaces)
+    }
+
     /// Parse a string into a value of the given type.
     public func parse<T: StringParsable>() -> T? {
         return T.from(string: self)

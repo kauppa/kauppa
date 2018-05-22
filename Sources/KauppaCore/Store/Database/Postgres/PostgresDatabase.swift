@@ -1,6 +1,7 @@
 import NIO
 import NIOOpenSSL
 import PostgreSQL
+import SwiftKuery
 
 /// Async PostgreSQL client implementation.
 public class PostgresDatabase: Database {
@@ -8,6 +9,9 @@ public class PostgresDatabase: Database {
     public typealias ValueConvertible = PostgreSQLDataConvertible
 
     public typealias Row = PostgreDatabaseRow
+
+    /// Query builder specific to PostgreSQL.
+    public private(set) var queryBuilder: QueryBuilder
 
     /// Event loop initialized with the number of CPUs in the machine.
     private var eventLoopGroup = MultiThreadedEventLoopGroup(numThreads: System.coreCount)
@@ -31,14 +35,49 @@ public class PostgresDatabase: Database {
             self.config = try PostgreSQLDatabaseConfig(url: url.absoluteString)
         }
 
+        // Query builder from https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL/blob/337499d196e92b361a24545313a585d4b57a374c/Sources/SwiftKueryPostgreSQL/PostgreSQLConnection.swift
+
+        queryBuilder = QueryBuilder(addNumbersToParameters: true,
+                                    withDeleteRequiresUsing: true,
+                                    withUpdateRequiresFrom: true,
+                                    createAutoIncrement: PostgresDatabase.createAutoIncrement)
+        queryBuilder.updateSubstitutions([
+            QueryBuilder.QuerySubstitutionNames.ucase : "UPPER",
+            QueryBuilder.QuerySubstitutionNames.lcase : "LOWER",
+            QueryBuilder.QuerySubstitutionNames.len : "LENGTH",
+            QueryBuilder.QuerySubstitutionNames.numberedParameter : "$",
+            QueryBuilder.QuerySubstitutionNames.namedParameter : "",
+            QueryBuilder.QuerySubstitutionNames.double : "double precision",
+            QueryBuilder.QuerySubstitutionNames.uuid : "uuid"
+        ])
+
         database = PostgreSQLDatabase(config: self.config)
     }
 
-    public func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row] {
+    public func execute(queryString query: String, with parameters: [ValueConvertible]) throws -> [Row] {
         let future = database.newConnection(on: eventLoopGroup).then() { connection in
             return connection.query(query, parameters)
         }
 
-        return try future.wait()    // drive the future to completion
+        do {
+            return try future.wait()    // drive the future to completion
+        } catch {
+            // FIXME: Log error
+            throw ServiceError.errorExecutingQuery
+        }
+    }
+
+    /// Auto-increment function to be used for some types.
+    private static func createAutoIncrement(_ type: String) -> String {
+        switch type {
+            case "smallint":
+                return "smallserial"
+            case "integer":
+                return "serial"
+            case "bigint":
+                return "bigserial"
+            default:
+                return ""
+        }
     }
 }
