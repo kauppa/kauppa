@@ -29,7 +29,7 @@ public protocol Database {
     ///   - with: The list of parameter values used in the query.
     /// - Returns: List of `Row` (alias. `DatabaseRow`) implementors.
     /// - Throws: `ServiceError` on failure.
-    @discardableResult func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row]
+    @discardableResult func execute(queryString query: String, with parameters: [ValueConvertible]) throws -> [Row]
 }
 
 extension Database {
@@ -37,11 +37,11 @@ extension Database {
     /// `ValueConvertible` (alias) protocol.
     ///
     /// - Parameters:
-    ///   - query: The `Query` to be executed.
+    ///   - The `Query` to be executed.
     ///   - with: The list of parameter values used in the query.
     /// - Returns: List of `Row` (alias. `DatabaseRow`) implementors.
     /// - Throws: `ServiceError` if the query can't be built or if there was a failure in execution.
-    public func execute(query: Query, with parameters: [ValueConvertible]) throws {
+    @discardableResult public func execute(query: Query, with parameters: [ValueConvertible]) throws -> [Row] {
         var string = ""
         do {
             string = try query.build(queryBuilder: queryBuilder)
@@ -50,7 +50,7 @@ extension Database {
             throw ServiceError.invalidQuery
         }
 
-        try execute(query: string, with: parameters)
+        return try execute(queryString: string, with: parameters)
     }
 
     /// Execute SQL statements from a file. This is useful for pre-deployment scripts.
@@ -65,7 +65,7 @@ extension Database {
             data = try String(contentsOfFile: path, encoding: .utf8)
         } catch {
             // FIXME: Log error
-            throw ServiceError.errorReadingScript
+            throw ServiceError.errorReadingFile
         }
 
         var currentLine = ""
@@ -77,7 +77,7 @@ extension Database {
 
             currentLine += line
             if line.hasSuffix(";") {
-                try execute(query: currentLine, with: [])
+                try execute(queryString: currentLine, with: [])
                 currentLine = ""
             }
         }

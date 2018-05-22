@@ -54,7 +54,7 @@ public class PostgresDatabase: Database {
         database = PostgreSQLDatabase(config: self.config)
     }
 
-    public func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row] {
+    public func execute(queryString query: String, with parameters: [ValueConvertible]) throws -> [Row] {
         let future = database.newConnection(on: eventLoopGroup).then() { connection in
             return connection.query(query, parameters)
         }

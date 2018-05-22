@@ -16,6 +16,8 @@ public enum ServiceError: UInt16, Error {
     case jsonSerialization
     /// Some unhandled/unknown error has propagated from within the service.
     case unknownError
+    /// Error reading a file.
+    case errorReadingFile
 
     /* Database errors */
 
@@ -23,17 +25,13 @@ public enum ServiceError: UInt16, Error {
     case connectionError
     /// Error building query.
     case invalidQuery
-    /// Query method is unimplemented for this database.
-    case queryUnimplemented
     /// Getting field value from row is unimplemented.
-    case getValueUnimplemented
+    case getValueNotImplemented
     /// Error decoding value from the database row.
     case valueDecodingError
     /// Column not found in the database row.
-    case missingColumn
-    /// Error reading the given SQL script file.
-    case errorReadingScript
-    /// Error executing the given SQL query.
+    case missingField
+    /// Error executing the given query.
     case errorExecutingQuery
 
     /* Accounts service errors */

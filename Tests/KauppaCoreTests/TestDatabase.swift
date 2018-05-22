@@ -9,6 +9,7 @@ class TestDatabase: XCTestCase {
         return [
             ("Test implemented getValue", testRowImplemented),
             ("Test unimplemented getValue", testRowUnimplemented),
+            ("Test parameter building", testParameterBuilding),
         ]
     }
 
@@ -41,13 +42,13 @@ class TestDatabase: XCTestCase {
 
             public required init(for url: URL, with tlsConfig: TLSConfig?) throws {}
 
-            public func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row] {
+            public func execute(queryString: String, with parameters: [ValueConvertible]) throws -> [Row] {
                 return [TestDatabaseRow()]
             }
         }
 
         let database = try! NoOpTestDatabase(for: URL(string: "http://foo.bar")!, with: nil)
-        let rows = try! database.execute(query: "", with: [])
+        let rows = try! database.execute(queryString: "", with: [])
 
         do {
             let _: String = try rows[0].getValue(for: "foobar")
@@ -73,19 +74,38 @@ class TestDatabase: XCTestCase {
 
             public required init(for url: URL, with tlsConfig: TLSConfig?) throws {}
 
-            public func execute(query: String, with parameters: [ValueConvertible]) throws -> [Row] {
+            public func execute(queryString: String, with parameters: [ValueConvertible]) throws -> [Row] {
                 return [TestDatabaseRow()]
             }
         }
 
         let database = try! NoOpTestDatabase(for: URL(string: "http://foo.bar")!, with: nil)
-        let rows = try! database.execute(query: "", with: [])
+        let rows = try! database.execute(queryString: "", with: [])
 
         do {
             let _: String = try rows[0].getValue(for: "foobar")
             XCTFail()
         } catch let err {
-            XCTAssertEqual(err as! ServiceError, .getValueUnimplemented)
+            XCTAssertEqual(err as! ServiceError, .getValueNotImplemented)
         }
+    }
+
+    // Test that table models properly generate parameters based on the given values.
+    func testParameterBuilding() {
+        class TestTable: DatabaseModel {
+            let column1 = Column("foo", String.self)
+            let column2 = Column("bar", Float.self)
+            let column3 = Column("baz", PostgresArray<UUID>.self)
+            let column4 = Column("boo", Int32.self)
+            let column5 = Column("yay", PostgresArray<Bool>.self)
+        }
+
+        let table = TestTable()
+        let columns = [table.column1, table.column2, table.column3, table.column4, table.column5]
+        let values: [Any?] = ["booya", nil, [UUID()], nil, nil]
+        let (cols, vals, params) = table.createParameters(for: columns, with: values)
+        XCTAssertEqual(cols.count, 2)
+        XCTAssertEqual(vals.count, 2)
+        XCTAssertEqual(params.count, 2)
     }
 }
