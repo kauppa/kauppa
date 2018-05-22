@@ -31,7 +31,6 @@ class Products: DatabaseModel {
     let weightValue     = Column("weightValue", Float.self)
     let weightUnit      = Column("weightUnit", String.self)
     let color           = Column("color", String.self)
-    let attributes      = Column("attributes", PostgresArray<UUID>.self)
 
     let inventory       = Column("inventory", Int16.self, notNull: true)
     let price           = Column("price", Float.self, notNull: true)
@@ -41,4 +40,6 @@ class Products: DatabaseModel {
 
     let variants        = Column("variants", PostgresArray<UUID>.self)
     let variantId       = Column("variantId", UUID.self)
+
+    let active          = Column("active", Bool.self)
 }

@@ -112,7 +112,7 @@ class TestProductAttributes: XCTestCase {
         let baseProduct = try! service.createProduct(with: productData, from: Address())
         for (i, (_, _, value, unit)) in initialValues.enumerated() {
             XCTAssertNil(baseProduct.custom![i].name)
-            XCTAssertNil(baseProduct.custom![i].type)
+            XCTAssertNotNil(baseProduct.custom![i].type)
             XCTAssertEqual(baseProduct.custom![i].value, value)
             XCTAssertEqual(baseProduct.custom![i].unit, unit)
         }
@@ -139,6 +139,7 @@ class TestProductAttributes: XCTestCase {
 
         for (i, (value, unit)) in finalValues.enumerated() {
             XCTAssertEqual(updatedProduct.custom![i].id, baseProduct.custom![i].id)
+            XCTAssertNotNil(updatedProduct.custom![i].type)
             XCTAssertEqual(updatedProduct.custom![i].value, value)
             XCTAssertEqual(updatedProduct.custom![i].unit, unit)
         }
@@ -187,6 +188,7 @@ class TestProductAttributes: XCTestCase {
         productData.custom![0].value = "Foo"
         let product = try! service.createProduct(with: productData, from: Address())
         XCTAssertNotNil(product.custom![0].id)
+        XCTAssertEqual(product.custom![0].type, .enum_)
         XCTAssertEqual(product.custom![0].value, "foo")
     }
 }

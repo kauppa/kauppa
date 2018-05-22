@@ -2,6 +2,12 @@ import SwiftKuery
 
 /// Represents a table in the database.
 open class DatabaseModel: Table {
+
+    /// Returns: All `Column` values in this table.
+    public var allColumns: [Column] {
+        return columns
+    }
+
     /// Creates parameters for columns with the given values. This checks that the values
     /// aren't `nil` and ignores the corresponding columns if they are. It finally returns
     /// the modified columns, values and parameters lists.
@@ -11,14 +17,12 @@ open class DatabaseModel: Table {
         var params = [Parameter]()
 
         for (column, value) in zip(columns, values) {
-            if let optional = value as? OptionalType {
-                if optional.isNone() {
-                    continue
-                }
+            if (value as OptionalType).isNone() {
+                continue
             }
 
             cols.append(column)
-            vals.append(value)
+            vals.append(value!)
             params.append(Parameter())
         }
 
