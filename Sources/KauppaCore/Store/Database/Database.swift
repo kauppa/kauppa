@@ -37,11 +37,11 @@ extension Database {
     /// `ValueConvertible` (alias) protocol.
     ///
     /// - Parameters:
-    ///   - The `Query` to be executed.
+    ///   - The query (implementing `Buildable`) to be executed.
     ///   - with: The list of parameter values used in the query.
     /// - Returns: List of `Row` (alias. `DatabaseRow`) implementors.
     /// - Throws: `ServiceError` if the query can't be built or if there was a failure in execution.
-    @discardableResult public func execute(query: Query, with parameters: [Any]) throws -> [Row] {
+    @discardableResult public func execute(query: Buildable, with parameters: [Any]) throws -> [Row] {
         guard let parameters = parameters as? [ValueConvertible] else {
             throw ServiceError.invalidQuery
         }

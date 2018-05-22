@@ -9,8 +9,18 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
 
     private let database: D
 
-    public init(with database: D) {
+    /// Initialize this store with a database. This also executes the queries
+    /// for creating the tables.
+    ///
+    /// - Parameter:
+    ///   - with: Anything that implements `Database`
+    public init(with database: D) throws {
         self.database = database
+
+        try database.execute(query: BuildableTable(for: Categories.table), with: [])
+        try database.execute(query: BuildableTable(for: Products.table), with: [])
+        try database.execute(query: BuildableTable(for: Attributes.table), with: [])
+        try database.execute(query: BuildableTable(for: AttributeValues.table), with: [])
     }
 
     public func createNewProduct(with data: Product) throws -> () {
@@ -21,13 +31,14 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
         let products = Products.table
         let dataValues: [Any?] = [data.id, data.createdOn, data.updatedAt,
                                   data.title, data.subtitle, data.description, data.overview,
-                                  data.images, data.categories, data.tags,
-                                  data.dimensions?.length?.value, data.dimensions?.length?.unit,
-                                  data.dimensions?.width?.value, data.dimensions?.width?.unit,
-                                  data.dimensions?.height?.value, data.dimensions?.height?.unit,
-                                  data.weight?.value, data.weight?.unit,
-                                  data.color, data.inventory, data.price, data.actualPrice,
-                                  data.currency, data.taxInclusive, data.variants, data.variantId]
+                                  Array(data.images), data.categories?.map { $0.id! }, Array(data.tags),
+                                  data.dimensions?.length?.value, data.dimensions?.length?.unit.rawValue,
+                                  data.dimensions?.width?.value, data.dimensions?.width?.unit.rawValue,
+                                  data.dimensions?.height?.value, data.dimensions?.height?.unit.rawValue,
+                                  data.weight?.value, data.weight?.unit.rawValue,
+                                  data.color, data.inventory, data.price.value, data.actualPrice?.value,
+                                  data.currency.rawValue, data.taxInclusive, data.taxCategory,
+                                  Array(data.variants), data.variantId, true]
 
         let (columns, values, params) = products.createParameters(with: dataValues)
         let insert = Insert(into: products, columns: columns, values: params)
@@ -54,7 +65,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
 
     public func createAttribute(with data: Attribute) throws -> () {
         let attributes = Attributes.table
-        let dataValues: [Any?] = [data.id, data.name, data.type.rawValue, data.variants, data.createdOn, data.updatedAt]
+        let dataValues: [Any?] = [data.id, data.createdOn, data.updatedAt, data.name, data.type.rawValue, data.variants]
         let (columns, values, params) = attributes.createParameters(with: dataValues)
         let insert = Insert(into: attributes, columns: columns, values: params)
         try database.execute(query: insert, with: values)
@@ -68,16 +79,15 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
             throw ServiceError.invalidAttributeId
         }
 
-        let id: UUID = try rows[0].getValue(forField: attributes.id)
-        let createdOn: Date = try rows[0].getValue(forField: attributes.createdOn)
-        let updatedAt: Date = try rows[0].getValue(forField: attributes.updatedAt)
-        let name: String = try rows[0].getValue(forField: attributes.name)
         let type: String = try rows[0].getValue(forField: attributes.type)
         let variants: [String]? = try? rows[0].getValue(forField: attributes.variants)
-
-        var attribute = Attribute(id: id, name: name, type: BaseType(rawValue: type)!,
-                                  createdOn: createdOn, updatedAt: updatedAt)
+        var attribute = Attribute(id: try rows[0].getValue(forField: attributes.id),
+                                  name: try rows[0].getValue(forField: attributes.name),
+                                  type: BaseType(rawValue: type)!,
+                                  createdOn: try rows[0].getValue(forField: attributes.createdOn),
+                                  updatedAt: try rows[0].getValue(forField: attributes.updatedAt))
         attribute.variants = ArraySet(variants ?? [])
+
         return attribute
     }
 
@@ -97,11 +107,10 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
             throw ServiceError.invalidCategoryId
         }
 
-        let id: UUID = try rows[0].getValue(forField: categories.id)
         let name: String = try rows[0].getValue(forField: categories.name)
         let description: String? = try? rows[0].getValue(forField: categories.description)
         var category = Category(name: name, description: description)
-        category.id = id
+        category.id = try rows[0].getValue(forField: categories.id)
 
         return category
     }
@@ -114,11 +123,10 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
             throw ServiceError.invalidCategoryName
         }
 
-        let id: UUID = try rows[0].getValue(forField: categories.id)
         let name: String = try rows[0].getValue(forField: categories.name)
         let description: String? = try? rows[0].getValue(forField: categories.description)
         var category = Category(name: name, description: description)
-        category.id = id
+        category.id = try rows[0].getValue(forField: categories.id)
 
         return category
     }
@@ -139,7 +147,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
         }
 
         // Collect the attribute values.
-        var attributeData = [Any?]()
+        var attributeData = [Any]()
         for attribute in attributes {
             var row: [Any] = [attribute.id!, entityId, "", false, 0, 0.0, ""]   // set defaults
             switch attribute.type! {
@@ -162,6 +170,6 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
         }
 
         let insert = Insert(into: attributeValues, rows: attributeParams)
-        try database.execute(query: insert, with: attributeParams)
+        try database.execute(query: insert, with: attributeData)
     }
 }

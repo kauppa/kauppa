@@ -19,7 +19,7 @@ class Products: DatabaseModel {
     let overview        = Column("overview", String.self)
     let images          = Column("images", PostgresArray<String>.self)
 
-    let categories      = Column("categories", UUID.self)
+    let categories      = Column("categories", PostgresArray<UUID>.self)
     let tags            = Column("tags", PostgresArray<String>.self)
 
     let lengthValue     = Column("lengthValue", Float.self)
@@ -37,6 +37,7 @@ class Products: DatabaseModel {
     let actualPrice     = Column("actualPrice", Float.self)
     let currency        = Column("currency", String.self, notNull: true)
     let taxInclusive    = Column("taxInclusive", Bool.self)
+    let taxCategory     = Column("taxCategory", String.self)
 
     let variants        = Column("variants", PostgresArray<UUID>.self)
     let variantId       = Column("variantId", UUID.self)
