@@ -95,9 +95,9 @@ class TestDatabase: XCTestCase {
         class TestTable: DatabaseModel<String> {
             let column1 = Column("foo", String.self)
             let column2 = Column("bar", Float.self)
-            let column3 = Column("baz", PostgresArray<UUID>.self)
+            let column3 = Column("baz", SQLArray<UUID>.self)
             let column4 = Column("boo", Int32.self)
-            let column5 = Column("yay", PostgresArray<Bool>.self)
+            let column5 = Column("yay", SQLArray<Bool>.self)
         }
 
         let table = TestTable()

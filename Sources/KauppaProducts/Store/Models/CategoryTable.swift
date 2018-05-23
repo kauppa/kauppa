@@ -6,10 +6,10 @@ import KauppaCore
 import KauppaProductsModel
 
 /// Table for `Category` model.
-class Categories: DatabaseModel<Category> {
+class CategoryTable: DatabaseModel<Category> {
     let tableName = "categories"
 
-    static let table = Categories()
+    static let table = CategoryTable()
 
     let id          = Column("id", UUID.self, primaryKey: true, notNull: true, unique: true)
     let name        = Column("name", String.self)

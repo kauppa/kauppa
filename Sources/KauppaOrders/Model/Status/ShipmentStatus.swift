@@ -12,9 +12,4 @@ public enum ShipmentStatus: String, Mappable {
     case pickup = "pickup"
     /// Some (or all) items have been returned
     case returned = "returned"
-
-    /// Check the equality of this type.
-    public static func ==(lhs: ShipmentStatus, rhs: ShipmentStatus) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
 }

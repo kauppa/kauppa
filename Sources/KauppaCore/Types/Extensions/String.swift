@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 extension String {
     /// Generate a random upper-case alpha-numeric string of given length.
     ///
@@ -39,8 +41,8 @@ extension String {
             if matches > 0 {
                 return true
             }
-        } catch {
-            //
+        } catch let err {
+            Loki.error("Error compiling regex (\(regex)): \(err)")
         }
 
         return false

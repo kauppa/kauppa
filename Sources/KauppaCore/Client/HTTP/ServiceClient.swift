@@ -1,6 +1,8 @@
 import Dispatch
 import Foundation
 
+import Loki
+
 /// Wrapper for the clients of each service. Since all the services use JSON to talk
 /// to one another, since they have some common rules of how the data is exchanged
 /// and since we don't wanna duplicate code here and there, this wrapper exists.
@@ -43,17 +45,20 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
             let regex = try NSRegularExpression(pattern: ":([^\\/]+)\\/?")
             let results = regex.matches(in: url, range: NSRange(url.startIndex..., in: url))
             keys = results.map() { String(url[Range($0.range(at: 1), in: url)!]) }
-        } catch {
+        } catch let err {
+            Loki.error("Error compiling regex: \(err)")
             throw ServiceError.invalidRegex
         }
 
         // Replace parameters with supplied values.
         for key in keys {
             guard let parameters = parameters else {
+                Loki.error("Expected URL parameters: \(keys)")
                 throw ServiceError.missingURLParameter
             }
 
             guard let value = parameters[key] else {
+                Loki.error("Expected URL parameter: \(key)")
                 throw ServiceError.missingURLParameter
             }
 
@@ -61,6 +66,7 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
         }
 
         let endpoint = URL(string: url, relativeTo: self.endpoint)!
+        Loki.info("\(route.method): \(endpoint.absoluteString)")
         return C(with: route.method, on: endpoint)
     }
 
@@ -91,6 +97,7 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
         let task: (C.Response) throws -> Void = { response in
             // Response data is required.
             guard let data = response.getData() else {
+                Loki.info("Rejecting service response from \(self.endpoint.absoluteString) because it has empty body.")
                 throw ServiceError.clientHTTPData
             }
 
@@ -106,6 +113,7 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
                     result = .ok(decoded)
                 } catch {
                     // Error decoding the object. This will default to "unknown error".
+                    Loki.error("Service (\(self.endpoint.absoluteString)) has returned 2xx code, but response couldn't be decoded.")
                 }
 
                 return
@@ -117,16 +125,19 @@ open class ServiceClient<C: ClientCallable, R: RouteRepresentable> {
                 let serviceResponse = try JSONDecoder().decode(ServiceStatusMessage.self, from: data)
                 guard let code = serviceResponse.code else {
                     // Service has issued an error, but no code was received.
+                    Loki.error("Got status code: \(response.statusCode.rawValue), but couldn't decode ServiceError")
                     return
                 }
 
                 guard let serviceError = ServiceError(rawValue: code) else {
+                    Loki.error("Unknown service error code: \(code)")
                     // Service has returned a code, but we've no idea what that is.
                     return
                 }
 
                 result = .err(serviceError)
-            } catch {
+            } catch let err {
+                Loki.error("Error decoding to JSON object: \(err)")
                 throw ServiceError.jsonErrorParse
             }
         }

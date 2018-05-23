@@ -12,9 +12,4 @@ public enum PaymentStatus: String, Mappable {
     case paid = "paid"
     /// Payment failed.
     case failed = "failed"
-
-    /// Check the equality of this type.
-    public static func ==(lhs: PaymentStatus, rhs: PaymentStatus) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
 }

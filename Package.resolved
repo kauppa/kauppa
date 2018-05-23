@@ -128,6 +128,15 @@
         }
       },
       {
+        "package": "Loki",
+        "repositoryURL": "https://github.com/Naamio/loki",
+        "state": {
+          "branch": null,
+          "revision": "c60bc5f2edfeca40dbc8808d6f3e9aac80be09dd",
+          "version": "0.4.0"
+        }
+      },
+      {
         "package": "OpenSSL",
         "repositoryURL": "https://github.com/IBM-Swift/OpenSSL.git",
         "state": {

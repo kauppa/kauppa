@@ -1,6 +1,7 @@
 import Foundation
 
 import Kitura
+import Loki
 
 import KauppaCore
 import KauppaAccountsModel
@@ -25,6 +26,14 @@ import KauppaShipmentsStore
 import KauppaTaxRepository
 import KauppaTaxService
 import KauppaTaxStore
+
+// Set log level
+
+let console = ConsoleDestination()
+console.minLevel = LogLevel.from(environment: "LOG_LEVEL") ?? .debug
+Loki.addDestination(console)
+
+// Get database configuration (if any)
 
 var databaseUrl: URL? = nil
 var databaseConfig: TLSConfig? = nil
@@ -69,7 +78,7 @@ let productsStore: ProductsStorable
 if let rootUrl = databaseUrl {
     let url = URL(string: "kauppa_products", relativeTo: rootUrl)!
     let database = try! PostgresDatabase(for: url, with: databaseConfig)
-    productsStore = try! ProductsPostgresStore(with: database)
+    productsStore = try! ProductsStore(with: database)
 } else {
     productsStore = ProductsNoOpStore()
 }

@@ -6,17 +6,17 @@ import KauppaCore
 import KauppaProductsModel
 
 /// Table for `Attribute` model.
-class Attributes: DatabaseModel<Attribute> {
+class AttributeTable: DatabaseModel<Attribute> {
     let tableName = "attributes"
 
-    static let table = Attributes()
+    static let table = AttributeTable()
 
     let id          = Column("id", UUID.self, primaryKey: true, notNull: true, unique: true)
-    let createdOn   = Column("createdOn", Timestamp.self)
-    let updatedAt   = Column("updatedAt", Timestamp.self)
+    let createdOn   = Column("created_on", Timestamp.self)
+    let updatedAt   = Column("updated_at", Timestamp.self)
     let name        = Column("name", String.self)
     let type        = Column("type", String.self)
-    let variants    = Column("variants", PostgresArray<String>.self)
+    let variants    = Column("variants", SQLArray<String>.self)
 
     public override func values(from model: Attribute) -> [Any?] {
         return [

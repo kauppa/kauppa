@@ -31,9 +31,9 @@ public enum BaseType: String, Codable {
             case .currency:
                 return Price(value)
             case .number:
-                return UInt32(value)
+                return Int32(value)
             default:
-                return Float32(value)
+                return Float(value)
         }
     }
 
