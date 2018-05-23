@@ -27,7 +27,7 @@ class TestDatabase: XCTestCase {
             // `ServiceError.getValueUnimplemented` whereas here, we're throwing
             // `ServiceError.valueDecodingError` - if we get this while trying to get
             // a value from the row, then we're good!
-            public func getValue<T: Codable>(for key: String) throws -> T {
+            public func getValue<T: Codable>(forKey: String) throws -> T {
                 throw ServiceError.valueDecodingError
             }
         }
@@ -51,7 +51,7 @@ class TestDatabase: XCTestCase {
         let rows = try! database.execute(queryString: "", with: [])
 
         do {
-            let _: String = try rows[0].getValue(for: "foobar")
+            let _: String = try rows[0].getValue(forKey: "foobar")
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ServiceError, .valueDecodingError)
@@ -83,7 +83,7 @@ class TestDatabase: XCTestCase {
         let rows = try! database.execute(queryString: "", with: [])
 
         do {
-            let _: String = try rows[0].getValue(for: "foobar")
+            let _: String = try rows[0].getValue(forKey: "foobar")
             XCTFail()
         } catch let err {
             XCTAssertEqual(err as! ServiceError, .getValueNotImplemented)
@@ -92,7 +92,7 @@ class TestDatabase: XCTestCase {
 
     // Test that table models properly generate parameters based on the given values.
     func testParameterBuilding() {
-        class TestTable: DatabaseModel {
+        class TestTable: DatabaseModel<String> {
             let column1 = Column("foo", String.self)
             let column2 = Column("bar", Float.self)
             let column3 = Column("baz", PostgresArray<UUID>.self)
@@ -102,6 +102,9 @@ class TestDatabase: XCTestCase {
 
         let table = TestTable()
         let columns = [table.column1, table.column2, table.column3, table.column4, table.column5]
+        // Check that the order of columns is the same.
+        XCTAssertEqual(table.allColumns.map { $0.name }, columns.map { $0.name })
+
         let values: [Any?] = ["booya", nil, [UUID()], nil, nil]
         let (cols, vals, params) = table.createParameters(for: columns, with: values)
         XCTAssertEqual(cols.count, 2)

@@ -42,3 +42,9 @@ extension Int: StringParsable {
         return Int(string)
     }
 }
+
+extension URL: StringParsable {
+    public static func from(string: String) -> URL? {
+        return URL(string: string)
+    }
+}

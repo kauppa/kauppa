@@ -266,10 +266,10 @@ class ProductsFactory {
 
             // Set ID, value, unit and reset name, type and variants.
             existingAttributes[index].id = customAttribute.id
+            existingAttributes[index].type = customAttribute.type
             existingAttributes[index].value = customAttribute.value
             existingAttributes[index].unit = customAttribute.unit
             existingAttributes[index].name = nil
-            existingAttributes[index].type = nil
             existingAttributes[index].variants = nil
         }
 
