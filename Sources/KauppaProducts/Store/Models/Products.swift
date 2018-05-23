@@ -1,10 +1,13 @@
 import Foundation
 
-import KauppaCore
 import SwiftKuery
 
+import KauppaCore
+import KauppaProductsModel
+
 /// Table for `Product` model.
-class Products: DatabaseModel {
+class Products: DatabaseModel<Product> {
+
     let tableName = "products"
 
     static let table = Products()
@@ -43,4 +46,19 @@ class Products: DatabaseModel {
     let variantId       = Column("variantId", UUID.self)
 
     let active          = Column("active", Bool.self)
+
+    public override func values(from model: Product) -> [Any?] {
+        return [
+            model.id, model.createdOn, model.updatedAt,
+            model.title, model.subtitle, model.description, model.overview,
+            Array(model.images), model.categories?.map { $0.id! }, Array(model.tags),
+            model.dimensions?.length?.value, model.dimensions?.length?.unit.rawValue,
+            model.dimensions?.width?.value, model.dimensions?.width?.unit.rawValue,
+            model.dimensions?.height?.value, model.dimensions?.height?.unit.rawValue,
+            model.weight?.value, model.weight?.unit.rawValue,
+            model.color, model.inventory, model.price.value, model.actualPrice?.value,
+            model.currency.rawValue, model.taxInclusive, model.taxCategory,
+            Array(model.variants), model.variantId, true
+        ]
+    }
 }

@@ -92,7 +92,7 @@ class TestDatabase: XCTestCase {
 
     // Test that table models properly generate parameters based on the given values.
     func testParameterBuilding() {
-        class TestTable: DatabaseModel {
+        class TestTable: DatabaseModel<String> {
             let column1 = Column("foo", String.self)
             let column2 = Column("bar", Float.self)
             let column3 = Column("baz", PostgresArray<UUID>.self)

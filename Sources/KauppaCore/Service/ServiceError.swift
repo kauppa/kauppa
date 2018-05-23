@@ -29,6 +29,8 @@ public enum ServiceError: UInt16, Error {
     case invalidQueryParameter
     /// Getting field value from row is not implemented.
     case getValueNotImplemented
+    /// Creation of service model from table model is not implemented.
+    case modelCreationNotImplemented
     /// Error decoding value from the database row.
     case valueDecodingError
     /// Column not found in the database row.
