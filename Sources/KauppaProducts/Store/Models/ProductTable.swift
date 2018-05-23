@@ -6,43 +6,43 @@ import KauppaCore
 import KauppaProductsModel
 
 /// Table for `Product` model.
-class Products: DatabaseModel<Product> {
+class ProductTable: DatabaseModel<Product> {
 
     let tableName = "products"
 
-    static let table = Products()
+    static let table = ProductTable()
 
     let id              = Column("id", UUID.self, primaryKey: true, notNull: true, unique: true)
-    let createdOn       = Column("createdOn", Timestamp.self, notNull: true)
-    let updatedAt       = Column("updatedAt", Timestamp.self, notNull: true)
+    let createdOn       = Column("created_on", Timestamp.self, notNull: true)
+    let updatedAt       = Column("updated_at", Timestamp.self, notNull: true)
 
     let title           = Column("title", String.self, notNull: true)
     let subtitle        = Column("subtitle", String.self)
     let description     = Column("description", String.self)
     let overview        = Column("overview", String.self)
-    let images          = Column("images", PostgresArray<String>.self)
+    let images          = Column("images", SQLArray<String>.self)
 
-    let categories      = Column("categories", PostgresArray<UUID>.self)
-    let tags            = Column("tags", PostgresArray<String>.self)
+    let categories      = Column("categories", SQLArray<UUID>.self)
+    let tags            = Column("tags", SQLArray<String>.self)
 
-    let lengthValue     = Column("lengthValue", Float.self)
-    let lengthUnit      = Column("lengthUnit", String.self)
-    let widthValue      = Column("widthValue", Float.self)
-    let widthUnit       = Column("widthUnit", String.self)
-    let heightValue     = Column("heightValue", Float.self)
-    let heightUnit      = Column("heightUnit", String.self)
-    let weightValue     = Column("weightValue", Float.self)
-    let weightUnit      = Column("weightUnit", String.self)
+    let lengthValue     = Column("length_value", Float.self)
+    let lengthUnit      = Column("length_unit", String.self)
+    let widthValue      = Column("width_value", Float.self)
+    let widthUnit       = Column("width_unit", String.self)
+    let heightValue     = Column("height_value", Float.self)
+    let heightUnit      = Column("height_unit", String.self)
+    let weightValue     = Column("weight_value", Float.self)
+    let weightUnit      = Column("weight_unit", String.self)
     let color           = Column("color", String.self)
 
     let inventory       = Column("inventory", Int16.self, notNull: true)
     let price           = Column("price", Float.self, notNull: true)
-    let actualPrice     = Column("actualPrice", Float.self)
+    let actualPrice     = Column("actual_price", Float.self)
     let currency        = Column("currency", String.self, notNull: true)
-    let taxInclusive    = Column("taxInclusive", Bool.self)
-    let taxCategory     = Column("taxCategory", String.self)
+    let taxInclusive    = Column("tax_inclusive", Bool.self)
+    let taxCategory     = Column("tax_category", String.self)
 
-    let variants        = Column("variants", PostgresArray<UUID>.self)
+    let variants        = Column("variants", SQLArray<UUID>.self)
     let variantId       = Column("variantId", UUID.self)
 
     let active          = Column("active", Bool.self)

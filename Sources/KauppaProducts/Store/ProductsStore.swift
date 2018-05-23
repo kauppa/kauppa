@@ -4,8 +4,8 @@ import KauppaCore
 import KauppaProductsModel
 import SwiftKuery
 
-/// Products store backed by PostgreSQL database.
-public class ProductsPostgresStore<D: Database>: ProductsStorable {
+/// Products store backed by a database.
+public class ProductsStore<D: Database>: ProductsStorable {
 
     private let database: D
 
@@ -17,10 +17,10 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
     public init(with database: D) throws {
         self.database = database
 
-        try database.execute(query: BuildableTable(for: Categories.table), with: [])
-        try database.execute(query: BuildableTable(for: Products.table), with: [])
-        try database.execute(query: BuildableTable(for: Attributes.table), with: [])
-        try database.execute(query: BuildableTable(for: AttributeValues.table), with: [])
+        try database.execute(query: BuildableTable(for: CategoryTable.table), with: [])
+        try database.execute(query: BuildableTable(for: ProductTable.table), with: [])
+        try database.execute(query: BuildableTable(for: AttributeTable.table), with: [])
+        try database.execute(query: BuildableTable(for: AttributeValueTable.table), with: [])
     }
 
     public func createNewProduct(with data: Product) throws -> () {
@@ -28,7 +28,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
         try updateAttributeValues(for: data.id!, using: data.custom ?? [])
 
         // Collect product data and insert them.
-        let products = Products.table
+        let products = ProductTable.table
         let dataValues: [Any?] = products.values(from: data)
         let (columns, values, params) = products.createParameters(with: dataValues)
         let insert = Insert(into: products, columns: columns, values: params)
@@ -54,7 +54,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
     public func deleteCollection(for id: UUID) throws -> () {}
 
     public func createAttribute(with data: Attribute) throws -> () {
-        let attributes = Attributes.table
+        let attributes = AttributeTable.table
         let dataValues: [Any?] = attributes.values(from: data)
         let (columns, values, params) = attributes.createParameters(with: dataValues)
         let insert = Insert(into: attributes, columns: columns, values: params)
@@ -62,7 +62,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
     }
 
     public func getAttribute(for id: UUID) throws -> Attribute {
-        let attributes = Attributes.table
+        let attributes = AttributeTable.table
         let select = Select(from: attributes).where(attributes.id == Parameter())
         let rows = try database.execute(query: select, with: [id])
         if rows.isEmpty {
@@ -73,7 +73,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
     }
 
     public func createCategory(with data: Category) throws -> () {
-        let categories = Categories.table
+        let categories = CategoryTable.table
         let dataValues: [Any?] = categories.values(from: data)
         let (columns, values, params) = categories.createParameters(with: dataValues)
         let insert = Insert(into: categories, columns: columns, values: params)
@@ -81,7 +81,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
     }
 
     public func getCategory(for id: UUID) throws -> Category {
-        let categories = Categories.table
+        let categories = CategoryTable.table
         let select = Select(from: categories).where(categories.id == Parameter())
         let rows = try database.execute(query: select, with: [id])
         if rows.isEmpty {
@@ -92,7 +92,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
     }
 
     public func getCategory(for name: String) throws -> Category {
-        let categories = Categories.table
+        let categories = CategoryTable.table
         let select = Select(from: categories).where(categories.name == Parameter())
         let rows = try database.execute(query: select, with: [name])
         if rows.isEmpty {
@@ -107,7 +107,7 @@ public class ProductsPostgresStore<D: Database>: ProductsStorable {
     }
 
     private func updateAttributeValues(for entityId: UUID, using attributes: [CustomAttribute]) throws {
-        let attributeValues = AttributeValues.table
+        let attributeValues = AttributeValueTable.table
 
         // Delete existing values for overwriting them.
         let delete = Delete(from: attributeValues).where(attributeValues.entityId == Parameter())

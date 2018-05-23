@@ -69,7 +69,7 @@ let productsStore: ProductsStorable
 if let rootUrl = databaseUrl {
     let url = URL(string: "kauppa_products", relativeTo: rootUrl)!
     let database = try! PostgresDatabase(for: url, with: databaseConfig)
-    productsStore = try! ProductsPostgresStore(with: database)
+    productsStore = try! ProductsStore(with: database)
 } else {
     productsStore = ProductsNoOpStore()
 }
