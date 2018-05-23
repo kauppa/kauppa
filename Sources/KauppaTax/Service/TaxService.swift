@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 import KauppaCore
 import KauppaAccountsModel
 import KauppaTaxClient
@@ -29,6 +31,7 @@ extension TaxService: TaxServiceCallable {
             let country = try repository.getCountry(name: address.country)
             taxRate = country.taxRate
         } catch ServiceError.noMatchingCountry {
+            Loki.debug("Country \(address.country) doesn't exist. Responding with fallback tax rate.")
             return TaxConfiguration.fallbackTaxRate
         }
 
@@ -38,14 +41,14 @@ extension TaxService: TaxServiceCallable {
             let province = try repository.getRegion(name: address.province, for: address.country)
             taxRate!.applyOverrideFrom(province.taxRate)
         } catch ServiceError.noMatchingRegion {
-            //
+            Loki.debug("Region \(address.province) doesn't exist. Falling through.")
         }
 
         do {
             let city = try repository.getRegion(name: address.city, for: address.country)
             taxRate!.applyOverrideFrom(city.taxRate)
         } catch ServiceError.noMatchingRegion {
-            //
+            Loki.debug("City \(address.city) doesn't exist. Falling through.")
         }
 
         return taxRate!

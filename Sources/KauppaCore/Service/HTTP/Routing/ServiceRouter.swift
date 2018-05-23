@@ -47,6 +47,7 @@ open class ServiceRouter<R: Routing, U: RouteRepresentable> {
             routeMethods[route.url] = [route.method]
         }
 
+        Loki.debug("Adding \(route.method) handler on \(route.url)")
         self.router.add(route: route.url, method: route.method) { request, response in
             do {
                 try handler(request, response)
@@ -73,7 +74,7 @@ open class ServiceRouter<R: Routing, U: RouteRepresentable> {
             }
 
             let headerValue = methods.map { $0.description }.joined(separator: ", ")
-            Loki.debug("Adding OPTIONS handler for \(headerValue) on \(url)")
+            Loki.debug("Adding OPTIONS handler for \(headerValue) methods on \(url)")
 
             self.router.add(route: url, method: .options) { request, response in
                 // FIXME: Support configuring CORS
@@ -84,5 +85,7 @@ open class ServiceRouter<R: Routing, U: RouteRepresentable> {
                 response.respond(with: Data(), code: .ok)
             }
         }
+
+        routeMethods = [:]
     }
 }

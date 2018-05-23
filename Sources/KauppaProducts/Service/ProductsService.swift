@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 import KauppaCore
 import KauppaAccountsModel
 import KauppaProductsClient
@@ -33,8 +35,8 @@ extension ProductsService: ProductsServiceCallable {
         return try repository.getAttributes()
     }
 
-    public func createProduct(with data: Product, from address: Address?) throws -> Product
-    {
+    public func createProduct(with data: Product, from address: Address?) throws -> Product {
+        Loki.debug("Initializing products factory for creating a new product.")
         let factory = ProductsFactory(for: data, with: repository, from: address)
         let product = try factory.createProduct(using: taxService)
         return try getProduct(for: product.id!, from: address)
@@ -46,6 +48,8 @@ extension ProductsService: ProductsServiceCallable {
             if let address = address {
                 let taxRate = try taxService.getTaxRate(for: address)
                 product.setTax(using: taxRate)
+            } else {
+                Loki.debug("Product \(id) didn't include tax, but address wasn't specified. Ignoring tax calculation.")
             }
         }
 
@@ -64,6 +68,7 @@ extension ProductsService: ProductsServiceCallable {
     public func updateProduct(for id: UUID, with data: ProductPatch,
                               from address: Address?) throws -> Product
     {
+        Loki.debug("Initializing products factory for updating product \(id)")
         let product = try repository.getProduct(for: id)
         let factory = ProductsFactory(for: product, with: repository, from: address)
         try factory.updateProduct(for: id, with: data, using: taxService)
@@ -132,11 +137,14 @@ extension ProductsService: ProductsServiceCallable {
 
         if (data.removeVariant ?? false) {
             if let parentId = productData.variantId {
+                Loki.debug("Product \(id) is no longer a variant of product \(parentId)")
                 var parentData = try repository.getProduct(for: parentId)
                 if parentData.variants != nil {
                     parentData.variants!.remove(id)
                 }
 
+                Loki.debug("Removing product \(id) from variants of product \(parentId).")
+                // FIXME: This should be in queue.
                 let _ = try repository.updateProduct(with: parentData)
                 productData.variantId = nil
             }
@@ -145,6 +153,8 @@ extension ProductsService: ProductsServiceCallable {
         let _ = try repository.updateProduct(with: productData)
         return try getProduct(for: id, from: address)
     }
+
+    // FIXME: Collections require cleanup and refactor. Add logging after.
 
     public func createCollection(with data: ProductCollectionData) throws -> ProductCollection {
         for productId in data.products {

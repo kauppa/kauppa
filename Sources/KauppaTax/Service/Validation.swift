@@ -1,3 +1,5 @@
+import Loki
+
 import KauppaCore
 import KauppaTaxModel
 
@@ -19,13 +21,15 @@ extension TaxRate {
         if general < TaxConfiguration.minTaxRatePercent
            || general > TaxConfiguration.maxTaxRatePercent
         {
+            Loki.warn("Tax rate \(general) is out of configured bounds")
             throw ServiceError.invalidTaxRate
         }
 
-        for (_, rate) in categories {
+        for (name, rate) in categories {
             if rate < TaxConfiguration.minTaxRatePercent
                || rate > TaxConfiguration.maxTaxRatePercent
             {
+                Loki.warn("Tax rate \(rate) for category \(name) is out of configured bounds")
                 throw ServiceError.invalidCategoryTaxRate
             }
         }

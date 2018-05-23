@@ -52,6 +52,7 @@ extension Database {
         var string = ""
         do {
             string = try query.build(queryBuilder: queryBuilder)
+            Loki.debug("Executing: \(string)")
         } catch let err {
             Loki.error("Error building query: \(err)")
             throw ServiceError.invalidQuery
