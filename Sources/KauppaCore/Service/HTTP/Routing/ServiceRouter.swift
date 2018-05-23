@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 /// Router for individual services of Kauppa.
 ///
 /// The `Routing` protocol is usually implemented for a third-party router. But, that router
@@ -51,9 +53,10 @@ open class ServiceRouter<R: Routing, U: RouteRepresentable> {
             } catch let error as ServiceError {
                 let status = ServiceStatusMessage(error: error)
                 try response.respondJSON(with: status, code: error.statusCode)
-            } catch {
+            } catch let err {
+                Loki.error("Unknown error has propagated in (\(route.method): \(route.url)): \(err)" +
+                           "\nPlease handle that as a domain error.")
                 let error = ServiceError.unknownError
-                // TODO: Log unknown error
                 let status = ServiceStatusMessage(error: error)
                 try response.respondJSON(with: status, code: error.statusCode)
             }
@@ -69,11 +72,11 @@ open class ServiceRouter<R: Routing, U: RouteRepresentable> {
                 continue
             }
 
-            let methodDescriptions = methods.map { $0.description }
-            let headerValue = methodDescriptions.joined(separator: ", ")
+            let headerValue = methods.map { $0.description }.joined(separator: ", ")
+            Loki.debug("Adding OPTIONS handler for \(headerValue) on \(url)")
 
             self.router.add(route: url, method: .options) { request, response in
-                // FIXME: Remove this!
+                // FIXME: Support configuring CORS
                 response.setHeader(key: "Access-Control-Allow-Origin", value: "*")
                 response.setHeader(key: "Access-Control-Allow-Methods", value: headerValue)
 

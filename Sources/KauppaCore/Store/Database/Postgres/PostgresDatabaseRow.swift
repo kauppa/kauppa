@@ -1,5 +1,7 @@
 import PostgreSQL
 
+import Loki
+
 /// Row type used by the `PostgresDatabase` (returned after executing queries).
 public typealias PostgreDatabaseRow = [PostgreSQLColumn: PostgreSQLData]
 
@@ -14,12 +16,14 @@ extension Dictionary: DatabaseRow
             if field.name == key {
                 do {
                     return try value.decode(T.self)
-                } catch {
+                } catch let err {
+                    Loki.debug("Error decoding row value for \(key): \(err)")
                     throw ServiceError.valueDecodingError
                 }
             }
         }
 
+        Loki.debug("Field value missing for key: \(key)")
         throw ServiceError.missingField
     }
 }

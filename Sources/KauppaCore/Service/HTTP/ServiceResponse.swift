@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 /// Protocol to be implemented by outgoing response object.
 public protocol ServiceResponse {
     /// Send this data into stream and respond with the given
@@ -32,7 +34,7 @@ extension ServiceResponse {
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         encoder.dateEncodingStrategy = .formatted(dateFormatter)
 
-        // FIXME: Remove this!
+        // FIXME: Support configuring CORS
         self.setHeader(key: "Access-Control-Allow-Origin", value: "*")
 
         self.setHeader(key: "Content-Type", value: "application/json")
@@ -40,7 +42,8 @@ extension ServiceResponse {
         do {
             let encoded = try encoder.encode(data)
             self.respond(with: encoded, code: code)
-        } catch {
+        } catch let err {
+            Loki.error("Error encoding \(data) to JSON: \(err)")
             throw ServiceError.jsonSerialization
         }
     }

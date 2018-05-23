@@ -2,6 +2,7 @@ import NIO
 import NIOOpenSSL
 import PostgreSQL
 import SwiftKuery
+import Loki
 
 /// Async PostgreSQL client implementation.
 public class PostgresDatabase: Database {
@@ -61,8 +62,8 @@ public class PostgresDatabase: Database {
 
         do {
             return try future.wait()    // drive the future to completion
-        } catch {
-            // FIXME: Log error
+        } catch let err {
+            Loki.error("Error executing query in Postgres: \(err)")
             throw ServiceError.errorExecutingQuery
         }
     }

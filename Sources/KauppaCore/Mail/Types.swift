@@ -30,24 +30,8 @@ public struct MailRequest: Mappable {
 }
 
 /// Mail result.
-public enum MailResult: Error {
+public enum MailResult: Error, Equatable {
     case success(Data?)
     case invalidRequest
     case serviceError(String)
-}
-
-extension MailResult {
-    /// Check the equality of this result.
-    public static func ==(lhs: MailResult, rhs: MailResult) -> Bool {
-        switch (lhs, rhs) {
-            case (.invalidRequest, .invalidRequest):
-                return true
-            case let (.success(d1), .success(d2)):
-                return d1 == d2
-            case let (.serviceError(s1), .serviceError(s2)):
-                return s1 == s2
-            default:
-                return false
-        }
-    }
 }

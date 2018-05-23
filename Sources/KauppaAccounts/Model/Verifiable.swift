@@ -43,12 +43,4 @@ public struct VerifiableType<T>: Mappable, Hashable
     public init(from decoder: Decoder) throws {
         self.value = try T(from: decoder)
     }
-
-    public var hashValue: Int {
-        return value.hashValue
-    }
-
-    public static func ==(lhs: VerifiableType, rhs: VerifiableType) -> Bool {
-        return lhs.value == rhs.value
-    }
 }

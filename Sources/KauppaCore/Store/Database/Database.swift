@@ -1,5 +1,6 @@
 import Foundation
 
+import Loki
 import SwiftKuery
 
 /// A generic database to be implemented by any database client used in the stores
@@ -43,18 +44,28 @@ extension Database {
     /// - Throws: `ServiceError` if the query can't be built or if there was a failure in execution.
     @discardableResult public func execute(query: Buildable, with parameters: [Any]) throws -> [Row] {
         guard let parameters = parameters as? [ValueConvertible] else {
+            Loki.error("Parameters cannot be casted to known types. This occurs only when some values" +
+                       " don't implement the convertible protocol offered by the database driver.")
             throw ServiceError.invalidQuery
         }
 
         var string = ""
         do {
             string = try query.build(queryBuilder: queryBuilder)
-        } catch {
-            // FIXME: Log query builder error.
+        } catch let err {
+            Loki.error("Error building query: \(err)")
             throw ServiceError.invalidQuery
         }
 
-        return try execute(queryString: string, with: parameters)
+        do {
+            return try execute(queryString: string, with: parameters)
+        } catch let err as ServiceError {
+            throw err
+        } catch let err {
+            Loki.error("Unknown error has propagated from driver: \(err)" +
+                       "\nPlease handle that as a domain error.")
+            throw ServiceError.errorExecutingQuery
+        }
     }
 
     /// Execute SQL statements from a file. This is useful for pre-deployment scripts.
@@ -67,8 +78,8 @@ extension Database {
         var data = ""
         do {
             data = try String(contentsOfFile: path, encoding: .utf8)
-        } catch {
-            // FIXME: Log error
+        } catch let err {
+            Loki.error("Error reading script \(path): \(err)")
             throw ServiceError.errorReadingFile
         }
 

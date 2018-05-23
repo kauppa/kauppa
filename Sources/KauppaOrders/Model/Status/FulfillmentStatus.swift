@@ -6,9 +6,4 @@ public enum FulfillmentStatus: String, Mappable {
     case fulfilled = "fulfilled"
     /// At least one item in this order has been sent.
     case partial = "partially fulfilled"
-
-    /// Check the equality of this type.
-    public static func ==(lhs: FulfillmentStatus, rhs: FulfillmentStatus) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
 }

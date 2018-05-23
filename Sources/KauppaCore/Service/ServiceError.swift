@@ -1,5 +1,5 @@
 /// Service error used throughout Kauppa services. The errors have their own error codes.
-public enum ServiceError: UInt16, Error {
+public enum ServiceError: UInt16, Error, Equatable {
     /* Generic errors */
 
     /// The JSON data parsed from the request body is invalid.
@@ -212,10 +212,4 @@ public enum ServiceError: UInt16, Error {
     case ambiguousCurrencies
     /// Given item is not found in data.
     case invalidItemId
-}
-
-extension ServiceError {
-    public static func ==(lhs: ServiceError, rhs: ServiceError) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
 }
