@@ -1,6 +1,7 @@
 /// Service error used throughout Kauppa services. The errors have their own error codes.
-public enum ServiceError: UInt16, Error {
+public enum ServiceError: UInt16, Error, Equatable {
     /* Generic errors */
+
     /// The JSON data parsed from the request body is invalid.
     case clientHTTPData
     /// The given regular expression is invalid.
@@ -15,6 +16,27 @@ public enum ServiceError: UInt16, Error {
     case jsonSerialization
     /// Some unhandled/unknown error has propagated from within the service.
     case unknownError
+    /// Error reading a file.
+    case errorReadingFile
+
+    /* Database errors */
+
+    /// Error connecting to the database.
+    case connectionError
+    /// Error building query.
+    case invalidQuery
+    /// Error parsing the query parameter.
+    case invalidQueryParameter
+    /// Getting field value from row is not implemented.
+    case getValueNotImplemented
+    /// Creation of service model from table model is not implemented.
+    case modelCreationNotImplemented
+    /// Error decoding value from the database row.
+    case valueDecodingError
+    /// Column not found in the database row.
+    case missingField
+    /// Error executing the given query.
+    case errorExecutingQuery
 
     /* Accounts service errors */
 
@@ -190,10 +212,4 @@ public enum ServiceError: UInt16, Error {
     case ambiguousCurrencies
     /// Given item is not found in data.
     case invalidItemId
-}
-
-extension ServiceError {
-    public static func ==(lhs: ServiceError, rhs: ServiceError) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
 }

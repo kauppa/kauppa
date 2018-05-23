@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 import KauppaCore
 import KauppaAccountsModel
 import KauppaProductsModel
@@ -59,7 +61,8 @@ class ProductsFactory {
                     variant = try repository.getProduct(for: parentId)
                     data.variantId = parentId
                 }
-            } catch {   // FIXME: check the error kind
+            } catch let err {
+                Loki.warn("Error fetching variant (\(variantId)) data: \(err) (Ignoring variant)")
                 data.variantId = nil
             }
         }
@@ -71,6 +74,8 @@ class ProductsFactory {
                 variantData.variants!.insert(productId)
             }
 
+            Loki.debug("Adding \(productId) to the variants of product \(variantData.id!)")
+            // FIXME: This should be passed to queue
             let _ = try repository.updateProduct(with: variantData)
         }
 
@@ -172,11 +177,16 @@ class ProductsFactory {
 
         /// NOTE: `variants` cannot be updated directly.
 
+        // FIXME: The current implementation doesn't allow removing variants.
+        // Revisit variant clockworks.
+
         if let variantId = patch.variantId {
+            Loki.debug("Variant (\(variantId)) has been provided.")
             if variantId != id {
                 var variant = try repository.getProduct(for: variantId)
                 // Check if it's a child - if so, use its variantId instead.
                 if let parentId = variant.variantId {
+                    Loki.debug("The given variant is already a variant of \(parentId). Using that instead.")
                     variant = try repository.getProduct(for: parentId)
                 }
 
@@ -187,6 +197,8 @@ class ProductsFactory {
                     variant.variants!.insert(id)
                 }
 
+                Loki.debug("Adding \(id) to the variants of product \(variant.id!)")
+                // FIXME: This should be in queue.
                 let _ = try repository.updateProduct(with: variant)
             }
         }
@@ -246,6 +258,7 @@ class ProductsFactory {
             var customAttribute = customAttribute
 
             if let id = customAttribute.id {
+                Loki.debug("Fetching existing attribute \(id)")
                 let attribute = try repository.getAttribute(for: id)
                 // Set the necessary stuff required for validation.
                 customAttribute.name = attribute.name
@@ -266,13 +279,14 @@ class ProductsFactory {
 
             // Set ID, value, unit and reset name, type and variants.
             existingAttributes[index].id = customAttribute.id
+            existingAttributes[index].type = customAttribute.type
             existingAttributes[index].value = customAttribute.value
             existingAttributes[index].unit = customAttribute.unit
             existingAttributes[index].name = nil
-            existingAttributes[index].type = nil
             existingAttributes[index].variants = nil
         }
 
+        Loki.debug("Successfully validated custom attributes for product data.")
         data.custom = existingAttributes
     }
 }

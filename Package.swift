@@ -481,7 +481,7 @@ let testTargets: [Target] = [
 var targets: [Target] = [
     .target(
         name: "KauppaCore",
-        dependencies: ["Kitura", "RandomKit", "SwiftyRequest"]
+        dependencies: ["Kitura", "Loki", "NIO", "NIOOpenSSL", "PostgreSQL", "SwiftKuery", "SwiftyRequest"]
     )
 ]
 
@@ -534,9 +534,13 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/nvzqz/RandomKit.git", from: "5.0.0"),
-        .package(url: "https://github.com/IBM-Swift/Kitura", from: "2.2.0"),
-        .package(url: "https://github.com/IBM-Swift/SwiftyRequest.git", from: "1.0.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura", .upToNextMajor(from: "2.3.0")),
+        .package(url: "https://github.com/IBM-Swift/Swift-Kuery", .upToNextMajor(from: "1.3.1")),
+        .package(url: "https://github.com/IBM-Swift/SwiftyRequest", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/Naamio/loki", .upToNextMajor(from: "0.4.0")),
+        .package(url: "https://github.com/apple/swift-nio", .upToNextMajor(from: "1.7.0")),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", .upToNextMajor(from: "1.1.0")),
+        .package(url: "https://github.com/vapor/postgresql", .upToNextMajor(from: "1.0.0-rc.2.2")),
     ],
     targets: targets
 )

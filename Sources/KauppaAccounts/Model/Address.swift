@@ -95,15 +95,4 @@ public struct Address: Mappable, Hashable {
 
         return hash
     }
-
-    public static func ==(lhs: Address, rhs: Address) -> Bool {
-        return lhs.firstName == rhs.firstName &&
-               lhs.lastName == rhs.lastName &&
-               lhs.line1 == rhs.line1 &&
-               lhs.line2 == rhs.line2 &&
-               lhs.city == rhs.city &&
-               lhs.province == rhs.province &&
-               lhs.country == rhs.country &&
-               lhs.code == rhs.code
-    }
 }

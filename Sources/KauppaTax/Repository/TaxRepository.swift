@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 import KauppaTaxModel
 import KauppaTaxStore
 
@@ -29,6 +31,7 @@ public class TaxRepository {
         countries[data.id] = data
         countryNames[data.name] = data.id
         try store.createCountry(with: data)
+        Loki.info("Created new country \(data.id) with given tax data.")
     }
 
     /// Get the country for a given name (fetch it from store if it's not available)
@@ -101,6 +104,7 @@ public class TaxRepository {
         data.updatedAt = Date()
         countries[data.id] = data
         try store.updateCountry(with: data)
+        Loki.info("Updated country \(data.id)")
         return data
     }
 
@@ -113,7 +117,8 @@ public class TaxRepository {
         let country = try getCountry(id: id)
         countries.removeValue(forKey: country.id)
         countryNames.removeValue(forKey: country.name)
-        return try store.deleteCountry(for: id)
+        try store.deleteCountry(for: id)
+        Loki.info("Deleted country \(id)")
     }
 
     /// Get the region for a given ID (fetch it from store if it's not available in repository)
@@ -140,6 +145,7 @@ public class TaxRepository {
     public func createRegion(with data: Region) throws -> () {
         regions[data.id] = data
         try store.createRegion(with: data)
+        Loki.info("Created new region \(data.id) for country \(data.countryId)")
     }
 
     /// Update the region data in repository and store.
@@ -153,6 +159,7 @@ public class TaxRepository {
         data.updatedAt = Date()
         regions[data.id] = data
         try store.updateRegion(with: data)
+        Loki.info("Updated region \(data.id)")
         return data
     }
 
@@ -164,5 +171,6 @@ public class TaxRepository {
     public func deleteRegion(for id: UUID) throws -> () {
         regions.removeValue(forKey: id)
         try store.deleteRegion(for: id)
+        Loki.info("Deleted region \(id)")
     }
 }

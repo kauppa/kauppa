@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 import KauppaCore
 import KauppaProductsModel
 import KauppaProductsStore
@@ -44,6 +46,7 @@ public class ProductsRepository {
             self.tags.formUnion(tags)
         }
 
+        Loki.info("Product \(product.id!) successfully created.")
         return product
     }
 
@@ -54,7 +57,8 @@ public class ProductsRepository {
     /// - Throws: `ServiceError` on failure.
     public func deleteProduct(for id: UUID) throws -> () {
         products.removeValue(forKey: id)
-        return try store.deleteProduct(for: id)
+        try store.deleteProduct(for: id)
+        Loki.info("Deleted product \(id)")
     }
 
     // FIXME: Stub for service. Connect to store.
@@ -88,6 +92,7 @@ public class ProductsRepository {
             self.tags.formUnion(tags)
         }
 
+        Loki.info("Product \(data.id!) successfully updated.")
         return data
     }
 
@@ -127,6 +132,7 @@ public class ProductsRepository {
         categoryNames[name] = id
 
         try store.createCategory(with: category)
+        Loki.info("Created new category \(name)")
         return category
     }
 
@@ -182,6 +188,7 @@ public class ProductsRepository {
 
         attributes[attribute.id] = attribute
         try store.createAttribute(with: attribute)
+        Loki.info("Created new attribute \(name) with \(type) type.")
         return attribute
     }
 
@@ -200,6 +207,8 @@ public class ProductsRepository {
 
         return attribute
     }
+
+    // FIXME: Add logging after revisiting collections.
 
     /// Create a product collection with data from the service.
     ///

@@ -10,16 +10,6 @@ public struct Route: Hashable {
         self.url = url
         self.method = method
     }
-
-    /* This is `Hashable` because it's useful when we're identifying unique routes. */
-
-    public var hashValue: Int {
-        return url.hashValue ^ method.hashValue
-    }
-
-    public static func ==(lhs: Route, rhs: Route) -> Bool {
-        return lhs.url == rhs.url && lhs.method == rhs.method
-    }
 }
 
 /// Object that can be represented as a route. The route objects themselves are integers.
@@ -35,6 +25,7 @@ extension RouteRepresentable {
     /// Default method for getting all the routes belonging to this object.
     /// This assumes that the object is an enum, and its variants haven't been
     /// initialized with unexpected integers.
+    // FIXME: This won't be necessary once we upgrade to swift:4.2
     static var allRoutes: [Route] {
         var routes = [Route]()
         var count: UInt8 = 0

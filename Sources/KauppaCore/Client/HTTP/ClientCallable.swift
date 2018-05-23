@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 /// Protocol indicating that the implementor is a HTTP client.
 public protocol ClientCallable {
     /// The response returned by this client after making the request.
@@ -60,7 +62,8 @@ extension ClientCallable {
             let jsonData = try encoder.encode(data)
             self.setBody(using: jsonData)
             self.setHeader(key: "Content-Type", value: "application/json")
-        } catch {
+        } catch let err {
+            Loki.error("Error serializing \(data): \(err)")
             throw ServiceError.jsonSerialization
         }
     }

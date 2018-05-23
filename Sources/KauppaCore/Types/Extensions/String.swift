@@ -1,5 +1,6 @@
 import Foundation
-import RandomKit
+
+import Loki
 
 extension String {
     /// Generate a random upper-case alpha-numeric string of given length.
@@ -8,13 +9,16 @@ extension String {
     ///   - ofLength: The length of the string to be generated.
     /// - Returns: The generated string.
     public static func randomAlphaNumeric(ofLength length: Int) -> String {
-        return Xoroshiro.withThreadLocal({ (prng: inout Xoroshiro) -> String in
-            // In alphanumeric strings, alphabets constitute ~72% of the string
-            let alphaLen = Int(0.72 * Float(length))
-            let alpha = String.random(ofLength: alphaLen, in: "A"..."Z", using: &prng)
-            let num = String.random(ofLength: length - alphaLen, in: "0"..."9", using: &prng)
-            return (alpha + num).shuffled(using: &prng)
-        })
+        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        let charCount = Int(letters.count)
+
+        var randomString = ""
+        for _ in 0..<length {
+            let randomValue = Int(Xoroshiro.defaultGenerator.randomUInt32()) % charCount
+            randomString += "\(letters[letters.index(letters.startIndex, offsetBy: randomValue)])"
+        }
+
+        return randomString
     }
 
     /// Checks if the given string is alphanumeric.
@@ -37,11 +41,18 @@ extension String {
             if matches > 0 {
                 return true
             }
-        } catch {
-            //
+        } catch let err {
+            Loki.error("Error compiling regex (\(regex)): \(err)")
         }
 
         return false
+    }
+
+    /// Strip off whitespaces from either ends of this string.
+    ///
+    /// - Returns: Trimmed string.
+    public func trim() -> String {
+        return self.trimmingCharacters(in: NSCharacterSet.whitespaces)
     }
 
     /// Parse a string into a value of the given type.

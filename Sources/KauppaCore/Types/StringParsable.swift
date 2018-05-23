@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 /// Represents types that can be parsed from a string (inspired from `FromStr` in Rust).
 /// The function is not public, because this shouldn't be called directly. Use the `parse` extension
 /// for String instead. And that's because, at some point Apple will implement a protocol for this,
@@ -40,5 +42,17 @@ extension String: StringParsable {
 extension Int: StringParsable {
     public static func from(string: String) -> Int? {
         return Int(string)
+    }
+}
+
+extension URL: StringParsable {
+    public static func from(string: String) -> URL? {
+        return URL(string: string)
+    }
+}
+
+extension LogLevel: StringParsable {
+    public static func from(string: String) -> LogLevel? {
+        return LogLevel(string)
     }
 }

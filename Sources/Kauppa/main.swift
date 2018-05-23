@@ -1,6 +1,7 @@
 import Foundation
 
 import Kitura
+import Loki
 
 import KauppaCore
 import KauppaAccountsModel
@@ -26,6 +27,38 @@ import KauppaTaxRepository
 import KauppaTaxService
 import KauppaTaxStore
 
+// Set log level
+
+let console = ConsoleDestination()
+console.minLevel = LogLevel.from(environment: "LOG_LEVEL") ?? .debug
+Loki.addDestination(console)
+
+// Get database configuration (if any)
+
+var databaseUrl: URL? = nil
+var databaseConfig: TLSConfig? = nil
+
+if let url = URL.from(environment: "KAUPPA_DATABASE_URL") {
+    print("Database URL has been set. Preparing database client.")
+    if let enabled = String.from(environment: "KAUPPPA_DATABASE_TLS_ENABLED"), !enabled.isEmpty {
+        guard let caCert = String.from(environment: "KAUPPA_DATABASE_CA_CERT"),
+            let clientKey = String.from(environment: "KAUPPA_DATABASE_CLIENT_KEY"),
+            let clientCert = String.from(environment: "KAUPPA_DATABASE_CLIENT_CERT")
+        else {
+            print("KAUPPA_DATABASE_CA_CERT, KAUPPA_DATABASE_CLIENT_KEY and KAUPPA_DATABASE_CLIENT_CERT should be set for enabling database TLS")
+            exit(1)
+        }
+
+        databaseConfig = TLSConfig(caCertPath: caCert, clientKeyPath: clientKey, clientCertPath: clientCert)
+    } else {
+        print("TLS not configured for database. Going insecure.")
+    }
+
+    databaseUrl = url
+} else {
+    print("No database provided. Going for in-memory store.")
+}
+
 var accountData = Account()
 accountData.firstName = "Richard"
 accountData.lastName = "Hendricks"
@@ -41,7 +74,16 @@ let _ = try! accountsRepository.createAccount(with: accountData)
 let taxRepository = TaxRepository(with: TaxNoOpStore())
 let taxService = TaxService(with: taxRepository)
 
-let productsRepository = ProductsRepository(with: ProductsNoOpStore())
+let productsStore: ProductsStorable
+if let rootUrl = databaseUrl {
+    let url = URL(string: "kauppa_products", relativeTo: rootUrl)!
+    let database = try! PostgresDatabase(for: url, with: databaseConfig)
+    productsStore = try! ProductsStore(with: database)
+} else {
+    productsStore = ProductsNoOpStore()
+}
+
+let productsRepository = ProductsRepository(with: productsStore)
 let productsService = ProductsService(with: productsRepository, taxService: taxService)
 
 let couponRepository = CouponRepository(with: CouponNoOpStore())

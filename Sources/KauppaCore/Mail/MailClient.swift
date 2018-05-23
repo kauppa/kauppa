@@ -1,5 +1,7 @@
 import Foundation
 
+import Loki
+
 /// Represents a type that can provide the subject and body of an email.
 public protocol MailFormattable {
     /// Create the mail subject from the given object.
@@ -45,7 +47,7 @@ public class MailClient {
                 callback(result)
             }
 
-            // FIXME: logging?
+            Loki.info("Sending mail to recipients \(recipients) with subject: \(subject)")
         })
     }
 }
